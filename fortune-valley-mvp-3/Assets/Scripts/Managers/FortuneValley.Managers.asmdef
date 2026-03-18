@@ -1,0 +1,19 @@
+{
+    "name": "FortuneValley.Managers",
+    "rootNamespace": "FortuneValley.Managers",
+    "references": [
+        "FortuneValley.Core",
+        "FortuneValley.Domain",
+        "Unity.TextMeshPro",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

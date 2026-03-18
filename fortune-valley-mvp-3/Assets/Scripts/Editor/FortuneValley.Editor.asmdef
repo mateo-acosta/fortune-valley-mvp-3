@@ -1,0 +1,22 @@
+{
+    "name": "FortuneValley.Editor",
+    "rootNamespace": "FortuneValley.Editor",
+    "references": [
+        "FortuneValley.Core",
+        "FortuneValley.Domain",
+        "FortuneValley.Managers",
+        "FortuneValley.UI",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
