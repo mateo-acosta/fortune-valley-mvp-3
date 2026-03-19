@@ -77385,7 +77385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley::FortuneValley.UI.Feedback.IncomeFeedbackController
   _floatingTextPoolSize: 10
   _floatingTextPrefab: {fileID: 3863211054817091883, guid: 8f67239e508574cf99b52e67481e56ed, type: 3}
-  _worldCanvas: {fileID: 0}
+  _worldCanvas: {fileID: 1558548724}
   _checkingDisplay: {fileID: 0}
   _minimumAmountToShow: 1
 --- !u!4 &1710571159 stripped
