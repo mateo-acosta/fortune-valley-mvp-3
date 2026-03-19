@@ -122,6 +122,8 @@ namespace FortuneValley.Core
         private void HandleGameStart()
         {
             ResetOwnership();
+            // Notify UI components of lot count so they can initialize without querying CityManager directly
+            GameEvents.RaiseCityInitialized(_allLots.Count);
         }
 
         private void HandleTick(int tickNumber)

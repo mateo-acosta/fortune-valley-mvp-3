@@ -113,11 +113,12 @@ namespace FortuneValley.UI.Panels
             if (_goText != null)
                 _goText.gameObject.SetActive(false);
 
-            // Block all input while counting down
+            // Show overlay and block all input while counting down
             if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = 1f;
                 _canvasGroup.blocksRaycasts = true;
-
-            gameObject.SetActive(true);
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -246,10 +247,13 @@ namespace FortuneValley.UI.Panels
         {
             _state = CountdownState.Done;
 
+            // Hide overlay and restore input -- keep GameObject active so
+            // OnEnable subscriptions persist for the next game start / restart.
             if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = 0f;
                 _canvasGroup.blocksRaycasts = false;
-
-            gameObject.SetActive(false);
+            }
 
             // Invoke and immediately null the callback to prevent double-invocation
             var cb  = _onComplete;

@@ -23,9 +23,6 @@ namespace FortuneValley.UI.HUD
         [Header("Day & Speed")]
         [SerializeField] private DaySpeedDisplay _daySpeedDisplay;
 
-        [Header("Bot Progress")]
-        [SerializeField] private BotProgressBar _botProgressBar;
-
         // ═══════════════════════════════════════════════════════════════
         // REFERENCES - BOTTOM BAR
         // ═══════════════════════════════════════════════════════════════
@@ -38,7 +35,6 @@ namespace FortuneValley.UI.HUD
 
         [Header("Dependencies")]
         [SerializeField] private UIManager _uiManager;
-        [SerializeField] private CityManager _cityManager;
 
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
@@ -57,7 +53,6 @@ namespace FortuneValley.UI.HUD
         private void Start()
         {
             if (_uiManager == null) Debug.LogError("[GameHUD] _uiManager not wired in Inspector.");
-            if (_cityManager == null) Debug.LogError("[GameHUD] _cityManager not wired in Inspector.");
 
             SetupButtons();
         }
@@ -101,12 +96,7 @@ namespace FortuneValley.UI.HUD
             {
                 _checkingDisplay.SetLabel("Balance");
             }
-
-            // Initialize rival progress bar with real data from CityManager
-            if (_botProgressBar != null && _cityManager != null)
-            {
-                _botProgressBar.Initialize(_cityManager.TotalLots, _cityManager.RivalLotCount);
-            }
+            // BotProgressBar self-initializes via GameEvents.OnCityInitialized (raised by CityManager)
         }
 
         // ═══════════════════════════════════════════════════════════════

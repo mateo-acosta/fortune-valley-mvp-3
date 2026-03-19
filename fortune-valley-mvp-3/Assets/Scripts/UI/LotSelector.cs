@@ -29,7 +29,6 @@ namespace FortuneValley.UI
         [SerializeField] private float _maxRayDistance = 100f;
 
         [Header("References")]
-        [SerializeField] private CityManager _cityManager;
         [SerializeField] private UIManager _uiManager;
 
         [Header("Visual Feedback")]
@@ -64,7 +63,6 @@ namespace FortuneValley.UI
                 _camera = Camera.main;
             }
 
-            if (_cityManager == null) Debug.LogError("[LotSelector] _cityManager not wired in Inspector.");
             if (_uiManager == null) Debug.LogError("[LotSelector] _uiManager not wired in Inspector.");
         }
 
@@ -235,10 +233,10 @@ namespace FortuneValley.UI
             _selectedLot = lot;
             _selectedLot.SetSelected(true);
 
-            // Check if lot can be purchased
-            if (lot.LotDefinition != null && _cityManager != null)
+            // Check if lot can be purchased. LotVisual tracks owner via OnLotPurchased events.
+            if (lot.LotDefinition != null)
             {
-                Owner owner = _cityManager.GetOwner(lot.LotDefinition.LotId);
+                Owner owner = lot.CurrentOwner;
 
                 if (owner == Owner.None)
                 {

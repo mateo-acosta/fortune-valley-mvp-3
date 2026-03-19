@@ -147,6 +147,13 @@ namespace FortuneValley.Core
         /// </summary>
         public static event Action OnGameStart;
 
+        /// <summary>
+        /// Fired after game start when city lot data is ready.
+        /// Parameter: total number of lots in the city.
+        /// Subscribe to initialize UI components that need lot count.
+        /// </summary>
+        public static event Action<int> OnCityInitialized;
+
         // ═══════════════════════════════════════════════════════════════
         // RESTAURANT EVENTS
         // ═══════════════════════════════════════════════════════════════
@@ -253,6 +260,7 @@ namespace FortuneValley.Core
         public static void RaiseGameEnd(Owner winner) => OnGameEnd?.Invoke(winner);
         public static void RaiseGameEndWithSummary(bool isPlayerWin, GameSummary summary) => OnGameEndWithSummary?.Invoke(isPlayerWin, summary);
         public static void RaiseGameStart() => OnGameStart?.Invoke();
+        public static void RaiseCityInitialized(int totalLots) => OnCityInitialized?.Invoke(totalLots);
         public static void RaiseRestaurantSelected() => OnRestaurantSelected?.Invoke();
         public static void RaiseRestaurantUpgraded(int level) => OnRestaurantUpgraded?.Invoke(level);
         public static void RaiseShowTitleScreen() => OnShowTitleScreen?.Invoke();
@@ -296,6 +304,7 @@ namespace FortuneValley.Core
             OnGameEnd = null;
             OnGameEndWithSummary = null;
             OnGameStart = null;
+            OnCityInitialized = null;
             OnRestaurantSelected = null;
             OnRestaurantUpgraded = null;
             OnShowTitleScreen = null;

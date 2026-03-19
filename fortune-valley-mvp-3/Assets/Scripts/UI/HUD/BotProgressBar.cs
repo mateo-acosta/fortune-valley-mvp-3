@@ -61,6 +61,7 @@ namespace FortuneValley.UI.HUD
 
         private void OnEnable()
         {
+            GameEvents.OnCityInitialized += HandleCityInitialized;
             GameEvents.OnLotPurchased += HandleLotPurchased;
             GameEvents.OnRivalTargetingLot += HandleRivalTargeting;
             GameEvents.OnRivalTargetChanged += HandleRivalTargetChanged;
@@ -69,6 +70,7 @@ namespace FortuneValley.UI.HUD
 
         private void OnDisable()
         {
+            GameEvents.OnCityInitialized -= HandleCityInitialized;
             GameEvents.OnLotPurchased -= HandleLotPurchased;
             GameEvents.OnRivalTargetingLot -= HandleRivalTargeting;
             GameEvents.OnRivalTargetChanged -= HandleRivalTargetChanged;
@@ -103,6 +105,15 @@ namespace FortuneValley.UI.HUD
         // ═══════════════════════════════════════════════════════════════
         // EVENT HANDLERS
         // ═══════════════════════════════════════════════════════════════
+
+        private void HandleCityInitialized(int totalLots)
+        {
+            // Reset state at the start of each game
+            _totalLots = totalLots;
+            _botLots = 0;
+            HideWarning();
+            UpdateDisplay();
+        }
 
         private void HandleLotPurchased(string lotId, Owner owner)
         {

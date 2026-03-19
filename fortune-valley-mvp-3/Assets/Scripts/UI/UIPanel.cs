@@ -38,12 +38,24 @@ namespace FortuneValley.UI
         /// </summary>
         public virtual void Show()
         {
+            // If a CanvasGroup exists on this root, always manage it.
+            // This ensures the panel background is shown/hidden alongside content.
+            var cg = GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.alpha = 1f;
+                cg.interactable = true;
+                cg.blocksRaycasts = true;
+            }
+
             if (_panelRoot != null)
             {
+                // Show child content root
                 _panelRoot.SetActive(true);
             }
-            else
+            else if (cg == null)
             {
+                // No CanvasGroup and no _panelRoot: fall back to SetActive
                 gameObject.SetActive(true);
             }
 
@@ -56,12 +68,25 @@ namespace FortuneValley.UI
         /// </summary>
         public virtual void Hide()
         {
+            // If a CanvasGroup exists on this root, always manage it.
+            // This ensures the panel background is hidden alongside content,
+            // and keeps the MonoBehaviour active so event subscriptions persist.
+            var cg = GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.alpha = 0f;
+                cg.interactable = false;
+                cg.blocksRaycasts = false;
+            }
+
             if (_panelRoot != null)
             {
+                // Hide child content root
                 _panelRoot.SetActive(false);
             }
-            else
+            else if (cg == null)
             {
+                // No CanvasGroup and no _panelRoot: fall back to SetActive
                 gameObject.SetActive(false);
             }
 
