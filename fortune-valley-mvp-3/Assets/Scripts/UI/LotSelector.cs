@@ -49,8 +49,9 @@ namespace FortuneValley.UI
         private LotVisual _selectedLot;
         private int _currentTick;
         private bool _isEnabled = true;
-        // Reusable list to avoid per-frame allocation in IsPointerOverUI
+        // Reusable objects to avoid per-frame allocation in IsPointerOverUI
         private readonly List<RaycastResult> _uiRaycastResults = new List<RaycastResult>();
+        private PointerEventData _cachedPointerEventData;
 
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
@@ -171,13 +172,20 @@ namespace FortuneValley.UI
             // it keeps returning true after UI elements are deactivated.
             if (EventSystem.current == null) return false;
 
-            var eventData = new PointerEventData(EventSystem.current);
-            eventData.position = GetPointerPosition();
+            if (_cachedPointerEventData == null)
+                _cachedPointerEventData = new PointerEventData(EventSystem.current);
+            _cachedPointerEventData.position = GetPointerPosition();
 
             _uiRaycastResults.Clear();
-            EventSystem.current.RaycastAll(eventData, _uiRaycastResults);
+            EventSystem.current.RaycastAll(_cachedPointerEventData, _uiRaycastResults);
 
-            return _uiRaycastResults.Count > 0;
+            // Only count actual UI hits, not PhysicsRaycaster 3D collider hits
+            for (int i = 0; i < _uiRaycastResults.Count; i++)
+            {
+                if (!(_uiRaycastResults[i].module is PhysicsRaycaster))
+                    return true;
+            }
+            return false;
         }
 
         // ═══════════════════════════════════════════════════════════════

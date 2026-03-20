@@ -59,7 +59,7 @@ namespace FortuneValley.UI
 
             var sb = new System.Text.StringBuilder();
             foreach (var inv in holdings)
-                sb.AppendLine($"{inv.Definition.DisplayName}: {inv.NumberOfShares} shares");
+                sb.AppendLine($"{inv.Definition.DisplayName}: {inv.NumberOfShares} shares @ ${inv.AveragePurchasePrice:F2} avg");
 
             return sb.ToString().TrimEnd();
         }

@@ -218,6 +218,22 @@ namespace FortuneValley.Tests
         }
 
         [Test]
+        public void BuildHoldingsSummary_ShowsAveragePurchasePrice()
+        {
+            var def = MakeDef("AMZN", RiskLevel.High);
+            // Buy 3 shares at $10, then add 2 more at $20
+            // Weighted avg = (3*10 + 2*20) / 5 = 70/5 = $14.00
+            var inv = new ActiveInvestment(def, 3, 10f, 0);
+            inv.AddShares(2, 20f);
+            var holdings = new List<ActiveInvestment> { inv };
+
+            string result = PortfolioPanelLogic.BuildHoldingsSummary(holdings);
+
+            Assert.IsTrue(result.Contains("$14.00"), $"Expected avg price $14.00. Got: '{result}'");
+            Assert.IsTrue(result.Contains("5 shares"), $"Expected 5 shares. Got: '{result}'");
+        }
+
+        [Test]
         public void BuildHoldingsSummary_NoTrailingNewline()
         {
             var def = MakeDef("AMZN", RiskLevel.High);

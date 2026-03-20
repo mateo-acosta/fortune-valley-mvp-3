@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using FortuneValley.Core;
 using FortuneValley.UI.Popups;
 
@@ -49,9 +50,21 @@ namespace FortuneValley.Tests
             return field?.GetValue(obj);
         }
 
+        /// <summary>
+        /// EnsureInitialized logs errors for null SerializeField deps in EditMode tests.
+        /// These helpers tell NUnit those errors are expected so they don't fail the test.
+        /// </summary>
+        private void ExpectInitErrors()
+        {
+            LogAssert.Expect(LogType.Error, "[LotPurchasePopup] _currencyManager not wired in Inspector.");
+            LogAssert.Expect(LogType.Error, "[LotPurchasePopup] _cityManager not wired in Inspector.");
+            LogAssert.Expect(LogType.Error, "[LotPurchasePopup] _uiManager not wired in Inspector.");
+        }
+
         [Test]
         public void ConfigureForLot_StoresLotDefinition()
         {
+            ExpectInitErrors();
             _popup.ConfigureForLot(_testLot, 5);
 
             var storedLot = GetPrivateField(_popup, "_currentLot") as CityLotDefinition;
@@ -61,6 +74,7 @@ namespace FortuneValley.Tests
         [Test]
         public void ConfigureForLot_StoresCurrentTick()
         {
+            ExpectInitErrors();
             _popup.ConfigureForLot(_testLot, 42);
 
             var storedTick = (int)GetPrivateField(_popup, "_currentTick");
@@ -70,6 +84,7 @@ namespace FortuneValley.Tests
         [Test]
         public void ConfigureForLot_WithNullLot_DoesNotThrow()
         {
+            ExpectInitErrors();
             Assert.DoesNotThrow(() => _popup.ConfigureForLot(null, 0));
         }
     }

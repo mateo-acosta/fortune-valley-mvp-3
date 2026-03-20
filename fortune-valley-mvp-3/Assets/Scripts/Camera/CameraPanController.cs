@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
@@ -31,6 +32,9 @@ namespace FortuneValley.CameraControl
         private DragState _state = DragState.Idle;
         private Vector2 _dragStartPosition;
         private Vector3 _lastWorldPosition;
+        // Reusable objects to avoid per-frame allocation in IsPointerOverUI
+        private readonly List<RaycastResult> _uiRaycastResults = new List<RaycastResult>();
+        private PointerEventData _cachedPointerEventData;
 
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
@@ -186,7 +190,22 @@ namespace FortuneValley.CameraControl
 
         private bool IsPointerOverUI()
         {
-            return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+            if (EventSystem.current == null) return false;
+
+            if (_cachedPointerEventData == null)
+                _cachedPointerEventData = new PointerEventData(EventSystem.current);
+            _cachedPointerEventData.position = GetPointerPosition();
+
+            _uiRaycastResults.Clear();
+            EventSystem.current.RaycastAll(_cachedPointerEventData, _uiRaycastResults);
+
+            // Only count actual UI hits, not PhysicsRaycaster 3D collider hits
+            for (int i = 0; i < _uiRaycastResults.Count; i++)
+            {
+                if (!(_uiRaycastResults[i].module is PhysicsRaycaster))
+                    return true;
+            }
+            return false;
         }
     }
 }

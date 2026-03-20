@@ -139,10 +139,10 @@ namespace FortuneValley.UI.Panels
                 _incomeText.text = $"Income: ${_restaurantSystem.IncomePerTick:F0}/tick";
 
             // Tier image (tier index is level - 1)
-            if (_tierImage != null && _tierSprites != null)
+            if (_tierImage != null && _tierSprites != null && _tierSprites.Length > 0)
             {
                 int spriteIndex = Mathf.Clamp(_restaurantSystem.CurrentLevel - 1, 0, _tierSprites.Length - 1);
-                if (spriteIndex < _tierSprites.Length && _tierSprites[spriteIndex] != null)
+                if (_tierSprites[spriteIndex] != null)
                     _tierImage.sprite = _tierSprites[spriteIndex];
             }
 
@@ -200,7 +200,7 @@ namespace FortuneValley.UI.Panels
                 }
                 else
                 {
-                    float shortfall = cost - _currencyManager.CheckingBalance;
+                    float shortfall = cost - _currencyManager.Balance;
                     _affordabilityText.text = $"Need ${shortfall:F0} more";
                     _affordabilityText.gameObject.SetActive(true);
                 }

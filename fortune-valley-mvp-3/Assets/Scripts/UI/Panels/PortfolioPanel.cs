@@ -69,6 +69,7 @@ namespace FortuneValley.UI.Panels
         private TextMeshProUGUI _priceChangeText;
         private TextMeshProUGUI _sharesOwnedText;
         private TextMeshProUGUI _riskLevelText;
+        private TextMeshProUGUI _averagePriceText;
         private TextMeshProUGUI _descriptionText;
 
         // Action buttons
@@ -196,6 +197,7 @@ namespace FortuneValley.UI.Panels
             _priceChangeText   = FindText($"{bsp}/SelectedAssetInfo/PriceChangeText");
             _sharesOwnedText   = FindText($"{bsp}/SelectedAssetInfo/SharesOwnedText");
             _riskLevelText     = FindText($"{bsp}/SelectedAssetInfo/RiskLevelText");
+            _averagePriceText  = FindText($"{bsp}/SelectedAssetInfo/AveragePriceText");
             _descriptionText   = FindText($"{bsp}/Buy or Sell/DescriptionText");
 
             // Action buttons
@@ -490,6 +492,7 @@ namespace FortuneValley.UI.Panels
                 UIBuilderUtils.SetTextIfChanged(_priceChangeText,   "Change: ---%");
                 UIBuilderUtils.SetTextIfChanged(_sharesOwnedText,   "Owned: 0");
                 UIBuilderUtils.SetTextIfChanged(_riskLevelText,     "Risk: ---");
+                UIBuilderUtils.SetTextIfChanged(_averagePriceText,  "Avg Cost: $---");
                 UIBuilderUtils.SetTextIfChanged(_descriptionText,   "Select a stock to see details.");
                 if (_priceChangeText != null) _priceChangeText.color = Color.white;
                 if (_riskLevelText   != null) _riskLevelText.color   = Color.white;
@@ -518,6 +521,12 @@ namespace FortuneValley.UI.Panels
             int sharesOwned = activeInv != null ? activeInv.NumberOfShares : 0;
 
             UIBuilderUtils.SetTextIfChanged(_sharesOwnedText, $"Owned: {sharesOwned}");
+
+            string avgPriceStr = sharesOwned > 0
+                ? $"Avg Cost: ${activeInv.AveragePurchasePrice:F2}"
+                : "Avg Cost: $---";
+            UIBuilderUtils.SetTextIfChanged(_averagePriceText, avgPriceStr);
+
             UIBuilderUtils.SetTextIfChanged(_descriptionText, sharesOwned > 0
                 ? "Tap Sell to remove 1 share."
                 : "Tap Buy to purchase 1 share.");
