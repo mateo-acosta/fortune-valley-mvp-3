@@ -55,9 +55,9 @@ namespace FortuneValley.Core
             {
                 session_id = _sessionId,
                 game_mode = _gameMode,
-                in_game_day = inv.StartTick,
+                in_game_day = inv.CreatedAtTick,
                 decision_type = "investment_buy",
-                instrument_id = inv.InstrumentName,
+                instrument_id = inv.Definition.DisplayName,
                 gross_amount = inv.Principal,
                 category = "investment",
                 line_items = new[]
@@ -82,9 +82,9 @@ namespace FortuneValley.Core
             {
                 session_id = _sessionId,
                 game_mode = _gameMode,
-                in_game_day = inv.StartTick,
+                in_game_day = inv.CreatedAtTick,
                 decision_type = "investment_sell",
-                instrument_id = inv.InstrumentName,
+                instrument_id = inv.Definition.DisplayName,
                 gross_amount = payout,
                 category = "investment",
                 line_items = new[]
