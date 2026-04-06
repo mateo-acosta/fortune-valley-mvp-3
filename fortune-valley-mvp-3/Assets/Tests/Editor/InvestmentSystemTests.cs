@@ -294,6 +294,56 @@ namespace FortuneValley.Tests
             Assert.AreEqual(0, _system.SellHistory.Count, "SellHistory should be empty after game restart");
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // INTENT EVENT HANDLER TESTS
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void RaiseBuySharesRequested_BuysShares()
+        {
+            GameEvents.ClearAllSubscriptions();
+            // Use reflection instead of SendMessage to avoid ShouldRunBehaviour assertion
+            var onEnable = typeof(InvestmentSystem).GetMethod("OnEnable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnable.Invoke(_system, null);
+
+            int countBefore = _system.ActiveInvestments.Count;
+            GameEvents.RaiseBuySharesRequested(_stockDef, 3);
+
+            Assert.AreEqual(countBefore + 1, _system.ActiveInvestments.Count,
+                "InvestmentSystem should buy shares when OnBuySharesRequested fires");
+
+            var onDisable = typeof(InvestmentSystem).GetMethod("OnDisable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onDisable.Invoke(_system, null);
+        }
+
+        [Test]
+        public void RaiseSellSharesRequested_SellsShares()
+        {
+            // Buy first so we have something to sell
+            var inv = _system.BuyShares(_stockDef, 5);
+            Assert.IsNotNull(inv, "BuyShares returned null");
+
+            GameEvents.ClearAllSubscriptions();
+            var onEnable = typeof(InvestmentSystem).GetMethod("OnEnable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnable.Invoke(_system, null);
+
+            GameEvents.RaiseSellSharesRequested(inv, 2);
+
+            Assert.AreEqual(3, inv.NumberOfShares,
+                "InvestmentSystem should sell shares when OnSellSharesRequested fires");
+
+            var onDisable = typeof(InvestmentSystem).GetMethod("OnDisable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onDisable.Invoke(_system, null);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SELL TRANSACTION HISTORY TESTS (continued)
+        // ═══════════════════════════════════════════════════════════════
+
         [Test]
         public void SellTransactionRecord_ZeroCostBasis_PercentageReturnIsZero()
         {

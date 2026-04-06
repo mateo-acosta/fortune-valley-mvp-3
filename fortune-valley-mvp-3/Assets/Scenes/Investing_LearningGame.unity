@@ -10015,7 +10015,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley::FortuneValley.UI.UIManager
   _portfolioPanel: {fileID: 1920350718}
   _lotsPanel: {fileID: 0}
-  _restaurantPanel: {fileID: 0}
+  _restaurantPanel: {fileID: 589052243553810559}
   _lotPurchasePopup: {fileID: 1336260227}
   _buyInvestmentPopup: {fileID: 0}
   _sellInvestmentPopup: {fileID: 0}
@@ -18268,6 +18268,7 @@ MonoBehaviour:
   - 1
   - 2
   - 4
+  _ticksPerDay: 10
   _logTicks: 0
 --- !u!4 &404598233
 Transform:
@@ -61209,8 +61210,6 @@ MonoBehaviour:
   _cancelButton: {fileID: 45718086}
   _buyButtonText: {fileID: 1657171860}
   _currencyManager: {fileID: 404598230}
-  _cityManager: {fileID: 404598227}
-  _uiManager: {fileID: 213467555}
   _canAffordColor: {r: 0.2, g: 0.8, b: 0.2, a: 1}
   _cannotAffordColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
 --- !u!4 &1336737717 stripped
@@ -95464,9 +95463,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ebd9a0f215454f9ebbfd41f8f6f2a4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FortuneValley::FortuneValley.UI.Panels.RestaurantUpgradePanel
+  _panelRoot: {fileID: 7091226569140932563}
   _restaurantSystem: {fileID: 404598229}
   _currencyManager: {fileID: 404598230}
-  _panelRoot: {fileID: 7091226569140932563}
   _tierNameText: {fileID: 2705480704612518836}
   _incomeText: {fileID: 2280361680294757700}
   _tierImage: {fileID: 2419162673005852008}

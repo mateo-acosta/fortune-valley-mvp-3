@@ -165,20 +165,6 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Transfer between accounts (no-op with single balance, kept for compatibility).
-        /// Always returns true since there's only one pool now.
-        /// </summary>
-        public bool Transfer(float amount, AccountType from, AccountType to)
-        {
-            // With single balance, transfers are no-ops but we still fire the event
-            if (amount <= 0 || from == to)
-                return false;
-
-            GameEvents.RaiseTransfer(amount, from, to);
-            return true;
-        }
-
-        /// <summary>
         /// Check if player can afford an amount.
         /// AccountType parameter kept for backward compatibility but ignored.
         /// </summary>

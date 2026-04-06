@@ -1,6 +1,8 @@
 using NUnit.Framework;
 using FortuneValley.Domain.Enums;
+using FortuneValley.Domain.Entities;
 using FortuneValley.Core;
+using UnityEngine;
 
 namespace FortuneValley.Tests
 {
@@ -162,6 +164,122 @@ namespace FortuneValley.Tests
             GameEvents.RaiseTick(1);
 
             Assert.AreEqual(0, tickCount);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // INTENT EVENT TESTS
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void OnPurchaseLotRequested_ReceivesLotIdAndTick()
+        {
+            string receivedLotId = "";
+            int receivedTick = -1;
+            GameEvents.OnPurchaseLotRequested += (lotId, tick) =>
+            {
+                receivedLotId = lotId;
+                receivedTick = tick;
+            };
+
+            GameEvents.RaisePurchaseLotRequested("lot_corner", 42);
+
+            Assert.AreEqual("lot_corner", receivedLotId);
+            Assert.AreEqual(42, receivedTick);
+        }
+
+        [Test]
+        public void OnUpgradeRestaurantRequested_Fires()
+        {
+            bool received = false;
+            GameEvents.OnUpgradeRestaurantRequested += () => received = true;
+
+            GameEvents.RaiseUpgradeRestaurantRequested();
+
+            Assert.IsTrue(received);
+        }
+
+        [Test]
+        public void OnBuySharesRequested_ReceivesDefinitionAndQuantity()
+        {
+            var testDef = ScriptableObject.CreateInstance<InvestmentDefinition>();
+            InvestmentDefinition receivedDef = null;
+            int receivedQty = -1;
+            GameEvents.OnBuySharesRequested += (def, qty) =>
+            {
+                receivedDef = def;
+                receivedQty = qty;
+            };
+
+            GameEvents.RaiseBuySharesRequested(testDef, 5);
+
+            Assert.AreEqual(testDef, receivedDef);
+            Assert.AreEqual(5, receivedQty);
+            Object.DestroyImmediate(testDef);
+        }
+
+        [Test]
+        public void OnSellSharesRequested_ReceivesInvestmentAndQuantity()
+        {
+            var testDef = ScriptableObject.CreateInstance<InvestmentDefinition>();
+            var testInv = new ActiveInvestment(testDef, 10, 100f, 0);
+            ActiveInvestment receivedInv = null;
+            int receivedQty = -1;
+            GameEvents.OnSellSharesRequested += (inv, qty) =>
+            {
+                receivedInv = inv;
+                receivedQty = qty;
+            };
+
+            GameEvents.RaiseSellSharesRequested(testInv, 3);
+
+            Assert.AreEqual(testInv, receivedInv);
+            Assert.AreEqual(3, receivedQty);
+            Object.DestroyImmediate(testDef);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // DAY CYCLE EVENT TESTS
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void OnDayEnd_ReceivesDayNumber()
+        {
+            int receivedDay = -1;
+            GameEvents.OnDayEnd += (day) => receivedDay = day;
+
+            GameEvents.RaiseDayEnd(7);
+
+            Assert.AreEqual(7, receivedDay);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // COMPREHENSIVE CLEAR TESTS
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void ClearAllSubscriptions_ClearsIntentAndDayEvents()
+        {
+            int callCount = 0;
+            var testDef = ScriptableObject.CreateInstance<InvestmentDefinition>();
+            var testInv = new ActiveInvestment(testDef, 1, 100f, 0);
+
+            GameEvents.OnPurchaseLotRequested += (_, _) => callCount++;
+            GameEvents.OnUpgradeRestaurantRequested += () => callCount++;
+            GameEvents.OnBuySharesRequested += (_, _) => callCount++;
+            GameEvents.OnSellSharesRequested += (_, _) => callCount++;
+            GameEvents.OnDayEnd += (_) => callCount++;
+
+            GameEvents.ClearAllSubscriptions();
+
+            // Raise all events -- none should fire
+            GameEvents.RaisePurchaseLotRequested("lot_0", 0);
+            GameEvents.RaiseUpgradeRestaurantRequested();
+            GameEvents.RaiseBuySharesRequested(testDef, 1);
+            GameEvents.RaiseSellSharesRequested(testInv, 1);
+            GameEvents.RaiseDayEnd(1);
+
+            Assert.AreEqual(0, callCount, "No callbacks should fire after ClearAllSubscriptions");
+            Object.DestroyImmediate(testDef);
         }
     }
 }

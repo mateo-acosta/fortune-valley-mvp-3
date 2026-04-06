@@ -111,12 +111,22 @@ namespace FortuneValley.Core
         {
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnTick += HandleTick;
+            GameEvents.OnPurchaseLotRequested += HandlePurchaseLotRequested;
         }
 
         private void OnDisable()
         {
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnTick -= HandleTick;
+            GameEvents.OnPurchaseLotRequested -= HandlePurchaseLotRequested;
+        }
+
+        /// <summary>
+        /// Intent event handler: UI requested a lot purchase.
+        /// </summary>
+        private void HandlePurchaseLotRequested(string lotId, int tick)
+        {
+            TryPurchaseLot(lotId, tick);
         }
 
         private void HandleGameStart()

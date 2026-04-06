@@ -135,12 +135,32 @@ namespace FortuneValley.Core
         {
             GameEvents.OnTick += HandleTick;
             GameEvents.OnGameStart += HandleGameStart;
+            GameEvents.OnBuySharesRequested += HandleBuySharesRequested;
+            GameEvents.OnSellSharesRequested += HandleSellSharesRequested;
         }
 
         private void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnGameStart -= HandleGameStart;
+            GameEvents.OnBuySharesRequested -= HandleBuySharesRequested;
+            GameEvents.OnSellSharesRequested -= HandleSellSharesRequested;
+        }
+
+        /// <summary>
+        /// Intent event handler: UI requested a share purchase.
+        /// </summary>
+        private void HandleBuySharesRequested(InvestmentDefinition def, int qty)
+        {
+            BuyShares(def, qty);
+        }
+
+        /// <summary>
+        /// Intent event handler: UI requested a share sale.
+        /// </summary>
+        private void HandleSellSharesRequested(ActiveInvestment inv, int qty)
+        {
+            SellShares(inv, qty);
         }
 
         private void HandleGameStart()

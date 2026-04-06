@@ -47,11 +47,7 @@ namespace FortuneValley.Core
         /// </summary>
         public static event Action<float, float> OnInvestingBalanceChanged;
 
-        /// <summary>
-        /// Fired when money is transferred between accounts.
-        /// Parameters: amount, from account, to account
-        /// </summary>
-        public static event Action<float, AccountType, AccountType> OnTransfer;
+        // OnTransfer removed -- single-balance architecture. Re-add for dual accounts.
 
         /// <summary>
         /// Fired when income is generated (for UI feedback).
@@ -206,6 +202,47 @@ namespace FortuneValley.Core
         public static event Action<bool> OnSetHUDVisible;
 
         // ═══════════════════════════════════════════════════════════════
+        // INTENT EVENTS (fired by UI, handled by game systems)
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Fired by LotPurchasePopup when the player confirms a lot purchase.
+        /// CityManager subscribes and calls TryPurchaseLot.
+        /// Parameters: lot ID, current tick
+        /// </summary>
+        public static event Action<string, int> OnPurchaseLotRequested;
+
+        /// <summary>
+        /// Fired by RestaurantUpgradePanel when the player clicks Upgrade.
+        /// RestaurantSystem subscribes and calls TryUpgrade.
+        /// </summary>
+        public static event Action OnUpgradeRestaurantRequested;
+
+        /// <summary>
+        /// Fired by PortfolioPanel when the player clicks Buy.
+        /// InvestmentSystem subscribes and calls BuyShares.
+        /// Parameters: investment definition, share count
+        /// </summary>
+        public static event Action<InvestmentDefinition, int> OnBuySharesRequested;
+
+        /// <summary>
+        /// Fired by PortfolioPanel when the player clicks Sell.
+        /// InvestmentSystem subscribes and calls SellShares.
+        /// Parameters: active investment, share count
+        /// </summary>
+        public static event Action<ActiveInvestment, int> OnSellSharesRequested;
+
+        // ═══════════════════════════════════════════════════════════════
+        // DAY CYCLE EVENTS
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Fired by TimeManager when a full day completes (every N ticks).
+        /// Parameter: day number (1-based)
+        /// </summary>
+        public static event Action<int> OnDayEnd;
+
+        // ═══════════════════════════════════════════════════════════════
         // FLOW FEEDBACK EVENTS (fired by UI panels back to GameFlowController)
         // ═══════════════════════════════════════════════════════════════
 
@@ -245,7 +282,8 @@ namespace FortuneValley.Core
         public static void RaiseCurrencyChanged(float newBalance, float delta) => OnCurrencyChanged?.Invoke(newBalance, delta);
         public static void RaiseCheckingBalanceChanged(float balance, float delta) => OnCheckingBalanceChanged?.Invoke(balance, delta);
         public static void RaiseInvestingBalanceChanged(float balance, float delta) => OnInvestingBalanceChanged?.Invoke(balance, delta);
-        public static void RaiseTransfer(float amount, AccountType from, AccountType to) => OnTransfer?.Invoke(amount, from, to);
+        // Transfer removed -- single-balance architecture does not support transfers.
+        // Re-add when dual-account model is implemented for loans/insurance.
         public static void RaiseIncomeGenerated(float amount, string source) => OnIncomeGenerated?.Invoke(amount, source);
         public static void RaiseIncomeGeneratedWithPosition(float amount, Vector3 position) => OnIncomeGeneratedWithPosition?.Invoke(amount, position);
         public static void RaiseRivalIncomeWithPosition(float amount, Vector3 position) => OnRivalIncomeGeneratedWithPosition?.Invoke(amount, position);
@@ -275,6 +313,15 @@ namespace FortuneValley.Core
         public static void RaiseRestartRequested() => OnRestartRequested?.Invoke();
         public static void RaiseReturnToTitleRequested() => OnReturnToTitleRequested?.Invoke();
 
+        // Intent event invokers
+        public static void RaisePurchaseLotRequested(string lotId, int tick) => OnPurchaseLotRequested?.Invoke(lotId, tick);
+        public static void RaiseUpgradeRestaurantRequested() => OnUpgradeRestaurantRequested?.Invoke();
+        public static void RaiseBuySharesRequested(InvestmentDefinition def, int qty) => OnBuySharesRequested?.Invoke(def, qty);
+        public static void RaiseSellSharesRequested(ActiveInvestment inv, int qty) => OnSellSharesRequested?.Invoke(inv, qty);
+
+        // Day cycle invoker
+        public static void RaiseDayEnd(int dayNumber) => OnDayEnd?.Invoke(dayNumber);
+
         // ═══════════════════════════════════════════════════════════════
         // CLEANUP (call when exiting play mode or restarting)
         // ═══════════════════════════════════════════════════════════════
@@ -289,7 +336,6 @@ namespace FortuneValley.Core
             OnCurrencyChanged = null;
             OnCheckingBalanceChanged = null;
             OnInvestingBalanceChanged = null;
-            OnTransfer = null;
             OnIncomeGenerated = null;
             OnIncomeGeneratedWithPosition = null;
             OnRivalIncomeGeneratedWithPosition = null;
@@ -318,6 +364,15 @@ namespace FortuneValley.Core
             OnCountdownComplete = null;
             OnRestartRequested = null;
             OnReturnToTitleRequested = null;
+
+            // Intent events
+            OnPurchaseLotRequested = null;
+            OnUpgradeRestaurantRequested = null;
+            OnBuySharesRequested = null;
+            OnSellSharesRequested = null;
+
+            // Day cycle
+            OnDayEnd = null;
         }
     }
 }

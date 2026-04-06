@@ -23,6 +23,10 @@ namespace FortuneValley.Core
         [Tooltip("Available speed multipliers (e.g., pause=0, normal=1, fast=2)")]
         [SerializeField] private float[] _speedOptions = { 0f, 1f, 2f, 4f };
 
+        [Header("Day Cycle")]
+        [Tooltip("Number of ticks that make up one in-game day")]
+        [SerializeField] private int _ticksPerDay = 10;
+
         [Header("Debug")]
         [SerializeField] private bool _logTicks = false;
 
@@ -31,6 +35,7 @@ namespace FortuneValley.Core
         // ═══════════════════════════════════════════════════════════════
 
         private int _currentTick = 0;
+        private int _currentDay = 0;
         private float _timeSinceLastTick = 0f;
         private int _currentSpeedIndex = 1; // Default to 1x speed
         private bool _isRunning = false;
@@ -40,9 +45,14 @@ namespace FortuneValley.Core
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Current tick number (essentially "days" in game time).
+        /// Current tick number within the simulation.
         /// </summary>
         public int CurrentTick => _currentTick;
+
+        /// <summary>
+        /// Current day number (increments every _ticksPerDay ticks).
+        /// </summary>
+        public int CurrentDay => _currentDay;
 
         /// <summary>
         /// Current game speed multiplier.
@@ -118,6 +128,7 @@ namespace FortuneValley.Core
         public void ResetTime()
         {
             _currentTick = 0;
+            _currentDay = 0;
             _timeSinceLastTick = 0f;
         }
 
@@ -175,6 +186,13 @@ namespace FortuneValley.Core
             }
 
             GameEvents.RaiseTick(_currentTick);
+
+            // Check for end of day
+            if (_currentTick % _ticksPerDay == 0)
+            {
+                _currentDay++;
+                GameEvents.RaiseDayEnd(_currentDay);
+            }
         }
 
         private void HandleGameStart()

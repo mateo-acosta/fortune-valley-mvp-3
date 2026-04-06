@@ -293,14 +293,10 @@ namespace FortuneValley.UI.Panels
         {
             if (_selectedDefinition == null) return;
 
-            var result = _investmentSystem.BuyShares(_selectedDefinition, 1);
-            if (result == null)
-            {
-                UnityEngine.Debug.LogWarning("[PortfolioPanel] BuyShares returned null — refreshing state");
-                RefreshDetailPanel();
-                return;
-            }
+            GameEvents.RaiseBuySharesRequested(_selectedDefinition, 1);
 
+            // Safe: Unity events invoke handlers synchronously before returning.
+            // Investment state is already updated by the time Refresh runs.
             RefreshDetailPanel();
             RefreshOverviewPanel();
         }
@@ -311,7 +307,7 @@ namespace FortuneValley.UI.Panels
 
             var inv = GetActiveInvestment(_selectedDefinition);
             if (inv != null)
-                _investmentSystem.SellShares(inv, 1);
+                GameEvents.RaiseSellSharesRequested(inv, 1);
 
             RefreshDetailPanel();
             RefreshOverviewPanel();

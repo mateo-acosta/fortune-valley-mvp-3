@@ -274,5 +274,20 @@ namespace FortuneValley.Tests
             _cityManager.RivalPurchaseLot("lot_1", 1);
             Assert.AreEqual(2f / 3f, _cityManager.GetGameProgress(), 0.01f);
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // INTENT EVENT HANDLER TESTS
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void RaisePurchaseLotRequested_PurchasesLot()
+        {
+            // CityManager is a runtime test -- OnEnable fires automatically,
+            // so it is already subscribed to OnPurchaseLotRequested.
+            GameEvents.RaisePurchaseLotRequested("lot_0", 5);
+
+            Assert.AreEqual(Owner.Player, _cityManager.GetOwner("lot_0"),
+                "CityManager should purchase lot when OnPurchaseLotRequested fires");
+        }
     }
 }

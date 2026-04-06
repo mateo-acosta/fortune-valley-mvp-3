@@ -242,20 +242,9 @@ namespace FortuneValley.UI.Popups
 
         private void OnTransferClicked()
         {
-            if (_currencyManager == null || _transferAmount <= 0) return;
-
-            bool success = _currencyManager.Transfer(_transferAmount, _fromAccount, _toAccount);
-
-            if (success)
-            {
-                UnityEngine.Debug.Log($"[TransferPopup] Transferred ${_transferAmount:F2} from {_fromAccount} to {_toAccount}");
-                _uiManager.HidePopup(this);
-            }
-            else
-            {
-                UnityEngine.Debug.LogWarning($"[TransferPopup] Transfer failed");
-                UpdateDisplay();
-            }
+            // Transfer not implemented -- single-balance architecture.
+            // Re-enable when dual-account model is built for loans/insurance.
+            UnityEngine.Debug.LogWarning("[TransferPopup] Transfer not available -- single-balance architecture");
         }
 
         // ═══════════════════════════════════════════════════════════════

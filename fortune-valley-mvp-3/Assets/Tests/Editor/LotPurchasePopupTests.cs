@@ -57,8 +57,6 @@ namespace FortuneValley.Tests
         private void ExpectInitErrors()
         {
             LogAssert.Expect(LogType.Error, "[LotPurchasePopup] _currencyManager not wired in Inspector.");
-            LogAssert.Expect(LogType.Error, "[LotPurchasePopup] _cityManager not wired in Inspector.");
-            LogAssert.Expect(LogType.Error, "[LotPurchasePopup] _uiManager not wired in Inspector.");
         }
 
         [Test]

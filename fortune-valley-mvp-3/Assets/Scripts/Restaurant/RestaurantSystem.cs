@@ -102,12 +102,14 @@ namespace FortuneValley.Core
         {
             GameEvents.OnTick += HandleTick;
             GameEvents.OnGameStart += HandleGameStart;
+            GameEvents.OnUpgradeRestaurantRequested += HandleUpgradeRequested;
         }
 
         private void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnGameStart -= HandleGameStart;
+            GameEvents.OnUpgradeRestaurantRequested -= HandleUpgradeRequested;
         }
 
         private void HandleGameStart()
@@ -119,6 +121,14 @@ namespace FortuneValley.Core
         private void HandleTick(int tickNumber)
         {
             GenerateIncome();
+        }
+
+        /// <summary>
+        /// Intent event handler: UI requested a restaurant upgrade.
+        /// </summary>
+        private void HandleUpgradeRequested()
+        {
+            TryUpgrade();
         }
 
         // ═══════════════════════════════════════════════════════════════

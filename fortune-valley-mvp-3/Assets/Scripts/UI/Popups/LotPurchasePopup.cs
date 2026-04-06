@@ -33,8 +33,6 @@ namespace FortuneValley.UI.Popups
 
         [Header("Dependencies")]
         [SerializeField] private CurrencyManager _currencyManager;
-        [SerializeField] private CityManager _cityManager;
-        [SerializeField] private UIManager _uiManager;
 
         [Header("Colors")]
         [SerializeField] private Color _canAffordColor = new Color(0.2f, 0.8f, 0.2f);
@@ -67,8 +65,6 @@ namespace FortuneValley.UI.Popups
             _initialized = true;
 
             if (_currencyManager == null) Debug.LogError("[LotPurchasePopup] _currencyManager not wired in Inspector.");
-            if (_cityManager == null) Debug.LogError("[LotPurchasePopup] _cityManager not wired in Inspector.");
-            if (_uiManager == null) Debug.LogError("[LotPurchasePopup] _uiManager not wired in Inspector.");
 
             SetupButtons();
         }
@@ -235,22 +231,17 @@ namespace FortuneValley.UI.Popups
 
         private void OnBuyClicked()
         {
-            if (_currentLot == null || _cityManager == null) return;
+            if (_currentLot == null || _currencyManager == null) return;
 
-            // Attempt purchase
-            if (_cityManager.TryPurchaseLot(_currentLot.LotId, _currentTick))
+            // Pre-validate affordability before firing intent event
+            if (!_currencyManager.CanAfford(_currentLot.BaseCost))
             {
-                UnityEngine.Debug.Log($"[LotPurchasePopup] Successfully purchased {_currentLot.DisplayName}");
-
-                // Close popup on success
-                _uiManager.HidePopup(this);
-            }
-            else
-            {
-                // Purchase failed - update display to show current state
-                UnityEngine.Debug.Log($"[LotPurchasePopup] Failed to purchase {_currentLot.DisplayName}");
                 UpdateAffordability();
+                return;
             }
+
+            GameEvents.RaisePurchaseLotRequested(_currentLot.LotId, _currentTick);
+            OnCancelClicked(); // inherited from UIPopup -- fires OnCloseRequested
         }
 
         protected override void OnHide()

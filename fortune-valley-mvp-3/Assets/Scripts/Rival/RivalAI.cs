@@ -42,6 +42,9 @@ namespace FortuneValley.Core
         private int _warningIssuedTick = -1;
         private Renderer _buildingRenderer;
 
+        // Cached available lots -- refreshed on ownership change, not per tick
+        private List<CityLotDefinition> _cachedAvailableLots = new List<CityLotDefinition>();
+
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
         // ═══════════════════════════════════════════════════════════════
@@ -95,10 +98,14 @@ namespace FortuneValley.Core
             _targetedLotId = null;
             _warningIssuedTick = -1;
             TicksUntilPurchase = _config.PurchaseInterval;
+            RefreshAvailableLotsCache();
         }
 
         private void HandleLotPurchased(string lotId, Owner owner)
         {
+            // Refresh cache whenever any lot changes ownership
+            RefreshAvailableLotsCache();
+
             // If the player bought the lot we were targeting, pick a new target
             if (owner == Owner.Player && lotId == _targetedLotId)
             {
@@ -245,23 +252,30 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Refresh the cached available lots list from CityManager.
+        /// Called on game start and whenever lot ownership changes.
+        /// Pre-sorted by cost so PickTargetLot/PickAffordableLot avoid per-tick allocations.
+        /// </summary>
+        private void RefreshAvailableLotsCache()
+        {
+            _cachedAvailableLots = _cityManager.GetAvailableLots();
+            _cachedAvailableLots.Sort((a, b) => a.BaseCost.CompareTo(b.BaseCost));
+        }
+
+        /// <summary>
         /// Pick which lot to target (for warnings).
         /// Strategy: Target cheapest lot we might be able to afford.
         /// </summary>
         private string PickTargetLot()
         {
-            var availableLots = _cityManager.GetAvailableLots();
-            if (availableLots.Count == 0)
+            if (_cachedAvailableLots.Count == 0)
                 return null;
-
-            // Sort by cost
-            availableLots.Sort((a, b) => a.BaseCost.CompareTo(b.BaseCost));
 
             // Return cheapest that we might afford by purchase time
             // (rough estimate: current money + income * warning ticks)
             float estimatedMoney = _money + (_config.IncomePerTick * _config.WarningTicks);
 
-            foreach (var lot in availableLots)
+            foreach (var lot in _cachedAvailableLots)
             {
                 if (lot.BaseCost <= estimatedMoney + _config.PurchaseBuffer)
                 {
@@ -270,7 +284,7 @@ namespace FortuneValley.Core
             }
 
             // If we can't afford any, target the cheapest anyway
-            return availableLots[0].LotId;
+            return _cachedAvailableLots[0].LotId;
         }
 
         /// <summary>
@@ -279,15 +293,11 @@ namespace FortuneValley.Core
         /// </summary>
         private string PickAffordableLot()
         {
-            var availableLots = _cityManager.GetAvailableLots();
-            if (availableLots.Count == 0)
+            if (_cachedAvailableLots.Count == 0)
                 return null;
 
-            // Sort by cost
-            availableLots.Sort((a, b) => a.BaseCost.CompareTo(b.BaseCost));
-
             // Find cheapest we can afford with buffer
-            foreach (var lot in availableLots)
+            foreach (var lot in _cachedAvailableLots)
             {
                 if (_money >= lot.BaseCost + _config.PurchaseBuffer)
                 {
