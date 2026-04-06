@@ -86480,6 +86480,7 @@ MonoBehaviour:
   _currencyManager: {fileID: 404598230}
   _historyTracker: {fileID: 404598235}
   _stockHistory: {fileID: 404598236}
+  _sharesPerTrade: 1
   _labelFont: {fileID: 11400000, guid: 5f58c05479cb14f588efcdfcbdab347c, type: 2}
   _gainColor: {r: 0.2, g: 0.8, b: 0.2, a: 1}
   _lossColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
