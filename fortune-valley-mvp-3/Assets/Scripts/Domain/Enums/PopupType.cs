@@ -8,6 +8,9 @@ namespace FortuneValley.Domain.Enums
         LotPurchase,
         BuyInvestment,
         SellInvestment,
-        Transfer
+        Transfer,
+        CreditCardStatement,
+        AccidentReport,
+        InsuranceSelection
     }
 }

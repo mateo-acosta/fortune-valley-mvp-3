@@ -319,9 +319,48 @@ namespace FortuneValley.Core
         public static void RaiseBuySharesRequested(InvestmentDefinition def, int qty) => OnBuySharesRequested?.Invoke(def, qty);
         public static void RaiseSellSharesRequested(ActiveInvestment inv, int qty) => OnSellSharesRequested?.Invoke(inv, qty);
 
-        // Credit card intent event
+        // Credit card events
         public static event Action<float, string> OnCreditCardChargeRequested;
         public static void RaiseCreditCardChargeRequested(float amount, string reason) => OnCreditCardChargeRequested?.Invoke(amount, reason);
+
+        public static event Action<float> OnCreditCardCharged;
+        public static void RaiseCreditCardCharged(float amount) => OnCreditCardCharged?.Invoke(amount);
+
+        public static event Action OnCreditCardStatementReady;
+        public static void RaiseCreditCardStatementReady() => OnCreditCardStatementReady?.Invoke();
+
+        public static event Action<float> OnCreditCardPaymentRequested;
+        public static void RaiseCreditCardPaymentRequested(float amount) => OnCreditCardPaymentRequested?.Invoke(amount);
+
+        public static event Action<float> OnCreditCardPaymentCompleted;
+        public static void RaiseCreditCardPaymentCompleted(float amountPaid) => OnCreditCardPaymentCompleted?.Invoke(amountPaid);
+
+        public static event Action<int> OnCreditScoreChanged;
+        public static void RaiseCreditScoreChanged(int newScore) => OnCreditScoreChanged?.Invoke(newScore);
+
+        // Transfer intent event (UI fires, CurrencyManager handles)
+        public static event Action<AccountType, AccountType, float> OnTransferRequested;
+        public static void RaiseTransferRequested(AccountType from, AccountType to, float amount) => OnTransferRequested?.Invoke(from, to, amount);
+
+        // Insurance events
+        public static event Action<string, string> OnPurchaseInsuranceRequested;    // lotId, policyId (intent from UI)
+        public static void RaisePurchaseInsuranceRequested(string lotId, string policyId) => OnPurchaseInsuranceRequested?.Invoke(lotId, policyId);
+
+        public static event Action<string, InsurancePolicyType> OnCancelInsuranceRequested;  // lotId, policyType (intent from UI)
+        public static void RaiseCancelInsuranceRequested(string lotId, InsurancePolicyType type) => OnCancelInsuranceRequested?.Invoke(lotId, type);
+
+        public static event Action<string, string> OnInsurancePurchased;            // lotId, policyId (confirmation)
+        public static void RaiseInsurancePurchased(string lotId, string policyId) => OnInsurancePurchased?.Invoke(lotId, policyId);
+
+        public static event Action<string, InsurancePolicyType> OnInsuranceCanceled;  // lotId, policyType (confirmation)
+        public static void RaiseInsuranceCanceled(string lotId, InsurancePolicyType type) => OnInsuranceCanceled?.Invoke(lotId, type);
+
+        // Accident events
+        public static event Action<AccidentRollResult> OnAccidentOccurred;           // raw accident trigger
+        public static void RaiseAccidentOccurred(AccidentRollResult result) => OnAccidentOccurred?.Invoke(result);
+
+        public static event Action<string, string, bool, float> OnAccidentResolved;  // lotId, accidentId, wasCovered, playerCost
+        public static void RaiseAccidentResolved(string lotId, string accidentId, bool wasCovered, float playerCost) => OnAccidentResolved?.Invoke(lotId, accidentId, wasCovered, playerCost);
 
         // Day cycle invoker
         public static void RaiseDayEnd(int dayNumber) => OnDayEnd?.Invoke(dayNumber);
@@ -377,6 +416,24 @@ namespace FortuneValley.Core
 
             // Credit card
             OnCreditCardChargeRequested = null;
+            OnCreditCardCharged = null;
+            OnCreditCardStatementReady = null;
+            OnCreditCardPaymentRequested = null;
+            OnCreditCardPaymentCompleted = null;
+            OnCreditScoreChanged = null;
+
+            // Transfer
+            OnTransferRequested = null;
+
+            // Insurance
+            OnPurchaseInsuranceRequested = null;
+            OnCancelInsuranceRequested = null;
+            OnInsurancePurchased = null;
+            OnInsuranceCanceled = null;
+
+            // Accidents
+            OnAccidentOccurred = null;
+            OnAccidentResolved = null;
 
             // Day cycle
             OnDayEnd = null;

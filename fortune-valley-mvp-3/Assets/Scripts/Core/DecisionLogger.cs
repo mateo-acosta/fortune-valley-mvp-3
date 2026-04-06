@@ -37,6 +37,9 @@ namespace FortuneValley.Core
             GameEvents.OnInvestmentWithdrawn += HandleInvestmentWithdrawn;
             GameEvents.OnLotPurchased += HandleLotPurchased;
             GameEvents.OnRestaurantUpgraded += HandleRestaurantUpgraded;
+            GameEvents.OnCreditCardPaymentCompleted += HandleCreditCardPayment;
+            GameEvents.OnInsurancePurchased += HandleInsurancePurchased;
+            GameEvents.OnAccidentResolved += HandleAccidentResolved;
         }
 
         private void OnDisable()
@@ -45,6 +48,9 @@ namespace FortuneValley.Core
             GameEvents.OnInvestmentWithdrawn -= HandleInvestmentWithdrawn;
             GameEvents.OnLotPurchased -= HandleLotPurchased;
             GameEvents.OnRestaurantUpgraded -= HandleRestaurantUpgraded;
+            GameEvents.OnCreditCardPaymentCompleted -= HandleCreditCardPayment;
+            GameEvents.OnInsurancePurchased -= HandleInsurancePurchased;
+            GameEvents.OnAccidentResolved -= HandleAccidentResolved;
         }
 
         private void HandleInvestmentCreated(ActiveInvestment inv)
@@ -132,6 +138,90 @@ namespace FortuneValley.Core
                 in_game_day = 0,
                 decision_type = "franchise_upgrade",
                 category = "expense"
+            };
+
+            _apiClient.EnqueueDecision(dto);
+        }
+
+        private void HandleCreditCardPayment(float amountPaid)
+        {
+            if (_apiClient == null || !_apiClient.CanPersist()) return;
+
+            var dto = new DecisionEventDTO
+            {
+                session_id = _sessionId,
+                game_mode = _gameMode,
+                in_game_day = 0,
+                decision_type = "cc_payment",
+                gross_amount = amountPaid,
+                category = "transfer",
+                line_items = new[]
+                {
+                    new DecisionLineItemDTO
+                    {
+                        account_affected = "checking",
+                        change_amount = amountPaid,
+                        flow_category = "outflow"
+                    },
+                    new DecisionLineItemDTO
+                    {
+                        account_affected = "credit",
+                        change_amount = amountPaid,
+                        flow_category = "inflow"
+                    }
+                }
+            };
+
+            _apiClient.EnqueueDecision(dto);
+        }
+
+        private void HandleInsurancePurchased(string lotId, string policyId)
+        {
+            if (_apiClient == null || !_apiClient.CanPersist()) return;
+
+            var dto = new DecisionEventDTO
+            {
+                session_id = _sessionId,
+                game_mode = _gameMode,
+                in_game_day = 0,
+                decision_type = "insurance_purchase",
+                instrument_id = policyId,
+                category = "expense",
+                line_items = new[]
+                {
+                    new DecisionLineItemDTO
+                    {
+                        account_affected = "credit",
+                        flow_category = "outflow"
+                    }
+                }
+            };
+
+            _apiClient.EnqueueDecision(dto);
+        }
+
+        private void HandleAccidentResolved(string lotId, string accidentId, bool wasCovered, float playerCost)
+        {
+            if (_apiClient == null || !_apiClient.CanPersist()) return;
+
+            var dto = new DecisionEventDTO
+            {
+                session_id = _sessionId,
+                game_mode = _gameMode,
+                in_game_day = 0,
+                decision_type = "accident_occurred",
+                instrument_id = lotId,
+                gross_amount = playerCost,
+                category = "event",
+                line_items = new[]
+                {
+                    new DecisionLineItemDTO
+                    {
+                        account_affected = "credit",
+                        change_amount = playerCost,
+                        flow_category = "outflow"
+                    }
+                }
             };
 
             _apiClient.EnqueueDecision(dto);

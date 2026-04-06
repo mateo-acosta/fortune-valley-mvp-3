@@ -65,15 +65,14 @@ namespace FortuneValley.Core
         {
             GameEvents.OnGameStart += HandleGameStart;
 
-            // Placeholder: deduct credit card charges from checking
-            // until CreditCardSystem is built (Phase 1) and takes over this subscription
-            GameEvents.OnCreditCardChargeRequested += HandleCreditCardChargePlaceholder;
+            // Handle transfer intent events from UI
+            GameEvents.OnTransferRequested += HandleTransferRequested;
         }
 
         private void OnDisable()
         {
             GameEvents.OnGameStart -= HandleGameStart;
-            GameEvents.OnCreditCardChargeRequested -= HandleCreditCardChargePlaceholder;
+            GameEvents.OnTransferRequested -= HandleTransferRequested;
         }
 
         private void HandleGameStart()
@@ -82,12 +81,19 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Placeholder handler for credit card charges.
-        /// Deducts from checking until CreditCardSystem replaces this in Phase 1.
+        /// Handles transfer intent events fired by UI.
+        /// Routes to the appropriate transfer method based on account types.
         /// </summary>
-        private void HandleCreditCardChargePlaceholder(float amount, string reason)
+        private void HandleTransferRequested(AccountType from, AccountType to, float amount)
         {
-            TrySpendChecking(amount, reason);
+            if (from == AccountType.Checking && to == AccountType.Investing)
+            {
+                TransferToInvesting(amount);
+            }
+            else if (from == AccountType.Investing && to == AccountType.Checking)
+            {
+                TransferFromInvesting(amount);
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════

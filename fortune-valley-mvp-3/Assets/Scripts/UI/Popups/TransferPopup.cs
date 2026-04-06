@@ -244,21 +244,11 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null || _transferAmount <= 0) return;
 
-            bool success = false;
-            if (_fromAccount == AccountType.Checking && _toAccount == AccountType.Investing)
-            {
-                success = _currencyManager.TransferToInvesting(_transferAmount);
-            }
-            else if (_fromAccount == AccountType.Investing && _toAccount == AccountType.Checking)
-            {
-                success = _currencyManager.TransferFromInvesting(_transferAmount);
-            }
-
-            if (success)
-            {
-                _transferAmount = 0;
-                UpdateDisplay();
-            }
+            // Fire intent event; CurrencyManager handles the actual transfer.
+            // Balance-changed events (already subscribed) refresh the display.
+            GameEvents.RaiseTransferRequested(_fromAccount, _toAccount, _transferAmount);
+            _transferAmount = 0;
+            UpdateDisplay();
         }
 
         /// <summary>
