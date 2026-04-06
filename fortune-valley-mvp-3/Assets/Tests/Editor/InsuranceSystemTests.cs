@@ -156,7 +156,7 @@ namespace FortuneValley.Tests
 
             float resolvedCost = 0f;
             bool wasCovered = false;
-            GameEvents.OnAccidentResolved += (lotId, accId, covered, cost) =>
+            GameEvents.OnAccidentResolved += (lotId, accName, totalDamage, covered, cost) =>
             {
                 resolvedCost = cost;
                 wasCovered = covered;
@@ -175,7 +175,7 @@ namespace FortuneValley.Tests
         {
             float resolvedCost = 0f;
             bool wasCovered = false;
-            GameEvents.OnAccidentResolved += (lotId, accId, covered, cost) =>
+            GameEvents.OnAccidentResolved += (lotId, accName, totalDamage, covered, cost) =>
             {
                 resolvedCost = cost;
                 wasCovered = covered;

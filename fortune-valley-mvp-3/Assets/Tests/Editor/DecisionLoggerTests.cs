@@ -83,7 +83,7 @@ namespace FortuneValley.Tests
         [Test]
         public void OnEnable_SubscribesToAccidentResolved()
         {
-            Assert.DoesNotThrow(() => GameEvents.RaiseAccidentResolved("lot_1", "fire", true, 200f));
+            Assert.DoesNotThrow(() => GameEvents.RaiseAccidentResolved("lot_1", "Fire", 500f, true, 200f));
         }
 
         [Test]

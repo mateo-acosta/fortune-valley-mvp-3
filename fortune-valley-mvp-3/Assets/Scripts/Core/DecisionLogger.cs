@@ -158,7 +158,7 @@ namespace FortuneValley.Core
                 .Build());
         }
 
-        private void HandleAccidentResolved(string lotId, string accidentId, bool wasCovered, float playerCost)
+        private void HandleAccidentResolved(string lotId, string accidentName, float totalDamageCost, bool wasCovered, float playerCost)
         {
             if (!CanLog()) return;
 

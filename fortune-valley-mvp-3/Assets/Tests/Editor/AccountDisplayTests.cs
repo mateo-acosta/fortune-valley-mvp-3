@@ -92,14 +92,16 @@ namespace FortuneValley.Tests
             _go = new GameObject("TestDisplay");
             var display = _go.AddComponent<AccountDisplay>();
 
-            // Set _accountType via reflection (SerializeField)
+            // Set _accountType via reflection
             var field = typeof(AccountDisplay).GetField("_accountType",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             field.SetValue(display, type);
 
-            // Force OnEnable to re-run with the correct account type
-            display.enabled = false;
-            display.enabled = true;
+            // EditMode tests do not reliably fire OnEnable/OnDisable,
+            // so invoke OnEnable manually to wire the subscription
+            var onEnable = typeof(AccountDisplay).GetMethod("OnEnable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnable.Invoke(display, null);
 
             return display;
         }

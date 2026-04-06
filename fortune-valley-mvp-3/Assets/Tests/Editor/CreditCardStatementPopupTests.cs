@@ -21,6 +21,12 @@ namespace FortuneValley.Tests
             _go = new GameObject("TestPopup");
             _popup = _go.AddComponent<CreditCardStatementPopupTestable>();
             GameEvents.RaiseGameStart();
+
+            // EditMode tests do not reliably fire OnEnable,
+            // so invoke it manually to wire event subscriptions
+            var onEnable = typeof(CreditCardStatementPopup).GetMethod("OnEnable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnable.Invoke(_popup, null);
         }
 
         [TearDown]

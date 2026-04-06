@@ -112,7 +112,7 @@ namespace FortuneValley.Tests
         public void NonPaymentDay_DoesNotFireStatementEvent()
         {
             bool statementFired = false;
-            GameEvents.OnCreditCardStatementReady += () => statementFired = true;
+            GameEvents.OnCreditCardStatementReady += (_, __, ___) => statementFired = true;
 
             GameEvents.RaiseDayEnd(1);
             GameEvents.RaiseDayEnd(15);
@@ -171,7 +171,7 @@ namespace FortuneValley.Tests
             // No CC charges made -- statement balance is zero
             bool statementEventFired = false;
             bool cycleComplete = false;
-            GameEvents.OnCreditCardStatementReady += () => statementEventFired = true;
+            GameEvents.OnCreditCardStatementReady += (_, __, ___) => statementEventFired = true;
             GameEvents.OnMonthlyPaymentCycleComplete += () => cycleComplete = true;
 
             GameEvents.RaiseDayEnd(30);
@@ -251,7 +251,7 @@ namespace FortuneValley.Tests
             // handler, so cycle_complete would appear before a test subscription's
             // callback -- it is an internal trigger, not an externally-ordered step.
             GameEvents.OnMonthlyPaymentDayStarted += (day) => callLog.Add("cycle_started");
-            GameEvents.OnCreditCardStatementReady += () => callLog.Add("statement_ready");
+            GameEvents.OnCreditCardStatementReady += (_, __, ___) => callLog.Add("statement_ready");
             GameEvents.OnMonthlyPaymentCycleComplete += () => callLog.Add("cycle_complete");
 
             // Trigger payment day

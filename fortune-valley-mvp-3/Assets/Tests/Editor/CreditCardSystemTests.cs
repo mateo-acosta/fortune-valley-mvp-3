@@ -207,7 +207,7 @@ namespace FortuneValley.Tests
         public void GenerateStatement_FiresStatementReadyEvent()
         {
             bool eventFired = false;
-            GameEvents.OnCreditCardStatementReady += () => eventFired = true;
+            GameEvents.OnCreditCardStatementReady += (_, __, ___) => eventFired = true;
 
             GameEvents.RaiseCreditCardChargeRequested(100f, "test");
             _system.GenerateStatement();
