@@ -381,6 +381,13 @@ namespace FortuneValley.Core
         public static event Action<ActiveLoan> OnLoanPaidOff;                       // loan fully repaid
         public static void RaiseLoanPaidOff(ActiveLoan loan) => OnLoanPaidOff?.Invoke(loan);
 
+        // Monthly payment cycle events
+        public static event Action<int> OnMonthlyPaymentDayStarted;    // dayNumber
+        public static void RaiseMonthlyPaymentDayStarted(int dayNumber) => OnMonthlyPaymentDayStarted?.Invoke(dayNumber);
+
+        public static event Action OnMonthlyPaymentCycleComplete;       // all steps finished
+        public static void RaiseMonthlyPaymentCycleComplete() => OnMonthlyPaymentCycleComplete?.Invoke();
+
         // Day cycle invoker
         public static void RaiseDayEnd(int dayNumber) => OnDayEnd?.Invoke(dayNumber);
 
@@ -461,6 +468,10 @@ namespace FortuneValley.Core
             OnLoanPaymentMade = null;
             OnLoanPaymentMissed = null;
             OnLoanPaidOff = null;
+
+            // Monthly payment cycle
+            OnMonthlyPaymentDayStarted = null;
+            OnMonthlyPaymentCycleComplete = null;
 
             // Day cycle
             OnDayEnd = null;

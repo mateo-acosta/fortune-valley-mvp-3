@@ -173,6 +173,19 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Total income per tick including lot bonuses.
+        /// Used by MonthlyPaymentDayController to compute DTI.
+        /// </summary>
+        public float TotalIncomePerTick
+        {
+            get
+            {
+                float lotBonus = _cityManager != null ? _cityManager.PlayerLotIncomeBonus : 0f;
+                return IncomePerTick + lotBonus;
+            }
+        }
+
+        /// <summary>
         /// Get student-friendly explanation of upgrade value.
         /// </summary>
         public string GetUpgradeExplanation()

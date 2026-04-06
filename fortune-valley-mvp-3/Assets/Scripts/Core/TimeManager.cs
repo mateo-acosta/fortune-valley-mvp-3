@@ -65,6 +65,12 @@ namespace FortuneValley.Core
         public bool IsRunning => _isRunning;
 
         /// <summary>
+        /// Number of ticks per in-game day.
+        /// Used by MonthlyPaymentDayController to compute monthly income.
+        /// </summary>
+        public int TicksPerDay => _ticksPerDay;
+
+        /// <summary>
         /// Whether the game is paused (speed = 0).
         /// </summary>
         public bool IsPaused => CurrentSpeed == 0f;

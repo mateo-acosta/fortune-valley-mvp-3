@@ -52,6 +52,11 @@ namespace FortuneValley.Core
         public float CreditLimit => _config != null ? _config.CreditLimit : 0f;
 
         /// <summary>
+        /// Number of in-game days per billing cycle. Used by MonthlyPaymentDayController.
+        /// </summary>
+        public int BillingCycleDays => _config != null ? _config.BillingCycleDays : 0;
+
+        /// <summary>
         /// Access payment history for credit score calculation.
         /// </summary>
         public ActiveCreditCard Card => _card;
