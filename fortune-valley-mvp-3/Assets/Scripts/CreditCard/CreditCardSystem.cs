@@ -91,6 +91,10 @@ namespace FortuneValley.Core
         {
             _card = new ActiveCreditCard();
             _currentCreditScore = _scoringConfig != null ? _scoringConfig.StartingScore : 0;
+
+            // Re-raise initial values so HUD displays are correct on game start
+            GameEvents.RaiseCreditCardBalanceChanged(0f, 0f);
+            GameEvents.RaiseCreditScoreChanged(_currentCreditScore);
         }
 
         // ===============================================================
@@ -110,11 +114,10 @@ namespace FortuneValley.Core
             if (success)
             {
                 if (_logTransactions)
-                {
                     Debug.Log($"[CreditCardSystem] Charged ${amount:F2} for {reason}. Balance: ${_card.CurrentBalance:F2}");
-                }
 
                 GameEvents.RaiseCreditCardCharged(amount);
+                GameEvents.RaiseCreditCardBalanceChanged(_card.CurrentBalance, amount);
             }
             else
             {
@@ -162,7 +165,10 @@ namespace FortuneValley.Core
                           $"Min due: ${_card.MinimumPaymentDue:F2}");
             }
 
-            GameEvents.RaiseCreditCardStatementReady();
+            GameEvents.RaiseCreditCardStatementReady(
+                _card.StatementBalance,
+                _card.MinimumPaymentDue,
+                _card.InterestAccrued);
         }
 
         // ===============================================================
@@ -186,6 +192,7 @@ namespace FortuneValley.Core
             }
 
             GameEvents.RaiseCreditCardPaymentCompleted(actualPaid);
+            GameEvents.RaiseCreditCardBalanceChanged(_card.CurrentBalance, -actualPaid);
         }
 
         // ===============================================================

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using FortuneValley.Core;
+using FortuneValley.UI;
 
 namespace FortuneValley.UI.Popups
 {
@@ -41,6 +42,9 @@ namespace FortuneValley.UI.Popups
 
         [Header("Info")]
         [SerializeField] private TextMeshProUGUI _warningText;
+
+        [Header("Dependencies")]
+        [SerializeField] private UIManager _uiManager;
 
         // ===============================================================
         // STATE
@@ -132,9 +136,11 @@ namespace FortuneValley.UI.Popups
         // EVENT HANDLERS
         // ===============================================================
 
-        private void HandleStatementReady()
+        private void HandleStatementReady(float statementBalance, float minimumPayment, float interestCharged)
         {
-            // Statement is ready; the controller will call Configure() then Show()
+            Configure(statementBalance, minimumPayment, interestCharged, _checkingBalance, 0);
+            if (_uiManager != null)
+                _uiManager.ShowPopup(this);
         }
 
         private void HandleCheckingChanged(float newBalance, float delta)

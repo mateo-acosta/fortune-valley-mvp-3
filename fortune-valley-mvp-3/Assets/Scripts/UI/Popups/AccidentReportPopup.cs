@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using FortuneValley.Core;
+using FortuneValley.UI;
 
 namespace FortuneValley.UI.Popups
 {
@@ -28,6 +29,9 @@ namespace FortuneValley.UI.Popups
         [Header("Actions")]
         [SerializeField] private Button _dismissButton;
 
+        [Header("Dependencies")]
+        [SerializeField] private UIManager _uiManager;
+
         // ===============================================================
         // LIFECYCLE
         // ===============================================================
@@ -52,9 +56,11 @@ namespace FortuneValley.UI.Popups
         // EVENT HANDLERS
         // ===============================================================
 
-        private void HandleAccidentResolved(string lotId, string accidentId, bool wasCovered, float playerCost)
+        private void HandleAccidentResolved(string lotId, string accidentName, float totalDamageCost, bool wasCovered, float playerCost)
         {
-            // Controller will call Configure() then Show()
+            Configure(accidentName, totalDamageCost, wasCovered, playerCost);
+            if (_uiManager != null)
+                _uiManager.ShowPopup(this);
         }
 
         // ===============================================================

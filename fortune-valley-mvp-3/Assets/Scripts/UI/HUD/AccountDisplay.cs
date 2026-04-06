@@ -56,12 +56,56 @@ namespace FortuneValley.UI.HUD
         // LIFECYCLE
         // ═══════════════════════════════════════════════════════════════
 
+        private void OnEnable()
+        {
+            // Self-subscribe to the correct balance event based on account type.
+            // Each AccountDisplay instance is responsible for its own updates.
+            switch (_accountType)
+            {
+                case AccountType.Checking:
+                    GameEvents.OnCheckingBalanceChanged += HandleBalanceChanged;
+                    break;
+                case AccountType.Investing:
+                    GameEvents.OnInvestingBalanceChanged += HandleBalanceChanged;
+                    break;
+                case AccountType.CreditCard:
+                    GameEvents.OnCreditCardBalanceChanged += HandleBalanceChanged;
+                    break;
+            }
+        }
+
+        private void OnDisable()
+        {
+            switch (_accountType)
+            {
+                case AccountType.Checking:
+                    GameEvents.OnCheckingBalanceChanged -= HandleBalanceChanged;
+                    break;
+                case AccountType.Investing:
+                    GameEvents.OnInvestingBalanceChanged -= HandleBalanceChanged;
+                    break;
+                case AccountType.CreditCard:
+                    GameEvents.OnCreditCardBalanceChanged -= HandleBalanceChanged;
+                    break;
+            }
+        }
+
+        private void HandleBalanceChanged(float balance, float delta)
+        {
+            UpdateBalance(balance, delta);
+        }
+
         private void Start()
         {
             // Set label based on account type (unless overridden)
             if (_labelText != null && string.IsNullOrEmpty(_customLabel))
             {
-                _labelText.text = _accountType == AccountType.Checking ? "Checking" : "Investing";
+                _labelText.text = _accountType switch
+                {
+                    AccountType.Checking => "Checking",
+                    AccountType.CreditCard => "Credit Card",
+                    _ => "Investing"
+                };
             }
 
             // Hide delta initially

@@ -172,7 +172,7 @@ namespace FortuneValley.Core
                 Debug.Log($"[InsuranceSystem] Accident '{accident.AccidentName}' on lot {accident.LotId}: {coverageStatus}");
             }
 
-            GameEvents.RaiseAccidentResolved(accident.LotId, accident.AccidentId, wasCovered, playerCost);
+            GameEvents.RaiseAccidentResolved(accident.LotId, accident.AccidentName, accident.DamageCost, wasCovered, playerCost);
         }
 
         // ===============================================================

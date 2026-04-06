@@ -24,6 +24,12 @@ namespace FortuneValley.UI
         [Tooltip("Restaurant panel for upgrades")]
         [SerializeField] private UIPanel _restaurantPanel;
 
+        [Tooltip("Insurance management panel (lot-first view)")]
+        [SerializeField] private UIPanel _insurancePanel;
+
+        [Tooltip("Loan management panel (read-only)")]
+        [SerializeField] private UIPanel _loanPanel;
+
         [Header("Popup References")]
         [Tooltip("Lot purchase confirmation popup")]
         [SerializeField] private UIPopup _lotPurchasePopup;
@@ -36,6 +42,18 @@ namespace FortuneValley.UI
 
         [Tooltip("Transfer between accounts popup")]
         [SerializeField] private UIPopup _transferPopup;
+
+        [Tooltip("Monthly credit card statement popup")]
+        [SerializeField] private UIPopup _creditCardStatementPopup;
+
+        [Tooltip("Accident resolution report popup")]
+        [SerializeField] private UIPopup _accidentReportPopup;
+
+        [Tooltip("Per-lot insurance policy selection popup")]
+        [SerializeField] private UIPopup _insuranceSelectionPopup;
+
+        [Tooltip("Loan product selection popup")]
+        [SerializeField] private UIPopup _loanSelectionPopup;
 
         [Header("Overlay")]
         [Tooltip("Dark overlay behind popups")]
@@ -63,6 +81,12 @@ namespace FortuneValley.UI
             if (_buyInvestmentPopup != null) _buyInvestmentPopup.OnCloseRequested += HandlePopupCloseRequested;
             if (_sellInvestmentPopup != null) _sellInvestmentPopup.OnCloseRequested += HandlePopupCloseRequested;
             if (_transferPopup != null) _transferPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_creditCardStatementPopup != null) _creditCardStatementPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_accidentReportPopup != null) _accidentReportPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_loanSelectionPopup != null) _loanSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_insurancePanel != null) _insurancePanel.OnCloseRequested += HandlePanelCloseRequested;
+            if (_loanPanel != null) _loanPanel.OnCloseRequested += HandlePanelCloseRequested;
 
             HideAllPanels();
             HideAllPopups();
@@ -77,6 +101,12 @@ namespace FortuneValley.UI
             if (_buyInvestmentPopup != null) _buyInvestmentPopup.OnCloseRequested -= HandlePopupCloseRequested;
             if (_sellInvestmentPopup != null) _sellInvestmentPopup.OnCloseRequested -= HandlePopupCloseRequested;
             if (_transferPopup != null) _transferPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_creditCardStatementPopup != null) _creditCardStatementPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_accidentReportPopup != null) _accidentReportPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_loanSelectionPopup != null) _loanSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_insurancePanel != null) _insurancePanel.OnCloseRequested -= HandlePanelCloseRequested;
+            if (_loanPanel != null) _loanPanel.OnCloseRequested -= HandlePanelCloseRequested;
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -140,6 +170,8 @@ namespace FortuneValley.UI
             if (_portfolioPanel != null) _portfolioPanel.Hide();
             if (_lotsPanel != null) _lotsPanel.Hide();
             if (_restaurantPanel != null) _restaurantPanel.Hide();
+            if (_insurancePanel != null) _insurancePanel.Hide();
+            if (_loanPanel != null) _loanPanel.Hide();
             _currentPanel = null;
         }
 
@@ -150,6 +182,8 @@ namespace FortuneValley.UI
                 PanelType.Portfolio => _portfolioPanel,
                 PanelType.Lots => _lotsPanel,
                 PanelType.Restaurant => _restaurantPanel,
+                PanelType.Insurance => _insurancePanel,
+                PanelType.Loan => _loanPanel,
                 _ => null
             };
         }
@@ -252,6 +286,10 @@ namespace FortuneValley.UI
             if (_buyInvestmentPopup != null) _buyInvestmentPopup.Hide();
             if (_sellInvestmentPopup != null) _sellInvestmentPopup.Hide();
             if (_transferPopup != null) _transferPopup.Hide();
+            if (_creditCardStatementPopup != null) _creditCardStatementPopup.Hide();
+            if (_accidentReportPopup != null) _accidentReportPopup.Hide();
+            if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.Hide();
+            if (_loanSelectionPopup != null) _loanSelectionPopup.Hide();
 
             if (_popupOverlay != null)
             {
@@ -267,6 +305,10 @@ namespace FortuneValley.UI
                 PopupType.BuyInvestment => _buyInvestmentPopup,
                 PopupType.SellInvestment => _sellInvestmentPopup,
                 PopupType.Transfer => _transferPopup,
+                PopupType.CreditCardStatement => _creditCardStatementPopup,
+                PopupType.AccidentReport => _accidentReportPopup,
+                PopupType.InsuranceSelection => _insuranceSelectionPopup,
+                PopupType.LoanSelection => _loanSelectionPopup,
                 _ => null
             };
         }
@@ -314,5 +356,15 @@ namespace FortuneValley.UI
         /// Get the transfer popup for configuration.
         /// </summary>
         public UIPopup TransferPopup => _transferPopup;
+
+        /// <summary>
+        /// Get the insurance selection popup for configuration by InsurancePanel.
+        /// </summary>
+        public UIPopup InsuranceSelectionPopup => _insuranceSelectionPopup;
+
+        /// <summary>
+        /// Get the loan selection popup for configuration by LotPurchasePopup.
+        /// </summary>
+        public UIPopup LoanSelectionPopup => _loanSelectionPopup;
     }
 }

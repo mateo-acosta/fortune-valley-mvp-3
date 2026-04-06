@@ -47,6 +47,12 @@ namespace FortuneValley.Core
         public IReadOnlyList<CityLotDefinition> AllLots => _allLots;
 
         /// <summary>
+        /// Read-only view of lot ownership. UI reads this property
+        /// instead of calling GetOwner() to respect the UI structural boundary.
+        /// </summary>
+        public IReadOnlyDictionary<string, Owner> LotOwnership => _lotOwnership;
+
+        /// <summary>
         /// Total number of lots in the city.
         /// </summary>
         public int TotalLots => _allLots.Count;

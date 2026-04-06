@@ -326,8 +326,14 @@ namespace FortuneValley.Core
         public static event Action<float> OnCreditCardCharged;
         public static void RaiseCreditCardCharged(float amount) => OnCreditCardCharged?.Invoke(amount);
 
-        public static event Action OnCreditCardStatementReady;
-        public static void RaiseCreditCardStatementReady() => OnCreditCardStatementReady?.Invoke();
+        // statementBalance, minimumPayment, interestCharged -- enriched so popup can self-configure
+        public static event Action<float, float, float> OnCreditCardStatementReady;
+        public static void RaiseCreditCardStatementReady(float statementBalance, float minimumPayment, float interestCharged)
+            => OnCreditCardStatementReady?.Invoke(statementBalance, minimumPayment, interestCharged);
+
+        // balance, delta -- mirrors OnCheckingBalanceChanged / OnInvestingBalanceChanged pattern
+        public static event Action<float, float> OnCreditCardBalanceChanged;
+        public static void RaiseCreditCardBalanceChanged(float balance, float delta) => OnCreditCardBalanceChanged?.Invoke(balance, delta);
 
         public static event Action<float> OnCreditCardPaymentRequested;
         public static void RaiseCreditCardPaymentRequested(float amount) => OnCreditCardPaymentRequested?.Invoke(amount);
@@ -359,8 +365,10 @@ namespace FortuneValley.Core
         public static event Action<AccidentRollResult> OnAccidentOccurred;           // raw accident trigger
         public static void RaiseAccidentOccurred(AccidentRollResult result) => OnAccidentOccurred?.Invoke(result);
 
-        public static event Action<string, string, bool, float> OnAccidentResolved;  // lotId, accidentId, wasCovered, playerCost
-        public static void RaiseAccidentResolved(string lotId, string accidentId, bool wasCovered, float playerCost) => OnAccidentResolved?.Invoke(lotId, accidentId, wasCovered, playerCost);
+        // lotId, accidentName, totalDamageCost, wasCovered, playerCost
+        public static event Action<string, string, float, bool, float> OnAccidentResolved;
+        public static void RaiseAccidentResolved(string lotId, string accidentName, float totalDamageCost, bool wasCovered, float playerCost)
+            => OnAccidentResolved?.Invoke(lotId, accidentName, totalDamageCost, wasCovered, playerCost);
 
         // Loan events
         public static event Action<string, float> OnLoanSelectionRequested;         // lotId, price (intent from LotPurchasePopup)
@@ -444,6 +452,7 @@ namespace FortuneValley.Core
             OnCreditCardChargeRequested = null;
             OnCreditCardCharged = null;
             OnCreditCardStatementReady = null;
+            OnCreditCardBalanceChanged = null;
             OnCreditCardPaymentRequested = null;
             OnCreditCardPaymentCompleted = null;
             OnCreditScoreChanged = null;

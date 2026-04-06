@@ -7,6 +7,8 @@ namespace FortuneValley.Domain.Enums
     {
         Portfolio,
         Lots,
-        Restaurant
+        Restaurant,
+        Insurance,
+        Loan
     }
 }
