@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using FortuneValley.Domain.Enums;
+using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Interfaces;
 
 namespace FortuneValley.Core
@@ -112,6 +113,7 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnTick += HandleTick;
             GameEvents.OnPurchaseLotRequested += HandlePurchaseLotRequested;
+            GameEvents.OnLoanOriginated += HandleLoanOriginated;
         }
 
         private void OnDisable()
@@ -119,14 +121,33 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnPurchaseLotRequested -= HandlePurchaseLotRequested;
+            GameEvents.OnLoanOriginated -= HandleLoanOriginated;
         }
 
         /// <summary>
-        /// Intent event handler: UI requested a lot purchase.
+        /// Intent event handler: UI requested a cash lot purchase.
         /// </summary>
         private void HandlePurchaseLotRequested(string lotId, int tick)
         {
             TryPurchaseLot(lotId, tick);
+        }
+
+        /// <summary>
+        /// Loan originated: LoanSystem processed the loan, now assign lot to player.
+        /// Down payment already deducted by LoanSystem.
+        /// </summary>
+        private void HandleLoanOriginated(ActiveLoan loan)
+        {
+            if (loan == null) return;
+
+            var lot = GetLot(loan.LotId);
+            if (lot == null) return;
+
+            // Verify lot is still available (rival could have bought it)
+            if (GetOwner(loan.LotId) != Owner.None) return;
+
+            // Assign lot to player (no currency deduction -- loan covers it)
+            SetOwner(loan.LotId, Owner.Player, loan.StartDay);
         }
 
         private void HandleGameStart()

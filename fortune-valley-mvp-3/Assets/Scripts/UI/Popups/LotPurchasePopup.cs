@@ -28,8 +28,10 @@ namespace FortuneValley.UI.Popups
 
         [Header("Buttons")]
         [SerializeField] private Button _buyButton;
+        [SerializeField] private Button _financeButton;
         [SerializeField] private Button _cancelButton;
         [SerializeField] private TextMeshProUGUI _buyButtonText;
+        [SerializeField] private TextMeshProUGUI _financeButtonText;
 
         [Header("Dependencies")]
         [SerializeField] private CurrencyManager _currencyManager;
@@ -72,14 +74,13 @@ namespace FortuneValley.UI.Popups
         private void SetupButtons()
         {
             if (_buyButton != null)
-            {
                 _buyButton.onClick.AddListener(OnBuyClicked);
-            }
+
+            if (_financeButton != null)
+                _financeButton.onClick.AddListener(OnFinanceClicked);
 
             if (_cancelButton != null)
-            {
                 _cancelButton.onClick.AddListener(OnCancelClicked);
-            }
         }
 
         private void OnEnable()
@@ -241,7 +242,16 @@ namespace FortuneValley.UI.Popups
             }
 
             GameEvents.RaisePurchaseLotRequested(_currentLot.LotId, _currentTick);
-            OnCancelClicked(); // inherited from UIPopup -- fires OnCloseRequested
+            OnCancelClicked();
+        }
+
+        private void OnFinanceClicked()
+        {
+            if (_currentLot == null) return;
+
+            // Fire intent event; UIManager subscribes to show LoanSelectionPopup
+            GameEvents.RaiseLoanSelectionRequested(_currentLot.LotId, _currentLot.BaseCost);
+            OnCancelClicked();
         }
 
         protected override void OnHide()

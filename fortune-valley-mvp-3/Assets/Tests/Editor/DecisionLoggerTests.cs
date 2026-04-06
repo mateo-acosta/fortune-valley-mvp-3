@@ -86,6 +86,20 @@ namespace FortuneValley.Tests
             Assert.DoesNotThrow(() => GameEvents.RaiseAccidentResolved("lot_1", "fire", true, 200f));
         }
 
+        [Test]
+        public void OnEnable_SubscribesToLoanOriginated()
+        {
+            var loan = new ActiveLoan("l1", "lot1", 8000f, 0.10f, 12, 700f, 2000f, 5);
+            Assert.DoesNotThrow(() => GameEvents.RaiseLoanOriginated(loan));
+        }
+
+        [Test]
+        public void OnEnable_SubscribesToLoanPaymentMade()
+        {
+            var loan = new ActiveLoan("l1", "lot1", 8000f, 0.10f, 12, 700f, 2000f, 5);
+            Assert.DoesNotThrow(() => GameEvents.RaiseLoanPaymentMade(loan, 700f));
+        }
+
         // ===============================================================
         // NULL APICLENT GUARD TESTS
         // ===============================================================
@@ -222,6 +236,36 @@ namespace FortuneValley.Tests
             Assert.AreEqual("outflow", dto.line_items[0].flow_category);
         }
 
+        [Test]
+        public void HandleLoanOriginated_BuildsCorrectDTO()
+        {
+            var dto = BuildLoanOriginatedDTO("lot_1", 8000f, 2000f);
+
+            Assert.AreEqual("loan_taken", dto.decision_type);
+            Assert.AreEqual("lot_1", dto.instrument_id);
+            Assert.AreEqual(8000f, dto.gross_amount, 0.01f);
+            Assert.AreEqual("transfer", dto.category);
+            Assert.AreEqual(1, dto.line_items.Length);
+            Assert.AreEqual("checking", dto.line_items[0].account_affected);
+            Assert.AreEqual(-2000f, dto.line_items[0].change_amount, 0.01f);
+            Assert.AreEqual("outflow", dto.line_items[0].flow_category);
+        }
+
+        [Test]
+        public void HandleLoanPaymentMade_BuildsCorrectDTO()
+        {
+            var dto = BuildLoanPaymentDTO("lot_1", 700f);
+
+            Assert.AreEqual("loan_payment", dto.decision_type);
+            Assert.AreEqual("lot_1", dto.instrument_id);
+            Assert.AreEqual(700f, dto.gross_amount, 0.01f);
+            Assert.AreEqual("expense", dto.category);
+            Assert.AreEqual(1, dto.line_items.Length);
+            Assert.AreEqual("checking", dto.line_items[0].account_affected);
+            Assert.AreEqual(700f, dto.line_items[0].change_amount, 0.01f);
+            Assert.AreEqual("outflow", dto.line_items[0].flow_category);
+        }
+
         // ===============================================================
         // HELPERS
         // ===============================================================
@@ -333,6 +377,28 @@ namespace FortuneValley.Tests
                     }
                 }
             };
+        }
+
+        private static DecisionEventDTO BuildLoanOriginatedDTO(string lotId, float principal, float downPayment)
+        {
+            return new DecisionDTOBuilder(null, null)
+                .Type("loan_taken")
+                .Instrument(lotId)
+                .Amount(principal)
+                .Category("transfer")
+                .AddLineItem("checking", -downPayment, "outflow")
+                .Build();
+        }
+
+        private static DecisionEventDTO BuildLoanPaymentDTO(string lotId, float amountPaid)
+        {
+            return new DecisionDTOBuilder(null, null)
+                .Type("loan_payment")
+                .Instrument(lotId)
+                .Amount(amountPaid)
+                .Category("expense")
+                .AddLineItem("checking", amountPaid, "outflow")
+                .Build();
         }
 
         private static void SetField(object target, string fieldName, object value)

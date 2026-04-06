@@ -1,0 +1,194 @@
+using UnityEngine;
+using System.Collections.Generic;
+using FortuneValley.Domain.Entities;
+
+namespace FortuneValley.Core
+{
+    /// <summary>
+    /// Manages loan origination and monthly payments.
+    /// Subscribes to intent events from UI and delegates
+    /// all logic to LoanPortfolio (pure C#).
+    ///
+    /// LEARNING DESIGN: Loans let students finance lot purchases
+    /// they cannot yet afford outright. The trade-off between
+    /// paying interest vs waiting to save is a core lesson.
+    /// </summary>
+    public class LoanSystem : MonoBehaviour
+    {
+        // ===============================================================
+        // CONFIGURATION
+        // ===============================================================
+
+        [Header("Available Loans")]
+        [Tooltip("All loan options the player can choose from")]
+        [SerializeField] private List<LoanConfig> _availableLoans;
+
+        [Header("Dependencies")]
+        [SerializeField] private CurrencyManager _currencyManager;
+
+        [Header("Debug")]
+        [SerializeField] private bool _logTransactions;
+
+        // ===============================================================
+        // CONSTANTS
+        // ===============================================================
+
+        private const int InitialStartDay = 0;
+
+        // ===============================================================
+        // RUNTIME STATE
+        // ===============================================================
+
+        private LoanPortfolio _portfolio;
+
+        // ===============================================================
+        // PUBLIC ACCESSORS
+        // ===============================================================
+
+        public LoanPortfolio Portfolio => _portfolio;
+
+        public float TotalMonthlyDebt => _portfolio != null
+            ? _portfolio.GetTotalMonthlyDebt()
+            : 0f;
+
+        public float TotalOutstandingPrincipal => _portfolio != null
+            ? _portfolio.GetTotalOutstandingPrincipal()
+            : 0f;
+
+        public IReadOnlyList<LoanConfig> AvailableLoans => _availableLoans;
+
+        // ===============================================================
+        // LIFECYCLE
+        // ===============================================================
+
+        private void OnEnable()
+        {
+            GameEvents.OnGameStart += HandleGameStart;
+            GameEvents.OnLoanPurchaseRequested += HandleLoanPurchaseRequested;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnGameStart -= HandleGameStart;
+            GameEvents.OnLoanPurchaseRequested -= HandleLoanPurchaseRequested;
+        }
+
+        private void HandleGameStart()
+        {
+            _portfolio = new LoanPortfolio();
+        }
+
+        // ===============================================================
+        // LOAN ORIGINATION (via intent event from LoanSelectionPopup)
+        // ===============================================================
+
+        private void HandleLoanPurchaseRequested(string loanConfigId, string lotId, float price)
+        {
+            if (_portfolio == null || _currencyManager == null) return;
+
+            // Look up config
+            LoanConfig config = LoanPortfolio.FindLoanConfig(_availableLoans, loanConfigId);
+            if (config == null)
+            {
+                if (_logTransactions)
+                    Debug.Log($"[LoanSystem] Loan config '{loanConfigId}' not found.");
+                return;
+            }
+
+            // Deduct down payment from checking
+            float downPayment = price * config.DownPaymentPercent;
+            if (downPayment > 0f && !_currencyManager.TrySpendChecking(downPayment, $"Down payment: lot {lotId}"))
+            {
+                if (_logTransactions)
+                    Debug.Log($"[LoanSystem] Cannot afford down payment ${downPayment:F2} for lot {lotId}.");
+                return;
+            }
+
+            // Create loan via portfolio
+            ActiveLoan loan = _portfolio.Originate(
+                config.LoanId, lotId, price,
+                config.APR, config.TermMonths,
+                config.DownPaymentPercent, InitialStartDay);
+
+            if (loan == null)
+            {
+                // Refund down payment if loan creation failed (e.g., duplicate)
+                if (downPayment > 0f)
+                    _currencyManager.AddToChecking(downPayment, $"Refund: loan rejected for lot {lotId}");
+
+                if (_logTransactions)
+                    Debug.Log($"[LoanSystem] Loan rejected for lot {lotId} (duplicate or zero principal).");
+                return;
+            }
+
+            if (_logTransactions)
+            {
+                Debug.Log($"[LoanSystem] Loan originated: {config.DisplayName} for lot {lotId}. " +
+                          $"Principal: ${loan.Principal:F2}, Monthly: ${loan.MonthlyPayment:F2}");
+            }
+
+            GameEvents.RaiseLoanOriginated(loan);
+        }
+
+        // ===============================================================
+        // MONTHLY PAYMENTS (called by MonthlyPaymentDayController)
+        // ===============================================================
+
+        /// <summary>
+        /// Process monthly loan payments. Deducts from checking for each active loan.
+        /// Called by MonthlyPaymentDayController on payment day (step 1).
+        /// </summary>
+        public void ProcessMonthlyPayments()
+        {
+            if (_portfolio == null || _currencyManager == null) return;
+
+            _portfolio.ProcessMonthlyPayments(
+                _currencyManager.TrySpendChecking,
+                HandlePaymentMade,
+                HandlePaymentMissed);
+        }
+
+        private void HandlePaymentMade(ActiveLoan loan, float amountPaid)
+        {
+            if (_logTransactions)
+            {
+                Debug.Log($"[LoanSystem] Payment ${amountPaid:F2} on {loan.LoanId}. " +
+                          $"Remaining: ${loan.RemainingBalance:F2}");
+            }
+
+            GameEvents.RaiseLoanPaymentMade(loan, amountPaid);
+
+            if (loan.IsPaidOff)
+            {
+                if (_logTransactions)
+                    Debug.Log($"[LoanSystem] Loan {loan.LoanId} paid off!");
+
+                GameEvents.RaiseLoanPaidOff(loan);
+            }
+        }
+
+        private void HandlePaymentMissed(ActiveLoan loan)
+        {
+            if (_logTransactions)
+            {
+                Debug.Log($"[LoanSystem] MISSED payment on {loan.LoanId}. " +
+                          $"Total missed: {loan.MissedPayments}");
+            }
+
+            GameEvents.RaiseLoanPaymentMissed(loan);
+        }
+
+        // ===============================================================
+        // QUERY HELPERS (for DTI computation by external callers)
+        // ===============================================================
+
+        /// <summary>
+        /// Get filtered loan configs based on credit score and DTI.
+        /// Called when configuring the LoanSelectionPopup.
+        /// </summary>
+        public List<LoanConfig> GetQualifiedLoans(int creditScore, float dti)
+        {
+            return LoanPortfolio.GetAvailableLoans(_availableLoans, creditScore, dti);
+        }
+    }
+}

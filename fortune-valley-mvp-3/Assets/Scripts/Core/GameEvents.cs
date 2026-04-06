@@ -362,6 +362,25 @@ namespace FortuneValley.Core
         public static event Action<string, string, bool, float> OnAccidentResolved;  // lotId, accidentId, wasCovered, playerCost
         public static void RaiseAccidentResolved(string lotId, string accidentId, bool wasCovered, float playerCost) => OnAccidentResolved?.Invoke(lotId, accidentId, wasCovered, playerCost);
 
+        // Loan events
+        public static event Action<string, float> OnLoanSelectionRequested;         // lotId, price (intent from LotPurchasePopup)
+        public static void RaiseLoanSelectionRequested(string lotId, float price) => OnLoanSelectionRequested?.Invoke(lotId, price);
+
+        public static event Action<string, string, float> OnLoanPurchaseRequested;  // loanConfigId, lotId, price (intent from LoanSelectionPopup)
+        public static void RaiseLoanPurchaseRequested(string loanConfigId, string lotId, float price) => OnLoanPurchaseRequested?.Invoke(loanConfigId, lotId, price);
+
+        public static event Action<ActiveLoan> OnLoanOriginated;                    // loan created (confirmation)
+        public static void RaiseLoanOriginated(ActiveLoan loan) => OnLoanOriginated?.Invoke(loan);
+
+        public static event Action<ActiveLoan, float> OnLoanPaymentMade;            // loan, amount paid
+        public static void RaiseLoanPaymentMade(ActiveLoan loan, float amount) => OnLoanPaymentMade?.Invoke(loan, amount);
+
+        public static event Action<ActiveLoan> OnLoanPaymentMissed;                 // loan (checking insufficient)
+        public static void RaiseLoanPaymentMissed(ActiveLoan loan) => OnLoanPaymentMissed?.Invoke(loan);
+
+        public static event Action<ActiveLoan> OnLoanPaidOff;                       // loan fully repaid
+        public static void RaiseLoanPaidOff(ActiveLoan loan) => OnLoanPaidOff?.Invoke(loan);
+
         // Day cycle invoker
         public static void RaiseDayEnd(int dayNumber) => OnDayEnd?.Invoke(dayNumber);
 
@@ -434,6 +453,14 @@ namespace FortuneValley.Core
             // Accidents
             OnAccidentOccurred = null;
             OnAccidentResolved = null;
+
+            // Loans
+            OnLoanSelectionRequested = null;
+            OnLoanPurchaseRequested = null;
+            OnLoanOriginated = null;
+            OnLoanPaymentMade = null;
+            OnLoanPaymentMissed = null;
+            OnLoanPaidOff = null;
 
             // Day cycle
             OnDayEnd = null;

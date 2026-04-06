@@ -7,6 +7,7 @@ namespace FortuneValley.Core
     /// <summary>
     /// Subscribes to GameEvents and constructs decision DTOs for the FDLS.
     /// Enqueues each decision via APIClient for batched sending.
+    /// Uses DecisionDTOBuilder for DRY DTO construction.
     /// </summary>
     public class DecisionLogger : MonoBehaviour
     {
@@ -40,6 +41,8 @@ namespace FortuneValley.Core
             GameEvents.OnCreditCardPaymentCompleted += HandleCreditCardPayment;
             GameEvents.OnInsurancePurchased += HandleInsurancePurchased;
             GameEvents.OnAccidentResolved += HandleAccidentResolved;
+            GameEvents.OnLoanOriginated += HandleLoanOriginated;
+            GameEvents.OnLoanPaymentMade += HandleLoanPaymentMade;
         }
 
         private void OnDisable()
@@ -51,180 +54,147 @@ namespace FortuneValley.Core
             GameEvents.OnCreditCardPaymentCompleted -= HandleCreditCardPayment;
             GameEvents.OnInsurancePurchased -= HandleInsurancePurchased;
             GameEvents.OnAccidentResolved -= HandleAccidentResolved;
+            GameEvents.OnLoanOriginated -= HandleLoanOriginated;
+            GameEvents.OnLoanPaymentMade -= HandleLoanPaymentMade;
         }
+
+        // ===============================================================
+        // HELPERS
+        // ===============================================================
+
+        private bool CanLog()
+        {
+            return _apiClient != null && _apiClient.CanPersist();
+        }
+
+        private DecisionDTOBuilder NewBuilder()
+        {
+            return new DecisionDTOBuilder(_sessionId, _gameMode);
+        }
+
+        private void TryLog(DecisionEventDTO dto)
+        {
+            _apiClient.EnqueueDecision(dto);
+        }
+
+        // ===============================================================
+        // HANDLERS
+        // ===============================================================
 
         private void HandleInvestmentCreated(ActiveInvestment inv)
         {
-            if (_apiClient == null || !_apiClient.CanPersist()) return;
+            if (!CanLog()) return;
 
-            var dto = new DecisionEventDTO
-            {
-                session_id = _sessionId,
-                game_mode = _gameMode,
-                in_game_day = inv.CreatedAtTick,
-                decision_type = "investment_buy",
-                instrument_id = inv.Definition.DisplayName,
-                gross_amount = inv.Principal,
-                category = "investment",
-                line_items = new[]
-                {
-                    new DecisionLineItemDTO
-                    {
-                        account_affected = "investing",
-                        change_amount = inv.Principal,
-                        flow_category = "outflow"
-                    }
-                }
-            };
-
-            _apiClient.EnqueueDecision(dto);
+            TryLog(NewBuilder()
+                .Type("investment_buy")
+                .Instrument(inv.Definition.DisplayName)
+                .Amount(inv.Principal)
+                .Day(inv.CreatedAtTick)
+                .Category("investment")
+                .AddLineItem("investing", inv.Principal, "outflow")
+                .Build());
         }
 
         private void HandleInvestmentWithdrawn(ActiveInvestment inv, float payout)
         {
-            if (_apiClient == null || !_apiClient.CanPersist()) return;
+            if (!CanLog()) return;
 
-            var dto = new DecisionEventDTO
-            {
-                session_id = _sessionId,
-                game_mode = _gameMode,
-                in_game_day = inv.CreatedAtTick,
-                decision_type = "investment_sell",
-                instrument_id = inv.Definition.DisplayName,
-                gross_amount = payout,
-                category = "investment",
-                line_items = new[]
-                {
-                    new DecisionLineItemDTO
-                    {
-                        account_affected = "investing",
-                        change_amount = payout,
-                        flow_category = "inflow"
-                    }
-                }
-            };
-
-            _apiClient.EnqueueDecision(dto);
+            TryLog(NewBuilder()
+                .Type("investment_sell")
+                .Instrument(inv.Definition.DisplayName)
+                .Amount(payout)
+                .Day(inv.CreatedAtTick)
+                .Category("investment")
+                .AddLineItem("investing", payout, "inflow")
+                .Build());
         }
 
         private void HandleLotPurchased(string lotId, Owner owner)
         {
-            if (_apiClient == null || !_apiClient.CanPersist()) return;
+            if (!CanLog()) return;
 
             string decisionType = owner == Owner.Player ? "lot_purchase" : "rival_lot_taken";
             string category = owner == Owner.Player ? "expense" : "event";
 
-            var dto = new DecisionEventDTO
-            {
-                session_id = _sessionId,
-                game_mode = _gameMode,
-                in_game_day = 0, // Will be set by caller or tick context
-                decision_type = decisionType,
-                instrument_id = lotId,
-                category = category
-            };
-
-            _apiClient.EnqueueDecision(dto);
+            TryLog(NewBuilder()
+                .Type(decisionType)
+                .Instrument(lotId)
+                .Category(category)
+                .Build());
         }
 
         private void HandleRestaurantUpgraded(int newLevel)
         {
-            if (_apiClient == null || !_apiClient.CanPersist()) return;
+            if (!CanLog()) return;
 
-            var dto = new DecisionEventDTO
-            {
-                session_id = _sessionId,
-                game_mode = _gameMode,
-                in_game_day = 0,
-                decision_type = "franchise_upgrade",
-                category = "expense"
-            };
-
-            _apiClient.EnqueueDecision(dto);
+            TryLog(NewBuilder()
+                .Type("franchise_upgrade")
+                .Category("expense")
+                .Build());
         }
 
         private void HandleCreditCardPayment(float amountPaid)
         {
-            if (_apiClient == null || !_apiClient.CanPersist()) return;
+            if (!CanLog()) return;
 
-            var dto = new DecisionEventDTO
-            {
-                session_id = _sessionId,
-                game_mode = _gameMode,
-                in_game_day = 0,
-                decision_type = "cc_payment",
-                gross_amount = amountPaid,
-                category = "transfer",
-                line_items = new[]
-                {
-                    new DecisionLineItemDTO
-                    {
-                        account_affected = "checking",
-                        change_amount = amountPaid,
-                        flow_category = "outflow"
-                    },
-                    new DecisionLineItemDTO
-                    {
-                        account_affected = "credit",
-                        change_amount = amountPaid,
-                        flow_category = "inflow"
-                    }
-                }
-            };
-
-            _apiClient.EnqueueDecision(dto);
+            TryLog(NewBuilder()
+                .Type("cc_payment")
+                .Amount(amountPaid)
+                .Category("transfer")
+                .AddLineItem("checking", amountPaid, "outflow")
+                .AddLineItem("credit", amountPaid, "inflow")
+                .Build());
         }
 
         private void HandleInsurancePurchased(string lotId, string policyId)
         {
-            if (_apiClient == null || !_apiClient.CanPersist()) return;
+            if (!CanLog()) return;
 
-            var dto = new DecisionEventDTO
-            {
-                session_id = _sessionId,
-                game_mode = _gameMode,
-                in_game_day = 0,
-                decision_type = "insurance_purchase",
-                instrument_id = policyId,
-                category = "expense",
-                line_items = new[]
-                {
-                    new DecisionLineItemDTO
-                    {
-                        account_affected = "credit",
-                        flow_category = "outflow"
-                    }
-                }
-            };
-
-            _apiClient.EnqueueDecision(dto);
+            TryLog(NewBuilder()
+                .Type("insurance_purchase")
+                .Instrument(policyId)
+                .Category("expense")
+                .AddLineItem("credit", 0f, "outflow")
+                .Build());
         }
 
         private void HandleAccidentResolved(string lotId, string accidentId, bool wasCovered, float playerCost)
         {
-            if (_apiClient == null || !_apiClient.CanPersist()) return;
+            if (!CanLog()) return;
 
-            var dto = new DecisionEventDTO
-            {
-                session_id = _sessionId,
-                game_mode = _gameMode,
-                in_game_day = 0,
-                decision_type = "accident_occurred",
-                instrument_id = lotId,
-                gross_amount = playerCost,
-                category = "event",
-                line_items = new[]
-                {
-                    new DecisionLineItemDTO
-                    {
-                        account_affected = "credit",
-                        change_amount = playerCost,
-                        flow_category = "outflow"
-                    }
-                }
-            };
+            TryLog(NewBuilder()
+                .Type("accident_occurred")
+                .Instrument(lotId)
+                .Amount(playerCost)
+                .Category("event")
+                .AddLineItem("credit", playerCost, "outflow")
+                .Build());
+        }
 
-            _apiClient.EnqueueDecision(dto);
+        private void HandleLoanOriginated(ActiveLoan loan)
+        {
+            if (!CanLog()) return;
+
+            TryLog(NewBuilder()
+                .Type("loan_taken")
+                .Instrument(loan.LotId)
+                .Amount(loan.Principal)
+                .Category("transfer")
+                .AddLineItem("checking", -loan.DownPayment, "outflow")
+                .Build());
+        }
+
+        private void HandleLoanPaymentMade(ActiveLoan loan, float amountPaid)
+        {
+            if (!CanLog()) return;
+
+            TryLog(NewBuilder()
+                .Type("loan_payment")
+                .Instrument(loan.LotId)
+                .Amount(amountPaid)
+                .Category("expense")
+                .AddLineItem("checking", amountPaid, "outflow")
+                .Build());
         }
     }
 }
