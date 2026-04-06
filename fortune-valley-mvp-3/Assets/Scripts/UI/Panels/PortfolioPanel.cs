@@ -29,6 +29,10 @@ namespace FortuneValley.UI.Panels
         [SerializeField] private PortfolioHistoryTracker _historyTracker;
         [SerializeField] private StockPriceHistoryStore _stockHistory;
 
+        [Header("Trading")]
+        [Tooltip("Number of shares per buy/sell click")]
+        [SerializeField] private int _sharesPerTrade = 1;
+
         [Header("Font")]
         [SerializeField] private TMP_FontAsset _labelFont; // assign Rubik-Medium SDF in Inspector
 
@@ -293,7 +297,7 @@ namespace FortuneValley.UI.Panels
         {
             if (_selectedDefinition == null) return;
 
-            GameEvents.RaiseBuySharesRequested(_selectedDefinition, 1);
+            GameEvents.RaiseBuySharesRequested(_selectedDefinition, _sharesPerTrade);
 
             // Safe: Unity events invoke handlers synchronously before returning.
             // Investment state is already updated by the time Refresh runs.
@@ -307,7 +311,7 @@ namespace FortuneValley.UI.Panels
 
             var inv = GetActiveInvestment(_selectedDefinition);
             if (inv != null)
-                GameEvents.RaiseSellSharesRequested(inv, 1);
+                GameEvents.RaiseSellSharesRequested(inv, _sharesPerTrade);
 
             RefreshDetailPanel();
             RefreshOverviewPanel();

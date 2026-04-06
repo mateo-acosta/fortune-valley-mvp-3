@@ -6,8 +6,8 @@ namespace FortuneValley.Domain
     /// </summary>
     public static class SceneNames
     {
-        public const string Homebase = "Homebase";
-        public const string InvestingLevel = "InvestingLevel";
+        public static string Homebase => "Homebase";
+        public static string InvestingLevel => "InvestingLevel";
         // Add InsuranceLevel, LoansLevel when those scenes exist
     }
 }
