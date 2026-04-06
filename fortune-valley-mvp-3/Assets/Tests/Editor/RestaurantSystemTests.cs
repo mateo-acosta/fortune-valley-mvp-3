@@ -23,7 +23,7 @@ namespace FortuneValley.Tests
             _rootGO = new GameObject("TestRoot");
 
             _currency = _rootGO.AddComponent<CurrencyManager>();
-            SetField(_currency, "_startingBalance", 10000f);
+            SetField(_currency, "_startingCheckingBalance", 10000f);
             _currency.ResetBalance();
 
             _config = ScriptableObject.CreateInstance<RestaurantConfig>();
@@ -87,7 +87,7 @@ namespace FortuneValley.Tests
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             onEnable.Invoke(_system, null);
 
-            _currency.SetBalance(0f);
+            _currency.SetCheckingBalance(0f);
             int levelBefore = _system.CurrentLevel;
 
             GameEvents.RaiseUpgradeRestaurantRequested();

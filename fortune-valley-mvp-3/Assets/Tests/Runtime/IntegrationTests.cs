@@ -43,7 +43,7 @@ namespace FortuneValley.Tests
             _cityManager = _gameObject.AddComponent<CityManager>();
 
             // Wire dependencies
-            SetPrivateField(_currencyManager, "_startingBalance", 1000f);
+            SetPrivateField(_currencyManager, "_startingCheckingBalance", 1000f);
             SetPrivateField(_restaurantSystem, "_config", _restaurantConfig);
             SetPrivateField(_restaurantSystem, "_currencyManager", _currencyManager);
             SetPrivateField(_investmentSystem, "_currencyManager", _currencyManager);
@@ -122,12 +122,12 @@ namespace FortuneValley.Tests
         [Test]
         public void RestaurantGeneratesIncomeOverTime()
         {
-            float startBalance = _currencyManager.Balance;
+            float startBalance = _currencyManager.CheckingBalance;
 
             SimulateTicks(10);
 
             // Should have earned 10 ticks * 10 income = 100
-            Assert.AreEqual(startBalance + 100f, _currencyManager.Balance, 0.1f);
+            Assert.AreEqual(startBalance + 100f, _currencyManager.CheckingBalance, 0.1f);
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace FortuneValley.Tests
         {
             // Earn enough for upgrade
             SimulateTicks(50); // 500 earned
-            float balanceBeforeUpgrade = _currencyManager.Balance;
+            float balanceBeforeUpgrade = _currencyManager.CheckingBalance;
 
             bool upgraded = _restaurantSystem.TryUpgrade();
 
@@ -149,21 +149,25 @@ namespace FortuneValley.Tests
         // ═══════════════════════════════════════════════════════════════
 
         [Test]
-        public void InvestmentCreation_ReducesBalance()
+        public void InvestmentCreation_ReducesInvestingBalance()
         {
-            float before = _currencyManager.Balance;
+            // Transfer from checking to investing first
+            _currencyManager.TransferToInvesting(800f);
+            float before = _currencyManager.InvestingBalance;
 
             var investment = _investmentSystem.CreateInvestment(_investmentDefs[0], 500f);
 
             Assert.IsNotNull(investment);
-            Assert.AreEqual(before - 500f, _currencyManager.Balance);
+            Assert.AreEqual(before - 500f, _currencyManager.InvestingBalance);
         }
 
         [Test]
-        public void InvestmentWithdrawal_ReturnsValue()
+        public void InvestmentWithdrawal_ReturnsValueToInvesting()
         {
+            // Transfer from checking to investing first
+            _currencyManager.TransferToInvesting(800f);
             var investment = _investmentSystem.CreateInvestment(_investmentDefs[0], 500f);
-            float balanceAfterInvest = _currencyManager.Balance;
+            float balanceAfterInvest = _currencyManager.InvestingBalance;
 
             // Simulate time for compounding
             for (int i = 1; i <= 30; i++)
@@ -175,7 +179,7 @@ namespace FortuneValley.Tests
             float payout = _investmentSystem.WithdrawInvestment(investment);
 
             Assert.Greater(payout, 500f); // Should have grown
-            Assert.AreEqual(balanceAfterInvest + payout, _currencyManager.Balance);
+            Assert.AreEqual(balanceAfterInvest + payout, _currencyManager.InvestingBalance);
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -191,22 +195,23 @@ namespace FortuneValley.Tests
             SimulateTicks(100);
 
             // Should now have 1000 + 1000 = 2000
-            Assert.AreEqual(2000f, _currencyManager.Balance, 1f);
+            Assert.AreEqual(2000f, _currencyManager.CheckingBalance, 1f);
 
             // Buy the lot
             bool purchased = _cityManager.TryPurchaseLot("test_lot", 100);
 
             Assert.IsTrue(purchased);
             Assert.AreEqual(Owner.Player, _cityManager.GetOwner("test_lot"));
-            Assert.AreEqual(0f, _currencyManager.Balance, 1f);
+            Assert.AreEqual(0f, _currencyManager.CheckingBalance, 1f);
         }
 
         [Test]
         public void Scenario_InvestThenWithdrawToBuyLot()
         {
-            // Invest most of starting money
+            // Transfer to investing, then create investment
+            _currencyManager.TransferToInvesting(800f);
             var investment = _investmentSystem.CreateInvestment(_investmentDefs[0], 800f);
-            Assert.AreEqual(200f, _currencyManager.Balance, 1f);
+            Assert.AreEqual(200f, _currencyManager.CheckingBalance, 1f);
 
             // Simulate time for compounding (multiple compound periods)
             for (int i = 1; i <= 360; i++) // About 1 year
@@ -216,15 +221,18 @@ namespace FortuneValley.Tests
                 GameEvents.RaiseTick(i); // Also generates restaurant income
             }
 
-            // Withdraw investment
+            // Withdraw investment (payout goes to investing account)
             float payout = _investmentSystem.WithdrawInvestment(investment);
             Assert.Greater(payout, 800f); // Investment should have grown
+
+            // Transfer payout back to checking so we can buy a lot
+            _currencyManager.TransferFromInvesting(_currencyManager.InvestingBalance);
 
             // Should now have enough to buy lot
             // Restaurant income: 360 * 10 = 3600
             // Investment payout: ~840 (5% annual, compounded monthly)
             // Plus starting 200
-            Assert.Greater(_currencyManager.Balance, 2000f);
+            Assert.Greater(_currencyManager.CheckingBalance, 2000f);
 
             bool purchased = _cityManager.TryPurchaseLot("test_lot", 360);
             Assert.IsTrue(purchased);
@@ -237,6 +245,7 @@ namespace FortuneValley.Tests
         [Test]
         public void LearningOutcome_CompoundInterestVisibleInGains()
         {
+            _currencyManager.TransferToInvesting(1000f);
             var investment = _investmentSystem.CreateInvestment(_investmentDefs[0], 1000f);
 
             // Simulate one compound period
@@ -262,6 +271,7 @@ namespace FortuneValley.Tests
         [Test]
         public void LearningOutcome_InvestmentExplanationIsReadable()
         {
+            _currencyManager.TransferToInvesting(500f);
             var investment = _investmentSystem.CreateInvestment(_investmentDefs[0], 500f);
 
             // Before compounding

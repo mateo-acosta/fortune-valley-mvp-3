@@ -198,7 +198,7 @@ namespace FortuneValley.Core
             }
 
             // Try to spend
-            if (!_currencyManager.TrySpend(lot.BaseCost, $"Purchase lot: {lot.DisplayName}"))
+            if (!_currencyManager.TrySpendChecking(lot.BaseCost, $"Purchase lot: {lot.DisplayName}"))
             {
                 Debug.Log($"[CityManager] Cannot afford lot {lotId}. Cost: ${lot.BaseCost:F0}");
                 return false;

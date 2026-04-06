@@ -91,7 +91,7 @@ namespace FortuneValley.Core
                 {
                     new DecisionLineItemDTO
                     {
-                        account_affected = "checking",
+                        account_affected = "investing",
                         change_amount = payout,
                         flow_category = "inflow"
                     }

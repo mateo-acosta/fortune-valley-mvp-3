@@ -234,7 +234,7 @@ namespace FortuneValley.UI.Popups
             if (_currentLot == null || _currencyManager == null) return;
 
             // Pre-validate affordability before firing intent event (property reads only)
-            if (_currencyManager.Balance < _currentLot.BaseCost)
+            if (_currencyManager.CheckingBalance < _currentLot.BaseCost)
             {
                 UpdateAffordability();
                 return;

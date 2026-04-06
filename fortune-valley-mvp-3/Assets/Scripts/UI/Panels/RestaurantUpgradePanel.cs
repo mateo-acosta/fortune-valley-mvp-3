@@ -182,7 +182,7 @@ namespace FortuneValley.UI.Panels
             if (_restaurantSystem.IsMaxTier) return;
 
             float cost = _restaurantSystem.UpgradeCost;
-            bool canAfford = _currencyManager.CanAfford(cost);
+            bool canAfford = _currencyManager.CanAffordChecking(cost);
 
             if (_upgradeButton != null)
                 _upgradeButton.interactable = canAfford;
@@ -195,7 +195,7 @@ namespace FortuneValley.UI.Panels
                 }
                 else
                 {
-                    float shortfall = cost - _currencyManager.Balance;
+                    float shortfall = cost - _currencyManager.CheckingBalance;
                     _affordabilityText.text = $"Need ${shortfall:F0} more";
                     _affordabilityText.gameObject.SetActive(true);
                 }

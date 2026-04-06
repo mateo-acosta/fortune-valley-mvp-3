@@ -112,22 +112,22 @@ namespace FortuneValley.Managers
             GUILayout.Label("<b>═══ CURRENCY ═══</b>", CreateRichTextStyle());
 
             var currency = _gameManager.CurrencyManager;
-            GUILayout.Label($"<size=16><b>${currency.Balance:F0}</b></size>", CreateRichTextStyle());
+            GUILayout.Label($"<size=16><b>Checking: ${currency.CheckingBalance:F0} | Investing: ${currency.InvestingBalance:F0}</b></size>", CreateRichTextStyle());
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("+$100"))
             {
-                currency.Add(100, "Debug");
+                currency.AddToChecking(100, "Debug");
                 LogAction("+$100");
             }
             if (GUILayout.Button("+$1000"))
             {
-                currency.Add(1000, "Debug");
+                currency.AddToChecking(1000, "Debug");
                 LogAction("+$1000");
             }
             if (GUILayout.Button("+$10000"))
             {
-                currency.Add(10000, "Debug");
+                currency.AddToChecking(10000, "Debug");
                 LogAction("+$10000");
             }
             GUILayout.EndHorizontal();
@@ -200,7 +200,7 @@ namespace FortuneValley.Managers
                 float price100 = selected.CurrentPrice * 100;
 
                 // Buy 1 share
-                GUI.enabled = currency.CanAfford(price1);
+                GUI.enabled = currency.CanAffordInvesting(price1);
                 if (GUILayout.Button($"Buy 1\n(${price1:F0})"))
                 {
                     var inv = investments.BuyShares(selected, 1);
@@ -211,7 +211,7 @@ namespace FortuneValley.Managers
                 }
 
                 // Buy 10 shares
-                GUI.enabled = currency.CanAfford(price10);
+                GUI.enabled = currency.CanAffordInvesting(price10);
                 if (GUILayout.Button($"Buy 10\n(${price10:F0})"))
                 {
                     var inv = investments.BuyShares(selected, 10);
@@ -222,7 +222,7 @@ namespace FortuneValley.Managers
                 }
 
                 // Buy 100 shares
-                GUI.enabled = currency.CanAfford(price100);
+                GUI.enabled = currency.CanAffordInvesting(price100);
                 if (GUILayout.Button($"Buy 100\n(${price100:F0})"))
                 {
                     var inv = investments.BuyShares(selected, 100);
@@ -280,7 +280,7 @@ namespace FortuneValley.Managers
             {
                 GUILayout.BeginHorizontal();
 
-                bool canAfford = _gameManager.CurrencyManager.CanAfford(lot.BaseCost);
+                bool canAfford = _gameManager.CurrencyManager.CanAffordChecking(lot.BaseCost);
                 string color = canAfford ? "white" : "gray";
                 GUILayout.Label($"<color={color}>{lot.DisplayName} (${lot.BaseCost:F0})</color>",
                     CreateRichTextStyle(), GUILayout.Width(180));

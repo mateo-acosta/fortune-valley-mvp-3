@@ -152,10 +152,10 @@ namespace FortuneValley.UI.Components
             }
 
             // Update button states
-            bool canAfford1 = _currencyManager != null && _currencyManager.CanAfford(currentPrice);
+            bool canAfford1 = _currencyManager != null && _currencyManager.CanAffordInvesting(currentPrice);
             SetButtonInteractable(_buy1Button, canAfford1);
-            SetButtonInteractable(_buy5Button, _currencyManager != null && _currencyManager.CanAfford(currentPrice * 5));
-            SetButtonInteractable(_buy50Button, _currencyManager != null && _currencyManager.CanAfford(currentPrice * 50));
+            SetButtonInteractable(_buy5Button, _currencyManager != null && _currencyManager.CanAffordInvesting(currentPrice * 5));
+            SetButtonInteractable(_buy50Button, _currencyManager != null && _currencyManager.CanAffordInvesting(currentPrice * 50));
             SetButtonInteractable(_buyMaxButton, canAfford1);
 
             // Sell buttons visible only when holding shares
@@ -194,7 +194,7 @@ namespace FortuneValley.UI.Components
             if (_investmentSystem == null || _definition == null || _currencyManager == null) return;
 
             float price = _definition.CurrentPrice;
-            int maxShares = Mathf.FloorToInt(_currencyManager.Balance / price);
+            int maxShares = Mathf.FloorToInt(_currencyManager.InvestingBalance / price);
             if (maxShares > 0)
             {
                 _investmentSystem.BuyShares(_definition, maxShares);

@@ -149,11 +149,16 @@ namespace FortuneValley.Core
 
             float cost = _config.GetUpgradeCost(_currentLevel);
 
-            if (!_currencyManager.TrySpend(cost, $"Restaurant upgrade to level {_currentLevel + 1}"))
+            // Route upgrade cost through credit card charge event
+            // Phase 0: placeholder in CurrencyManager deducts from checking
+            // Phase 1: CreditCardSystem will handle this
+            if (!_currencyManager.CanAffordChecking(cost))
             {
                 Debug.Log($"[RestaurantSystem] Cannot afford upgrade. Need ${cost:F0}");
                 return false;
             }
+
+            GameEvents.RaiseCreditCardChargeRequested(cost, $"Restaurant upgrade to level {_currentLevel + 1}");
 
             _currentLevel++;
             GameEvents.RaiseRestaurantUpgraded(_currentLevel);
@@ -197,7 +202,7 @@ namespace FortuneValley.Core
             float income = baseIncome + lotBonus;
 
             _totalEarned += income;
-            _currencyManager.Add(income, "Restaurant");
+            _currencyManager.AddToChecking(income, "Restaurant");
 
             // Compute spawn position above the restaurant rooftop
             Vector3 spawnPos = transform.position; // fallback to GameManager origin

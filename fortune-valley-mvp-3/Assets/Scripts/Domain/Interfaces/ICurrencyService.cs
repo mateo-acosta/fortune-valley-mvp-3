@@ -1,13 +1,13 @@
 namespace FortuneValley.Domain.Interfaces
 {
     /// <summary>
-    /// Service contract for player currency management.
+    /// Read-only service contract for player currency state.
+    /// Used by GameSummaryBuilder and other consumers that only need to read balances.
     /// </summary>
     public interface ICurrencyService
     {
-        float Balance { get; }
-        void Add(float amount, string source = "Unknown");
-        bool TrySpend(float amount, string reason = "Unknown");
-        bool CanAfford(float amount);
+        float CheckingBalance { get; }
+        float InvestingBalance { get; }
+        float TotalLiquidBalance { get; }
     }
 }

@@ -29,7 +29,7 @@ namespace FortuneValley.Tests
 
             // Set up currency manager
             _currencyManager = _testObject.AddComponent<CurrencyManager>();
-            SetPrivateField(_currencyManager, "_startingBalance", 10000f);
+            SetPrivateField(_currencyManager, "_startingCheckingBalance", 10000f);
             _currencyManager.ResetBalance();
 
             // Create test lots
@@ -106,9 +106,9 @@ namespace FortuneValley.Tests
         [Test]
         public void TryPurchaseLot_SpendsMoney()
         {
-            float before = _currencyManager.Balance;
+            float before = _currencyManager.CheckingBalance;
             _cityManager.TryPurchaseLot("lot_0", 0);
-            float after = _currencyManager.Balance;
+            float after = _currencyManager.CheckingBalance;
 
             Assert.AreEqual(1000f, before - after); // lot_0 costs 1000
         }
@@ -116,7 +116,7 @@ namespace FortuneValley.Tests
         [Test]
         public void TryPurchaseLot_WithoutFunds_Fails()
         {
-            _currencyManager.SetBalance(500f); // Not enough for any lot
+            _currencyManager.SetCheckingBalance(500f); // Not enough for any lot
 
             bool result = _cityManager.TryPurchaseLot("lot_0", 0);
 
@@ -128,12 +128,12 @@ namespace FortuneValley.Tests
         public void TryPurchaseLot_AlreadyOwned_Fails()
         {
             _cityManager.TryPurchaseLot("lot_0", 0);
-            float balanceAfterFirst = _currencyManager.Balance;
+            float balanceAfterFirst = _currencyManager.CheckingBalance;
 
             bool result = _cityManager.TryPurchaseLot("lot_0", 1);
 
             Assert.IsFalse(result);
-            Assert.AreEqual(balanceAfterFirst, _currencyManager.Balance);
+            Assert.AreEqual(balanceAfterFirst, _currencyManager.CheckingBalance);
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -153,9 +153,9 @@ namespace FortuneValley.Tests
         [Test]
         public void RivalPurchaseLot_DoesNotAffectPlayerMoney()
         {
-            float before = _currencyManager.Balance;
+            float before = _currencyManager.CheckingBalance;
             _cityManager.RivalPurchaseLot("lot_1", 0);
-            float after = _currencyManager.Balance;
+            float after = _currencyManager.CheckingBalance;
 
             Assert.AreEqual(before, after);
         }

@@ -405,7 +405,7 @@ namespace FortuneValley.UI.Panels
         {
             if (_investmentSystem == null || _currencyManager == null) return;
 
-            float balance      = _currencyManager.Balance;
+            float balance      = _currencyManager.InvestingBalance;
             float portfolioVal = _investmentSystem.TotalPortfolioValue;
             // LifetimeTotalGain = realized gains from all sales + current unrealized gain on open positions.
             // This never drops after a profitable sale, matching the "cumulative investment gain" intent.
@@ -479,7 +479,7 @@ namespace FortuneValley.UI.Panels
                 _priceChangeText.color = change >= 0 ? _gainColor : _lossColor;
 
             if (_buyButton != null && _currencyManager != null)
-                _buyButton.interactable = _currencyManager.CanAfford(_selectedDefinition.CurrentPrice);
+                _buyButton.interactable = _currencyManager.CanAffordInvesting(_selectedDefinition.CurrentPrice);
         }
 
         private void RefreshDetailPanel()
@@ -574,7 +574,7 @@ namespace FortuneValley.UI.Panels
             if (_activeTabIndex == 0)
                 RefreshOverviewPanel();
             else if (_buyButton != null && _selectedDefinition != null)
-                _buyButton.interactable = _currencyManager.CanAfford(_selectedDefinition.CurrentPrice);
+                _buyButton.interactable = _currencyManager.CanAffordInvesting(_selectedDefinition.CurrentPrice);
         }
 
         // ═══════════════════════════════════════════════════════════════

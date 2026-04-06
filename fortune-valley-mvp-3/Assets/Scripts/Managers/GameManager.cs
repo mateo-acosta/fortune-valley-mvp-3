@@ -189,7 +189,7 @@ namespace FortuneValley.Managers
             return $"=== Fortune Valley Summary ===\n\n" +
                    $"Day: {_timeManager.CurrentTick}\n\n" +
                    $"FINANCES:\n" +
-                   $"Balance: ${_currencyManager.Balance:F0}\n" +
+                   $"Checking: ${_currencyManager.CheckingBalance:F0} | Investing: ${_currencyManager.InvestingBalance:F0}\n" +
                    $"{_restaurantSystem.GetPerformanceSummary()}\n\n" +
                    $"INVESTMENTS:\n" +
                    $"{_investmentSystem.GetPortfolioSummary()}\n\n" +

@@ -319,6 +319,10 @@ namespace FortuneValley.Core
         public static void RaiseBuySharesRequested(InvestmentDefinition def, int qty) => OnBuySharesRequested?.Invoke(def, qty);
         public static void RaiseSellSharesRequested(ActiveInvestment inv, int qty) => OnSellSharesRequested?.Invoke(inv, qty);
 
+        // Credit card intent event
+        public static event Action<float, string> OnCreditCardChargeRequested;
+        public static void RaiseCreditCardChargeRequested(float amount, string reason) => OnCreditCardChargeRequested?.Invoke(amount, reason);
+
         // Day cycle invoker
         public static void RaiseDayEnd(int dayNumber) => OnDayEnd?.Invoke(dayNumber);
 
@@ -370,6 +374,9 @@ namespace FortuneValley.Core
             OnUpgradeRestaurantRequested = null;
             OnBuySharesRequested = null;
             OnSellSharesRequested = null;
+
+            // Credit card
+            OnCreditCardChargeRequested = null;
 
             // Day cycle
             OnDayEnd = null;

@@ -23,10 +23,9 @@ namespace FortuneValley.Tests
 
         private class StubCurrencyService : ICurrencyService
         {
-            public float Balance { get; set; }
-            public void Add(float amount, string source = "Unknown") { }
-            public bool TrySpend(float amount, string reason = "Unknown") => true;
-            public bool CanAfford(float amount) => Balance >= amount;
+            public float CheckingBalance { get; set; }
+            public float InvestingBalance { get; set; }
+            public float TotalLiquidBalance => CheckingBalance + InvestingBalance;
         }
 
         private class StubInvestmentService : IInvestmentService
@@ -103,7 +102,7 @@ namespace FortuneValley.Tests
         [Test]
         public void Build_FinalNetWorth_IncludesPortfolioValue()
         {
-            var currency = new StubCurrencyService { Balance = 1000f };
+            var currency = new StubCurrencyService { CheckingBalance = 1000f };
             var investments = new StubInvestmentService { TotalPortfolioValue = 500f };
 
             GameSummary summary = GameSummaryBuilder.Build(

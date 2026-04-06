@@ -44,8 +44,11 @@ namespace FortuneValley.Tests
             SetField(_system, "_availableInvestments", list);
 
             // Set balance directly (avoid relying on event chain)
-            SetField(_currency, "_balance", 10000f);
-            SetField(_currency, "_startingBalance", 10000f);
+            SetField(_currency, "_checkingBalance", 10000f);
+            SetField(_currency, "_startingCheckingBalance", 10000f);
+            // Investment purchases deduct from investing balance
+            SetField(_currency, "_investingBalance", 10000f);
+            SetField(_currency, "_startingInvestingBalance", 10000f);
         }
 
         [TearDown]

@@ -36,7 +36,7 @@ namespace FortuneValley.Tests
             SetField(_investment, "_availableInvestments", new List<InvestmentDefinition>());
 
             // Set balance directly on CurrencyManager's backing field
-            SetField(_currency, "_balance", 500f);
+            SetField(_currency, "_checkingBalance", 500f);
         }
 
         [TearDown]
@@ -82,7 +82,7 @@ namespace FortuneValley.Tests
         {
             // balance = 500, no active investments → TotalPortfolioValue = 0
             // Snapshot must equal 500 + 0 = 500, validating: totalWealth = Balance + TotalPortfolioValue
-            SetField(_currency, "_balance", 500f);
+            SetField(_currency, "_checkingBalance", 500f);
 
             InvokeGameStart(); // records the first snapshot
 

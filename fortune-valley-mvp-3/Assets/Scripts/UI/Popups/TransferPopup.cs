@@ -198,7 +198,7 @@ namespace FortuneValley.UI.Popups
             // Update slider to match
             if (_amountSlider != null && _currencyManager != null)
             {
-                float maxAmount = _currencyManager.GetBalance(_fromAccount);
+                float maxAmount = GetBalance(_fromAccount);
                 _amountSlider.SetValueWithoutNotify(maxAmount > 0 ? _transferAmount / maxAmount : 0);
             }
 
@@ -209,7 +209,7 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null) return;
 
-            float maxAmount = _currencyManager.GetBalance(_fromAccount);
+            float maxAmount = GetBalance(_fromAccount);
             _transferAmount = maxAmount * value;
 
             // Update input to match
@@ -225,7 +225,7 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null) return;
 
-            _transferAmount = _currencyManager.GetBalance(_fromAccount);
+            _transferAmount = GetBalance(_fromAccount);
 
             if (_amountInput != null)
             {
@@ -242,9 +242,34 @@ namespace FortuneValley.UI.Popups
 
         private void OnTransferClicked()
         {
-            // Transfer not implemented -- single-balance architecture.
-            // Re-enable when dual-account model is built for loans/insurance.
-            UnityEngine.Debug.LogWarning("[TransferPopup] Transfer not available -- single-balance architecture");
+            if (_currencyManager == null || _transferAmount <= 0) return;
+
+            bool success = false;
+            if (_fromAccount == AccountType.Checking && _toAccount == AccountType.Investing)
+            {
+                success = _currencyManager.TransferToInvesting(_transferAmount);
+            }
+            else if (_fromAccount == AccountType.Investing && _toAccount == AccountType.Checking)
+            {
+                success = _currencyManager.TransferFromInvesting(_transferAmount);
+            }
+
+            if (success)
+            {
+                _transferAmount = 0;
+                UpdateDisplay();
+            }
+        }
+
+        /// <summary>
+        /// Get balance for the specified account type.
+        /// </summary>
+        private float GetBalance(AccountType account)
+        {
+            if (_currencyManager == null) return 0f;
+            return account == AccountType.Investing
+                ? _currencyManager.InvestingBalance
+                : _currencyManager.CheckingBalance;
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -255,8 +280,8 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null) return;
 
-            float fromBalance = _currencyManager.GetBalance(_fromAccount);
-            float toBalance = _currencyManager.GetBalance(_toAccount);
+            float fromBalance = GetBalance(_fromAccount);
+            float toBalance = GetBalance(_toAccount);
 
             // Update balance texts
             if (_fromBalanceText != null)
@@ -282,8 +307,8 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null) return;
 
-            float fromBalance = _currencyManager.GetBalance(_fromAccount);
-            float toBalance = _currencyManager.GetBalance(_toAccount);
+            float fromBalance = GetBalance(_fromAccount);
+            float toBalance = GetBalance(_toAccount);
 
             bool isValid = _transferAmount > 0 && _transferAmount <= fromBalance;
 

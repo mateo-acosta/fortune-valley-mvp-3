@@ -51,7 +51,7 @@ namespace FortuneValley.Managers
             // Financial data
             if (currencyManager != null)
             {
-                summary.FinalNetWorth = currencyManager.Balance;
+                summary.FinalNetWorth = currencyManager.TotalLiquidBalance;
             }
 
             if (investmentSystem != null)
