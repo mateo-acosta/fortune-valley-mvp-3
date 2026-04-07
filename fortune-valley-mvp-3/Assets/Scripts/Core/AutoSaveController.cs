@@ -16,25 +16,23 @@ namespace FortuneValley.Core
         private int _ticksSinceLastSave;
         private System.Func<GamePlayerStateDTO> _buildStateFunc;
 
-        /// <summary>
-        /// Set the function that builds the current state DTO.
-        /// Called by GameManager or orchestrator after systems are ready.
-        /// </summary>
-        public void SetStateBuildFunc(System.Func<GamePlayerStateDTO> buildFunc)
-        {
-            _buildStateFunc = buildFunc;
-        }
-
         private void OnEnable()
         {
             GameEvents.OnTick += HandleTick;
             GameEvents.OnGameEnd += HandleGameEnd;
+            GameEvents.OnStateBuildFuncProvided += HandleBuildFuncProvided;
         }
 
         private void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnGameEnd -= HandleGameEnd;
+            GameEvents.OnStateBuildFuncProvided -= HandleBuildFuncProvided;
+        }
+
+        private void HandleBuildFuncProvided(System.Func<GamePlayerStateDTO> buildFunc)
+        {
+            _buildStateFunc = buildFunc;
         }
 
         private void HandleTick(int tickNumber)

@@ -68,6 +68,9 @@ namespace FortuneValley.Core
         private bool _priceInitialized = false;
         private System.Random _dayRng;  // seeded RNG for deterministic prices
 
+        // Seed multiplier for combining day number with definition name hash
+        private const int SeedMultiplier = 31;
+
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
         // ═══════════════════════════════════════════════════════════════
@@ -166,7 +169,7 @@ namespace FortuneValley.Core
         public void SetDaySeed(int dayNumber)
         {
             // Combine day with definition name for per-instrument determinism
-            int seed = dayNumber * 31 + (_displayName != null ? _displayName.GetHashCode() : 0);
+            int seed = dayNumber * SeedMultiplier + (_displayName != null ? _displayName.GetHashCode() : 0);
             _dayRng = new System.Random(seed);
         }
 

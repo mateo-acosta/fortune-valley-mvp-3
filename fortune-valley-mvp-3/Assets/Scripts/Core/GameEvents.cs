@@ -335,6 +335,11 @@ namespace FortuneValley.Core
         public static event Action<float, float> OnCreditCardBalanceChanged;
         public static void RaiseCreditCardBalanceChanged(float balance, float delta) => OnCreditCardBalanceChanged?.Invoke(balance, delta);
 
+        // Persistence: carries the state-build delegate to AutoSaveController
+        public static event Action<System.Func<FortuneValley.Domain.Entities.GamePlayerStateDTO>> OnStateBuildFuncProvided;
+        public static void RaiseStateBuildFuncProvided(System.Func<FortuneValley.Domain.Entities.GamePlayerStateDTO> buildFunc)
+            => OnStateBuildFuncProvided?.Invoke(buildFunc);
+
         public static event Action<float> OnCreditCardPaymentRequested;
         public static void RaiseCreditCardPaymentRequested(float amount) => OnCreditCardPaymentRequested?.Invoke(amount);
 
@@ -453,6 +458,7 @@ namespace FortuneValley.Core
             OnCreditCardCharged = null;
             OnCreditCardStatementReady = null;
             OnCreditCardBalanceChanged = null;
+            OnStateBuildFuncProvided = null;
             OnCreditCardPaymentRequested = null;
             OnCreditCardPaymentCompleted = null;
             OnCreditScoreChanged = null;

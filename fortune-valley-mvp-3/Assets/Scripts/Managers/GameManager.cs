@@ -32,9 +32,8 @@ namespace FortuneValley.Managers
         [SerializeField] private LoanSystem _loanSystem;
         [SerializeField] private InsuranceSystem _insuranceSystem;
 
-        [Header("Persistence")]
-        [SerializeField] private AutoSaveController _autoSaveController;
-        [SerializeField] private DecisionLogger _decisionLogger;
+        // State builder for persistence (pure C#, no MonoBehaviour)
+        private GameStateDTOBuilder _stateDTOBuilder;
 
         [Header("Auto Start")]
         [Tooltip("Automatically start the game on scene load")]
@@ -214,96 +213,16 @@ namespace FortuneValley.Managers
         // ===============================================================
 
         /// <summary>
-        /// Wire the AutoSaveController with a lambda that builds the current state.
-        /// Called once at game start.
+        /// Create the state builder and publish it via event.
+        /// AutoSaveController subscribes to OnStateBuildFuncProvided.
         /// </summary>
         private void WireAutoSave()
         {
-            if (_autoSaveController == null) return;
+            _stateDTOBuilder = new GameStateDTOBuilder(
+                _timeManager, _currencyManager, _cityManager,
+                _restaurantSystem, _creditCardSystem, _loanSystem, _insuranceSystem);
 
-            _autoSaveController.SetStateBuildFunc(BuildStateDTO);
-        }
-
-        private GamePlayerStateDTO BuildStateDTO()
-        {
-            var dto = new GamePlayerStateDTO
-            {
-                game_mode = "homebase",
-                current_day = _timeManager != null ? _timeManager.CurrentDay : 0,
-                current_tick = _timeManager != null ? _timeManager.CurrentTick : 0,
-                checking_balance = _currencyManager != null ? _currencyManager.CheckingBalance : 0f,
-                investment_balance = _currencyManager != null ? _currencyManager.InvestingBalance : 0f,
-                credit_balance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f,
-                credit_score = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0,
-                restaurant_level = _restaurantSystem != null ? _restaurantSystem.CurrentLevel : 1
-            };
-
-            // Lots owned
-            if (_cityManager != null)
-            {
-                var playerLots = new System.Collections.Generic.List<string>();
-                var rivalLots = new System.Collections.Generic.List<string>();
-                var ownership = _cityManager.LotOwnership;
-
-                foreach (var kvp in ownership)
-                {
-                    if (kvp.Value == Owner.Player) playerLots.Add(kvp.Key);
-                    else if (kvp.Value == Owner.Rival) rivalLots.Add(kvp.Key);
-                }
-
-                dto.lots_owned = playerLots.ToArray();
-                dto.rival_lots_owned = rivalLots.ToArray();
-            }
-
-            // Active loans
-            if (_loanSystem != null)
-            {
-                var loans = _loanSystem.Portfolio.AllLoans;
-                var loanDtos = new System.Collections.Generic.List<ActiveLoanDTO>();
-                for (int i = 0; i < loans.Count; i++)
-                {
-                    var loan = loans[i];
-                    if (!loan.IsActive) continue;
-                    loanDtos.Add(new ActiveLoanDTO
-                    {
-                        loan_id = loan.LoanId,
-                        lot_id = loan.LotId,
-                        principal = loan.Principal,
-                        remaining_balance = loan.RemainingBalance,
-                        monthly_payment = loan.MonthlyPayment,
-                        payments_made = loan.PaymentsMade,
-                        term_months = loan.TermMonths,
-                        apr = loan.APR,
-                        down_payment = loan.DownPayment,
-                        start_day = loan.StartDay
-                    });
-                }
-                dto.active_loans = loanDtos.ToArray();
-            }
-
-            // Insurance policies
-            if (_insuranceSystem != null && _insuranceSystem.Portfolio != null)
-            {
-                var policies = _insuranceSystem.Portfolio.AllPolicies;
-                var policyDtos = new System.Collections.Generic.List<ActiveInsurancePolicyDTO>();
-                for (int i = 0; i < policies.Count; i++)
-                {
-                    var p = policies[i];
-                    if (!p.IsActive) continue;
-                    policyDtos.Add(new ActiveInsurancePolicyDTO
-                    {
-                        policy_id = p.PolicyId,
-                        lot_id = p.LotId,
-                        policy_type = p.PolicyType.ToString(),
-                        monthly_premium = p.MonthlyPremium,
-                        deductible = p.Deductible,
-                        start_day = p.StartDay
-                    });
-                }
-                dto.insurance_policies = policyDtos.ToArray();
-            }
-
-            return dto;
+            GameEvents.RaiseStateBuildFuncProvided(_stateDTOBuilder.Build);
         }
 
         // ===============================================================
@@ -395,10 +314,6 @@ namespace FortuneValley.Managers
             if (_investmentSystem == null) { Debug.LogError("[GameManager] Missing InvestmentSystem reference"); valid = false; }
             if (_cityManager == null) { Debug.LogError("[GameManager] Missing CityManager reference"); valid = false; }
             if (_rivalAI == null) { Debug.LogError("[GameManager] Missing RivalAI reference"); valid = false; }
-
-            // Financial systems are optional in non-Homebase scenes
-            if (_autoSaveController == null) Debug.LogWarning("[GameManager] AutoSaveController not wired. State will not be saved.");
-            if (_decisionLogger == null) Debug.LogWarning("[GameManager] DecisionLogger not wired. Decisions will not be logged.");
 
             if (!valid)
             {

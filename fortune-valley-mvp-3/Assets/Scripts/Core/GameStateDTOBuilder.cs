@@ -1,0 +1,135 @@
+using System.Collections.Generic;
+using FortuneValley.Domain.Entities;
+using FortuneValley.Domain.Enums;
+
+namespace FortuneValley.Core
+{
+    /// <summary>
+    /// Pure C# class that builds a GamePlayerStateDTO from system state.
+    /// Extracted from GameManager to keep loops and collections out of MonoBehaviours.
+    /// </summary>
+    public class GameStateDTOBuilder
+    {
+        private readonly TimeManager _timeManager;
+        private readonly CurrencyManager _currencyManager;
+        private readonly CityManager _cityManager;
+        private readonly RestaurantSystem _restaurantSystem;
+        private readonly CreditCardSystem _creditCardSystem;
+        private readonly LoanSystem _loanSystem;
+        private readonly InsuranceSystem _insuranceSystem;
+
+        public GameStateDTOBuilder(
+            TimeManager timeManager,
+            CurrencyManager currencyManager,
+            CityManager cityManager,
+            RestaurantSystem restaurantSystem,
+            CreditCardSystem creditCardSystem,
+            LoanSystem loanSystem,
+            InsuranceSystem insuranceSystem)
+        {
+            _timeManager = timeManager;
+            _currencyManager = currencyManager;
+            _cityManager = cityManager;
+            _restaurantSystem = restaurantSystem;
+            _creditCardSystem = creditCardSystem;
+            _loanSystem = loanSystem;
+            _insuranceSystem = insuranceSystem;
+        }
+
+        /// <summary>
+        /// Build a complete state snapshot from all systems.
+        /// </summary>
+        public GamePlayerStateDTO Build()
+        {
+            var dto = new GamePlayerStateDTO
+            {
+                game_mode = "homebase",
+                current_day = _timeManager != null ? _timeManager.CurrentDay : 0,
+                current_tick = _timeManager != null ? _timeManager.CurrentTick : 0,
+                checking_balance = _currencyManager != null ? _currencyManager.CheckingBalance : 0f,
+                investment_balance = _currencyManager != null ? _currencyManager.InvestingBalance : 0f,
+                credit_balance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f,
+                credit_score = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0,
+                restaurant_level = _restaurantSystem != null ? _restaurantSystem.CurrentLevel : 1
+            };
+
+            BuildLotOwnership(dto);
+            BuildActiveLoans(dto);
+            BuildInsurancePolicies(dto);
+
+            return dto;
+        }
+
+        private void BuildLotOwnership(GamePlayerStateDTO dto)
+        {
+            if (_cityManager == null) return;
+
+            var playerLots = new List<string>();
+            var rivalLots = new List<string>();
+            var ownership = _cityManager.LotOwnership;
+
+            foreach (var kvp in ownership)
+            {
+                if (kvp.Value == Owner.Player) playerLots.Add(kvp.Key);
+                else if (kvp.Value == Owner.Rival) rivalLots.Add(kvp.Key);
+            }
+
+            dto.lots_owned = playerLots.ToArray();
+            dto.rival_lots_owned = rivalLots.ToArray();
+        }
+
+        private void BuildActiveLoans(GamePlayerStateDTO dto)
+        {
+            if (_loanSystem == null) return;
+
+            var loans = _loanSystem.Portfolio.AllLoans;
+            var loanDtos = new List<ActiveLoanDTO>();
+
+            for (int i = 0; i < loans.Count; i++)
+            {
+                var loan = loans[i];
+                if (!loan.IsActive) continue;
+                loanDtos.Add(new ActiveLoanDTO
+                {
+                    loan_id = loan.LoanId,
+                    lot_id = loan.LotId,
+                    principal = loan.Principal,
+                    remaining_balance = loan.RemainingBalance,
+                    monthly_payment = loan.MonthlyPayment,
+                    payments_made = loan.PaymentsMade,
+                    term_months = loan.TermMonths,
+                    apr = loan.APR,
+                    down_payment = loan.DownPayment,
+                    start_day = loan.StartDay
+                });
+            }
+
+            dto.active_loans = loanDtos.ToArray();
+        }
+
+        private void BuildInsurancePolicies(GamePlayerStateDTO dto)
+        {
+            if (_insuranceSystem == null || _insuranceSystem.Portfolio == null) return;
+
+            var policies = _insuranceSystem.Portfolio.AllPolicies;
+            var policyDtos = new List<ActiveInsurancePolicyDTO>();
+
+            for (int i = 0; i < policies.Count; i++)
+            {
+                var p = policies[i];
+                if (!p.IsActive) continue;
+                policyDtos.Add(new ActiveInsurancePolicyDTO
+                {
+                    policy_id = p.PolicyId,
+                    lot_id = p.LotId,
+                    policy_type = p.PolicyType.ToString(),
+                    monthly_premium = p.MonthlyPremium,
+                    deductible = p.Deductible,
+                    start_day = p.StartDay
+                });
+            }
+
+            dto.insurance_policies = policyDtos.ToArray();
+        }
+    }
+}
