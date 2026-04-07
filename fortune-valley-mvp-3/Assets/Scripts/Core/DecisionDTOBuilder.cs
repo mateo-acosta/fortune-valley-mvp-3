@@ -65,6 +65,18 @@ namespace FortuneValley.Core
             return this;
         }
 
+        public DecisionDTOBuilder AddLineItem(string accountAffected, float changeAmount, string flowCategory, float runningBalance)
+        {
+            _lineItems.Add(new DecisionLineItemDTO
+            {
+                account_affected = accountAffected,
+                change_amount = changeAmount,
+                flow_category = flowCategory,
+                running_balance = runningBalance
+            });
+            return this;
+        }
+
         public DecisionEventDTO Build()
         {
             return new DecisionEventDTO

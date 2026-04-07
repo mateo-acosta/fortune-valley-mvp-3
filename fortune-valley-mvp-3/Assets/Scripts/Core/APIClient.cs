@@ -46,6 +46,9 @@ namespace FortuneValley.Core
         /// </summary>
         public void EnqueueDecision(DecisionEventDTO decision)
         {
+#if UNITY_INCLUDE_TESTS
+            LastEnqueuedDecision = decision;
+#endif
             string json = JsonUtility.ToJson(decision);
             _decisionBuffer.Add(json);
         }
@@ -76,5 +79,13 @@ namespace FortuneValley.Core
         {
             return JSBridge.IsSignedIn() && JSBridge.GetRole() == "student";
         }
+
+#if UNITY_INCLUDE_TESTS
+        /// <summary>
+        /// Test spy: stores the last DTO passed to EnqueueDecision.
+        /// Only compiled into test assemblies.
+        /// </summary>
+        public DecisionEventDTO LastEnqueuedDecision { get; private set; }
+#endif
     }
 }

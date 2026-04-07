@@ -176,7 +176,7 @@ namespace FortuneValley.Core
 
         private void HandleTick(int tickNumber)
         {
-            UpdatePrices();
+            UpdatePrices(tickNumber);
             UpdateAllInvestments(tickNumber);
 
             // Track peak portfolio value for game-end analysis
@@ -197,12 +197,14 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Update all investment prices each tick based on volatility.
+        /// Seed and update all investment prices for this tick.
+        /// Seeding ensures all students see the same prices on the same tick.
         /// </summary>
-        private void UpdatePrices()
+        private void UpdatePrices(int tickNumber)
         {
             foreach (var def in _availableInvestments)
             {
+                def.SetDaySeed(tickNumber);
                 def.UpdatePrice();
             }
         }

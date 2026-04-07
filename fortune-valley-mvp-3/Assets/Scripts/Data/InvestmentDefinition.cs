@@ -61,11 +61,12 @@ namespace FortuneValley.Core
         [Tooltip("Starting price per share")]
         [SerializeField] private float _basePricePerShare = 50f;
 
-        // Runtime price state (not serialized)
+        // Runtime price state (not serialized, reset at game start via InitializePrice)
         private float _currentPrice;
         private float _trendDirection;  // -1 to +1, persists between ticks for momentum
         private int _daysSinceStart;    // tick counter for compound expected price
         private bool _priceInitialized = false;
+        private System.Random _dayRng;  // seeded RNG for deterministic prices
 
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
@@ -147,18 +148,32 @@ namespace FortuneValley.Core
 
         /// <summary>
         /// Initialize price to base value. Call at game start.
-        /// Randomizes initial trend direction so each investment starts differently.
+        /// Uses a seed derived from the definition name for reproducible initial state.
         /// </summary>
         public void InitializePrice()
         {
             _currentPrice = _basePricePerShare;
-            _trendDirection = Random.Range(-1f, 1f);
+            _dayRng = new System.Random(_displayName != null ? _displayName.GetHashCode() : 0);
+            _trendDirection = (float)(_dayRng.NextDouble() * 2.0 - 1.0);
             _daysSinceStart = 0;
             _priceInitialized = true;
         }
 
         /// <summary>
+        /// Set the RNG seed for today. Call once per in-game day before UpdatePrice.
+        /// All students with the same day number see the same prices.
+        /// </summary>
+        public void SetDaySeed(int dayNumber)
+        {
+            // Combine day with definition name for per-instrument determinism
+            int seed = dayNumber * 31 + (_displayName != null ? _displayName.GetHashCode() : 0);
+            _dayRng = new System.Random(seed);
+        }
+
+        /// <summary>
         /// Update price using mean-reverting model. Call each tick.
+        /// Uses seeded System.Random for deterministic prices across all students.
+        /// Call SetDaySeed() once per day before calling UpdatePrice().
         ///
         /// LEARNING DESIGN: Prices follow a compound growth path with realistic
         /// deviations. Low-risk investments hug the expected curve closely;
@@ -172,93 +187,27 @@ namespace FortuneValley.Core
 
             _daysSinceStart++;
 
-            // Daily growth rate from annual return (compound basis)
-            float dailyGrowthRate = Mathf.Pow(1f + _annualReturnRate, 1f / 365f) - 1f;
-
-            // Expected price at this point in time (compound growth path)
-            float expectedPrice = _basePricePerShare * Mathf.Pow(1f + dailyGrowthRate, _daysSinceStart);
-
-            // Fixed-return instruments (bonds, T-bills): smooth compound curve, no noise
-            if (HasFixedReturn)
-            {
-                _currentPrice = expectedPrice;
-                return;
-            }
-
-            // Step 1: Maybe reverse trend direction
-            float reversalChance = _riskLevel switch
-            {
-                RiskLevel.Low => 0.20f,
-                RiskLevel.Medium => 0.10f,
-                RiskLevel.High => 0.05f,
-                _ => 0.10f
-            };
-
-            if (Random.value < reversalChance)
-            {
-                _trendDirection = -Mathf.Sign(_trendDirection) * Random.Range(0.5f, 1f);
-            }
-
-            // Step 2: Mean-reversion pull toward expected price
-            float meanReversionStrength = _riskLevel switch
-            {
-                RiskLevel.Low => 0.05f,
-                RiskLevel.Medium => 0.02f,
-                RiskLevel.High => 0.01f,
-                _ => 0.02f
-            };
-            float meanReversion = _currentPrice > 0
-                ? (expectedPrice - _currentPrice) / _currentPrice * meanReversionStrength
-                : 0f;
-
-            // Step 3: Trend contribution (reduced from old model)
-            float trendStrength = _riskLevel switch
-            {
-                RiskLevel.Low => 0.002f,    // 0.2%
-                RiskLevel.Medium => 0.006f, // 0.6%
-                RiskLevel.High => 0.012f,   // 1.2%
-                _ => 0.006f
-            };
-            float trend = _trendDirection * trendStrength;
-
-            // Step 4: Small random noise (±0.1%)
-            float noise = Random.Range(-0.001f, 0.001f);
-
-            // Step 5: Combine all factors
-            float dailyChange = dailyGrowthRate + meanReversion + trend + noise;
-            _currentPrice *= (1f + dailyChange);
-
-            // Step 6: Clamp deviation from expected price
-            float maxDeviation = _riskLevel switch
-            {
-                RiskLevel.Low => 0.30f,    // ±30%
-                RiskLevel.Medium => 0.80f, // ±80%
-                RiskLevel.High => 1.50f,   // ±150%
-                _ => 0.80f
-            };
-            float lowerBound = expectedPrice * (1f - maxDeviation);
-            float upperBound = expectedPrice * (1f + maxDeviation);
-            _currentPrice = Mathf.Clamp(_currentPrice, lowerBound, upperBound);
-
-            // Absolute floor: 20% of base price (never crash to near-zero)
-            _currentPrice = Mathf.Max(_currentPrice, _basePricePerShare * 0.2f);
+            StepPrice(
+                ref _currentPrice, ref _trendDirection,
+                _daysSinceStart, _dayRng);
         }
 
         /// <summary>
         /// Reset price to base (for game restart).
-        /// Also resets trend direction to a random starting value.
+        /// Also resets trend direction to a deterministic starting value.
         /// </summary>
         public void ResetPrice()
         {
             _currentPrice = _basePricePerShare;
-            _trendDirection = Random.Range(-1f, 1f);
+            _dayRng = new System.Random(_displayName != null ? _displayName.GetHashCode() : 0);
+            _trendDirection = (float)(_dayRng.NextDouble() * 2.0 - 1.0);
             _daysSinceStart = 0;
             _priceInitialized = true;
         }
 
         /// <summary>
         /// Simulate N days of price history using this definition's price model.
-        /// Operates on LOCAL copies only — does not affect _currentPrice, _trendDirection,
+        /// Operates on LOCAL copies only -- does not affect _currentPrice, _trendDirection,
         /// or _daysSinceStart. Returns array of length <paramref name="days"/>, oldest first.
         ///
         /// Uses System.Random (not UnityEngine.Random) to avoid corrupting global random state.
@@ -268,86 +217,95 @@ namespace FortuneValley.Core
             var rng    = new System.Random(seed);
             var result = new float[days];
 
-            // Local price state — never touches the ScriptableObject's runtime fields
-            float price    = _basePricePerShare;
-            float trend    = (float)(rng.NextDouble() * 2.0 - 1.0); // -1 to +1
-            int   dayCount = 0;
-
-            float dailyGrowthRate = Mathf.Pow(1f + _annualReturnRate, 1f / 365f) - 1f;
+            // Local price state -- never touches the ScriptableObject's runtime fields
+            float price = _basePricePerShare;
+            float trend = (float)(rng.NextDouble() * 2.0 - 1.0);
 
             for (int i = 0; i < days; i++)
             {
-                dayCount++;
-                float expectedPrice = _basePricePerShare * Mathf.Pow(1f + dailyGrowthRate, dayCount);
-
-                // Bonds/T-Bills: smooth compound curve, no noise
-                if (HasFixedReturn)
-                {
-                    price = expectedPrice;
-                }
-                else
-                {
-                    // Step 1: Maybe reverse trend direction
-                    float reversalChance = _riskLevel switch
-                    {
-                        RiskLevel.Low    => 0.20f,
-                        RiskLevel.Medium => 0.10f,
-                        RiskLevel.High   => 0.05f,
-                        _                => 0.10f
-                    };
-
-                    if (rng.NextDouble() < reversalChance)
-                        trend = -Mathf.Sign(trend) * (float)(0.5 + rng.NextDouble() * 0.5);
-
-                    // Step 2: Mean-reversion pull toward expected price
-                    float mrStrength = _riskLevel switch
-                    {
-                        RiskLevel.Low    => 0.05f,
-                        RiskLevel.Medium => 0.02f,
-                        RiskLevel.High   => 0.01f,
-                        _                => 0.02f
-                    };
-                    float meanReversion = price > 0
-                        ? (expectedPrice - price) / price * mrStrength
-                        : 0f;
-
-                    // Step 3: Trend contribution
-                    float trendStrength = _riskLevel switch
-                    {
-                        RiskLevel.Low    => 0.002f,
-                        RiskLevel.Medium => 0.006f,
-                        RiskLevel.High   => 0.012f,
-                        _                => 0.006f
-                    };
-                    float trendContrib = trend * trendStrength;
-
-                    // Step 4: Small random noise (±0.1%)
-                    float noise = (float)(rng.NextDouble() * 0.002 - 0.001);
-
-                    // Step 5: Combine factors
-                    float dailyChange = dailyGrowthRate + meanReversion + trendContrib + noise;
-                    price *= (1f + dailyChange);
-
-                    // Step 6: Clamp deviation from expected price
-                    float maxDeviation = _riskLevel switch
-                    {
-                        RiskLevel.Low    => 0.30f,
-                        RiskLevel.Medium => 0.80f,
-                        RiskLevel.High   => 1.50f,
-                        _                => 0.80f
-                    };
-                    float lowerBound = expectedPrice * (1f - maxDeviation);
-                    float upperBound = expectedPrice * (1f + maxDeviation);
-                    price = Mathf.Clamp(price, lowerBound, upperBound);
-
-                    // Absolute floor: 20% of base price (never crash to near-zero)
-                    price = Mathf.Max(price, _basePricePerShare * 0.2f);
-                }
-
+                StepPrice(ref price, ref trend, i + 1, rng);
                 result[i] = price;
             }
 
             return result;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SHARED PRICE MODEL
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Single-step price update shared by UpdatePrice and SimulateHistory.
+        /// Advances the price by one day using mean-reverting model with trend momentum.
+        /// All randomness comes from the provided System.Random instance.
+        /// </summary>
+        private void StepPrice(ref float price, ref float trend, int dayCount, System.Random rng)
+        {
+            float dailyGrowthRate = Mathf.Pow(1f + _annualReturnRate, 1f / 365f) - 1f;
+            float expectedPrice = _basePricePerShare * Mathf.Pow(1f + dailyGrowthRate, dayCount);
+
+            // Fixed-return instruments (bonds, T-bills): smooth compound curve, no noise
+            if (HasFixedReturn)
+            {
+                price = expectedPrice;
+                return;
+            }
+
+            // Step 1: Maybe reverse trend direction
+            float reversalChance = _riskLevel switch
+            {
+                RiskLevel.Low    => 0.20f,
+                RiskLevel.Medium => 0.10f,
+                RiskLevel.High   => 0.05f,
+                _                => 0.10f
+            };
+
+            if (rng.NextDouble() < reversalChance)
+                trend = -Mathf.Sign(trend) * (float)(0.5 + rng.NextDouble() * 0.5);
+
+            // Step 2: Mean-reversion pull toward expected price
+            float mrStrength = _riskLevel switch
+            {
+                RiskLevel.Low    => 0.05f,
+                RiskLevel.Medium => 0.02f,
+                RiskLevel.High   => 0.01f,
+                _                => 0.02f
+            };
+            float meanReversion = price > 0
+                ? (expectedPrice - price) / price * mrStrength
+                : 0f;
+
+            // Step 3: Trend contribution
+            float trendStrength = _riskLevel switch
+            {
+                RiskLevel.Low    => 0.002f,
+                RiskLevel.Medium => 0.006f,
+                RiskLevel.High   => 0.012f,
+                _                => 0.006f
+            };
+            float trendContrib = trend * trendStrength;
+
+            // Step 4: Small random noise
+            float noise = (float)(rng.NextDouble() * 0.002 - 0.001);
+
+            // Step 5: Combine factors
+            float dailyChange = dailyGrowthRate + meanReversion + trendContrib + noise;
+            price *= (1f + dailyChange);
+
+            // Step 6: Clamp deviation from expected price
+            float maxDeviation = _riskLevel switch
+            {
+                RiskLevel.Low    => 0.30f,
+                RiskLevel.Medium => 0.80f,
+                RiskLevel.High   => 1.50f,
+                _                => 0.80f
+            };
+            float lowerBound = expectedPrice * (1f - maxDeviation);
+            float upperBound = expectedPrice * (1f + maxDeviation);
+            price = Mathf.Clamp(price, lowerBound, upperBound);
+
+            // Absolute floor: 20% of base price
+            price = Mathf.Max(price, _basePricePerShare * 0.2f);
         }
     }
 }

@@ -24,8 +24,6 @@ namespace FortuneValley.Managers
             // Systems in the new scene re-subscribe in their OnEnable.
             GameEvents.ClearAllSubscriptions();
 
-            // Future: serialize GameStateData to PlayerPrefs here
-
             SceneManager.LoadScene(sceneName);
         }
     }

@@ -16,6 +16,11 @@ namespace FortuneValley.Core
         private string _sessionId;
         private string _gameMode = "homebase";
 
+        // Cached balances for running_balance in line items (Issue 8A)
+        private float _cachedCheckingBalance;
+        private float _cachedInvestingBalance;
+        private float _cachedCreditBalance;
+
         /// <summary>
         /// Set the active session ID (received from server on session start).
         /// </summary>
@@ -43,6 +48,11 @@ namespace FortuneValley.Core
             GameEvents.OnAccidentResolved += HandleAccidentResolved;
             GameEvents.OnLoanOriginated += HandleLoanOriginated;
             GameEvents.OnLoanPaymentMade += HandleLoanPaymentMade;
+
+            // Balance tracking for running_balance in line items
+            GameEvents.OnCheckingBalanceChanged += HandleCheckingBalanceChanged;
+            GameEvents.OnInvestingBalanceChanged += HandleInvestingBalanceChanged;
+            GameEvents.OnCreditCardBalanceChanged += HandleCreditBalanceChanged;
         }
 
         private void OnDisable()
@@ -56,6 +66,10 @@ namespace FortuneValley.Core
             GameEvents.OnAccidentResolved -= HandleAccidentResolved;
             GameEvents.OnLoanOriginated -= HandleLoanOriginated;
             GameEvents.OnLoanPaymentMade -= HandleLoanPaymentMade;
+
+            GameEvents.OnCheckingBalanceChanged -= HandleCheckingBalanceChanged;
+            GameEvents.OnInvestingBalanceChanged -= HandleInvestingBalanceChanged;
+            GameEvents.OnCreditCardBalanceChanged -= HandleCreditBalanceChanged;
         }
 
         // ===============================================================
@@ -91,7 +105,7 @@ namespace FortuneValley.Core
                 .Amount(inv.Principal)
                 .Day(inv.CreatedAtTick)
                 .Category("investment")
-                .AddLineItem("investing", inv.Principal, "outflow")
+                .AddLineItem("investing", inv.Principal, "outflow", _cachedInvestingBalance)
                 .Build());
         }
 
@@ -105,7 +119,7 @@ namespace FortuneValley.Core
                 .Amount(payout)
                 .Day(inv.CreatedAtTick)
                 .Category("investment")
-                .AddLineItem("investing", payout, "inflow")
+                .AddLineItem("investing", payout, "inflow", _cachedInvestingBalance)
                 .Build());
         }
 
@@ -141,8 +155,8 @@ namespace FortuneValley.Core
                 .Type("cc_payment")
                 .Amount(amountPaid)
                 .Category("transfer")
-                .AddLineItem("checking", amountPaid, "outflow")
-                .AddLineItem("credit", amountPaid, "inflow")
+                .AddLineItem("checking", amountPaid, "outflow", _cachedCheckingBalance)
+                .AddLineItem("credit", amountPaid, "inflow", _cachedCreditBalance)
                 .Build());
         }
 
@@ -154,7 +168,7 @@ namespace FortuneValley.Core
                 .Type("insurance_purchase")
                 .Instrument(policyId)
                 .Category("expense")
-                .AddLineItem("credit", 0f, "outflow")
+                .AddLineItem("credit", 0f, "outflow", _cachedCreditBalance)
                 .Build());
         }
 
@@ -167,7 +181,7 @@ namespace FortuneValley.Core
                 .Instrument(lotId)
                 .Amount(playerCost)
                 .Category("event")
-                .AddLineItem("credit", playerCost, "outflow")
+                .AddLineItem("credit", playerCost, "outflow", _cachedCreditBalance)
                 .Build());
         }
 
@@ -180,7 +194,7 @@ namespace FortuneValley.Core
                 .Instrument(loan.LotId)
                 .Amount(loan.Principal)
                 .Category("transfer")
-                .AddLineItem("checking", -loan.DownPayment, "outflow")
+                .AddLineItem("checking", -loan.DownPayment, "outflow", _cachedCheckingBalance)
                 .Build());
         }
 
@@ -193,8 +207,27 @@ namespace FortuneValley.Core
                 .Instrument(loan.LotId)
                 .Amount(amountPaid)
                 .Category("expense")
-                .AddLineItem("checking", amountPaid, "outflow")
+                .AddLineItem("checking", amountPaid, "outflow", _cachedCheckingBalance)
                 .Build());
+        }
+
+        // ===============================================================
+        // BALANCE TRACKING
+        // ===============================================================
+
+        private void HandleCheckingBalanceChanged(float balance, float delta)
+        {
+            _cachedCheckingBalance = balance;
+        }
+
+        private void HandleInvestingBalanceChanged(float balance, float delta)
+        {
+            _cachedInvestingBalance = balance;
+        }
+
+        private void HandleCreditBalanceChanged(float balance, float delta)
+        {
+            _cachedCreditBalance = balance;
         }
     }
 }

@@ -24,5 +24,13 @@ namespace FortuneValley.Domain.Entities
         public string[] rival_lots_owned;
         public string[] learning_levels_completed;
         public InvestmentHoldingDTO[] investment_holdings;
+
+        // Financial system state
+        public ActiveLoanDTO[] active_loans;
+        public ActiveInsurancePolicyDTO[] insurance_policies;
+        public int consecutive_insolvent_months;
+        public bool bankruptcy_flag;
+        public int restaurant_level;
+        public int current_tick;
     }
 }

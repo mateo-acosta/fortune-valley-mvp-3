@@ -34,10 +34,13 @@ namespace FortuneValley.Tests
             return def;
         }
 
-        private float RunPriceSimulation(InvestmentDefinition def, int days)
+        private float RunPriceSimulation(InvestmentDefinition def, int days, int startSeed = 0)
         {
             for (int i = 0; i < days; i++)
+            {
+                def.SetDaySeed(startSeed + i + 1);
                 def.UpdatePrice();
+            }
             return def.CurrentPrice;
         }
 
@@ -106,6 +109,7 @@ namespace FortuneValley.Tests
             // Run 365 days and check price matches expected compound curve exactly
             for (int day = 1; day <= 365; day++)
             {
+                def.SetDaySeed(day);
                 def.UpdatePrice();
                 float dailyRate = Mathf.Pow(1.05f, 1f / 365f) - 1f;
                 float expected = 100f * Mathf.Pow(1f + dailyRate, day);
@@ -126,7 +130,9 @@ namespace FortuneValley.Tests
 
             for (int i = 0; i < 100; i++)
             {
+                def1.SetDaySeed(i + 1);
                 def1.UpdatePrice();
+                def2.SetDaySeed(i + 1);
                 def2.UpdatePrice();
                 Assert.AreEqual(def1.CurrentPrice, def2.CurrentPrice, 0.001f);
             }
@@ -148,13 +154,14 @@ namespace FortuneValley.Tests
 
             for (int t = 0; t < trials; t++)
             {
+                // Each trial uses a different seed offset to produce price variance
                 var lowDef = CreateDef(RiskLevel.Low, 0.05f);
-                RunPriceSimulation(lowDef, 180);
+                RunPriceSimulation(lowDef, 180, t * 1000);
                 lowPrices[t] = lowDef.CurrentPrice;
                 Object.DestroyImmediate(lowDef);
 
                 var highDef = CreateDef(RiskLevel.High, 0.15f);
-                RunPriceSimulation(highDef, 180);
+                RunPriceSimulation(highDef, 180, t * 1000);
                 highPrices[t] = highDef.CurrentPrice;
                 Object.DestroyImmediate(highDef);
             }
