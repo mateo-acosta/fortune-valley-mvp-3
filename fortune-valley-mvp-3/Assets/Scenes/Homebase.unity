@@ -3251,6 +3251,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8919934127225428127, guid: cb2e5b7d53a7b451e83837e3be20ec35, type: 3}
   m_PrefabInstance: {fileID: 69658788}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &75068471 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8271703025634724641, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+  m_PrefabInstance: {fileID: 1940397487}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &77102686
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3696,6 +3707,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 90945200}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &93919080 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3201845207070585986, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+  m_PrefabInstance: {fileID: 1034173000}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &97734308
 PrefabInstance:
@@ -4228,6 +4244,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b8e71c96d94f645e2815cf08c0fa2245, type: 3}
   m_PrefabInstance: {fileID: 118416828}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &118711057 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5751639094087645215, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+  m_PrefabInstance: {fileID: 1034173000}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &123139157
 PrefabInstance:
@@ -16306,6 +16327,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: de4d57b3a767b434f901d2d990b149c4, type: 3}
   m_PrefabInstance: {fileID: 416737193}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &417545638 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9021877225706952204, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+  m_PrefabInstance: {fileID: 1034173000}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &417746236
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19904,6 +19936,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 20bed687e447b4aa9b06c580dae11403, type: 3}
   m_PrefabInstance: {fileID: 516453459}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &517269165 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2610437973612764434, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+  m_PrefabInstance: {fileID: 1034173000}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &520051662
 PrefabInstance:
@@ -25540,6 +25577,38 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f9cd467ae46254ac989bb63b1567789d, type: 3}
   m_PrefabInstance: {fileID: 644262611}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &648706024
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 648706025}
+  m_Layer: 0
+  m_Name: Managers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &648706025
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648706024}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 513.75146, y: 270.88797, z: -160.69647}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2029218234}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &648873226
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27758,6 +27827,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 35ff0ecdabd6648a899cedb982dab3cc, type: 3}
   m_PrefabInstance: {fileID: 724489177}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &724639788 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3826457552657619578, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+  m_PrefabInstance: {fileID: 1940397487}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &724902387
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29430,6 +29504,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 16d9e246017ca4c59ad888fd56e632ae, type: 3}
   m_PrefabInstance: {fileID: 767094106}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &767347111 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 708448050161263496, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+  m_PrefabInstance: {fileID: 1034173000}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &768918122
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33891,6 +33976,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 889760254}
   m_CullTransparentMesh: 0
+--- !u!114 &893104849 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4015323122980743466, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
+  m_PrefabInstance: {fileID: 2110108342}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &894513103
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35133,6 +35229,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: de3041cad18cb4474ae0a68d98cfc1db, type: 3}
   m_PrefabInstance: {fileID: 929675308}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &933185563 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1185266058735625547, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+  m_PrefabInstance: {fileID: 1034173000}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &933328572
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35852,6 +35959,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fff9b788b0c554085900f5e3bd9fb26a, type: 3}
   m_PrefabInstance: {fileID: 954081858}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &957224019 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 95284142063100451, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+  m_PrefabInstance: {fileID: 1940397487}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &958241575
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39764,6 +39882,12 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 419180084}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3201845207070585986, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1997556240}
+    - targetCorrespondingSourceObject: {fileID: 3201845207070585986, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1997556239}
     - targetCorrespondingSourceObject: {fileID: 6264236516222946609, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1034173006}
@@ -42099,6 +42223,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 29c68cfe31e194b9088f121e4e7a9c4f, type: 3}
   m_PrefabInstance: {fileID: 1070468956}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1071154153 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8100282302544885873, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
+  m_PrefabInstance: {fileID: 2110108342}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1072113530
 PrefabInstance:
@@ -46817,6 +46946,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 73748d5cafcb24bb5882483a544cfff3, type: 3}
   m_PrefabInstance: {fileID: 1199433683}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1199455721 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7787929739965403492, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+  m_PrefabInstance: {fileID: 1940397487}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1199513654
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -47398,6 +47538,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 1217086829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1217087554 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6841390145970798455, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+  m_PrefabInstance: {fileID: 1940397487}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1221661311
 PrefabInstance:
@@ -51739,6 +51884,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b64b1205eb3ca461fa38b6ff8730e7c2, type: 3}
   m_PrefabInstance: {fileID: 1321120153}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1322099052 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8664051672983114209, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
+  m_PrefabInstance: {fileID: 2110108342}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1322286072
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -55056,6 +55206,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0bad22992fd1449a3bfdccd5954343c7, type: 3}
   m_PrefabInstance: {fileID: 1406893799}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1409792023 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7199728912847260745, guid: 43fa4dd33c33848eeb1962b1c77f3cae, type: 3}
+  m_PrefabInstance: {fileID: 1034173000}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1419106978
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -57985,7 +58146,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.38039216, g: 0.43529412, b: 0.61960787, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -64906,6 +65067,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ead9b9750419a4299bdb79b20f875bba, type: 3}
   m_PrefabInstance: {fileID: 1669150893}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1670387958 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2983632411159442287, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
+  m_PrefabInstance: {fileID: 2110108342}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1671913529
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67667,6 +67839,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7a09fa1404e864a7badbe2dd85e7a8ed, type: 3}
   m_PrefabInstance: {fileID: 1733694821}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1734598041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1322099052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dde8d94f8dd4547fbba61475958cb6c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.SidebarController
+  _sidebarButtons:
+  - {fileID: 893104849}
+  - {fileID: 1670387958}
+  - {fileID: 1503653281}
+  - {fileID: 1798768136}
+  _subPanels:
+  - {fileID: 2110108345}
+  - {fileID: 1071154153}
+  - {fileID: 2018782602}
+  - {fileID: 1972237204}
+  _defaultIndex: 0
+  _activeButtonColor: {r: 0.28, g: 0.32, b: 0.6, a: 1}
+  _inactiveButtonColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeTextColor: {r: 1, g: 1, b: 1, a: 1}
+  _inactiveTextColor: {r: 0.486, g: 0.506, b: 0.529, a: 1}
+--- !u!114 &1734598042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1322099052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69067b866a1084151ab71755031af4ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Panels.PortfolioPanel
+  _panelRoot: {fileID: 0}
+  _investmentSystem: {fileID: 2029218245}
+  _currencyManager: {fileID: 2029218249}
+  _historyTracker: {fileID: 0}
+  _stockHistory: {fileID: 0}
+  _sharesPerTrade: 1
+  _labelFont: {fileID: 0}
+  _gainColor: {r: 0.2, g: 0.8, b: 0.2, a: 1}
+  _lossColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
 --- !u!1001 &1736548194
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -69496,6 +69716,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 49611b8ebc1554b3697180582ab3ee85, type: 3}
   m_PrefabInstance: {fileID: 1796167972}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1798768136 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6739410241384679147, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
+  m_PrefabInstance: {fileID: 2110108342}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1804118420
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -69693,6 +69924,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 1804571737}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1805472870 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4417837853717771242, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+  m_PrefabInstance: {fileID: 1940397487}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1809424100
 PrefabInstance:
@@ -70041,6 +70277,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0bad22992fd1449a3bfdccd5954343c7, type: 3}
   m_PrefabInstance: {fileID: 1819958231}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1822117296 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1798208253005112544, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+  m_PrefabInstance: {fileID: 1940397487}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1823047347
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -72084,6 +72331,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 1894158230}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1894247909 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5174465218601437785, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+  m_PrefabInstance: {fileID: 1940397487}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1895080287
 PrefabInstance:
@@ -74785,7 +75037,13 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 328029510221516498, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 459007760}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4417837853717771242, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1940397495}
+    - targetCorrespondingSourceObject: {fileID: 4417837853717771242, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1940397496}
   m_SourcePrefab: {fileID: 100100000, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
 --- !u!224 &1940397488 stripped
 RectTransform:
@@ -74802,6 +75060,52 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 328029510221516498, guid: 76c03751c66ef45ecadbd1f2bb183d9d, type: 3}
   m_PrefabInstance: {fileID: 1940397487}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1940397495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805472870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5b648a144afc461c861aaedaed079ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Panels.LoanPanel
+  _panelRoot: {fileID: 0}
+  _listContainer: {fileID: 0}
+  _loanItemPrefab: {fileID: 0}
+  _totalDebtText: {fileID: 0}
+  _totalMonthlyText: {fileID: 0}
+  _emptyStateText: {fileID: 0}
+  _closeButton: {fileID: 957224019}
+  _loanSystem: {fileID: 2029218241}
+  _cityManager: {fileID: 2029218248}
+--- !u!114 &1940397496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805472870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dde8d94f8dd4547fbba61475958cb6c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.SidebarController
+  _sidebarButtons:
+  - {fileID: 75068471}
+  - {fileID: 1199455721}
+  - {fileID: 1822117296}
+  _subPanels:
+  - {fileID: 1894247909}
+  - {fileID: 724639788}
+  - {fileID: 1217087554}
+  _defaultIndex: 0
+  _activeButtonColor: {r: 0.28, g: 0.32, b: 0.6, a: 1}
+  _inactiveButtonColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeTextColor: {r: 1, g: 1, b: 1, a: 1}
+  _inactiveTextColor: {r: 0.486, g: 0.506, b: 0.529, a: 1}
 --- !u!1001 &1941268474
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -75977,6 +76281,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a77bd6a25a15b4635beea3b1763616a4, type: 3}
   m_PrefabInstance: {fileID: 1972126846}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1972237204 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1982205195633089916, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
+  m_PrefabInstance: {fileID: 2110108342}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1972265545
 GameObject:
   m_ObjectHideFlags: 0
@@ -76636,6 +76945,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: cdcb692a3100643d4b2c32e1c81a9837, type: 3}
   m_PrefabInstance: {fileID: 1995268569}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1997556239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 93919080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dde8d94f8dd4547fbba61475958cb6c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.SidebarController
+  _sidebarButtons:
+  - {fileID: 1409792023}
+  - {fileID: 417545638}
+  - {fileID: 767347111}
+  _subPanels:
+  - {fileID: 1034173005}
+  - {fileID: 517269165}
+  - {fileID: 118711057}
+  _defaultIndex: 0
+  _activeButtonColor: {r: 0.28, g: 0.32, b: 0.6, a: 1}
+  _inactiveButtonColor: {r: 1, g: 1, b: 1, a: 1}
+  _activeTextColor: {r: 1, g: 1, b: 1, a: 1}
+  _inactiveTextColor: {r: 0.486, g: 0.506, b: 0.529, a: 1}
+--- !u!114 &1997556240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 93919080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7807d07b912044005be27d23ac2e7b35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Panels.InsurancePanel
+  _panelRoot: {fileID: 0}
+  _listContainer: {fileID: 0}
+  _policyItemPrefab: {fileID: 0}
+  _totalPremiumText: {fileID: 0}
+  _closeButton: {fileID: 933185563}
+  _cityManager: {fileID: 2029218248}
+  _insuranceSystem: {fileID: 2029218240}
+  _uiManager: {fileID: 2029218243}
+  _generalPolicyConfig: {fileID: 11400000, guid: a30db4450f3bd452690157a05349c9d2, type: 2}
+  _nonGeneralPolicyConfig: {fileID: 11400000, guid: 91bcd8ffb9a824776b7d08078fdf32a3, type: 2}
 --- !u!1001 &1999488994
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77619,6 +77975,331 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1fb62ccd0aca74f90822d6c845b6a82b, type: 3}
   m_PrefabInstance: {fileID: 2027455539}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2029218233
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2029218234}
+  - component: {fileID: 2029218250}
+  - component: {fileID: 2029218249}
+  - component: {fileID: 2029218248}
+  - component: {fileID: 2029218247}
+  - component: {fileID: 2029218246}
+  - component: {fileID: 2029218245}
+  - component: {fileID: 2029218244}
+  - component: {fileID: 2029218243}
+  - component: {fileID: 2029218242}
+  - component: {fileID: 2029218241}
+  - component: {fileID: 2029218240}
+  - component: {fileID: 2029218239}
+  - component: {fileID: 2029218238}
+  - component: {fileID: 2029218237}
+  - component: {fileID: 2029218236}
+  - component: {fileID: 2029218235}
+  m_Layer: 0
+  m_Name: HomebaseSceneManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2029218234
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 648706025}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2029218235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acfde5fb4f71b4ca78b04d7461ae5142, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.AutoSaveController
+  _apiClient: {fileID: 2029218237}
+  _saveIntervalTicks: 30
+--- !u!114 &2029218236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da8a6077999e74a28b8261008b8abc30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.DecisionLogger
+  _apiClient: {fileID: 2029218237}
+--- !u!114 &2029218237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c413445cad004a999419c8ba083a717, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.APIClient
+  _flushIntervalSeconds: 5
+--- !u!114 &2029218238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f5abe06c1e8b4ae2a427cb676dac08b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.MonthlyPaymentDayController
+  _creditCardSystem: {fileID: 2029218242}
+  _loanSystem: {fileID: 2029218241}
+  _insuranceSystem: {fileID: 2029218240}
+  _restaurantSystem: {fileID: 2029218246}
+  _timeManager: {fileID: 2029218250}
+  _logCycle: 1
+--- !u!114 &2029218239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 050520a69526644ef85d4e44dfcb851f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.AccidentSystem
+  _accidentDefinitions:
+  - {fileID: 11400000, guid: d626db9eecdf448d5a149188f94e30f5, type: 2}
+  - {fileID: 11400000, guid: e55da0e6ed56e467397897d6be6e162a, type: 2}
+  - {fileID: 11400000, guid: 68c3281c3c5ea401baccfca70dfadfc5, type: 2}
+  _logRolls: 1
+--- !u!114 &2029218240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87d05c75b4bd94c2f8e50e6cfaa8b375, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.InsuranceSystem
+  _availablePolicies:
+  - {fileID: 11400000, guid: a30db4450f3bd452690157a05349c9d2, type: 2}
+  - {fileID: 11400000, guid: 91bcd8ffb9a824776b7d08078fdf32a3, type: 2}
+  _logTransactions: 1
+--- !u!114 &2029218241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a26381afb7ca24a2db4f5623406679d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.LoanSystem
+  _availableLoans:
+  - {fileID: 11400000, guid: 67f446dcda1d345dca926fa5b2f83bb8, type: 2}
+  - {fileID: 11400000, guid: 2346d0d83b1694e158e476e295130ba8, type: 2}
+  - {fileID: 11400000, guid: 844aaf89a5fcd4417aa428650306eee6, type: 2}
+  _currencyManager: {fileID: 2029218249}
+  _logTransactions: 1
+--- !u!114 &2029218242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b0ff718115b4b7e9d35d0edcbc70dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.CreditCardSystem
+  _config: {fileID: 11400000, guid: 11cdf02b09cf741a6a7eb526545a8449, type: 2}
+  _scoringConfig: {fileID: 11400000, guid: 7a08b6f07d9c1420e81e0cf6ea253332, type: 2}
+  _logTransactions: 1
+--- !u!114 &2029218243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a079267656334ce885966c42a54bc0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.UIManager
+  _portfolioPanel: {fileID: 1734598042}
+  _lotsPanel: {fileID: 0}
+  _restaurantPanel: {fileID: 0}
+  _insurancePanel: {fileID: 1997556240}
+  _loanPanel: {fileID: 1940397495}
+  _lotPurchasePopup: {fileID: 0}
+  _buyInvestmentPopup: {fileID: 0}
+  _sellInvestmentPopup: {fileID: 0}
+  _transferPopup: {fileID: 0}
+  _creditCardStatementPopup: {fileID: 0}
+  _accidentReportPopup: {fileID: 0}
+  _insuranceSelectionPopup: {fileID: 0}
+  _loanSelectionPopup: {fileID: 0}
+  _popupOverlay: {fileID: 0}
+--- !u!114 &2029218244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a73b335f2a144d7d8dcde912dd3bfb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.RivalAI
+  _config: {fileID: 11400000, guid: a6b19b1a3c0fd4a22bd68c06b3f03f28, type: 2}
+  _cityManager: {fileID: 2029218248}
+  _rivalBuilding: {fileID: 1424243928}
+  _spawnHeightOffset: 0.5
+  _logBehavior: 1
+--- !u!114 &2029218245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9e277186cfe44dd1a52e9f6b8c27516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.InvestmentSystem
+  _currencyManager: {fileID: 2029218249}
+  _timeManager: {fileID: 2029218250}
+  _availableInvestments:
+  - {fileID: 11400000, guid: 940eeb2d26b3848d3a3ab0d92fe05271, type: 2}
+  - {fileID: 11400000, guid: 161fa7a35395e40aa901092687270ce7, type: 2}
+  - {fileID: 11400000, guid: 30f948ffe431c4e769a0a544bf8dc4fc, type: 2}
+  - {fileID: 11400000, guid: 6dfa1e4a24df949d9aa81954b1a690d7, type: 2}
+  _logCompounding: 1
+--- !u!114 &2029218246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f137f5f51bb1748258e8400a64981894, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.RestaurantSystem
+  _config: {fileID: 11400000, guid: 8070593ac21f14b06aa0b8caf5d837c5, type: 2}
+  _currencyManager: {fileID: 2029218249}
+  _cityManager: {fileID: 2029218248}
+  _restaurantBuilding: {fileID: 636845267}
+  _spawnHeightOffset: 0.5
+  _logIncome: 1
+--- !u!114 &2029218247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f8a9c562b7792d459784bfbcde1bcdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.GameManager
+  _timeManager: {fileID: 2029218250}
+  _currencyManager: {fileID: 2029218249}
+  _restaurantSystem: {fileID: 2029218246}
+  _investmentSystem: {fileID: 2029218245}
+  _cityManager: {fileID: 2029218248}
+  _rivalAI: {fileID: 2029218244}
+  _creditCardSystem: {fileID: 2029218242}
+  _loanSystem: {fileID: 2029218241}
+  _insuranceSystem: {fileID: 2029218240}
+  _autoStart: 1
+  _logStateChanges: 1
+--- !u!114 &2029218248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abcd44e9481b043e29893ac27bf700a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.CityManager
+  _allLots: []
+  _currencyManager: {fileID: 2029218249}
+  _logPurchases: 1
+--- !u!114 &2029218249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56a9c0df387eb485cbc2f537143162a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.CurrencyManager
+  _startingCheckingBalance: 500
+  _startingInvestingBalance: 0
+  _logTransactions: 1
+--- !u!114 &2029218250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029218233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caf7be931a2554e7daced95445e8a919, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TimeManager
+  _secondsPerTick: 1
+  _speedOptions:
+  - 0
+  - 1
+  - 2
+  - 4
+  _ticksPerDay: 10
+  _logTicks: 0
 --- !u!1001 &2031372241
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -80447,6 +81128,12 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1936806528}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8664051672983114209, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1734598042}
+    - targetCorrespondingSourceObject: {fileID: 8664051672983114209, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1734598041}
     - targetCorrespondingSourceObject: {fileID: 197263088151226450, guid: 27a99d1b8970f44568c585597b9ee05b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2110108346}
@@ -85655,6 +86342,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2075326520942053918}
+  - component: {fileID: 2075326520942053920}
   m_Layer: 0
   m_Name: HomebaseHUD
   m_TagString: Untagged
@@ -85662,6 +86350,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &2075326520942053920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2075326520942053919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0381aa3e937e546e3a178b005d9f4564, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.HUD.GameHUD
+  _checkingDisplay: {fileID: 0}
+  _investingDisplay: {fileID: 0}
+  _daySpeedDisplay: {fileID: 0}
+  _portfolioButton: {fileID: 0}
+  _lotsButton: {fileID: 0}
+  _transferButton: {fileID: 0}
+  _restaurantButton: {fileID: 0}
+  _investingTabButton: {fileID: 2075326521242759450}
+  _insuranceTabButton: {fileID: 2075326520788431433}
+  _creditTabButton: {fileID: 2075326520757232484}
+  _uiManager: {fileID: 2029218243}
 --- !u!1 &2075326520996587648
 GameObject:
   m_ObjectHideFlags: 0
@@ -87814,3 +88525,4 @@ SceneRoots:
   - {fileID: 1618733159}
   - {fileID: 1152439417}
   - {fileID: 256036796}
+  - {fileID: 648706025}

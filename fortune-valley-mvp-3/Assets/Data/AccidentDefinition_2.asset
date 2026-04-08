@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b92eb93717b51415cb5b2f013d955133, type: 3}
+  m_Name: AccidentDefinition_2
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.AccidentDefinition
+  _accidentId: acc_health_inspection
+  _displayName: Health Inspection Failure
+  _description: Your restaurant failed a surprise health inspection. You must pay
+    for deep cleaning and new safety equipment.
+  _baseDamageCost: 250
+  _category: 0
+  _windowIntervalDays: 20
+  _rollProbability: 0.15

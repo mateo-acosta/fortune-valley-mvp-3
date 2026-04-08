@@ -33,6 +33,14 @@ namespace FortuneValley.UI.HUD
         [SerializeField] private Button _transferButton;
         [SerializeField] private Button _restaurantButton;
 
+        [Header("Financial System Tabs")]
+        [Tooltip("Investing tab button (opens Portfolio panel)")]
+        [SerializeField] private Button _investingTabButton;
+        [Tooltip("Insurance tab button (opens Insurance panel)")]
+        [SerializeField] private Button _insuranceTabButton;
+        [Tooltip("Credit tab button (opens Loan panel)")]
+        [SerializeField] private Button _creditTabButton;
+
         [Header("Dependencies")]
         [SerializeField] private UIManager _uiManager;
 
@@ -78,6 +86,21 @@ namespace FortuneValley.UI.HUD
             {
                 _restaurantButton.onClick.AddListener(OnRestaurantClicked);
             }
+
+            if (_investingTabButton != null)
+            {
+                _investingTabButton.onClick.AddListener(OnInvestingTabClicked);
+            }
+
+            if (_insuranceTabButton != null)
+            {
+                _insuranceTabButton.onClick.AddListener(OnInsuranceTabClicked);
+            }
+
+            if (_creditTabButton != null)
+            {
+                _creditTabButton.onClick.AddListener(OnCreditTabClicked);
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -121,6 +144,21 @@ namespace FortuneValley.UI.HUD
         private void OnRestaurantClicked()
         {
             _uiManager.TogglePanel(PanelType.Restaurant);
+        }
+
+        private void OnInvestingTabClicked()
+        {
+            _uiManager.TogglePanel(PanelType.Portfolio);
+        }
+
+        private void OnInsuranceTabClicked()
+        {
+            _uiManager.TogglePanel(PanelType.Insurance);
+        }
+
+        private void OnCreditTabClicked()
+        {
+            _uiManager.TogglePanel(PanelType.Loan);
         }
 
         // ═══════════════════════════════════════════════════════════════

@@ -171,7 +171,7 @@ namespace FortuneValley.UI.Panels
             _tabNormalColor = _tab1Image != null ? _tab1Image.color : new Color(0.2f, 0.2f, 0.2f);
 
             // Close button
-            _closeButton = FindButton("TopFrame/Button_Close");
+            _closeButton = FindButton("TopBar/Button_Close");
 
             // Panel roots
             var overviewT = transform.Find("OverviewPanel");

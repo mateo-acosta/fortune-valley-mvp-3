@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 956e81be6f28d4e12b94f1b2e6264170, type: 3}
+  m_Name: CreditScoringConfig
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.CreditScoringConfig
+  _startingScore: 650
+  _minScore: 300
+  _maxScore: 850
+  _onTimePaymentBonus: 15
+  _missedPaymentPenalty: 50
+  _lowUtilizationThreshold: 0.3
+  _lowUtilizationBonus: 10
+  _highUtilizationThreshold: 0.7
+  _highUtilizationPenalty: 20
+  _highDtiThreshold: 0.4
+  _highDtiPenalty: 15
