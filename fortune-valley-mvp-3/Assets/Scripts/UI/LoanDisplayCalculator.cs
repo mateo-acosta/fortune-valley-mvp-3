@@ -13,6 +13,8 @@ namespace FortuneValley.UI
     /// </summary>
     public static class LoanDisplayCalculator
     {
+        private const float PercentMultiplier = 100f;
+
         /// <summary>
         /// Calculate all display values for a loan product applied to a lot.
         /// </summary>
@@ -27,7 +29,7 @@ namespace FortuneValley.UI
                 principal, config.APR, config.TermMonths);
 
             float totalCost = (monthlyPayment * config.TermMonths) + downPayment;
-            float aprPercent = config.APR * 100f;
+            float aprPercent = config.APR * PercentMultiplier;
 
             return new LoanDisplayValues(
                 principal,

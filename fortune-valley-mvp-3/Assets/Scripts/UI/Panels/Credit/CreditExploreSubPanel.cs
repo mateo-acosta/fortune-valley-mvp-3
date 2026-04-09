@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using FortuneValley.Core;
 using FortuneValley.Domain.Enums;
+using FortuneValley.Domain.Entities;
 
 namespace FortuneValley.UI.Panels.Credit
 {
@@ -66,13 +67,18 @@ namespace FortuneValley.UI.Panels.Credit
         [SerializeField] private TextMeshProUGUI _creditScoreValueText;
 
         // ===============================================================
-        // STATE
+        // INCOME ESTIMATION
         // ===============================================================
 
-        private List<CityLotDefinition> _availableLots = new List<CityLotDefinition>();
-        private List<LoanEligibilityResult> _filteredLoans = new List<LoanEligibilityResult>();
-        private int _selectedLoanIndex;
-        private int _cachedLotCount = -1;
+        [Header("Income Estimation")]
+        [Tooltip("Fraction of checking balance used as monthly income proxy for DTI")]
+        [SerializeField] private float _monthlyIncomeFraction = 0.1f;
+
+        // ===============================================================
+        // STATE (extracted to pure C# class)
+        // ===============================================================
+
+        private readonly CreditExploreState _state = new CreditExploreState();
 
         // ===============================================================
         // LIFECYCLE
@@ -117,10 +123,10 @@ namespace FortuneValley.UI.Panels.Credit
         private void HandleCityInitialized(int totalLots)
         {
             // Reset cache so dropdown rebuilds with actual lot data
-            _cachedLotCount = -1;
+            _state.CachedLotCount = -1;
             Refresh();
         }
-        private void HandleLoanOriginated(FortuneValley.Domain.Entities.ActiveLoan loan) => Refresh();
+        private void HandleLoanOriginated(ActiveLoan loan) => Refresh();
 
         private void HandleLotChanged(int dropdownIndex)
         {
@@ -129,37 +135,37 @@ namespace FortuneValley.UI.Panels.Credit
 
         private void HandlePrevLoan()
         {
-            if (_filteredLoans.Count == 0) return;
+            if (_state.FilteredLoans.Count == 0) return;
 
-            _selectedLoanIndex--;
-            if (_selectedLoanIndex < 0)
-                _selectedLoanIndex = _filteredLoans.Count - 1;
+            _state.SelectedLoanIndex--;
+            if (_state.SelectedLoanIndex < 0)
+                _state.SelectedLoanIndex = _state.FilteredLoans.Count - 1;
 
             RefreshLoanDisplay();
         }
 
         private void HandleNextLoan()
         {
-            if (_filteredLoans.Count == 0) return;
+            if (_state.FilteredLoans.Count == 0) return;
 
-            _selectedLoanIndex++;
-            if (_selectedLoanIndex >= _filteredLoans.Count)
-                _selectedLoanIndex = 0;
+            _state.SelectedLoanIndex++;
+            if (_state.SelectedLoanIndex >= _state.FilteredLoans.Count)
+                _state.SelectedLoanIndex = 0;
 
             RefreshLoanDisplay();
         }
 
         private void HandleApplyNow()
         {
-            if (_availableLots.Count == 0) return;
-            if (_filteredLoans.Count == 0) return;
+            if (_state.AvailableLots.Count == 0) return;
+            if (_state.FilteredLoans.Count == 0) return;
             if (_lotDropdown == null) return;
 
             int lotIndex = _lotDropdown.value;
-            if (lotIndex < 0 || lotIndex >= _availableLots.Count) return;
+            if (lotIndex < 0 || lotIndex >= _state.AvailableLots.Count) return;
 
-            var lot = _availableLots[lotIndex];
-            var result = _filteredLoans[_selectedLoanIndex];
+            var lot = _state.AvailableLots[lotIndex];
+            var result = _state.FilteredLoans[_state.SelectedLoanIndex];
 
             if (!result.IsEligible) return;
 
@@ -186,37 +192,25 @@ namespace FortuneValley.UI.Panels.Credit
                 return;
             }
 
-            // Filter to unowned lots that do not already have an active loan
-            _availableLots.Clear();
+            // Read properties only, then delegate filtering to pure C# helper
             var allLots = _cityManager.AllLots;
             var ownership = _cityManager.LotOwnership;
+            var activeLoans = _loanSystem.Portfolio.AllLoans;
 
             Debug.Log($"[CreditExplore] AllLots.Count={allLots.Count}, ownership.Count={ownership.Count}, portfolio null={_loanSystem.Portfolio == null}");
 
-            for (int i = 0; i < allLots.Count; i++)
-            {
-                var lot = allLots[i];
-                if (lot == null) continue;
-
-                bool isOwned = ownership.TryGetValue(lot.LotId, out Owner owner)
-                    && owner != Owner.None;
-                bool hasActiveLoan = _loanSystem.Portfolio.HasLoanOnLot(lot.LotId);
-
-                if (!isOwned && !hasActiveLoan)
-                {
-                    _availableLots.Add(lot);
-                }
-            }
+            CreditExploreLotFilter.FilterAvailableLots(
+                allLots, ownership, activeLoans, _state.AvailableLots);
 
             // Only rebuild dropdown UI when lot count changes
-            if (_availableLots.Count == _cachedLotCount) return;
-            _cachedLotCount = _availableLots.Count;
+            if (_state.AvailableLots.Count == _state.CachedLotCount) return;
+            _state.CachedLotCount = _state.AvailableLots.Count;
 
             if (_lotDropdown == null) return;
 
             _lotDropdown.ClearOptions();
 
-            if (_availableLots.Count == 0)
+            if (_state.AvailableLots.Count == 0)
             {
                 // Empty state: no lots available
                 _lotDropdown.interactable = false;
@@ -225,10 +219,10 @@ namespace FortuneValley.UI.Panels.Credit
             }
 
             _lotDropdown.interactable = true;
-            var options = new List<TMP_Dropdown.OptionData>(_availableLots.Count);
-            for (int i = 0; i < _availableLots.Count; i++)
+            var options = new List<TMP_Dropdown.OptionData>(_state.AvailableLots.Count);
+            for (int i = 0; i < _state.AvailableLots.Count; i++)
             {
-                var lot = _availableLots[i];
+                var lot = _state.AvailableLots[i];
                 options.Add(new TMP_Dropdown.OptionData(
                     $"{lot.DisplayName} - ${lot.BaseCost:N0}"));
             }
@@ -238,31 +232,35 @@ namespace FortuneValley.UI.Panels.Credit
 
         private void RefreshLoansForSelectedLot()
         {
-            _filteredLoans.Clear();
-            _selectedLoanIndex = 0;
+            _state.FilteredLoans.Clear();
+            _state.SelectedLoanIndex = 0;
 
-            if (_availableLots.Count == 0)
+            if (_state.AvailableLots.Count == 0)
             {
                 ShowEmptyState("No lots available");
                 return;
             }
 
-            if (_lotDropdown == null || _loanSystem == null || _creditCardSystem == null)
+            if (_lotDropdown == null || _loanSystem == null
+                || _creditCardSystem == null || _currencyManager == null)
                 return;
 
             int lotIndex = _lotDropdown.value;
-            if (lotIndex < 0 || lotIndex >= _availableLots.Count) return;
+            if (lotIndex < 0 || lotIndex >= _state.AvailableLots.Count) return;
 
             // Property reads only for eligibility data
             var configs = _loanSystem.AvailableLoans;
             int creditScore = _creditCardSystem.CreditScore;
             float monthlyDebt = _loanSystem.TotalMonthlyDebt;
-            float monthlyIncome = EstimateMonthlyIncome();
-            float dtiRatio = monthlyIncome > 0f ? monthlyDebt / monthlyIncome : 0f;
+            float checkingBalance = _currencyManager.CheckingBalance;
+            float monthlyIncome = CreditExploreIncomeEstimator.EstimateMonthlyIncome(
+                checkingBalance, _monthlyIncomeFraction);
+            float dtiRatio = CreditExploreIncomeEstimator.ComputeDtiRatio(
+                monthlyDebt, monthlyIncome);
 
-            _filteredLoans = LoanEligibilityFilter.Evaluate(configs, creditScore, dtiRatio);
+            _state.SetFilteredLoans(LoanEligibilityFilter.Evaluate(configs, creditScore, dtiRatio));
 
-            if (_filteredLoans.Count == 0)
+            if (_state.FilteredLoans.Count == 0)
             {
                 ShowEmptyState("No qualifying loans");
                 return;
@@ -273,17 +271,17 @@ namespace FortuneValley.UI.Panels.Credit
 
         private void RefreshLoanDisplay()
         {
-            if (_filteredLoans.Count == 0) return;
-            if (_selectedLoanIndex < 0 || _selectedLoanIndex >= _filteredLoans.Count)
-                _selectedLoanIndex = 0;
+            if (_state.FilteredLoans.Count == 0) return;
+            if (_state.SelectedLoanIndex < 0 || _state.SelectedLoanIndex >= _state.FilteredLoans.Count)
+                _state.SelectedLoanIndex = 0;
 
-            var result = _filteredLoans[_selectedLoanIndex];
+            var result = _state.FilteredLoans[_state.SelectedLoanIndex];
             var config = result.Config;
 
             // Get lot price for computation
             int lotIndex = _lotDropdown != null ? _lotDropdown.value : 0;
-            if (lotIndex < 0 || lotIndex >= _availableLots.Count) return;
-            float lotPrice = _availableLots[lotIndex].BaseCost;
+            if (lotIndex < 0 || lotIndex >= _state.AvailableLots.Count) return;
+            float lotPrice = _state.AvailableLots[lotIndex].BaseCost;
 
             // Compute display values via extracted calculator
             var values = LoanDisplayCalculator.Calculate(lotPrice, config);
@@ -320,7 +318,7 @@ namespace FortuneValley.UI.Panels.Credit
                 _applyButtonText.text = "Apply Now";
 
             // Update arrow visibility
-            bool multipleLoans = _filteredLoans.Count > 1;
+            bool multipleLoans = _state.FilteredLoans.Count > 1;
             if (_buttonLeft != null)
                 _buttonLeft.gameObject.SetActive(multipleLoans);
             if (_buttonRight != null)
@@ -356,20 +354,5 @@ namespace FortuneValley.UI.Panels.Credit
             if (_qualifyText != null) _qualifyText.text = "";
         }
 
-        // ===============================================================
-        // HELPERS
-        // ===============================================================
-
-        /// <summary>
-        /// Rough monthly income estimate for DTI calculation.
-        /// POC proxy using checking balance.
-        /// </summary>
-        private float EstimateMonthlyIncome()
-        {
-            if (_currencyManager == null) return 1f;
-            return _currencyManager.CheckingBalance > 0f
-                ? _currencyManager.CheckingBalance * 0.1f
-                : 1f;
-        }
     }
 }
