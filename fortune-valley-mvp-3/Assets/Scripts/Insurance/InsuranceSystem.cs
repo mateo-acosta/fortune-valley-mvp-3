@@ -44,6 +44,11 @@ namespace FortuneValley.Core
         public InsurancePortfolio Portfolio => _portfolio;
 
         /// <summary>
+        /// Available policy configs for browsing in UI.
+        /// </summary>
+        public IReadOnlyList<InsurancePolicyConfig> AvailablePolicies => _availablePolicies;
+
+        /// <summary>
         /// Total monthly premiums across all active policies.
         /// </summary>
         public float TotalMonthlyPremiums => _portfolio != null
