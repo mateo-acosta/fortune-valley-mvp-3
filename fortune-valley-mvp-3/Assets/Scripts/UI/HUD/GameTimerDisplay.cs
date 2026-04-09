@@ -6,7 +6,7 @@ namespace FortuneValley.UI.HUD
 {
     /// <summary>
     /// Displays the current game day as "Day X".
-    /// Updates every tick.
+    /// Updates when a day completes via OnDayEnd.
     /// </summary>
     public class GameTimerDisplay : MonoBehaviour
     {
@@ -15,13 +15,13 @@ namespace FortuneValley.UI.HUD
 
         private void OnEnable()
         {
-            GameEvents.OnTick += HandleTick;
+            GameEvents.OnDayEnd += HandleDayEnd;
             GameEvents.OnGameStart += HandleGameStart;
         }
 
         private void OnDisable()
         {
-            GameEvents.OnTick -= HandleTick;
+            GameEvents.OnDayEnd -= HandleDayEnd;
             GameEvents.OnGameStart -= HandleGameStart;
         }
 
@@ -33,11 +33,11 @@ namespace FortuneValley.UI.HUD
             }
         }
 
-        private void HandleTick(int tickNumber)
+        private void HandleDayEnd(int dayNumber)
         {
             if (_timerText != null)
             {
-                _timerText.text = $"Day {tickNumber}";
+                _timerText.text = $"Day {dayNumber}";
             }
         }
     }
