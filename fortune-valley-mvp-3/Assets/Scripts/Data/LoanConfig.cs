@@ -30,6 +30,10 @@ namespace FortuneValley.Core
         [Tooltip("Required down payment as fraction of price (e.g., 0.20 for 20%)")]
         [SerializeField] private float _downPaymentPercent = 0.20f;
 
+        [Header("Visual")]
+        [Tooltip("Image shown in the loan carousel browser")]
+        [SerializeField] private Sprite _loanImage;
+
         [Header("Requirements")]
         [Tooltip("Minimum credit score to qualify")]
         [SerializeField] private int _minimumCreditScore = 600;
@@ -40,6 +44,7 @@ namespace FortuneValley.Core
         // Read-only accessors
         public string LoanId => _loanId;
         public string DisplayName => _displayName;
+        public Sprite LoanImage => _loanImage;
         public float APR => _apr;
         public int TermMonths => _termMonths;
         public float DownPaymentPercent => _downPaymentPercent;
