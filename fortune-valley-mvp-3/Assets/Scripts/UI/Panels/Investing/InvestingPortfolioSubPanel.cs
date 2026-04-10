@@ -166,7 +166,19 @@ namespace FortuneValley.UI.Panels.Investing
         {
             var btn = go.GetComponent<Button>();
             if (btn == null) btn = go.GetComponentInChildren<Button>(true);
-            if (btn == null) return;
+
+            // Add Button + Image if the prefab doesn't have one (needed for click raycasting)
+            if (btn == null)
+            {
+                var img = go.GetComponent<UnityEngine.UI.Image>();
+                if (img == null)
+                {
+                    img = go.AddComponent<UnityEngine.UI.Image>();
+                    img.color = new Color(1f, 1f, 1f, 0f); // transparent
+                }
+                btn = go.AddComponent<Button>();
+                btn.targetGraphic = img;
+            }
 
             var capturedHolding = holding;
             btn.onClick.AddListener(() =>

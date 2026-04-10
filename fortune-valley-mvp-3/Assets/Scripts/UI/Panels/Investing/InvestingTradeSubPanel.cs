@@ -54,6 +54,11 @@ namespace FortuneValley.UI.Panels.Investing
         [Header("Trading")]
         [SerializeField] private int _sharesPerTrade = 1;
 
+        [Header("Recently Viewed")]
+        [SerializeField] private Transform _recentlyViewedContainer;
+        [SerializeField] private GameObject _recentlyViewedItemPrefab;
+        [SerializeField] private int _maxRecentlyViewed = 10;
+
         [Header("Colors")]
         [SerializeField] private Color _gainColor = new Color(0.2f, 0.8f, 0.2f);
         [SerializeField] private Color _lossColor = new Color(0.8f, 0.2f, 0.2f);
@@ -66,8 +71,9 @@ namespace FortuneValley.UI.Panels.Investing
         private int _currentDayTick;
         private InvestmentDefinition _selectedDefinition;
 
-        // Cached investing balance (updated via event, avoids cross-layer method call)
-        private float _cachedInvestingBalance;
+        // Cached checking balance (updated via event, avoids cross-layer method call)
+        // Buying stocks deducts from checking, so affordability checks use this
+        private float _cachedCheckingBalance;
 
         // Cached for price change display
         private Dictionary<InvestmentDefinition, float> _previousPrices
@@ -76,6 +82,10 @@ namespace FortuneValley.UI.Panels.Investing
         // Reusable buffer for graph data (avoids per-tick allocation)
         private List<float> _graphBuffer = new List<float>();
 
+        // Recently viewed stocks (most recent first)
+        private List<InvestmentDefinition> _recentlyViewedList = new List<InvestmentDefinition>();
+        private List<HoldingListItemView> _recentlyViewedViews = new List<HoldingListItemView>();
+
         // ===============================================================
         // LIFECYCLE
         // ===============================================================
@@ -83,8 +93,9 @@ namespace FortuneValley.UI.Panels.Investing
         protected override void OnEnable()
         {
             GameEvents.OnTick += HandleTick;
-            GameEvents.OnInvestingBalanceChanged += HandleInvestingBalanceChanged;
+            GameEvents.OnCheckingBalanceChanged += HandleCheckingBalanceChanged;
             GameEvents.OnTradeRequested += HandleTradeRequested;
+            GameEvents.OnGameStart += HandleGameStart;
 
             if (_buyButton != null)
                 _buyButton.onClick.AddListener(OnBuyClicked);
@@ -95,7 +106,10 @@ namespace FortuneValley.UI.Panels.Investing
 
             // Read selection from Explore tab (for Explore->Trade flow)
             if (_exploreSubPanel != null && _exploreSubPanel.SelectedDefinition != null)
+            {
                 _selectedDefinition = _exploreSubPanel.SelectedDefinition;
+                AddToRecentlyViewed(_selectedDefinition);
+            }
 
             SnapshotPrices();
             base.OnEnable();
@@ -104,8 +118,9 @@ namespace FortuneValley.UI.Panels.Investing
         protected override void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
-            GameEvents.OnInvestingBalanceChanged -= HandleInvestingBalanceChanged;
+            GameEvents.OnCheckingBalanceChanged -= HandleCheckingBalanceChanged;
             GameEvents.OnTradeRequested -= HandleTradeRequested;
+            GameEvents.OnGameStart -= HandleGameStart;
 
             if (_buyButton != null)
                 _buyButton.onClick.RemoveListener(OnBuyClicked);
@@ -126,19 +141,16 @@ namespace FortuneValley.UI.Panels.Investing
             _currentDayTick = tickNumber;
             SnapshotPrices();
 
-            // Check if Explore tab changed selection (for live browsing)
-            if (_exploreSubPanel != null && _exploreSubPanel.SelectedDefinition != null
-                && _exploreSubPanel.SelectedDefinition != _selectedDefinition)
-            {
-                _selectedDefinition = _exploreSubPanel.SelectedDefinition;
-            }
+            // Selection comes from events only (OnTradeRequested, recently viewed clicks,
+            // or Explore read on enable). No per-tick polling.
 
+            UpdateRecentlyViewedPrices();
             Refresh();
         }
 
-        private void HandleInvestingBalanceChanged(float balance, float delta)
+        private void HandleCheckingBalanceChanged(float balance, float delta)
         {
-            _cachedInvestingBalance = balance;
+            _cachedCheckingBalance = balance;
             Refresh();
         }
 
@@ -146,7 +158,13 @@ namespace FortuneValley.UI.Panels.Investing
         {
             if (def == null) return;
             _selectedDefinition = def;
+            AddToRecentlyViewed(def);
             Refresh();
+        }
+
+        private void HandleGameStart()
+        {
+            ClearRecentlyViewed();
         }
 
         // ===============================================================
@@ -223,9 +241,9 @@ namespace FortuneValley.UI.Panels.Investing
                 ? "Tap Sell to remove 1 share."
                 : "Tap Buy to purchase 1 share.");
 
-            // Button states (uses cached balance to avoid cross-layer method call)
+            // Button states (uses cached checking balance -- buys deduct from checking)
             if (_buyButton != null)
-                _buyButton.interactable = _cachedInvestingBalance >= _selectedDefinition.CurrentPrice;
+                _buyButton.interactable = _cachedCheckingBalance >= _selectedDefinition.CurrentPrice;
             if (_sellButton != null)
                 _sellButton.gameObject.SetActive(sharesOwned > 0);
 
@@ -253,6 +271,102 @@ namespace FortuneValley.UI.Panels.Investing
             StockGraphHelper.RefreshGraph(
                 _stockGraph, _stockHistory, _selectedDefinition,
                 30, _currentDayTick, _graphBuffer);
+        }
+
+        // ===============================================================
+        // RECENTLY VIEWED
+        // ===============================================================
+
+        private void AddToRecentlyViewed(InvestmentDefinition def)
+        {
+            if (def == null) return;
+
+            // Remove duplicate if already in list (will re-add at top)
+            _recentlyViewedList.Remove(def);
+
+            // Add to front (most recent first)
+            _recentlyViewedList.Insert(0, def);
+
+            // Cap at max
+            while (_recentlyViewedList.Count > _maxRecentlyViewed)
+                _recentlyViewedList.RemoveAt(_recentlyViewedList.Count - 1);
+
+            RebuildRecentlyViewedUI();
+        }
+
+        private void RebuildRecentlyViewedUI()
+        {
+            ClearRecentlyViewedUI();
+
+            if (_recentlyViewedContainer == null || _recentlyViewedItemPrefab == null) return;
+
+            for (int i = 0; i < _recentlyViewedList.Count; i++)
+            {
+                var def = _recentlyViewedList[i];
+                var go = Instantiate(_recentlyViewedItemPrefab, _recentlyViewedContainer);
+                var view = go.GetComponent<HoldingListItemView>();
+                _recentlyViewedViews.Add(view);
+
+                if (view != null)
+                {
+                    view.SetName(def.DisplayName);
+                    view.SetValue(
+                        $"${def.CurrentPrice:F2}",
+                        def.CurrentPrice >= def.BasePricePerShare ? _gainColor : _lossColor);
+                }
+
+                // Wire click to select this stock for trading
+                var btn = go.GetComponent<Button>();
+                if (btn == null)
+                {
+                    var img = go.GetComponent<Image>();
+                    if (img == null)
+                    {
+                        img = go.AddComponent<Image>();
+                        img.color = new Color(1f, 1f, 1f, 0f);
+                    }
+                    btn = go.AddComponent<Button>();
+                    btn.targetGraphic = img;
+                }
+
+                var capturedDef = def;
+                btn.onClick.AddListener(() =>
+                {
+                    _selectedDefinition = capturedDef;
+                    AddToRecentlyViewed(capturedDef);
+                    Refresh();
+                });
+            }
+        }
+
+        private void UpdateRecentlyViewedPrices()
+        {
+            for (int i = 0; i < _recentlyViewedViews.Count && i < _recentlyViewedList.Count; i++)
+            {
+                var view = _recentlyViewedViews[i];
+                var def = _recentlyViewedList[i];
+                if (view == null || def == null) continue;
+
+                view.SetValue(
+                    $"${def.CurrentPrice:F2}",
+                    def.CurrentPrice >= def.BasePricePerShare ? _gainColor : _lossColor);
+            }
+        }
+
+        private void ClearRecentlyViewed()
+        {
+            _recentlyViewedList.Clear();
+            ClearRecentlyViewedUI();
+        }
+
+        private void ClearRecentlyViewedUI()
+        {
+            for (int i = 0; i < _recentlyViewedViews.Count; i++)
+            {
+                if (_recentlyViewedViews[i] != null)
+                    Destroy(_recentlyViewedViews[i].gameObject);
+            }
+            _recentlyViewedViews.Clear();
         }
 
         // ===============================================================

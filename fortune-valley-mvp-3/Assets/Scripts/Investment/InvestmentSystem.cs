@@ -231,8 +231,8 @@ namespace FortuneValley.Core
             float pricePerShare = definition.CurrentPrice;
             float totalCost = shareCount * pricePerShare;
 
-            // Try to spend from investing account
-            if (!_currencyManager.TrySpendInvesting(totalCost, $"Buy {shareCount} shares of {definition.DisplayName}"))
+            // Deduct from checking account (students buy directly with checking funds)
+            if (!_currencyManager.TrySpendChecking(totalCost, $"Buy {shareCount} shares of {definition.DisplayName}"))
             {
                 Debug.Log($"[InvestmentSystem] Cannot afford ${totalCost:F0} for {shareCount} shares");
                 return null;
@@ -301,7 +301,8 @@ namespace FortuneValley.Core
             int removed = investment.RemoveShares(shareCount);
             float payout = removed * pricePerShare;
 
-            _currencyManager.AddToInvesting(payout, $"Sold {removed} shares of {investment.Definition.DisplayName}");
+            // Sale proceeds go to checking account
+            _currencyManager.AddToChecking(payout, $"Sold {removed} shares of {investment.Definition.DisplayName}");
 
             Debug.Log($"[InvestmentSystem] Partial sell: {removed} shares of {investment.Definition.DisplayName}. " +
                      $"Payout: ${payout:F2}. Remaining: {investment.NumberOfShares} shares");
@@ -327,8 +328,8 @@ namespace FortuneValley.Core
             float payout = investment.CurrentValue;
             _activeInvestments.Remove(investment);
 
-            // Add the money back to investing account
-            _currencyManager.AddToInvesting(payout, $"Sold {investment.NumberOfShares} shares of {investment.Definition.DisplayName}");
+            // Sale proceeds go to checking account
+            _currencyManager.AddToChecking(payout, $"Sold all shares of {investment.Definition.DisplayName}");
 
             GameEvents.RaiseInvestmentWithdrawn(investment, payout);
 

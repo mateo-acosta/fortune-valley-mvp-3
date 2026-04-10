@@ -49,6 +49,8 @@ namespace FortuneValley.UI.Panels.Investing
 
         [Header("Actions")]
         [SerializeField] private Button _tradeButton;
+        [SerializeField] private SidebarController _sidebarController;
+        [SerializeField] private int _tradeTabIndex;
 
         [Header("Empty State")]
         [SerializeField] private GameObject _emptyStateText;
@@ -172,6 +174,10 @@ namespace FortuneValley.UI.Panels.Investing
         {
             if (_selectedHolding == null || _selectedHolding.Definition == null) return;
             GameEvents.RaiseTradeRequested(_selectedHolding.Definition);
+
+            // Navigate to the Trade tab
+            if (_sidebarController != null)
+                _sidebarController.SwitchTo(_tradeTabIndex);
         }
 
         // ===============================================================

@@ -200,7 +200,7 @@ namespace FortuneValley.Managers
                 float price100 = selected.CurrentPrice * 100;
 
                 // Buy 1 share
-                GUI.enabled = currency.CanAffordInvesting(price1);
+                GUI.enabled = currency.CanAffordChecking(price1);
                 if (GUILayout.Button($"Buy 1\n(${price1:F0})"))
                 {
                     var inv = investments.BuyShares(selected, 1);
@@ -211,7 +211,7 @@ namespace FortuneValley.Managers
                 }
 
                 // Buy 10 shares
-                GUI.enabled = currency.CanAffordInvesting(price10);
+                GUI.enabled = currency.CanAffordChecking(price10);
                 if (GUILayout.Button($"Buy 10\n(${price10:F0})"))
                 {
                     var inv = investments.BuyShares(selected, 10);
@@ -222,7 +222,7 @@ namespace FortuneValley.Managers
                 }
 
                 // Buy 100 shares
-                GUI.enabled = currency.CanAffordInvesting(price100);
+                GUI.enabled = currency.CanAffordChecking(price100);
                 if (GUILayout.Button($"Buy 100\n(${price100:F0})"))
                 {
                     var inv = investments.BuyShares(selected, 100);

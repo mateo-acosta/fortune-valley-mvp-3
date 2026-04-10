@@ -62,8 +62,9 @@ namespace FortuneValley.UI
 
         /// <summary>
         /// Show a sub-panel by index and hide all others.
+        /// Can be called externally to navigate programmatically.
         /// </summary>
-        private void SwitchTo(int index)
+        public void SwitchTo(int index)
         {
             if (_subPanels == null || index < 0 || index >= _subPanels.Length)
                 return;

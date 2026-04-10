@@ -27,6 +27,13 @@ namespace FortuneValley.UI.Panels.Investing
         [SerializeField] private Transform _cardContainer;
         [SerializeField] private GameObject _cardItemPrefab;
 
+        [Header("Navigation")]
+        [Tooltip("The sidebar that controls tab switching for the investing panel")]
+        [SerializeField] private SidebarController _sidebarController;
+
+        [Tooltip("Index of the Trade tab in the sidebar (0-based)")]
+        [SerializeField] private int _tradeTabIndex;
+
         [Header("Colors")]
         [SerializeField] private Color _gainColor = new Color(0.2f, 0.8f, 0.2f);
         [SerializeField] private Color _lossColor = new Color(0.8f, 0.2f, 0.2f);
@@ -164,6 +171,11 @@ namespace FortuneValley.UI.Panels.Investing
         private void OnCardSelected(InvestmentDefinition def)
         {
             SelectedDefinition = def;
+            GameEvents.RaiseTradeRequested(def);
+
+            // Navigate to the Trade tab so the user can buy/sell immediately
+            if (_sidebarController != null)
+                _sidebarController.SwitchTo(_tradeTabIndex);
         }
 
         // ===============================================================

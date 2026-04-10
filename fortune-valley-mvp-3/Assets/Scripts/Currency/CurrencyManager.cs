@@ -20,8 +20,9 @@ namespace FortuneValley.Core
         [Tooltip("Money the player starts with in checking")]
         [SerializeField] private float _startingCheckingBalance = 1000f;
 
-        [Tooltip("Money the player starts with in investing")]
-        [SerializeField] private float _startingInvestingBalance = 0f;
+        [Header("Portfolio Reference")]
+        [Tooltip("Investment system used to compute investing balance from portfolio value")]
+        [SerializeField] private InvestmentSystem _investmentSystem;
 
         [Header("Debug")]
         [SerializeField] private bool _logTransactions = false;
@@ -31,7 +32,7 @@ namespace FortuneValley.Core
         // ═══════════════════════════════════════════════════════════════
 
         private float _checkingBalance;
-        private float _investingBalance;
+        private float _lastInvestingBalance;
 
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
@@ -43,14 +44,16 @@ namespace FortuneValley.Core
         public float CheckingBalance => _checkingBalance;
 
         /// <summary>
-        /// Current investing account balance.
+        /// Current investing balance (total portfolio market value).
+        /// Computed from InvestmentSystem, not a stored cash balance.
         /// </summary>
-        public float InvestingBalance => _investingBalance;
+        public float InvestingBalance =>
+            _investmentSystem != null ? _investmentSystem.TotalPortfolioValue : 0f;
 
         /// <summary>
         /// Combined checking + investing balance.
         /// </summary>
-        public float TotalLiquidBalance => _checkingBalance + _investingBalance;
+        public float TotalLiquidBalance => _checkingBalance + InvestingBalance;
 
         /// <summary>
         /// Alias for CheckingBalance. Used by UI components that read the primary balance.
@@ -64,6 +67,7 @@ namespace FortuneValley.Core
         private void OnEnable()
         {
             GameEvents.OnGameStart += HandleGameStart;
+            GameEvents.OnTick += HandleTick;
 
             // Handle transfer intent events from UI
             GameEvents.OnTransferRequested += HandleTransferRequested;
@@ -72,6 +76,7 @@ namespace FortuneValley.Core
         private void OnDisable()
         {
             GameEvents.OnGameStart -= HandleGameStart;
+            GameEvents.OnTick -= HandleTick;
             GameEvents.OnTransferRequested -= HandleTransferRequested;
         }
 
@@ -80,20 +85,31 @@ namespace FortuneValley.Core
             ResetBalance();
         }
 
+        private void HandleTick(int tickNumber)
+        {
+            // Update investing balance from live portfolio value and fire event if changed
+            float currentPortfolioValue = InvestingBalance;
+            float delta = currentPortfolioValue - _lastInvestingBalance;
+
+            if (Mathf.Abs(delta) > 0.01f)
+            {
+                _lastInvestingBalance = currentPortfolioValue;
+                GameEvents.RaiseInvestingBalanceChanged(currentPortfolioValue, delta);
+            }
+        }
+
         /// <summary>
         /// Handles transfer intent events fired by UI.
-        /// Routes to the appropriate transfer method based on account types.
+        /// With the new portfolio-based investing balance, transfers between
+        /// checking and investing are no longer applicable. Buying/selling
+        /// stocks handles the money flow directly.
         /// </summary>
         private void HandleTransferRequested(AccountType from, AccountType to, float amount)
         {
-            if (from == AccountType.Checking && to == AccountType.Investing)
-            {
-                TransferToInvesting(amount);
-            }
-            else if (from == AccountType.Investing && to == AccountType.Checking)
-            {
-                TransferFromInvesting(amount);
-            }
+            // Transfers to/from investing are no longer needed.
+            // Buying deducts from checking; selling adds to checking.
+            // The investing balance is computed from portfolio value.
+            Debug.Log($"[CurrencyManager] Transfer request ignored (investing is now portfolio-based). From: {from}, To: {to}, Amount: {amount}");
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -166,142 +182,12 @@ namespace FortuneValley.Core
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // INVESTING ACCOUNT
+        // INVESTING BALANCE (computed from portfolio value)
         // ═══════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Add money to investing account.
-        /// Used for: sell proceeds from shares.
-        /// </summary>
-        public void AddToInvesting(float amount, string source = "Unknown")
-        {
-            if (amount <= 0)
-            {
-                Debug.LogWarning($"[CurrencyManager] Tried to add non-positive amount to investing: {amount}");
-                return;
-            }
-
-            _investingBalance += amount;
-
-            if (_logTransactions)
-            {
-                Debug.Log($"[CurrencyManager] Investing +${amount:F2} from {source}. Balance: ${_investingBalance:F2}");
-            }
-
-            GameEvents.RaiseInvestingBalanceChanged(_investingBalance, amount);
-        }
-
-        /// <summary>
-        /// Try to spend from investing account. Returns true if successful.
-        /// Used for: buying shares.
-        /// </summary>
-        public bool TrySpendInvesting(float amount, string reason = "Unknown")
-        {
-            if (amount <= 0)
-            {
-                Debug.LogWarning($"[CurrencyManager] Tried to spend non-positive from investing: {amount}");
-                return false;
-            }
-
-            if (_investingBalance < amount)
-            {
-                if (_logTransactions)
-                {
-                    Debug.Log($"[CurrencyManager] Cannot spend ${amount:F2} from investing for {reason}. Balance: ${_investingBalance:F2}");
-                }
-                return false;
-            }
-
-            _investingBalance -= amount;
-
-            if (_logTransactions)
-            {
-                Debug.Log($"[CurrencyManager] Investing -${amount:F2} for {reason}. Balance: ${_investingBalance:F2}");
-            }
-
-            GameEvents.RaiseInvestingBalanceChanged(_investingBalance, -amount);
-            return true;
-        }
-
-        /// <summary>
-        /// Check if player can afford an amount from investing.
-        /// </summary>
-        public bool CanAffordInvesting(float amount)
-        {
-            return _investingBalance >= amount;
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // TRANSFERS
-        // ═══════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Transfer money from checking to investing.
-        /// Returns true if successful.
-        /// </summary>
-        public bool TransferToInvesting(float amount)
-        {
-            if (amount <= 0)
-            {
-                Debug.LogWarning($"[CurrencyManager] Transfer amount must be positive: {amount}");
-                return false;
-            }
-
-            if (_checkingBalance < amount)
-            {
-                if (_logTransactions)
-                {
-                    Debug.Log($"[CurrencyManager] Cannot transfer ${amount:F2} to investing. Checking: ${_checkingBalance:F2}");
-                }
-                return false;
-            }
-
-            _checkingBalance -= amount;
-            _investingBalance += amount;
-
-            if (_logTransactions)
-            {
-                Debug.Log($"[CurrencyManager] Transferred ${amount:F2} checking -> investing. Checking: ${_checkingBalance:F2}, Investing: ${_investingBalance:F2}");
-            }
-
-            GameEvents.RaiseCheckingBalanceChanged(_checkingBalance, -amount);
-            GameEvents.RaiseInvestingBalanceChanged(_investingBalance, amount);
-            return true;
-        }
-
-        /// <summary>
-        /// Transfer money from investing to checking.
-        /// Returns true if successful.
-        /// </summary>
-        public bool TransferFromInvesting(float amount)
-        {
-            if (amount <= 0)
-            {
-                Debug.LogWarning($"[CurrencyManager] Transfer amount must be positive: {amount}");
-                return false;
-            }
-
-            if (_investingBalance < amount)
-            {
-                if (_logTransactions)
-                {
-                    Debug.Log($"[CurrencyManager] Cannot transfer ${amount:F2} from investing. Investing: ${_investingBalance:F2}");
-                }
-                return false;
-            }
-
-            _investingBalance -= amount;
-            _checkingBalance += amount;
-
-            if (_logTransactions)
-            {
-                Debug.Log($"[CurrencyManager] Transferred ${amount:F2} investing -> checking. Checking: ${_checkingBalance:F2}, Investing: ${_investingBalance:F2}");
-            }
-
-            GameEvents.RaiseInvestingBalanceChanged(_investingBalance, -amount);
-            GameEvents.RaiseCheckingBalanceChanged(_checkingBalance, amount);
-            return true;
-        }
+        // The investing balance is no longer a cash account. It reflects
+        // the total market value of the player's portfolio. Buying
+        // deducts from checking; selling adds to checking. The investing
+        // balance updates automatically as stock prices change.
 
         // ═══════════════════════════════════════════════════════════════
         // RESET / SETUP
@@ -313,10 +199,10 @@ namespace FortuneValley.Core
         public void ResetBalance()
         {
             _checkingBalance = _startingCheckingBalance;
-            _investingBalance = _startingInvestingBalance;
+            _lastInvestingBalance = 0f;
 
             GameEvents.RaiseCheckingBalanceChanged(_checkingBalance, 0f);
-            GameEvents.RaiseInvestingBalanceChanged(_investingBalance, 0f);
+            GameEvents.RaiseInvestingBalanceChanged(0f, 0f);
             GameEvents.RaiseCurrencyChanged(_checkingBalance, 0f);
         }
 
@@ -332,13 +218,15 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Set investing balance directly (testing and state loading).
+        /// Force an investing balance update (testing and state loading).
+        /// Reads current portfolio value and fires the event.
         /// </summary>
-        public void SetInvestingBalance(float amount)
+        public void RefreshInvestingBalance()
         {
-            float delta = amount - _investingBalance;
-            _investingBalance = amount;
-            GameEvents.RaiseInvestingBalanceChanged(_investingBalance, delta);
+            float current = InvestingBalance;
+            float delta = current - _lastInvestingBalance;
+            _lastInvestingBalance = current;
+            GameEvents.RaiseInvestingBalanceChanged(current, delta);
         }
     }
 }

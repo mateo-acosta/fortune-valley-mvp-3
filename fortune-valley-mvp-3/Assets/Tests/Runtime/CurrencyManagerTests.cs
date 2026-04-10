@@ -129,117 +129,60 @@ namespace FortuneValley.Tests
         // ===============================================================
 
         [Test]
-        public void AddToInvesting_IncreasesInvestingBalance()
-        {
-            _currencyManager.AddToInvesting(300f, "Test");
-
-            Assert.AreEqual(300f, _currencyManager.InvestingBalance);
-        }
+        [NUnit.Framework.Ignore("Investing balance is now computed from portfolio value, not a cash account")]
+        public void AddToInvesting_IncreasesInvestingBalance() { Assert.Pass(); }
 
         [Test]
-        public void TrySpendInvesting_WithSufficientFunds_ReturnsTrue()
-        {
-            _currencyManager.SetInvestingBalance(500f);
-            bool result = _currencyManager.TrySpendInvesting(200f, "Test");
-
-            Assert.IsTrue(result);
-            Assert.AreEqual(300f, _currencyManager.InvestingBalance);
-        }
+        [NUnit.Framework.Ignore("Investing balance is now computed from portfolio value, not a cash account")]
+        public void TrySpendInvesting_WithSufficientFunds_ReturnsTrue() { Assert.Pass(); }
 
         [Test]
-        public void TrySpendInvesting_WithInsufficientFunds_ReturnsFalse()
-        {
-            _currencyManager.SetInvestingBalance(100f);
-            bool result = _currencyManager.TrySpendInvesting(200f, "Test");
-
-            Assert.IsFalse(result);
-            Assert.AreEqual(100f, _currencyManager.InvestingBalance);
-        }
+        [NUnit.Framework.Ignore("Investing balance is now computed from portfolio value, not a cash account")]
+        public void TrySpendInvesting_WithInsufficientFunds_ReturnsFalse() { Assert.Pass(); }
 
         [Test]
-        public void CanAffordInvesting_WithSufficientFunds_ReturnsTrue()
-        {
-            _currencyManager.SetInvestingBalance(500f);
-            Assert.IsTrue(_currencyManager.CanAffordInvesting(500f));
-        }
+        [NUnit.Framework.Ignore("Investing balance is now computed from portfolio value, not a cash account")]
+        public void CanAffordInvesting_WithSufficientFunds_ReturnsTrue() { Assert.Pass(); }
 
         [Test]
-        public void CanAffordInvesting_WithInsufficientFunds_ReturnsFalse()
-        {
-            _currencyManager.SetInvestingBalance(100f);
-            Assert.IsFalse(_currencyManager.CanAffordInvesting(200f));
-        }
+        [NUnit.Framework.Ignore("Investing balance is now computed from portfolio value, not a cash account")]
+        public void CanAffordInvesting_WithInsufficientFunds_ReturnsFalse() { Assert.Pass(); }
 
         // ===============================================================
-        // TRANSFER TESTS
+        // TRANSFER TESTS (obsolete -- buying/selling handles money flow directly)
         // ===============================================================
 
         [Test]
-        public void TransferToInvesting_MovesBalance()
-        {
-            bool result = _currencyManager.TransferToInvesting(400f);
-
-            Assert.IsTrue(result);
-            Assert.AreEqual(600f, _currencyManager.CheckingBalance);
-            Assert.AreEqual(400f, _currencyManager.InvestingBalance);
-        }
+        [NUnit.Framework.Ignore("Transfers are obsolete -- buying deducts from checking, selling adds to checking")]
+        public void TransferToInvesting_MovesBalance() { Assert.Pass(); }
 
         [Test]
-        public void TransferToInvesting_InsufficientChecking_ReturnsFalse()
-        {
-            bool result = _currencyManager.TransferToInvesting(2000f);
-
-            Assert.IsFalse(result);
-            Assert.AreEqual(1000f, _currencyManager.CheckingBalance);
-            Assert.AreEqual(0f, _currencyManager.InvestingBalance);
-        }
+        [NUnit.Framework.Ignore("Transfers are obsolete -- buying deducts from checking, selling adds to checking")]
+        public void TransferToInvesting_InsufficientChecking_ReturnsFalse() { Assert.Pass(); }
 
         [Test]
-        public void TransferFromInvesting_MovesBalance()
-        {
-            _currencyManager.SetInvestingBalance(500f);
-            bool result = _currencyManager.TransferFromInvesting(300f);
-
-            Assert.IsTrue(result);
-            Assert.AreEqual(200f, _currencyManager.InvestingBalance);
-            Assert.AreEqual(1300f, _currencyManager.CheckingBalance);
-        }
+        [NUnit.Framework.Ignore("Transfers are obsolete -- buying deducts from checking, selling adds to checking")]
+        public void TransferFromInvesting_MovesBalance() { Assert.Pass(); }
 
         [Test]
-        public void TransferFromInvesting_InsufficientInvesting_ReturnsFalse()
-        {
-            _currencyManager.SetInvestingBalance(100f);
-            bool result = _currencyManager.TransferFromInvesting(200f);
-
-            Assert.IsFalse(result);
-            Assert.AreEqual(100f, _currencyManager.InvestingBalance);
-        }
+        [NUnit.Framework.Ignore("Transfers are obsolete -- buying deducts from checking, selling adds to checking")]
+        public void TransferFromInvesting_InsufficientInvesting_ReturnsFalse() { Assert.Pass(); }
 
         [Test]
-        public void TotalLiquidBalance_SumsBothAccounts()
-        {
-            _currencyManager.SetInvestingBalance(500f);
-
-            Assert.AreEqual(1500f, _currencyManager.TotalLiquidBalance);
-        }
+        [NUnit.Framework.Ignore("Investing balance is now computed from portfolio value")]
+        public void TotalLiquidBalance_SumsBothAccounts() { Assert.Pass(); }
 
         // ===============================================================
         // ADVERSARIAL TESTS
         // ===============================================================
 
         [Test]
-        public void TransferToInvesting_ZeroAmount_ReturnsFalse()
-        {
-            bool result = _currencyManager.TransferToInvesting(0f);
-            Assert.IsFalse(result);
-        }
+        [NUnit.Framework.Ignore("Transfers are obsolete")]
+        public void TransferToInvesting_ZeroAmount_ReturnsFalse() { Assert.Pass(); }
 
         [Test]
-        public void TransferToInvesting_NegativeAmount_ReturnsFalse()
-        {
-            bool result = _currencyManager.TransferToInvesting(-100f);
-            Assert.IsFalse(result);
-        }
+        [NUnit.Framework.Ignore("Transfers are obsolete")]
+        public void TransferToInvesting_NegativeAmount_ReturnsFalse() { Assert.Pass(); }
 
         [Test]
         public void TrySpendChecking_ZeroAmount_ReturnsFalse()
@@ -311,21 +254,8 @@ namespace FortuneValley.Tests
         }
 
         [Test]
-        public void AddToInvesting_FiresInvestingBalanceChangedEvent()
-        {
-            float receivedBalance = 0f;
-            float receivedDelta = 0f;
-            GameEvents.OnInvestingBalanceChanged += (balance, delta) =>
-            {
-                receivedBalance = balance;
-                receivedDelta = delta;
-            };
-
-            _currencyManager.AddToInvesting(200f, "Test");
-
-            Assert.AreEqual(200f, receivedBalance);
-            Assert.AreEqual(200f, receivedDelta);
-        }
+        [NUnit.Framework.Ignore("AddToInvesting removed -- investing balance is now computed from portfolio value")]
+        public void AddToInvesting_FiresInvestingBalanceChangedEvent() { Assert.Pass(); }
 
         [Test]
         public void AddToChecking_FiresIncomeGeneratedEvent()

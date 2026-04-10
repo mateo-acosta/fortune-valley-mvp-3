@@ -152,10 +152,10 @@ namespace FortuneValley.UI.Components
             }
 
             // Update button states
-            bool canAfford1 = _currencyManager != null && _currencyManager.CanAffordInvesting(currentPrice);
+            bool canAfford1 = _currencyManager != null && _currencyManager.CanAffordChecking(currentPrice);
             SetButtonInteractable(_buy1Button, canAfford1);
-            SetButtonInteractable(_buy5Button, _currencyManager != null && _currencyManager.CanAffordInvesting(currentPrice * 5));
-            SetButtonInteractable(_buy50Button, _currencyManager != null && _currencyManager.CanAffordInvesting(currentPrice * 50));
+            SetButtonInteractable(_buy5Button, _currencyManager != null && _currencyManager.CanAffordChecking(currentPrice * 5));
+            SetButtonInteractable(_buy50Button, _currencyManager != null && _currencyManager.CanAffordChecking(currentPrice * 50));
             SetButtonInteractable(_buyMaxButton, canAfford1);
 
             // Sell buttons visible only when holding shares

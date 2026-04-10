@@ -222,6 +222,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5039816094260895231}
   - component: {fileID: 811028943301385172}
+  - component: {fileID: 8823714854099549283}
   m_Layer: 0
   m_Name: Stock_in_Verticall_Scroll
   m_TagString: Untagged
@@ -278,6 +279,21 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &8823714854099549283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3429331317672776926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 807c5a3c1adba4e8ca2a4d0304ab3069, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Components.HoldingListItemView
+  _nameText: {fileID: 3871839200691730809}
+  _valueText: {fileID: 7845048434009278510}
+  _iconImage: {fileID: 294249396787872695}
 --- !u!1 &3759972346973820134
 GameObject:
   m_ObjectHideFlags: 0
