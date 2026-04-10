@@ -15,6 +15,7 @@ MonoBehaviour:
   _displayName: Arctel Health
   _description: A small and revolutionary bio-medical firm.
   _category: 0
+  _industry: 5
   _riskLevel: 2
   _annualReturnRate: 0.14
   _volatilityRange: {x: 0.4, y: 2}

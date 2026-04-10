@@ -1,19 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using FortuneValley.Core;
 using FortuneValley.Domain.Enums;
+using FortuneValley.UI.Components;
 
 namespace FortuneValley.UI.Panels.Investing
 {
     /// <summary>
-    /// Investing Explore tab: browse all available investments as cards.
+    /// Investing Explore tab: browse available investments as cards.
+    /// Supports category and industry filtering via base class.
     /// Update-in-place (tick-driven, prices change per tick).
     ///
     /// LEARNING DESIGN: Students compare investments by risk level,
     /// current price, and price change, learning to evaluate opportunities.
     /// </summary>
-    public class InvestingExploreSubPanel : SubPanelBase
+    public class InvestingExploreSubPanel : InvestingFilterableSubPanelBase
     {
         // ===============================================================
         // REFERENCES
@@ -34,8 +35,12 @@ namespace FortuneValley.UI.Panels.Investing
         // STATE
         // ===============================================================
 
-        private List<GameObject> _cardItems = new List<GameObject>();
-        private int _lastInvestmentCount = -1;
+        // Cached card views for update-in-place (zero per-tick GetComponent)
+        private List<CardItemView> _cardViews = new List<CardItemView>();
+
+        // Cached filtered list to avoid re-filtering on each tick
+        private List<InvestmentDefinition> _filteredInvestments
+            = new List<InvestmentDefinition>();
 
         // Track previous prices for daily change display
         private Dictionary<InvestmentDefinition, float> _previousPrices
@@ -56,14 +61,14 @@ namespace FortuneValley.UI.Panels.Investing
             GameEvents.OnTick += HandleTick;
 
             SnapshotPrices();
-            base.OnEnable();
+            base.OnEnable(); // subscribes filters, calls Refresh()
         }
 
         protected override void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
 
-            base.OnDisable();
+            base.OnDisable(); // unsubscribes filters
         }
 
         // ===============================================================
@@ -77,7 +82,7 @@ namespace FortuneValley.UI.Panels.Investing
         }
 
         // ===============================================================
-        // REFRESH (full rebuild)
+        // REFRESH (full rebuild with current filters)
         // ===============================================================
 
         protected override void Refresh()
@@ -87,15 +92,19 @@ namespace FortuneValley.UI.Panels.Investing
             if (_investmentSystem == null) return;
             if (_cardItemPrefab == null || _cardContainer == null) return;
 
-            var investments = _investmentSystem.AvailableInvestments;
-            _lastInvestmentCount = investments.Count;
+            _filteredInvestments = InvestmentFilterLogic.FilterDefinitions(
+                _investmentSystem.AvailableInvestments,
+                CurrentCategoryFilter,
+                CurrentIndustryFilter);
 
-            for (int i = 0; i < investments.Count; i++)
+            for (int i = 0; i < _filteredInvestments.Count; i++)
             {
                 var go = Instantiate(_cardItemPrefab, _cardContainer);
-                _cardItems.Add(go);
-                PopulateCard(go, investments[i]);
-                WireCardButton(go, investments[i]);
+                var view = go.GetComponent<CardItemView>();
+                _cardViews.Add(view);
+
+                PopulateCard(view, _filteredInvestments[i]);
+                WireCardButton(go, _filteredInvestments[i]);
             }
         }
 
@@ -107,36 +116,40 @@ namespace FortuneValley.UI.Panels.Investing
         {
             if (_investmentSystem == null) return;
 
-            var investments = _investmentSystem.AvailableInvestments;
+            // Re-filter to check if the count changed (e.g., new investment added)
+            var freshFiltered = InvestmentFilterLogic.FilterDefinitions(
+                _investmentSystem.AvailableInvestments,
+                CurrentCategoryFilter,
+                CurrentIndustryFilter);
 
-            if (investments.Count != _lastInvestmentCount)
+            if (freshFiltered.Count != _cardViews.Count)
             {
                 Refresh();
                 return;
             }
 
-            for (int i = 0; i < _cardItems.Count && i < investments.Count; i++)
+            for (int i = 0; i < _cardViews.Count && i < freshFiltered.Count; i++)
             {
-                PopulateCard(_cardItems[i], investments[i]);
+                PopulateCard(_cardViews[i], freshFiltered[i]);
             }
+
+            _filteredInvestments = freshFiltered;
         }
 
-        private void PopulateCard(GameObject go, InvestmentDefinition def)
+        private void PopulateCard(CardItemView view, InvestmentDefinition def)
         {
-            var texts = go.GetComponentsInChildren<TextMeshProUGUI>(true);
+            if (view == null) return;
 
-            // Expected layout: Name, Price, Change%, RiskLevel
-            if (texts.Length > 0) texts[0].text = def.DisplayName;
-            if (texts.Length > 1) texts[1].text = $"${def.CurrentPrice:F2}";
+            view.SetName(def.DisplayName);
+            view.SetPrice($"${def.CurrentPrice:F2}");
 
-            if (texts.Length > 2)
-            {
-                float change = GetPriceChangePercent(def);
-                texts[2].text = $"{(change >= 0 ? "+" : "")}{change:F1}%";
-                texts[2].color = change >= 0 ? _gainColor : _lossColor;
-            }
+            float change = GetPriceChangePercent(def);
+            view.SetChange(
+                $"{(change >= 0 ? "+" : "")}{change:F1}%",
+                change >= 0 ? _gainColor : _lossColor);
 
-            if (texts.Length > 3) texts[3].text = $"{def.RiskLevel} Risk";
+            view.SetRisk($"{def.RiskLevel} Risk");
+            view.SetBackground(GetBackgroundSprite(def.Category));
         }
 
         private void WireCardButton(GameObject go, InvestmentDefinition def)
@@ -178,13 +191,13 @@ namespace FortuneValley.UI.Panels.Investing
 
         private void ClearCards()
         {
-            for (int i = 0; i < _cardItems.Count; i++)
+            for (int i = 0; i < _cardViews.Count; i++)
             {
-                if (_cardItems[i] != null)
-                    Destroy(_cardItems[i]);
+                if (_cardViews[i] != null)
+                    Destroy(_cardViews[i].gameObject);
             }
-            _cardItems.Clear();
-            _lastInvestmentCount = -1;
+            _cardViews.Clear();
+            _filteredInvestments.Clear();
         }
     }
 }

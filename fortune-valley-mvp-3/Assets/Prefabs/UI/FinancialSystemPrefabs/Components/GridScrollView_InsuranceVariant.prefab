@@ -88,9 +88,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1845049988654058429, guid: 9ec97f09ff86d40c9917bac322da11c2, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.05163914
+      objectReference: {fileID: 0}
+    - target: {fileID: 4397139719866573782, guid: 9ec97f09ff86d40c9917bac322da11c2, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4397139719866573782, guid: 9ec97f09ff86d40c9917bac322da11c2, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686440918070949381, guid: 9ec97f09ff86d40c9917bac322da11c2, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686440918070949381, guid: 9ec97f09ff86d40c9917bac322da11c2, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686440918070949381, guid: 9ec97f09ff86d40c9917bac322da11c2, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8763018749553843971, guid: 9ec97f09ff86d40c9917bac322da11c2, type: 3}
       propertyPath: m_Name
-      value: GridScrollView
+      value: GridScrollView_InsuranceVariant
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

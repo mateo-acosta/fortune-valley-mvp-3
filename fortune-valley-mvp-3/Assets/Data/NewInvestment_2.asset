@@ -15,6 +15,7 @@ MonoBehaviour:
   _displayName: Park City Foods
   _description: An international grocery store.
   _category: 0
+  _industry: 4
   _riskLevel: 1
   _annualReturnRate: 0.065
   _volatilityRange: {x: 0.9, y: 1.1}

@@ -33,6 +33,9 @@ namespace FortuneValley.Core
         [Tooltip("Investment category for grouping (Stock, ETF, Bond, TBill)")]
         [SerializeField] private InvestmentCategory _category = InvestmentCategory.Stock;
 
+        [Tooltip("Industry sector (only meaningful for Stocks)")]
+        [SerializeField] private Industry _industry = Industry.None;
+
         [Header("Financial Settings")]
         [Tooltip("Low = stable, Medium = some variance, High = volatile")]
         [SerializeField] private RiskLevel _riskLevel = RiskLevel.Low;
@@ -78,6 +81,7 @@ namespace FortuneValley.Core
         public string DisplayName => _displayName;
         public string Description => _description;
         public InvestmentCategory Category => _category;
+        public Industry Industry => _industry;
 
         /// <summary>
         /// Bonds and T-Bills have fixed (predictable) returns, unlike stocks/ETFs.

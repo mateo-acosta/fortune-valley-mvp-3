@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using FortuneValley.Core;
 using FortuneValley.Domain.Enums;
@@ -8,13 +9,14 @@ namespace FortuneValley.UI.Panels.Investing
 {
     /// <summary>
     /// Investing Portfolio tab: detailed per-holding stats.
+    /// Supports category and industry filtering via base class.
     /// Update-in-place (tick-driven, prices change per tick).
     ///
     /// LEARNING DESIGN: Students see per-stock performance broken down:
     /// shares owned, avg cost, current value, gain/loss, and % return.
     /// This teaches portfolio diversification and position tracking.
     /// </summary>
-    public class InvestingPortfolioSubPanel : SubPanelBase
+    public class InvestingPortfolioSubPanel : InvestingFilterableSubPanelBase
     {
         // ===============================================================
         // REFERENCES
@@ -27,6 +29,7 @@ namespace FortuneValley.UI.Panels.Investing
         [SerializeField] private Transform _holdingsContainer;
         [SerializeField] private GameObject _holdingItemPrefab;
         [SerializeField] private GameObject _emptyStateObject;
+        [SerializeField] private GameObject _noFilterResultsObject;
 
         [Header("Colors")]
         [SerializeField] private Color _gainColor = new Color(0.2f, 0.8f, 0.2f);
@@ -38,7 +41,9 @@ namespace FortuneValley.UI.Panels.Investing
 
         // Cached items for update-in-place
         private List<GameObject> _holdingItems = new List<GameObject>();
-        private int _lastHoldingCount = -1;
+
+        // Cached filtered list to avoid re-filtering on each tick
+        private List<ActiveInvestment> _filteredHoldings = new List<ActiveInvestment>();
 
         // ===============================================================
         // LIFECYCLE
@@ -50,7 +55,7 @@ namespace FortuneValley.UI.Panels.Investing
             GameEvents.OnInvestmentCreated += HandleInvestmentEvent;
             GameEvents.OnInvestmentWithdrawn += HandleInvestmentWithdrawn;
 
-            base.OnEnable();
+            base.OnEnable(); // subscribes filters, calls Refresh()
         }
 
         protected override void OnDisable()
@@ -59,7 +64,7 @@ namespace FortuneValley.UI.Panels.Investing
             GameEvents.OnInvestmentCreated -= HandleInvestmentEvent;
             GameEvents.OnInvestmentWithdrawn -= HandleInvestmentWithdrawn;
 
-            base.OnDisable();
+            base.OnDisable(); // unsubscribes filters
         }
 
         // ===============================================================
@@ -72,7 +77,7 @@ namespace FortuneValley.UI.Panels.Investing
         private void HandleInvestmentWithdrawn(ActiveInvestment inv, float payout) => Refresh();
 
         // ===============================================================
-        // REFRESH (full rebuild when holdings count changes)
+        // REFRESH (full rebuild with current filters)
         // ===============================================================
 
         protected override void Refresh()
@@ -81,20 +86,30 @@ namespace FortuneValley.UI.Panels.Investing
 
             if (_investmentSystem == null) return;
 
-            var holdings = _investmentSystem.ActiveInvestments;
-            _lastHoldingCount = holdings.Count;
+            var allHoldings = _investmentSystem.ActiveInvestments;
+
+            _filteredHoldings = InvestmentFilterLogic.FilterActiveInvestments(
+                allHoldings,
+                CurrentCategoryFilter,
+                CurrentIndustryFilter);
 
             if (_holdingItemPrefab == null || _holdingsContainer == null) return;
 
-            for (int i = 0; i < holdings.Count; i++)
+            for (int i = 0; i < _filteredHoldings.Count; i++)
             {
                 var go = Instantiate(_holdingItemPrefab, _holdingsContainer);
                 _holdingItems.Add(go);
-                PopulateHoldingItem(go, holdings[i]);
+                PopulateHoldingItem(go, _filteredHoldings[i]);
             }
 
+            // Empty state: no holdings at all
             if (_emptyStateObject != null)
-                _emptyStateObject.SetActive(holdings.Count == 0);
+                _emptyStateObject.SetActive(allHoldings.Count == 0);
+
+            // Filter-specific empty state: has holdings but filter excluded all
+            if (_noFilterResultsObject != null)
+                _noFilterResultsObject.SetActive(
+                    allHoldings.Count > 0 && _filteredHoldings.Count == 0);
         }
 
         // ===============================================================
@@ -105,20 +120,25 @@ namespace FortuneValley.UI.Panels.Investing
         {
             if (_investmentSystem == null) return;
 
-            var holdings = _investmentSystem.ActiveInvestments;
+            var freshFiltered = InvestmentFilterLogic.FilterActiveInvestments(
+                _investmentSystem.ActiveInvestments,
+                CurrentCategoryFilter,
+                CurrentIndustryFilter);
 
-            // If holdings count changed, do a full rebuild
-            if (holdings.Count != _lastHoldingCount)
+            // If filtered count changed, do a full rebuild
+            if (freshFiltered.Count != _holdingItems.Count)
             {
                 Refresh();
                 return;
             }
 
             // Update existing items with new price data
-            for (int i = 0; i < _holdingItems.Count && i < holdings.Count; i++)
+            for (int i = 0; i < _holdingItems.Count && i < freshFiltered.Count; i++)
             {
-                PopulateHoldingItem(_holdingItems[i], holdings[i]);
+                PopulateHoldingItem(_holdingItems[i], freshFiltered[i]);
             }
+
+            _filteredHoldings = freshFiltered;
         }
 
         private void PopulateHoldingItem(GameObject go, ActiveInvestment inv)
@@ -146,6 +166,15 @@ namespace FortuneValley.UI.Panels.Investing
                 texts[5].text = $"{(returnPct >= 0 ? "+" : "")}{returnPct:F1}%";
                 texts[5].color = returnPct >= 0 ? _gainColor : _lossColor;
             }
+
+            // Set category-colored background
+            var bgTransform = go.transform.Find("Background");
+            if (bgTransform != null)
+            {
+                var bgImage = bgTransform.GetComponent<Image>();
+                if (bgImage != null)
+                    bgImage.sprite = GetBackgroundSprite(inv.Definition.Category);
+            }
         }
 
         private void ClearItems()
@@ -156,7 +185,7 @@ namespace FortuneValley.UI.Panels.Investing
                     Destroy(_holdingItems[i]);
             }
             _holdingItems.Clear();
-            _lastHoldingCount = -1;
+            _filteredHoldings.Clear();
         }
     }
 }

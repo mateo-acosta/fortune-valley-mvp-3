@@ -15,6 +15,7 @@ MonoBehaviour:
   _displayName: Unlatched AI
   _description: A cutting edge AI company building frontier models.
   _category: 0
+  _industry: 1
   _riskLevel: 2
   _annualReturnRate: 0.15
   _volatilityRange: {x: 1, y: 1}
