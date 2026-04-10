@@ -60,7 +60,7 @@ namespace FortuneValley.UI.Panels.Investing
         // LIFECYCLE
         // ===============================================================
 
-        protected override void OnEnable()
+        protected virtual void OnEnable()
         {
             if (_categoryFilter != null)
                 _categoryFilter.OnSelectionChanged += HandleFilterChanged;
@@ -77,7 +77,7 @@ namespace FortuneValley.UI.Panels.Investing
             Refresh();
         }
 
-        protected override void OnDisable()
+        protected virtual void OnDisable()
         {
             if (_categoryFilter != null)
                 _categoryFilter.OnSelectionChanged -= HandleFilterChanged;
