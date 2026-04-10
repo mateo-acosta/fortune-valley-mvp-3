@@ -5,14 +5,16 @@ using FortuneValley.UI.Components;
 namespace FortuneValley.UI.Panels.Investing
 {
     /// <summary>
-    /// Intermediate base for investing sub-panels that support
-    /// category + industry filtering and per-category card backgrounds.
-    /// One inheritance level above SubPanelBase (permitted by architecture).
+    /// Base for investing sub-panels that support category + industry
+    /// filtering and per-category card backgrounds.
+    /// Extends MonoBehaviour directly (not SubPanelBase) to keep the
+    /// inheritance chain at one level per the composition-over-inheritance rule.
+    /// Inlines SubPanelBase's OnEnable->Refresh pattern.
     ///
     /// Subclasses implement Refresh() and call the protected helpers
     /// for mapping, sprite lookup, and current filter state.
     /// </summary>
-    public abstract class InvestingFilterableSubPanelBase : SubPanelBase
+    public abstract class InvestingFilterableSubPanelBase : MonoBehaviour
     {
         // ===============================================================
         // FILTER REFERENCES
@@ -72,7 +74,7 @@ namespace FortuneValley.UI.Panels.Investing
                 _industryFilter != null ? _industryFilter.SelectedIndex : 0);
             UpdateIndustryRowVisibility();
 
-            base.OnEnable(); // calls Refresh()
+            Refresh();
         }
 
         protected override void OnDisable()
@@ -82,7 +84,6 @@ namespace FortuneValley.UI.Panels.Investing
             if (_industryFilter != null)
                 _industryFilter.OnSelectionChanged -= HandleFilterChanged;
 
-            base.OnDisable();
         }
 
         // ===============================================================
@@ -179,6 +180,16 @@ namespace FortuneValley.UI.Panels.Investing
             }
             return -1;
         }
+
+        // ===============================================================
+        // ABSTRACT (subclasses implement)
+        // ===============================================================
+
+        /// <summary>
+        /// Populate all UI elements from live data.
+        /// Called automatically on enable and by filter change handlers.
+        /// </summary>
+        protected abstract void Refresh();
 
         // ===============================================================
         // BACKGROUND SPRITE LOOKUP

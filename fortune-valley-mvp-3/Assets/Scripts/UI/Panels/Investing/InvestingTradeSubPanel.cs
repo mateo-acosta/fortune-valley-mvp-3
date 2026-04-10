@@ -28,7 +28,6 @@ namespace FortuneValley.UI.Panels.Investing
 
         [Header("Dependencies")]
         [SerializeField] private InvestmentSystem _investmentSystem;
-        [SerializeField] private CurrencyManager _currencyManager;
         [SerializeField] private StockPriceHistoryStore _stockHistory;
 
         [Header("Selection Source")]
@@ -67,6 +66,9 @@ namespace FortuneValley.UI.Panels.Investing
         private int _currentDayTick;
         private InvestmentDefinition _selectedDefinition;
 
+        // Cached investing balance (updated via event, avoids cross-layer method call)
+        private float _cachedInvestingBalance;
+
         // Cached for price change display
         private Dictionary<InvestmentDefinition, float> _previousPrices
             = new Dictionary<InvestmentDefinition, float>();
@@ -81,7 +83,7 @@ namespace FortuneValley.UI.Panels.Investing
         protected override void OnEnable()
         {
             GameEvents.OnTick += HandleTick;
-            GameEvents.OnCheckingBalanceChanged += HandleBalanceChanged;
+            GameEvents.OnInvestingBalanceChanged += HandleInvestingBalanceChanged;
             GameEvents.OnTradeRequested += HandleTradeRequested;
 
             if (_buyButton != null)
@@ -102,7 +104,7 @@ namespace FortuneValley.UI.Panels.Investing
         protected override void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
-            GameEvents.OnCheckingBalanceChanged -= HandleBalanceChanged;
+            GameEvents.OnInvestingBalanceChanged -= HandleInvestingBalanceChanged;
             GameEvents.OnTradeRequested -= HandleTradeRequested;
 
             if (_buyButton != null)
@@ -134,7 +136,11 @@ namespace FortuneValley.UI.Panels.Investing
             Refresh();
         }
 
-        private void HandleBalanceChanged(float balance, float delta) => Refresh();
+        private void HandleInvestingBalanceChanged(float balance, float delta)
+        {
+            _cachedInvestingBalance = balance;
+            Refresh();
+        }
 
         private void HandleTradeRequested(InvestmentDefinition def)
         {
@@ -217,9 +223,9 @@ namespace FortuneValley.UI.Panels.Investing
                 ? "Tap Sell to remove 1 share."
                 : "Tap Buy to purchase 1 share.");
 
-            // Button states
-            if (_buyButton != null && _currencyManager != null)
-                _buyButton.interactable = _currencyManager.CanAffordInvesting(_selectedDefinition.CurrentPrice);
+            // Button states (uses cached balance to avoid cross-layer method call)
+            if (_buyButton != null)
+                _buyButton.interactable = _cachedInvestingBalance >= _selectedDefinition.CurrentPrice;
             if (_sellButton != null)
                 _sellButton.gameObject.SetActive(sharesOwned > 0);
 
