@@ -24,6 +24,10 @@ namespace FortuneValley.Core
         [Tooltip("Investment system used to compute investing balance from portfolio value")]
         [SerializeField] private InvestmentSystem _investmentSystem;
 
+        [Header("Settings")]
+        [Tooltip("Minimum change in portfolio value to fire OnInvestingBalanceChanged")]
+        [SerializeField] private float _investingBalanceChangeThreshold = 0.01f;
+
         [Header("Debug")]
         [SerializeField] private bool _logTransactions = false;
 
@@ -91,7 +95,7 @@ namespace FortuneValley.Core
             float currentPortfolioValue = InvestingBalance;
             float delta = currentPortfolioValue - _lastInvestingBalance;
 
-            if (Mathf.Abs(delta) > 0.01f)
+            if (Mathf.Abs(delta) > _investingBalanceChangeThreshold)
             {
                 _lastInvestingBalance = currentPortfolioValue;
                 GameEvents.RaiseInvestingBalanceChanged(currentPortfolioValue, delta);

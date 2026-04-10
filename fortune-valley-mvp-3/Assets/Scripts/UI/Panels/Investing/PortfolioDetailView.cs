@@ -56,6 +56,10 @@ namespace FortuneValley.UI.Panels.Investing
         [SerializeField] private GameObject _emptyStateText;
         [SerializeField] private GameObject _detailContent;
 
+        [Header("Graph Settings")]
+        [Tooltip("Default graph window if time filter is unavailable")]
+        [SerializeField] private int _defaultGraphWindow = 30;
+
         [Header("Colors")]
         [SerializeField] private Color _gainColor = new Color(0.2f, 0.8f, 0.2f);
         [SerializeField] private Color _lossColor = new Color(0.8f, 0.2f, 0.2f);
@@ -282,13 +286,13 @@ namespace FortuneValley.UI.Panels.Investing
         private int GetCurrentWindowSize()
         {
             if (_timeFilter == null || _timeWindowMapping == null)
-                return 30; // default 30-day window
+                return _defaultGraphWindow; // default 30-day window
 
             int index = _timeFilter.SelectedIndex;
             if (index >= 0 && index < _timeWindowMapping.Length)
                 return _timeWindowMapping[index];
 
-            return 30;
+            return _defaultGraphWindow;
         }
 
         // ===============================================================
@@ -312,6 +316,8 @@ namespace FortuneValley.UI.Panels.Investing
         // PURE CALCULATIONS (testable)
         // ===============================================================
 
+        private const float PercentMultiplier = 100f;
+
         /// <summary>
         /// Calculate position ratio as a formatted string.
         /// Returns "--" if total portfolio value is zero to avoid division by zero.
@@ -319,7 +325,7 @@ namespace FortuneValley.UI.Panels.Investing
         public static string CalculatePositionRatio(float holdingValue, float totalPortfolioValue)
         {
             if (totalPortfolioValue <= 0f) return "--";
-            float ratio = (holdingValue / totalPortfolioValue) * 100f;
+            float ratio = (holdingValue / totalPortfolioValue) * PercentMultiplier;
             return $"{ratio:F1}%";
         }
 
@@ -330,7 +336,7 @@ namespace FortuneValley.UI.Panels.Investing
         public static float CalculatePriceChangePercent(float current, float previous)
         {
             if (previous <= 0f) return 0f;
-            return (current - previous) / previous * 100f;
+            return (current - previous) / previous * PercentMultiplier;
         }
     }
 }

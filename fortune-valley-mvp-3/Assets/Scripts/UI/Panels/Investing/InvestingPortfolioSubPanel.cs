@@ -174,7 +174,7 @@ namespace FortuneValley.UI.Panels.Investing
                 if (img == null)
                 {
                     img = go.AddComponent<UnityEngine.UI.Image>();
-                    img.color = new Color(1f, 1f, 1f, 0f); // transparent
+                    img.color = Color.clear;
                 }
                 btn = go.AddComponent<Button>();
                 btn.targetGraphic = img;

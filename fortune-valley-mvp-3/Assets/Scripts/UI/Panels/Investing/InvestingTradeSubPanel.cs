@@ -59,9 +59,14 @@ namespace FortuneValley.UI.Panels.Investing
         [SerializeField] private GameObject _recentlyViewedItemPrefab;
         [SerializeField] private int _maxRecentlyViewed = 10;
 
+        [Header("Graph")]
+        [Tooltip("Number of days to show in the price history graph")]
+        [SerializeField] private int _graphWindowSize = 30;
+
         [Header("Colors")]
         [SerializeField] private Color _gainColor = new Color(0.2f, 0.8f, 0.2f);
         [SerializeField] private Color _lossColor = new Color(0.8f, 0.2f, 0.2f);
+        [SerializeField] private Color _mediumRiskColor = new Color(1f, 0.8f, 0.2f);
 
         // ===============================================================
         // STATE
@@ -220,7 +225,7 @@ namespace FortuneValley.UI.Panels.Investing
                 _riskLevelText.color = _selectedDefinition.RiskLevel switch
                 {
                     RiskLevel.Low    => _gainColor,
-                    RiskLevel.Medium => new Color(1f, 0.8f, 0.2f),
+                    RiskLevel.Medium => _mediumRiskColor,
                     RiskLevel.High   => _lossColor,
                     _                => Color.white
                 };
@@ -270,7 +275,7 @@ namespace FortuneValley.UI.Panels.Investing
         {
             StockGraphHelper.RefreshGraph(
                 _stockGraph, _stockHistory, _selectedDefinition,
-                30, _currentDayTick, _graphBuffer);
+                _graphWindowSize, _currentDayTick, _graphBuffer);
         }
 
         // ===============================================================
@@ -323,7 +328,7 @@ namespace FortuneValley.UI.Panels.Investing
                     if (img == null)
                     {
                         img = go.AddComponent<Image>();
-                        img.color = new Color(1f, 1f, 1f, 0f);
+                        img.color = Color.clear;
                     }
                     btn = go.AddComponent<Button>();
                     btn.targetGraphic = img;
@@ -391,6 +396,8 @@ namespace FortuneValley.UI.Panels.Investing
             return null;
         }
 
+        private const float PercentMultiplier = 100f;
+
         private void SnapshotPrices()
         {
             if (_investmentSystem == null) return;
@@ -402,10 +409,10 @@ namespace FortuneValley.UI.Panels.Investing
         private float GetPriceChangePercent(InvestmentDefinition def)
         {
             if (_previousPrices.TryGetValue(def, out float prev) && prev > 0)
-                return (def.CurrentPrice - prev) / prev * 100f;
+                return (def.CurrentPrice - prev) / prev * PercentMultiplier;
 
             if (def.BasePricePerShare > 0)
-                return (def.CurrentPrice - def.BasePricePerShare) / def.BasePricePerShare * 100f;
+                return (def.CurrentPrice - def.BasePricePerShare) / def.BasePricePerShare * PercentMultiplier;
 
             return 0f;
         }
