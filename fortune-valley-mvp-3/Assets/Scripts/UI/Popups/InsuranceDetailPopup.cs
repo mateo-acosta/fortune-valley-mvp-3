@@ -56,6 +56,19 @@ namespace FortuneValley.UI.Popups
         [SerializeField] private GameObject _comparisonSection;
         [SerializeField] private TMP_Text _comparisonText;
 
+        [Header("Shared Controls")]
+        [SerializeField] private Button _closeButton;
+
+        // ===============================================================
+        // LIFECYCLE
+        // ===============================================================
+
+        private void Start()
+        {
+            if (_closeButton != null)
+                _closeButton.onClick.AddListener(OnCancelClicked);
+        }
+
         // ===============================================================
         // STATE
         // ===============================================================
