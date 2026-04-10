@@ -43,6 +43,7 @@ namespace FortuneValley.Core
             GameEvents.OnInsurancePurchased += HandleInsurancePurchased;
             GameEvents.OnInsuranceCanceled += HandleInsuranceCanceled;
             GameEvents.OnAccidentResolved += HandleAccidentResolved;
+            GameEvents.OnInsurancePremiumCharged += HandleInsurancePremiumCharged;
 
             // Investment events
             GameEvents.OnInvestmentCreated += HandleInvestmentCreated;
@@ -62,6 +63,7 @@ namespace FortuneValley.Core
             GameEvents.OnInsurancePurchased -= HandleInsurancePurchased;
             GameEvents.OnInsuranceCanceled -= HandleInsuranceCanceled;
             GameEvents.OnAccidentResolved -= HandleAccidentResolved;
+            GameEvents.OnInsurancePremiumCharged -= HandleInsurancePremiumCharged;
 
             GameEvents.OnInvestmentCreated -= HandleInvestmentCreated;
             GameEvents.OnInvestmentWithdrawn -= HandleInvestmentWithdrawn;
@@ -130,7 +132,8 @@ namespace FortuneValley.Core
                 TransactionType.InsurancePurchased,
                 $"Insurance purchased: {policyId} for lot {lotId}",
                 0f,
-                Time.frameCount);
+                Time.frameCount,
+                lotId);
         }
 
         private void HandleInsuranceCanceled(string lotId, InsurancePolicyType policyType)
@@ -139,7 +142,8 @@ namespace FortuneValley.Core
                 TransactionType.InsuranceCanceled,
                 $"Insurance canceled: {policyType} for lot {lotId}",
                 0f,
-                Time.frameCount);
+                Time.frameCount,
+                lotId);
         }
 
         private void HandleAccidentResolved(
@@ -150,7 +154,18 @@ namespace FortuneValley.Core
                 TransactionType.AccidentResolved,
                 $"{accidentName} at {lotId}: ${totalDamage:N0} damage ({coverageNote}), you paid ${playerCost:N0}",
                 playerCost,
-                Time.frameCount);
+                Time.frameCount,
+                lotId);
+        }
+
+        private void HandleInsurancePremiumCharged(string lotId, string policyId, float amount)
+        {
+            _history.Record(
+                TransactionType.PremiumCharged,
+                $"Premium charged: {policyId} on {lotId}",
+                amount,
+                Time.frameCount,
+                lotId);
         }
 
         // Investment handlers

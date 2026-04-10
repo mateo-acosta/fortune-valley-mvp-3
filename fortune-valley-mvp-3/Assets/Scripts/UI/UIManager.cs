@@ -55,6 +55,12 @@ namespace FortuneValley.UI
         [Tooltip("Loan product selection popup")]
         [SerializeField] private UIPopup _loanSelectionPopup;
 
+        [Tooltip("Insurance policy detail popup")]
+        [SerializeField] private UIPopup _insuranceDetailPopup;
+
+        [Tooltip("Lot selection popup for insurance purchase")]
+        [SerializeField] private UIPopup _insuranceLotSelectionPopup;
+
         [Header("Overlay")]
         [Tooltip("Dark overlay behind popups")]
         [SerializeField] private GameObject _popupOverlay;
@@ -85,6 +91,8 @@ namespace FortuneValley.UI
             if (_accidentReportPopup != null) _accidentReportPopup.OnCloseRequested += HandlePopupCloseRequested;
             if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
             if (_loanSelectionPopup != null) _loanSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_insuranceDetailPopup != null) _insuranceDetailPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
             if (_insurancePanel != null) _insurancePanel.OnCloseRequested += HandlePanelCloseRequested;
             if (_loanPanel != null) _loanPanel.OnCloseRequested += HandlePanelCloseRequested;
 
@@ -105,6 +113,8 @@ namespace FortuneValley.UI
             if (_accidentReportPopup != null) _accidentReportPopup.OnCloseRequested -= HandlePopupCloseRequested;
             if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
             if (_loanSelectionPopup != null) _loanSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_insuranceDetailPopup != null) _insuranceDetailPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
             if (_insurancePanel != null) _insurancePanel.OnCloseRequested -= HandlePanelCloseRequested;
             if (_loanPanel != null) _loanPanel.OnCloseRequested -= HandlePanelCloseRequested;
         }
@@ -290,6 +300,8 @@ namespace FortuneValley.UI
             if (_accidentReportPopup != null) _accidentReportPopup.Hide();
             if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.Hide();
             if (_loanSelectionPopup != null) _loanSelectionPopup.Hide();
+            if (_insuranceDetailPopup != null) _insuranceDetailPopup.Hide();
+            if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.Hide();
 
             if (_popupOverlay != null)
             {
@@ -309,6 +321,8 @@ namespace FortuneValley.UI
                 PopupType.AccidentReport => _accidentReportPopup,
                 PopupType.InsuranceSelection => _insuranceSelectionPopup,
                 PopupType.LoanSelection => _loanSelectionPopup,
+                PopupType.InsuranceDetail => _insuranceDetailPopup,
+                PopupType.LotSelection => _insuranceLotSelectionPopup,
                 _ => null
             };
         }
@@ -366,5 +380,15 @@ namespace FortuneValley.UI
         /// Get the loan selection popup for configuration by LotPurchasePopup.
         /// </summary>
         public UIPopup LoanSelectionPopup => _loanSelectionPopup;
+
+        /// <summary>
+        /// Insurance detail popup for policy/transaction information.
+        /// </summary>
+        public UIPopup InsuranceDetailPopup => _insuranceDetailPopup;
+
+        /// <summary>
+        /// Lot selection popup for insurance purchasing.
+        /// </summary>
+        public UIPopup InsuranceLotSelectionPopup => _insuranceLotSelectionPopup;
     }
 }

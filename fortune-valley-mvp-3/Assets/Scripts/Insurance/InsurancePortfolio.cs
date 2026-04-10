@@ -125,6 +125,26 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Get the cancellation fee for a policy on a specific lot.
+        /// Returns 50% of the monthly premium, or 0 if no matching active policy found.
+        /// </summary>
+        public float GetCancellationFee(string lotId, InsurancePolicyType policyType)
+        {
+            for (int i = 0; i < _policies.Count; i++)
+            {
+                if (_policies[i].LotId == lotId
+                    && _policies[i].PolicyType == policyType
+                    && _policies[i].IsActive)
+                {
+                    return _policies[i].MonthlyPremium * CancellationFeePercent;
+                }
+            }
+            return 0f;
+        }
+
+        private const float CancellationFeePercent = 0.5f;
+
+        /// <summary>
         /// Sum of all active policy monthly premiums.
         /// </summary>
         public float GetTotalMonthlyPremiums()
@@ -142,10 +162,13 @@ namespace FortuneValley.Core
 
         /// <summary>
         /// Process premium charges for all active policies.
-        /// Calls the provided action for each active policy's premium.
+        /// Calls onChargeRequested for each active policy's premium (CC charge).
+        /// Optionally calls onPremiumCharged for per-policy tracking (transaction log).
         /// Keeps loops out of MonoBehaviours.
         /// </summary>
-        public void ProcessPremiums(System.Action<float, string> onChargeRequested)
+        public void ProcessPremiums(
+            System.Action<float, string> onChargeRequested,
+            System.Action<string, string, float> onPremiumCharged = null)
         {
             for (int i = 0; i < _policies.Count; i++)
             {
@@ -154,6 +177,7 @@ namespace FortuneValley.Core
                 var policy = _policies[i];
                 onChargeRequested(policy.MonthlyPremium, $"Insurance premium: {policy.PolicyId}");
                 policy.RecordPremiumPaid();
+                onPremiumCharged?.Invoke(policy.LotId, policy.PolicyId, policy.MonthlyPremium);
             }
         }
 

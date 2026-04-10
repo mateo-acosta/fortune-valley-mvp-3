@@ -248,6 +248,84 @@ namespace FortuneValley.Tests
         }
 
         // ===============================================================
+        // CANCELLATION FEE TESTS
+        // ===============================================================
+
+        [Test]
+        public void CancelInsurance_ChargesCancellationFeeToCC()
+        {
+            GameEvents.RaisePurchaseInsuranceRequested("lot_1", "general_1");
+
+            float feeCharged = 0f;
+            string feeReason = null;
+            GameEvents.OnCreditCardChargeRequested += (amount, reason) =>
+            {
+                feeCharged = amount;
+                feeReason = reason;
+            };
+
+            GameEvents.RaiseCancelInsuranceRequested("lot_1", InsurancePolicyType.GeneralProtection);
+
+            // General policy premium is 50, fee is 50% = 25
+            Assert.AreEqual(25f, feeCharged, 0.01f);
+            Assert.IsTrue(feeReason.Contains("cancellation fee"));
+        }
+
+        [Test]
+        public void CancelInsurance_FiresCanceledEvent_AfterFee()
+        {
+            GameEvents.RaisePurchaseInsuranceRequested("lot_1", "general_1");
+
+            bool cancelFired = false;
+            string canceledLotId = null;
+            InsurancePolicyType canceledType = InsurancePolicyType.GeneralProtection;
+
+            GameEvents.OnInsuranceCanceled += (lotId, type) =>
+            {
+                cancelFired = true;
+                canceledLotId = lotId;
+                canceledType = type;
+            };
+
+            GameEvents.RaiseCancelInsuranceRequested("lot_1", InsurancePolicyType.GeneralProtection);
+
+            Assert.IsTrue(cancelFired);
+            Assert.AreEqual("lot_1", canceledLotId);
+            Assert.AreEqual(InsurancePolicyType.GeneralProtection, canceledType);
+            Assert.IsFalse(_system.Portfolio.HasPolicy("lot_1", InsurancePolicyType.GeneralProtection));
+        }
+
+        [Test]
+        public void CancelInsurance_NoPolicy_NoCCCharge()
+        {
+            float chargedAmount = 0f;
+            GameEvents.OnCreditCardChargeRequested += (amount, reason) => chargedAmount = amount;
+
+            GameEvents.RaiseCancelInsuranceRequested("lot_1", InsurancePolicyType.GeneralProtection);
+
+            Assert.AreEqual(0f, chargedAmount, 0.01f);
+        }
+
+        // ===============================================================
+        // PREMIUM CHARGED EVENT TESTS
+        // ===============================================================
+
+        [Test]
+        public void ChargePremiums_FiresPremiumChargedEventPerPolicy()
+        {
+            GameEvents.RaisePurchaseInsuranceRequested("lot_1", "general_1");
+            GameEvents.RaisePurchaseInsuranceRequested("lot_2", "nongeneral_1");
+
+            var premiumEvents = new List<(string lotId, string policyId, float amount)>();
+            GameEvents.OnInsurancePremiumCharged += (lotId, policyId, amount) =>
+                premiumEvents.Add((lotId, policyId, amount));
+
+            _system.ChargePremiums();
+
+            Assert.AreEqual(2, premiumEvents.Count);
+        }
+
+        // ===============================================================
         // HELPERS
         // ===============================================================
 

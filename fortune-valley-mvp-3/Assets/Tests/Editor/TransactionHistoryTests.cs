@@ -136,6 +136,26 @@ namespace FortuneValley.Tests
         }
 
         [Test]
+        public void Record_WithEntityId_PreservesEntityId()
+        {
+            _history.Record(TransactionType.PremiumCharged, "premium", 50f, 1, "lot_1");
+
+            var all = _history.GetAll();
+            Assert.AreEqual(1, all.Count);
+            Assert.AreEqual("lot_1", all[0].EntityId);
+        }
+
+        [Test]
+        public void Record_WithoutEntityId_EntityIdIsNull()
+        {
+            _history.Record(TransactionType.LoanPayment, "loan", 100f, 1);
+
+            var all = _history.GetAll();
+            Assert.AreEqual(1, all.Count);
+            Assert.IsNull(all[0].EntityId);
+        }
+
+        [Test]
         public void CircularBuffer_WorksAfterMultipleWraps()
         {
             // Capacity 5, add 13 entries (wraps around twice+)

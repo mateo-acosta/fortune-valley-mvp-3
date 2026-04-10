@@ -381,6 +381,10 @@ namespace FortuneValley.Core
         public static event Action<string, InsurancePolicyType> OnInsuranceCanceled;  // lotId, policyType (confirmation)
         public static void RaiseInsuranceCanceled(string lotId, InsurancePolicyType type) => OnInsuranceCanceled?.Invoke(lotId, type);
 
+        public static event Action<string, string, float> OnInsurancePremiumCharged;  // lotId, policyId, amount
+        public static void RaiseInsurancePremiumCharged(string lotId, string policyId, float amount)
+            => OnInsurancePremiumCharged?.Invoke(lotId, policyId, amount);
+
         // Accident events
         public static event Action<AccidentRollResult> OnAccidentOccurred;           // raw accident trigger
         public static void RaiseAccidentOccurred(AccidentRollResult result) => OnAccidentOccurred?.Invoke(result);
@@ -488,6 +492,7 @@ namespace FortuneValley.Core
             OnCancelInsuranceRequested = null;
             OnInsurancePurchased = null;
             OnInsuranceCanceled = null;
+            OnInsurancePremiumCharged = null;
 
             // Accidents
             OnAccidentOccurred = null;

@@ -3,12 +3,14 @@ using UnityEngine;
 using TMPro;
 using FortuneValley.Core;
 using FortuneValley.Domain.Enums;
+using FortuneValley.UI.Components;
+using FortuneValley.UI.Popups;
 
 namespace FortuneValley.UI.Panels.Insurance
 {
     /// <summary>
     /// Insurance History tab: shows past insurance transactions.
-    /// Purchases, cancellations, and accident resolutions.
+    /// Purchases, cancellations, accident resolutions, and premium charges.
     ///
     /// LEARNING DESIGN: Students review how accidents impacted them
     /// differently based on coverage decisions, reinforcing the
@@ -22,23 +24,42 @@ namespace FortuneValley.UI.Panels.Insurance
 
         [Header("Dependencies")]
         [SerializeField] private TransactionLog _transactionLog;
+        [SerializeField] private CityManager _cityManager;
+        [SerializeField] private InsuranceSystem _insuranceSystem;
+        [SerializeField] private UIManager _uiManager;
 
-        [Header("History List")]
-        [SerializeField] private Transform _historyListContainer;
-        [SerializeField] private GameObject _historyRowPrefab;
+        [Header("Filter Row 1 - Transaction Type")]
+        [SerializeField] private FilterRowController _transactionTypeFilter;
+        [SerializeField] private TransactionType[] _transactionTypeMapping;
+
+        [Header("Filter Row 2 - Lot Dropdown")]
+        [SerializeField] private TMP_Dropdown _lotDropdown;
+
+        [Header("Summary Stats")]
+        [SerializeField] private TMP_Text _accidentCostText;
+        [SerializeField] private TMP_Text _premiumsPaidText;
+        [SerializeField] private TMP_Text _accidentCountText;
+
+        [Header("Card Grid")]
+        [SerializeField] private Transform _cardContainer;
+        [SerializeField] private GameObject _historyCardPrefab;
+
+        [Header("Empty State")]
         [SerializeField] private GameObject _emptyStateObject;
 
         // ===============================================================
         // STATE
         // ===============================================================
 
-        private List<GameObject> _rowInstances = new List<GameObject>();
+        private List<InsuranceHistoryCardView> _cardViews = new List<InsuranceHistoryCardView>();
+        private List<string> _lotIdMapping;
 
-        private static readonly TransactionType[] InsuranceTypes = new[]
+        private static readonly TransactionType[] InsuranceTransactionTypes = new[]
         {
             TransactionType.InsurancePurchased,
             TransactionType.InsuranceCanceled,
-            TransactionType.AccidentResolved
+            TransactionType.AccidentResolved,
+            TransactionType.PremiumCharged
         };
 
         // ===============================================================
@@ -50,8 +71,14 @@ namespace FortuneValley.UI.Panels.Insurance
             GameEvents.OnInsurancePurchased += HandleInsuranceEvent;
             GameEvents.OnInsuranceCanceled += HandleInsuranceCanceled;
             GameEvents.OnAccidentResolved += HandleAccidentResolved;
+            GameEvents.OnInsurancePremiumCharged += HandlePremiumCharged;
 
-            base.OnEnable();
+            if (_transactionTypeFilter != null)
+                _transactionTypeFilter.OnSelectionChanged += HandleFilterChanged;
+            if (_lotDropdown != null)
+                _lotDropdown.onValueChanged.AddListener(HandleLotFilterChanged);
+
+            base.OnEnable(); // calls Refresh()
         }
 
         protected override void OnDisable()
@@ -59,6 +86,12 @@ namespace FortuneValley.UI.Panels.Insurance
             GameEvents.OnInsurancePurchased -= HandleInsuranceEvent;
             GameEvents.OnInsuranceCanceled -= HandleInsuranceCanceled;
             GameEvents.OnAccidentResolved -= HandleAccidentResolved;
+            GameEvents.OnInsurancePremiumCharged -= HandlePremiumCharged;
+
+            if (_transactionTypeFilter != null)
+                _transactionTypeFilter.OnSelectionChanged -= HandleFilterChanged;
+            if (_lotDropdown != null)
+                _lotDropdown.onValueChanged.RemoveListener(HandleLotFilterChanged);
 
             base.OnDisable();
         }
@@ -70,6 +103,9 @@ namespace FortuneValley.UI.Panels.Insurance
         private void HandleInsuranceEvent(string lotId, string policyId) => Refresh();
         private void HandleInsuranceCanceled(string lotId, InsurancePolicyType type) => Refresh();
         private void HandleAccidentResolved(string lotId, string name, float damage, bool covered, float cost) => Refresh();
+        private void HandlePremiumCharged(string lotId, string policyId, float amount) => Refresh();
+        private void HandleFilterChanged(int index) => Refresh();
+        private void HandleLotFilterChanged(int index) => Refresh();
 
         // ===============================================================
         // REFRESH
@@ -77,41 +113,125 @@ namespace FortuneValley.UI.Panels.Insurance
 
         protected override void Refresh()
         {
-            ClearRows();
-
             if (_transactionLog == null || _transactionLog.History == null) return;
-            if (_historyRowPrefab == null || _historyListContainer == null) return;
 
-            var records = _transactionLog.History.GetByTypes(InsuranceTypes);
-
-            for (int i = 0; i < records.Count; i++)
+            // Build lot dropdown (property reads)
+            if (_cityManager != null)
             {
-                SpawnHistoryRow(records[i]);
+                InsuranceFilterLogic.PopulateLotDropdown(
+                    _lotDropdown, _cityManager.AllLots, _cityManager.LotOwnership,
+                    out _lotIdMapping);
             }
 
+            // Get all insurance transactions (property read + method on returned object)
+            var allRecords = _transactionLog.History.GetByTypes(InsuranceTransactionTypes);
+
+            // Read filter values
+            TransactionType? typeFilter = MapTransactionTypeIndex(
+                _transactionTypeFilter != null ? _transactionTypeFilter.SelectedIndex : 0);
+            string entityIdFilter = GetSelectedLotId();
+
+            // Filter
+            var filtered = InsuranceFilterLogic.FilterInsuranceTransactions(
+                allRecords, typeFilter, entityIdFilter);
+
+            // Summary stats (computed from ALL insurance records, not filtered)
+            InsuranceSummaryCalculator.CalculateHistorySummary(
+                allRecords,
+                out float totalAccidentCosts,
+                out float totalPremiumsPaid,
+                out int accidentCount);
+
+            if (_accidentCostText != null)
+                _accidentCostText.text = $"Accident Costs: ${totalAccidentCosts:N2}";
+            if (_premiumsPaidText != null)
+                _premiumsPaidText.text = $"Premiums Paid: ${totalPremiumsPaid:N2}";
+            if (_accidentCountText != null)
+                _accidentCountText.text = $"Accidents: {accidentCount}";
+
+            // Rebuild card grid
+            ClearCards();
+
+            if (_historyCardPrefab != null && _cardContainer != null)
+            {
+                var allLots = _cityManager != null ? _cityManager.AllLots : null;
+
+                for (int i = 0; i < filtered.Count; i++)
+                {
+                    var record = filtered[i];
+                    var card = Instantiate(_historyCardPrefab, _cardContainer);
+                    var view = card.GetComponent<InsuranceHistoryCardView>();
+
+                    if (view != null)
+                    {
+                        var details = InsuranceDetailFormatter.FormatTransaction(record);
+                        string lotName = record.EntityId != null
+                            ? LotDisplayHelper.GetDisplayName(allLots, record.EntityId)
+                            : "N/A";
+
+                        view.SetTypeLabel(details.TypeLabel);
+                        view.SetDate($"Tick {record.Tick}");
+                        view.SetLot(lotName);
+                        view.SetAmount(details.Amount);
+                        view.SetDescription(record.Description);
+
+                        var capturedRecord = record;
+                        view.SetDetailsCallback(() => ShowTransactionDetail(capturedRecord));
+
+                        _cardViews.Add(view);
+                    }
+                }
+            }
+
+            // Empty state
             if (_emptyStateObject != null)
-                _emptyStateObject.SetActive(records.Count == 0);
+                _emptyStateObject.SetActive(filtered.Count == 0);
         }
 
-        private void SpawnHistoryRow(TransactionRecord record)
+        // ===============================================================
+        // DETAIL POPUP
+        // ===============================================================
+
+        private void ShowTransactionDetail(TransactionRecord record)
         {
-            var row = Instantiate(_historyRowPrefab, _historyListContainer);
-            _rowInstances.Add(row);
+            if (_uiManager == null) return;
 
-            var texts = row.GetComponentsInChildren<TextMeshProUGUI>(true);
+            var popup = _uiManager.InsuranceDetailPopup as InsuranceDetailPopup;
+            if (popup == null) return;
 
-            if (texts.Length > 0) texts[0].text = record.Description;
-            if (texts.Length > 1) texts[1].text = record.Amount > 0f ? $"${record.Amount:N2}" : "";
+            var configs = _insuranceSystem != null ? _insuranceSystem.AvailablePolicies : null;
+            popup.ConfigureTransaction(record, configs);
+            _uiManager.ShowPopup(popup);
         }
 
-        private void ClearRows()
+        // ===============================================================
+        // HELPERS
+        // ===============================================================
+
+        private TransactionType? MapTransactionTypeIndex(int index)
         {
-            for (int i = 0; i < _rowInstances.Count; i++)
+            if (index <= 0 || _transactionTypeMapping == null) return null;
+            int arrayIndex = index - 1;
+            if (arrayIndex >= _transactionTypeMapping.Length) return null;
+            return _transactionTypeMapping[arrayIndex];
+        }
+
+        private string GetSelectedLotId()
+        {
+            if (_lotDropdown == null || _lotIdMapping == null) return null;
+            int idx = _lotDropdown.value;
+            if (idx < 0 || idx >= _lotIdMapping.Count) return null;
+            return _lotIdMapping[idx];
+        }
+
+        private void ClearCards()
+        {
+            for (int i = 0; i < _cardViews.Count; i++)
             {
-                if (_rowInstances[i] != null)
-                    Destroy(_rowInstances[i]);
+                if (_cardViews[i] != null)
+                    Destroy(_cardViews[i].gameObject);
             }
-            _rowInstances.Clear();
+            _cardViews.Clear();
         }
     }
 }

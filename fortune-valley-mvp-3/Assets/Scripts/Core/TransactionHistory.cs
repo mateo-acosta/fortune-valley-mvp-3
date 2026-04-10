@@ -92,6 +92,19 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Record a new transaction with an entity identifier for filtering.
+        /// Evicts the oldest entry when at capacity.
+        /// </summary>
+        public void Record(TransactionType type, string description, float amount, int tick, string entityId)
+        {
+            _buffer[_head] = new TransactionRecord(type, description, amount, tick, entityId);
+            _head = (_head + 1) % _buffer.Length;
+
+            if (_count < _buffer.Length)
+                _count++;
+        }
+
+        /// <summary>
         /// Removes all recorded transactions.
         /// </summary>
         public void Clear()

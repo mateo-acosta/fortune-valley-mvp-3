@@ -133,15 +133,25 @@ namespace FortuneValley.Core
         {
             if (_portfolio == null) return;
 
+            // Look up fee before canceling (Cancel deactivates the policy)
+            float cancellationFee = _portfolio.GetCancellationFee(lotId, policyType);
+
             bool canceled = _portfolio.Cancel(lotId, policyType);
+            if (!canceled) return;
 
-            if (canceled)
+            // Charge 50% cancellation fee to credit card
+            // Fee always goes through (adds to CC debt if needed, consistent with all CC charges)
+            if (cancellationFee > 0f)
             {
-                if (_logTransactions)
-                    Debug.Log($"[InsuranceSystem] Canceled {policyType} on lot {lotId}.");
-
-                GameEvents.RaiseInsuranceCanceled(lotId, policyType);
+                GameEvents.RaiseCreditCardChargeRequested(
+                    cancellationFee,
+                    $"Insurance cancellation fee: {policyType} on {lotId}");
             }
+
+            if (_logTransactions)
+                Debug.Log($"[InsuranceSystem] Canceled {policyType} on lot {lotId}. Fee: ${cancellationFee:F2}");
+
+            GameEvents.RaiseInsuranceCanceled(lotId, policyType);
         }
 
         // ===============================================================
@@ -193,7 +203,9 @@ namespace FortuneValley.Core
         {
             if (_portfolio == null) return;
 
-            _portfolio.ProcessPremiums(GameEvents.RaiseCreditCardChargeRequested);
+            _portfolio.ProcessPremiums(
+                GameEvents.RaiseCreditCardChargeRequested,
+                GameEvents.RaiseInsurancePremiumCharged);
         }
     }
 }
