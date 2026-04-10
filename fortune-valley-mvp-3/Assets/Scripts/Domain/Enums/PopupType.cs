@@ -12,6 +12,8 @@ namespace FortuneValley.Domain.Enums
         CreditCardStatement,
         AccidentReport,
         InsuranceSelection,
-        LoanSelection
+        LoanSelection,
+        InsuranceDetail,
+        LotSelection
     }
 }

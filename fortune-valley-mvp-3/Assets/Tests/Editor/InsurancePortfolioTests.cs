@@ -221,6 +221,49 @@ namespace FortuneValley.Tests
         }
 
         // ===============================================================
+        // CANCELLATION FEE TESTS
+        // ===============================================================
+
+        [Test]
+        public void GetCancellationFee_ActivePolicy_Returns50Percent()
+        {
+            _portfolio.Add(MakePolicy("lot_1", InsurancePolicyType.GeneralProtection, premium: 100f));
+
+            float fee = _portfolio.GetCancellationFee("lot_1", InsurancePolicyType.GeneralProtection);
+
+            Assert.AreEqual(50f, fee, 0.01f);
+        }
+
+        [Test]
+        public void GetCancellationFee_NoMatchingPolicy_ReturnsZero()
+        {
+            float fee = _portfolio.GetCancellationFee("lot_1", InsurancePolicyType.GeneralProtection);
+
+            Assert.AreEqual(0f, fee, 0.01f);
+        }
+
+        [Test]
+        public void GetCancellationFee_CanceledPolicy_ReturnsZero()
+        {
+            _portfolio.Add(MakePolicy("lot_1", InsurancePolicyType.GeneralProtection, premium: 100f));
+            _portfolio.Cancel("lot_1", InsurancePolicyType.GeneralProtection);
+
+            float fee = _portfolio.GetCancellationFee("lot_1", InsurancePolicyType.GeneralProtection);
+
+            Assert.AreEqual(0f, fee, 0.01f);
+        }
+
+        [Test]
+        public void GetCancellationFee_WrongLot_ReturnsZero()
+        {
+            _portfolio.Add(MakePolicy("lot_1", InsurancePolicyType.GeneralProtection, premium: 100f));
+
+            float fee = _portfolio.GetCancellationFee("lot_2", InsurancePolicyType.GeneralProtection);
+
+            Assert.AreEqual(0f, fee, 0.01f);
+        }
+
+        // ===============================================================
         // CLEAR TESTS
         // ===============================================================
 

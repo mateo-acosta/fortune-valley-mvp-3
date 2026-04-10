@@ -15,6 +15,7 @@ namespace FortuneValley.Core
         InsurancePurchased,
         InsuranceCanceled,
         AccidentResolved,
+        PremiumCharged,
         InvestmentBought,
         InvestmentSold
     }
