@@ -1,20 +1,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using FortuneValley.Core;
-using FortuneValley.Domain.Enums;
+using FortuneValley.UI.Components;
 
 namespace FortuneValley.UI.Panels.Investing
 {
     /// <summary>
-    /// Investing Portfolio tab: detailed per-holding stats.
-    /// Supports category and industry filtering via base class.
-    /// Update-in-place (tick-driven, prices change per tick).
+    /// Investing Portfolio tab: holdings list with click-to-select.
+    /// This script manages the list ONLY. The detail view is handled
+    /// by PortfolioDetailView via GameEvents (decoupled).
     ///
-    /// LEARNING DESIGN: Students see per-stock performance broken down:
-    /// shares owned, avg cost, current value, gain/loss, and % return.
-    /// This teaches portfolio diversification and position tracking.
+    /// Supports category and industry filtering via base class.
+    /// Clicking a holding fires OnPortfolioHoldingSelected.
+    /// Auto-selects the first holding on load.
+    ///
+    /// LEARNING DESIGN: Students see their portfolio at a glance and
+    /// can drill into any holding for detailed performance metrics.
     /// </summary>
     public class InvestingPortfolioSubPanel : InvestingFilterableSubPanelBase
     {
@@ -39,8 +41,8 @@ namespace FortuneValley.UI.Panels.Investing
         // STATE
         // ===============================================================
 
-        // Cached items for update-in-place
-        private List<GameObject> _holdingItems = new List<GameObject>();
+        // Cached views for update-in-place (zero per-tick GetComponent)
+        private List<HoldingListItemView> _holdingViews = new List<HoldingListItemView>();
 
         // Cached filtered list to avoid re-filtering on each tick
         private List<ActiveInvestment> _filteredHoldings = new List<ActiveInvestment>();
@@ -98,8 +100,11 @@ namespace FortuneValley.UI.Panels.Investing
             for (int i = 0; i < _filteredHoldings.Count; i++)
             {
                 var go = Instantiate(_holdingItemPrefab, _holdingsContainer);
-                _holdingItems.Add(go);
-                PopulateHoldingItem(go, _filteredHoldings[i]);
+                var view = go.GetComponent<HoldingListItemView>();
+                _holdingViews.Add(view);
+
+                PopulateHoldingItem(view, _filteredHoldings[i]);
+                WireHoldingClick(go, _filteredHoldings[i]);
             }
 
             // Empty state: no holdings at all
@@ -110,6 +115,10 @@ namespace FortuneValley.UI.Panels.Investing
             if (_noFilterResultsObject != null)
                 _noFilterResultsObject.SetActive(
                     allHoldings.Count > 0 && _filteredHoldings.Count == 0);
+
+            // Auto-select first holding so detail view populates immediately
+            if (_filteredHoldings.Count > 0)
+                GameEvents.RaisePortfolioHoldingSelected(_filteredHoldings[0]);
         }
 
         // ===============================================================
@@ -126,65 +135,52 @@ namespace FortuneValley.UI.Panels.Investing
                 CurrentIndustryFilter);
 
             // If filtered count changed, do a full rebuild
-            if (freshFiltered.Count != _holdingItems.Count)
+            if (freshFiltered.Count != _holdingViews.Count)
             {
                 Refresh();
                 return;
             }
 
             // Update existing items with new price data
-            for (int i = 0; i < _holdingItems.Count && i < freshFiltered.Count; i++)
+            for (int i = 0; i < _holdingViews.Count && i < freshFiltered.Count; i++)
             {
-                PopulateHoldingItem(_holdingItems[i], freshFiltered[i]);
+                PopulateHoldingItem(_holdingViews[i], freshFiltered[i]);
             }
 
             _filteredHoldings = freshFiltered;
         }
 
-        private void PopulateHoldingItem(GameObject go, ActiveInvestment inv)
+        private void PopulateHoldingItem(HoldingListItemView view, ActiveInvestment inv)
         {
-            var texts = go.GetComponentsInChildren<TextMeshProUGUI>(true);
+            if (view == null || inv == null || inv.Definition == null) return;
 
-            // Expected layout: Name, Shares, AvgCost, CurrentValue, Gain, Return%
-            if (texts.Length > 0) texts[0].text = inv.Definition.DisplayName;
-            if (texts.Length > 1) texts[1].text = $"{inv.NumberOfShares} shares";
-            if (texts.Length > 2) texts[2].text = $"Avg: ${inv.AveragePurchasePrice:F2}";
-            if (texts.Length > 3) texts[3].text = $"Value: ${inv.CurrentValue:N0}";
+            view.SetName($"{inv.Definition.DisplayName}\n{inv.NumberOfShares} shares");
 
-            if (texts.Length > 4)
-            {
-                float gain = inv.TotalGain;
-                texts[4].text = $"{(gain >= 0 ? "+" : "")}${gain:N0}";
-                texts[4].color = gain >= 0 ? _gainColor : _lossColor;
-            }
+            float gain = inv.TotalGain;
+            view.SetValue(
+                $"${inv.CurrentValue:N0}",
+                gain >= 0 ? _gainColor : _lossColor);
+        }
 
-            if (texts.Length > 5)
-            {
-                float returnPct = inv.TotalCostBasis > 0
-                    ? (inv.TotalGain / inv.TotalCostBasis) * 100f
-                    : 0f;
-                texts[5].text = $"{(returnPct >= 0 ? "+" : "")}{returnPct:F1}%";
-                texts[5].color = returnPct >= 0 ? _gainColor : _lossColor;
-            }
+        private void WireHoldingClick(GameObject go, ActiveInvestment holding)
+        {
+            var btn = go.GetComponent<Button>();
+            if (btn == null) btn = go.GetComponentInChildren<Button>(true);
+            if (btn == null) return;
 
-            // Set category-colored background
-            var bgTransform = go.transform.Find("Background");
-            if (bgTransform != null)
-            {
-                var bgImage = bgTransform.GetComponent<Image>();
-                if (bgImage != null)
-                    bgImage.sprite = GetBackgroundSprite(inv.Definition.Category);
-            }
+            var capturedHolding = holding;
+            btn.onClick.AddListener(() =>
+                GameEvents.RaisePortfolioHoldingSelected(capturedHolding));
         }
 
         private void ClearItems()
         {
-            for (int i = 0; i < _holdingItems.Count; i++)
+            for (int i = 0; i < _holdingViews.Count; i++)
             {
-                if (_holdingItems[i] != null)
-                    Destroy(_holdingItems[i]);
+                if (_holdingViews[i] != null)
+                    Destroy(_holdingViews[i].gameObject);
             }
-            _holdingItems.Clear();
+            _holdingViews.Clear();
             _filteredHoldings.Clear();
         }
     }

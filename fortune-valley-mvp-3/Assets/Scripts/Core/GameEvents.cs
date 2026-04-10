@@ -88,6 +88,19 @@ namespace FortuneValley.Core
         /// </summary>
         public static event Action<ActiveInvestment, float> OnInvestmentWithdrawn;
 
+        /// <summary>
+        /// Fired when a holding is clicked in the Portfolio list.
+        /// PortfolioDetailView subscribes to populate the detail panel.
+        /// </summary>
+        public static event Action<ActiveInvestment> OnPortfolioHoldingSelected;
+
+        /// <summary>
+        /// Fired when the user explicitly requests to trade a stock
+        /// (e.g., clicking the Trade button in the Portfolio detail view).
+        /// InvestingTradeSubPanel subscribes to receive the selection.
+        /// </summary>
+        public static event Action<InvestmentDefinition> OnTradeRequested;
+
         // ═══════════════════════════════════════════════════════════════
         // CITY / LOT EVENTS
         // ═══════════════════════════════════════════════════════════════
@@ -290,6 +303,8 @@ namespace FortuneValley.Core
         public static void RaiseInvestmentCompounded(ActiveInvestment inv) => OnInvestmentCompounded?.Invoke(inv);
         public static void RaiseInvestmentCreated(ActiveInvestment inv) => OnInvestmentCreated?.Invoke(inv);
         public static void RaiseInvestmentWithdrawn(ActiveInvestment inv, float payout) => OnInvestmentWithdrawn?.Invoke(inv, payout);
+        public static void RaisePortfolioHoldingSelected(ActiveInvestment inv) => OnPortfolioHoldingSelected?.Invoke(inv);
+        public static void RaiseTradeRequested(InvestmentDefinition def) => OnTradeRequested?.Invoke(def);
         public static void RaiseLotPurchased(string lotId, Owner owner) => OnLotPurchased?.Invoke(lotId, owner);
         public static void RaiseRivalTargetingLot(string lotId) => OnRivalTargetingLot?.Invoke(lotId);
         public static void RaiseRivalTargetChanged(string lotId, int daysUntil) => OnRivalTargetChanged?.Invoke(lotId, daysUntil);
@@ -424,6 +439,8 @@ namespace FortuneValley.Core
             OnInvestmentCompounded = null;
             OnInvestmentCreated = null;
             OnInvestmentWithdrawn = null;
+            OnPortfolioHoldingSelected = null;
+            OnTradeRequested = null;
             OnLotPurchased = null;
             OnRivalTargetingLot = null;
             OnRivalTargetChanged = null;

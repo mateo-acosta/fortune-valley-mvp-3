@@ -17,6 +17,10 @@ namespace FortuneValley.UI.Components
         [Header("Buttons (order = index, 0 = All)")]
         [SerializeField] private Button[] _filterButtons;
 
+        [Header("Behavior")]
+        [Tooltip("When false, clicking the selected button does nothing (always one selected). Use for time filters.")]
+        [SerializeField] private bool _allowDeselect = true;
+
         [Header("Visual State")]
         [SerializeField] private Color _normalColor = new Color(0.8f, 0.8f, 0.8f, 1f);
         [SerializeField] private Color _selectedColor = new Color(0.3f, 0.7f, 1f, 1f);
@@ -51,10 +55,11 @@ namespace FortuneValley.UI.Components
 
         private void HandleButtonClicked(int index)
         {
-            // Clicking the already-selected button (not All) deselects to All
+            // Clicking the already-selected button
             if (index == _selectedIndex && index != 0)
             {
-                _selectedIndex = 0;
+                if (!_allowDeselect) return; // Time filters: always keep one selected
+                _selectedIndex = 0; // Category filters: deselect to All
             }
             else
             {

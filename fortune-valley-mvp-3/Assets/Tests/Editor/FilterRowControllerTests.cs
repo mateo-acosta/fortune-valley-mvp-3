@@ -154,5 +154,46 @@ namespace FortuneValley.Tests
             Assert.AreEqual(Color.blue, selectedImage.color);
             Assert.AreEqual(Color.white, unselectedImage.color);
         }
+
+        // ─── _allowDeselect behavior ────────────────────────────────────
+
+        [Test]
+        public void AllowDeselect_False_ClickSelectedDoesNothing()
+        {
+            // Set _allowDeselect to false via reflection
+            var type = typeof(FilterRowController);
+            var flags = System.Reflection.BindingFlags.NonPublic
+                | System.Reflection.BindingFlags.Instance;
+            type.GetField("_allowDeselect", flags)?.SetValue(_controller, false);
+
+            // Select button 1
+            _buttons[1].onClick.Invoke();
+            Assert.AreEqual(1, _controller.SelectedIndex);
+
+            int fireCount = 0;
+            _controller.OnSelectionChanged += idx => fireCount++;
+
+            // Click button 1 again -- should NOT deselect (stays at 1)
+            _buttons[1].onClick.Invoke();
+
+            Assert.AreEqual(1, _controller.SelectedIndex);
+            Assert.AreEqual(0, fireCount); // No event fired
+        }
+
+        [Test]
+        public void AllowDeselect_False_CanStillSwitchButtons()
+        {
+            var type = typeof(FilterRowController);
+            var flags = System.Reflection.BindingFlags.NonPublic
+                | System.Reflection.BindingFlags.Instance;
+            type.GetField("_allowDeselect", flags)?.SetValue(_controller, false);
+
+            _buttons[1].onClick.Invoke();
+            Assert.AreEqual(1, _controller.SelectedIndex);
+
+            // Clicking a different button still works
+            _buttons[2].onClick.Invoke();
+            Assert.AreEqual(2, _controller.SelectedIndex);
+        }
     }
 }

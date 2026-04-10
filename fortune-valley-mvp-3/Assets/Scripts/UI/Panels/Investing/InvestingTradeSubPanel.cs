@@ -13,6 +13,10 @@ namespace FortuneValley.UI.Panels.Investing
     /// Shows price graph, stock details, and buy/sell buttons.
     /// Update-in-place (tick-driven).
     ///
+    /// Receives selection via:
+    /// - OnTradeRequested event (from Portfolio detail view Trade button)
+    /// - _exploreSubPanel.SelectedDefinition (read on enable, for Explore tab flow)
+    ///
     /// LEARNING DESIGN: Students make buy/sell decisions seeing real-time
     /// price movement, learning about market timing and risk tolerance.
     /// </summary>
@@ -28,12 +32,12 @@ namespace FortuneValley.UI.Panels.Investing
         [SerializeField] private StockPriceHistoryStore _stockHistory;
 
         [Header("Selection Source")]
-        [Tooltip("The Explore sub-panel that holds the selected investment")]
+        [Tooltip("The Explore sub-panel. Selection is read on enable (for Explore->Trade flow).")]
         [SerializeField] private InvestingExploreSubPanel _exploreSubPanel;
 
         [Header("Graph")]
         [SerializeField] private TMP_FontAsset _labelFont;
-        [SerializeField] private Transform _graphPlaceholder;
+        [SerializeField] private Image _graphPlaceholder;
 
         [Header("Stock Details")]
         [SerializeField] private TextMeshProUGUI _selectedAssetText;
@@ -60,7 +64,6 @@ namespace FortuneValley.UI.Panels.Investing
         // ===============================================================
 
         private LineGraphGraphic _stockGraph;
-        private bool _graphCreated;
         private int _currentDayTick;
         private InvestmentDefinition _selectedDefinition;
 
@@ -68,8 +71,8 @@ namespace FortuneValley.UI.Panels.Investing
         private Dictionary<InvestmentDefinition, float> _previousPrices
             = new Dictionary<InvestmentDefinition, float>();
 
-        // Cached list for graph window data (reused per tick)
-        private List<float> _graphWindow = new List<float>();
+        // Reusable buffer for graph data (avoids per-tick allocation)
+        private List<float> _graphBuffer = new List<float>();
 
         // ===============================================================
         // LIFECYCLE
@@ -79,6 +82,7 @@ namespace FortuneValley.UI.Panels.Investing
         {
             GameEvents.OnTick += HandleTick;
             GameEvents.OnCheckingBalanceChanged += HandleBalanceChanged;
+            GameEvents.OnTradeRequested += HandleTradeRequested;
 
             if (_buyButton != null)
                 _buyButton.onClick.AddListener(OnBuyClicked);
@@ -87,7 +91,7 @@ namespace FortuneValley.UI.Panels.Investing
 
             EnsureGraph();
 
-            // Pick up selection from Explore tab
+            // Read selection from Explore tab (for Explore->Trade flow)
             if (_exploreSubPanel != null && _exploreSubPanel.SelectedDefinition != null)
                 _selectedDefinition = _exploreSubPanel.SelectedDefinition;
 
@@ -99,11 +103,14 @@ namespace FortuneValley.UI.Panels.Investing
         {
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnCheckingBalanceChanged -= HandleBalanceChanged;
+            GameEvents.OnTradeRequested -= HandleTradeRequested;
 
             if (_buyButton != null)
                 _buyButton.onClick.RemoveListener(OnBuyClicked);
             if (_sellButton != null)
                 _sellButton.onClick.RemoveListener(OnSellClicked);
+
+            // Do NOT clear _selectedDefinition -- persist across enable/disable
 
             base.OnDisable();
         }
@@ -117,8 +124,9 @@ namespace FortuneValley.UI.Panels.Investing
             _currentDayTick = tickNumber;
             SnapshotPrices();
 
-            // Check if Explore tab changed selection
-            if (_exploreSubPanel != null && _exploreSubPanel.SelectedDefinition != _selectedDefinition)
+            // Check if Explore tab changed selection (for live browsing)
+            if (_exploreSubPanel != null && _exploreSubPanel.SelectedDefinition != null
+                && _exploreSubPanel.SelectedDefinition != _selectedDefinition)
             {
                 _selectedDefinition = _exploreSubPanel.SelectedDefinition;
             }
@@ -127,6 +135,13 @@ namespace FortuneValley.UI.Panels.Investing
         }
 
         private void HandleBalanceChanged(float balance, float delta) => Refresh();
+
+        private void HandleTradeRequested(InvestmentDefinition def)
+        {
+            if (def == null) return;
+            _selectedDefinition = def;
+            Refresh();
+        }
 
         // ===============================================================
         // BUY / SELL (intent events)
@@ -229,17 +244,9 @@ namespace FortuneValley.UI.Panels.Investing
 
         private void RefreshGraph()
         {
-            if (_selectedDefinition == null || _stockHistory == null || _stockGraph == null) return;
-
-            // Note: GetWindow is a pre-existing cross-layer method call pattern (from PortfolioPanel)
-            var window = _stockHistory.GetWindow(_selectedDefinition, 30);
-
-            _graphWindow.Clear();
-            for (int i = 0; i < window.Count; i++)
-                _graphWindow.Add(window[i]);
-
-            int startDay = _currentDayTick - (_graphWindow.Count - 1);
-            _stockGraph.SetData(_graphWindow, startDay);
+            StockGraphHelper.RefreshGraph(
+                _stockGraph, _stockHistory, _selectedDefinition,
+                30, _currentDayTick, _graphBuffer);
         }
 
         // ===============================================================
@@ -248,23 +255,8 @@ namespace FortuneValley.UI.Panels.Investing
 
         private void EnsureGraph()
         {
-            if (_graphCreated || _graphPlaceholder == null) return;
-
-            var img = _graphPlaceholder.GetComponent<Image>();
-            if (img != null) img.color = Color.clear;
-
-            var go = new GameObject("Graph", typeof(RectTransform), typeof(CanvasRenderer));
-            go.transform.SetParent(_graphPlaceholder, false);
-
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.offsetMin = new Vector2(LineGraphGraphic.YLabelWidth - 8f, LineGraphGraphic.XLabelHeight + 2f);
-            rt.offsetMax = Vector2.zero;
-
-            _stockGraph = go.AddComponent<LineGraphGraphic>();
-            _stockGraph.SetLabelFont(_labelFont);
-            _graphCreated = true;
+            if (_stockGraph != null || _graphPlaceholder == null) return;
+            _stockGraph = StockGraphHelper.EnsureGraphCreated(_graphPlaceholder, _labelFont);
         }
 
         private ActiveInvestment FindActiveInvestment(InvestmentDefinition def)
