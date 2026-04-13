@@ -16,16 +16,34 @@ This is NOT a production build.
 ---
 
 ## 1. Game Summary
-Genre: 2.5D idle-clicker / strategy
+Genre: 2.5D idle-clicker / light city-builder
 Perspective: Isometric / 2.5D
-Player Role: Restaurant owner expanding into the city
+Player Role: Restaurant chain owner expanding into a small city
 Core Tension: Spend money now vs invest to grow money over time
 
-Win Condition:
-- Player acquires all city lots before rival AI
+Progression Model:
+- The city is a fixed grid of 7 interactive building lots plus ambient scenery (roads, park, background buildings).
+- The player starts with one Tier 2 restaurant on one lot (their established starter location). A rival AI starts with one Tier 2 restaurant on another lot. The remaining lots start empty.
+- Empty lots are purchase signals only. A "For Sale" sign marks them. There is no elaborate empty-lot visual.
+- When the player purchases an empty lot, it spawns a **Tier 1 dilapidated restaurant** on that lot (a rundown version of the same silhouette as T2). The player then upgrades it through the three tiers: **Tier 1 = dilapidated, Tier 2 = finished/normal, Tier 3 = thriving/standout**.
+- The narrative arc is "you bought a rundown property and restored it into a neighborhood favorite, then into the best restaurant in town."
+- The rival expands in parallel using the same three-tier silhouette with a corporate franchise skin (different materials and props, same silhouette per tier).
 
-Lose Condition:
-- Rival AI acquires all city lots first
+Soft Pressure (NOT a hard win/lose):
+- Lots are finite. If the player does not buy a lot, the rival can, and it is locked to the rival from then on. This creates opportunity cost without a hard ending.
+- Monthly obligations (loan payments, credit card statements, insurance premiums) create cash-flow pressure.
+
+Hard Lose Condition:
+- Bankruptcy is the only hard lose state. Five consecutive insolvent months triggers a reset with a permanent bankruptcy flag, per the financial systems design.
+
+No Hard Win Condition:
+- The game does not end in a win. The player keeps expanding indefinitely. Success is measured by sustained chain growth, tier progression, and financial health relative to the rival, not by a terminal screen.
+
+Explicitly Out of Scope for POC:
+- No decay during play. Buildings do not degrade over time. A Tier 2 restaurant does not revert to Tier 1. The player must actively upgrade, but never has to "maintain" against decay.
+- No intermediate sub-tiers between the three main tiers. Three tiers only: dilapidated, normal, thriving.
+- Investing has no world-visible effect. Portfolio value changes numbers in the UI only. A skyline-linked investing visual is a post-POC stretch goal.
+- The 7 `CityLotDefinition` assets (Lot_Bakery, Lot_Bistro, Lot_Corner, Lot_Diner, Lot_Hotel, Lot_Tower, Lot_Cafe) are district flavor labels only. All use the same hero restaurant mesh with the same three tiers. They do NOT imply different building silhouettes per cuisine type.
 
 ---
 
@@ -61,10 +79,11 @@ The player should be able to verbally explain:
 - Outcomes must be explainable in plain language
 
 ### 3.3 Rival Expansion System
-- AI competitor buying city lots
-- Applies time pressure
-- Difficulty increases per level
-- Forces meaningful trade-offs
+- AI competitor buying city lots and upgrading restaurants in parallel with the player
+- Provides soft time pressure via lot scarcity: lots the rival buys are permanently lost to the player
+- Rival uses the same restaurant base model with a corporate franchise skin (material and prop variants)
+- Rival is a pacing mechanism, not a lose condition. The rival cannot end the game.
+- Forces meaningful trade-offs about which lots to prioritize and when to borrow vs save
 
 ---
 
@@ -154,9 +173,9 @@ Every rule passes this test: compliance is determined by searching for a specifi
 ## 7. POC Success Criteria (Anchor All Decisions)
 
 This POC is successful if:
-1. A student can explain opportunity cost using the game
-2. A student can describe compound interest effects they observed
-3. Winning or losing clearly correlates with financial decisions
+1. A student can explain opportunity cost using the game (usually by pointing at a lot the rival took because the student spent cash elsewhere).
+2. A student can describe compound interest effects they observed in the investing panel.
+3. The student's financial decisions clearly correlate with the visible state of their chain: more profitable or more careful play produces more restaurants, higher tiers, and a healthier balance sheet than the rival. Bankruptcy (the only hard lose state) is clearly attributable to specific over-spending or under-investing decisions.
 
 If a feature does not support these outcomes, it should be excluded.
 
