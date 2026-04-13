@@ -1,0 +1,774 @@
+{
+  "questions": [
+    {
+      "id": "inv_001",
+      "category": "Investing",
+      "prompt": "What is compound interest?",
+      "choices": [
+        "Interest paid only on the original amount",
+        "Interest earned on both the principal and prior interest",
+        "A fee the bank charges for holding your money",
+        "The interest rate on a loan"
+      ],
+      "correctIndex": 1,
+      "explanation": "Compound interest grows your money faster because prior interest also earns interest."
+    },
+    {
+      "id": "inv_002",
+      "category": "Investing",
+      "prompt": "If you invest $100 at 10% interest compounded annually, roughly how much do you have after 2 years?",
+      "choices": ["$110", "$115", "$121", "$130"],
+      "correctIndex": 2,
+      "explanation": "Year 1: $110. Year 2: $110 + 10% = $121."
+    },
+    {
+      "id": "inv_003",
+      "category": "Investing",
+      "prompt": "Why do investors say 'time in the market beats timing the market'?",
+      "choices": [
+        "Because markets only go up",
+        "Because consistent long-term investing usually outperforms trying to guess the best moments to buy and sell",
+        "Because brokers charge less on long holds",
+        "Because there is no tax on long-term gains"
+      ],
+      "correctIndex": 1,
+      "explanation": "Trying to predict short-term moves is hard; long-term growth plus compounding is usually more reliable."
+    },
+    {
+      "id": "inv_004",
+      "category": "Investing",
+      "prompt": "Diversification means:",
+      "choices": [
+        "Putting all your money in one hot stock",
+        "Spreading your money across different investments to lower risk",
+        "Only buying bonds",
+        "Buying and selling as fast as possible"
+      ],
+      "correctIndex": 1,
+      "explanation": "If one investment drops, others may hold steady, reducing your overall risk."
+    },
+    {
+      "id": "inv_005",
+      "category": "Investing",
+      "prompt": "What is a stock?",
+      "choices": [
+        "A loan you give to a company",
+        "A share of ownership in a company",
+        "A government savings bond",
+        "A type of insurance policy"
+      ],
+      "correctIndex": 1,
+      "explanation": "Buying a stock makes you a partial owner of that company."
+    },
+    {
+      "id": "inv_006",
+      "category": "Investing",
+      "prompt": "Opportunity cost is:",
+      "choices": [
+        "The fee a broker charges per trade",
+        "The value of the next best choice you gave up",
+        "The cost of insurance",
+        "The interest on a credit card"
+      ],
+      "correctIndex": 1,
+      "explanation": "Spending $500 on an upgrade means giving up whatever that $500 could have earned if invested."
+    },
+    {
+      "id": "inv_007",
+      "category": "Investing",
+      "prompt": "Which typically has higher long-term return but also higher short-term risk?",
+      "choices": [
+        "A savings account",
+        "A certificate of deposit",
+        "A diversified stock index fund",
+        "A checking account"
+      ],
+      "correctIndex": 2,
+      "explanation": "Stocks bounce around more day to day, but on average they grow faster over decades."
+    },
+    {
+      "id": "inv_008",
+      "category": "Investing",
+      "prompt": "A dividend is:",
+      "choices": [
+        "A portion of a company's earnings paid to shareholders",
+        "A loan from a company",
+        "A tax on profit",
+        "A discount on future stock purchases"
+      ],
+      "correctIndex": 0,
+      "explanation": "Some companies share profits with their shareholders via dividends."
+    },
+    {
+      "id": "inv_009",
+      "category": "Investing",
+      "prompt": "A bear market is:",
+      "choices": [
+        "A period when prices are generally rising",
+        "A period when prices are generally falling",
+        "A market that only sells agricultural goods",
+        "A market with only small companies"
+      ],
+      "correctIndex": 1,
+      "explanation": "Bears swipe down, bulls thrust up -- easy way to remember."
+    },
+    {
+      "id": "inv_010",
+      "category": "Investing",
+      "prompt": "If you buy a stock at $10 and sell it at $12, your return is:",
+      "choices": ["10%", "12%", "20%", "120%"],
+      "correctIndex": 2,
+      "explanation": "You gained $2 on a $10 investment: 2/10 = 20%."
+    },
+    {
+      "id": "inv_011",
+      "category": "Investing",
+      "prompt": "Which statement about risk is TRUE?",
+      "choices": [
+        "Higher risk always means higher reward",
+        "Riskier investments have a wider range of outcomes, both up and down",
+        "Cash has zero risk",
+        "Risk only matters for day traders"
+      ],
+      "correctIndex": 1,
+      "explanation": "Risk is about uncertainty -- you might do much better, but you might also lose more."
+    },
+    {
+      "id": "inv_012",
+      "category": "Investing",
+      "prompt": "The 'time value of money' says:",
+      "choices": [
+        "A dollar today is worth more than a dollar in the future",
+        "A dollar in the future is worth more than a dollar today",
+        "Money is always worth the same no matter when you get it",
+        "Inflation does not affect money"
+      ],
+      "correctIndex": 0,
+      "explanation": "A dollar today can be invested and grow; a future dollar cannot."
+    },
+    {
+      "id": "inv_013",
+      "category": "Investing",
+      "prompt": "Dollar-cost averaging means:",
+      "choices": [
+        "Trading on margin to amplify returns",
+        "Investing a fixed amount on a regular schedule regardless of price",
+        "Buying only when prices hit a low",
+        "Splitting investments equally between stocks and bonds"
+      ],
+      "correctIndex": 1,
+      "explanation": "You buy more shares when prices are low and fewer when they are high -- smooths out timing risk."
+    },
+    {
+      "id": "inv_014",
+      "category": "Investing",
+      "prompt": "Which of these is generally the SAFEST place to hold short-term savings?",
+      "choices": [
+        "Individual tech stocks",
+        "Crypto",
+        "A high-yield savings account",
+        "Options contracts"
+      ],
+      "correctIndex": 2,
+      "explanation": "Savings accounts are insured and stable, suited for money you might need soon."
+    },
+    {
+      "id": "inv_015",
+      "category": "Investing",
+      "prompt": "Inflation means:",
+      "choices": [
+        "Prices generally rising over time",
+        "Prices generally falling over time",
+        "A tax on savings",
+        "The stock market going up"
+      ],
+      "correctIndex": 0,
+      "explanation": "At 3% inflation, $100 today buys roughly $97 worth of goods next year."
+    },
+    {
+      "id": "inv_016",
+      "category": "Investing",
+      "prompt": "Why does compound interest favor starting early?",
+      "choices": [
+        "Because interest rates are lower when you are young",
+        "Because you have more years for interest to earn its own interest",
+        "Because brokers give discounts to teenagers",
+        "Because young investors pay less tax"
+      ],
+      "correctIndex": 1,
+      "explanation": "An extra decade of compounding often matters more than investing larger amounts later."
+    },
+    {
+      "id": "inv_017",
+      "category": "Investing",
+      "prompt": "An index fund is:",
+      "choices": [
+        "A hand-picked portfolio managed by a star investor",
+        "A fund that tracks a broad market index like the S&P 500",
+        "A government-issued bond",
+        "A crypto wallet"
+      ],
+      "correctIndex": 1,
+      "explanation": "Index funds are low-cost and broadly diversified -- a common default for long-term investors."
+    },
+    {
+      "id": "inv_018",
+      "category": "Investing",
+      "prompt": "Selling an investment to lock in a gain is called:",
+      "choices": [
+        "Shorting",
+        "Realizing a gain",
+        "Hedging",
+        "Rebalancing"
+      ],
+      "correctIndex": 1,
+      "explanation": "Paper gains become real only when you sell -- that is 'realizing' them."
+    },
+    {
+      "id": "inv_019",
+      "category": "Investing",
+      "prompt": "A portfolio heavily weighted toward one stock is:",
+      "choices": [
+        "Well diversified",
+        "Concentrated -- higher risk",
+        "Guaranteed to outperform",
+        "Tax-free"
+      ],
+      "correctIndex": 1,
+      "explanation": "If that single stock drops, most of your portfolio drops with it."
+    },
+    {
+      "id": "inv_020",
+      "category": "Investing",
+      "prompt": "You have $1,000 and two choices: spend it on a restaurant upgrade that adds $50/day income, or invest it at 10% annual return. What concept best captures this tradeoff?",
+      "choices": [
+        "Diversification",
+        "Opportunity cost",
+        "Inflation",
+        "Liquidity"
+      ],
+      "correctIndex": 1,
+      "explanation": "The cost of choosing the upgrade is the return you gave up by not investing."
+    },
+    {
+      "id": "ins_001",
+      "category": "Insurance",
+      "prompt": "Insurance is designed to:",
+      "choices": [
+        "Guarantee a profit",
+        "Protect you from large financial losses by spreading risk",
+        "Replace the need for savings",
+        "Pay you each month whether something happens or not"
+      ],
+      "correctIndex": 1,
+      "explanation": "You pay a small premium to avoid a potentially huge bill later."
+    },
+    {
+      "id": "ins_002",
+      "category": "Insurance",
+      "prompt": "A premium is:",
+      "choices": [
+        "The amount the insurer pays you after a claim",
+        "The amount you pay regularly to keep coverage active",
+        "The fee a doctor charges for an exam",
+        "The tax on insurance"
+      ],
+      "correctIndex": 1,
+      "explanation": "Miss your premium and coverage can lapse -- exposing you to the full loss."
+    },
+    {
+      "id": "ins_003",
+      "category": "Insurance",
+      "prompt": "A deductible is:",
+      "choices": [
+        "The total value of your policy",
+        "The amount you pay out of pocket before insurance starts paying",
+        "A discount on your premium",
+        "A tax write-off"
+      ],
+      "correctIndex": 1,
+      "explanation": "Higher deductible = lower premium, but more out-of-pocket if something happens."
+    },
+    {
+      "id": "ins_004",
+      "category": "Insurance",
+      "prompt": "If a loss is less than your deductible, insurance typically:",
+      "choices": [
+        "Pays the full amount anyway",
+        "Pays nothing -- you cover it yourself",
+        "Pays half",
+        "Refunds your premium"
+      ],
+      "correctIndex": 1,
+      "explanation": "Small losses are your responsibility; insurance kicks in above the deductible."
+    },
+    {
+      "id": "ins_005",
+      "category": "Insurance",
+      "prompt": "A claim is:",
+      "choices": [
+        "A marketing pitch from the insurer",
+        "A request for the insurer to pay for a covered loss",
+        "The monthly premium",
+        "An annual review"
+      ],
+      "correctIndex": 1,
+      "explanation": "You file a claim when a covered event happens, then the insurer pays per the policy terms."
+    },
+    {
+      "id": "ins_006",
+      "category": "Insurance",
+      "prompt": "Why do insurance companies usually charge higher premiums for riskier customers?",
+      "choices": [
+        "They dislike risky customers",
+        "Because expected payouts are higher, and premiums must reflect expected losses",
+        "Because regulation requires it",
+        "Because risky customers have more money"
+      ],
+      "correctIndex": 1,
+      "explanation": "Insurance pricing reflects the probability and size of expected claims."
+    },
+    {
+      "id": "ins_007",
+      "category": "Insurance",
+      "prompt": "Going uninsured against a catastrophic event is generally:",
+      "choices": [
+        "A smart way to save money",
+        "Acceptable because they never happen",
+        "Risky -- a single event can wipe out your savings",
+        "Required by law"
+      ],
+      "correctIndex": 2,
+      "explanation": "Insurance exists specifically for events too big to self-fund."
+    },
+    {
+      "id": "ins_008",
+      "category": "Insurance",
+      "prompt": "Liability insurance covers:",
+      "choices": [
+        "Damage to your own property",
+        "Harm or losses you cause to others",
+        "Dental visits",
+        "Lost wages from sickness"
+      ],
+      "correctIndex": 1,
+      "explanation": "Liability protects your assets if you are found responsible for someone else's loss."
+    },
+    {
+      "id": "ins_009",
+      "category": "Insurance",
+      "prompt": "Raising your deductible usually:",
+      "choices": [
+        "Raises your premium",
+        "Lowers your premium",
+        "Has no effect on premium",
+        "Cancels the policy"
+      ],
+      "correctIndex": 1,
+      "explanation": "You are taking on more of the small-loss risk, so the insurer charges less."
+    },
+    {
+      "id": "ins_010",
+      "category": "Insurance",
+      "prompt": "Coverage limits are:",
+      "choices": [
+        "The maximum the insurer will pay on a claim",
+        "The amount of the premium",
+        "The legal age to buy insurance",
+        "A limit on how many policies you can own"
+      ],
+      "correctIndex": 0,
+      "explanation": "Losses above the limit come out of your own pocket."
+    },
+    {
+      "id": "ins_011",
+      "category": "Insurance",
+      "prompt": "Property insurance on a business protects against:",
+      "choices": [
+        "Employees quitting",
+        "Physical damage or loss to the building, equipment, and inventory",
+        "Declining stock prices",
+        "Bad customer reviews"
+      ],
+      "correctIndex": 1,
+      "explanation": "Fire, storms, theft -- events that damage things you own."
+    },
+    {
+      "id": "ins_012",
+      "category": "Insurance",
+      "prompt": "Pooling of risk means:",
+      "choices": [
+        "Insurers swim together for lower premiums",
+        "Many people pay small premiums so a few who suffer losses can be made whole",
+        "All insurers set the same price",
+        "Only wealthy people can buy insurance"
+      ],
+      "correctIndex": 1,
+      "explanation": "Insurance works because losses happen to a small fraction of the group each year."
+    },
+    {
+      "id": "ins_013",
+      "category": "Insurance",
+      "prompt": "If you pay $100/month for insurance and never file a claim, is the premium 'wasted'?",
+      "choices": [
+        "Yes -- you should cancel",
+        "No -- you bought protection from a large loss you did not end up needing",
+        "Yes -- unless you get it refunded",
+        "No -- insurers refund unused premiums annually"
+      ],
+      "correctIndex": 1,
+      "explanation": "Insurance is peace of mind against worst-case scenarios, not a savings product."
+    },
+    {
+      "id": "ins_014",
+      "category": "Insurance",
+      "prompt": "An exclusion in an insurance policy is:",
+      "choices": [
+        "A type of premium discount",
+        "Something the policy specifically does not cover",
+        "A required add-on",
+        "A claim form"
+      ],
+      "correctIndex": 1,
+      "explanation": "Always read what is excluded -- floods and earthquakes are often excluded from standard property policies."
+    },
+    {
+      "id": "ins_015",
+      "category": "Insurance",
+      "prompt": "Over-insuring means:",
+      "choices": [
+        "Paying premiums larger than the potential loss justifies",
+        "Having multiple policies that all pay at once",
+        "Insuring only half your asset's value",
+        "Insuring something you do not own"
+      ],
+      "correctIndex": 0,
+      "explanation": "Insurance should be matched to the real financial risk, not every possible bad outcome."
+    },
+    {
+      "id": "ins_016",
+      "category": "Insurance",
+      "prompt": "If a restaurant you own has a fire and is insured, insurance typically pays:",
+      "choices": [
+        "Nothing, because fires are excluded by default",
+        "The repair cost minus your deductible, up to the policy limit",
+        "Three times the property value",
+        "Only if you file a lawsuit"
+      ],
+      "correctIndex": 1,
+      "explanation": "Policies pay the actual covered loss, minus the deductible, capped at the limit."
+    },
+    {
+      "id": "ins_017",
+      "category": "Insurance",
+      "prompt": "The main reason a growing business should consider MORE insurance is:",
+      "choices": [
+        "More revenue means higher mandatory premiums",
+        "More assets and more exposure to lawsuits mean larger potential losses",
+        "Insurers refuse to work with small businesses",
+        "Premiums drop as the business grows"
+      ],
+      "correctIndex": 1,
+      "explanation": "As your business grows, the size of a possible loss grows with it."
+    },
+    {
+      "id": "ins_018",
+      "category": "Insurance",
+      "prompt": "A 'peril' in insurance language is:",
+      "choices": [
+        "A celebrity endorsement",
+        "A specific cause of loss, like fire or theft",
+        "A type of premium",
+        "A waiting period"
+      ],
+      "correctIndex": 1,
+      "explanation": "Named-peril policies only cover specific causes listed in the policy."
+    },
+    {
+      "id": "ins_019",
+      "category": "Insurance",
+      "prompt": "If your property's value rises but your coverage limit does not, you may be:",
+      "choices": [
+        "Over-insured",
+        "Under-insured -- a total loss would not be fully covered",
+        "Due a premium refund",
+        "Required to cancel the policy"
+      ],
+      "correctIndex": 1,
+      "explanation": "Review limits periodically so a total loss does not leave a funding gap."
+    },
+    {
+      "id": "ins_020",
+      "category": "Insurance",
+      "prompt": "Which scenario best captures the value of insurance?",
+      "choices": [
+        "Small, certain cost traded for protection against a large, uncertain loss",
+        "Large, certain profit for doing nothing",
+        "A guaranteed discount on future purchases",
+        "Free replacement of anything you break"
+      ],
+      "correctIndex": 0,
+      "explanation": "Insurance is exchanging many small predictable payments for protection against rare big losses."
+    },
+    {
+      "id": "cre_001",
+      "category": "Credit",
+      "prompt": "APR stands for:",
+      "choices": [
+        "Actual Payment Rate",
+        "Annual Percentage Rate",
+        "Accumulated Principal Rate",
+        "Adjustable Payment Requirement"
+      ],
+      "correctIndex": 1,
+      "explanation": "APR is the yearly cost of borrowing, expressed as a percentage of the balance."
+    },
+    {
+      "id": "cre_002",
+      "category": "Credit",
+      "prompt": "Paying only the minimum on a credit card each month usually:",
+      "choices": [
+        "Pays off the balance quickly",
+        "Saves interest",
+        "Takes years and costs a lot in interest",
+        "Has no effect on what you owe"
+      ],
+      "correctIndex": 2,
+      "explanation": "Minimums barely cover the interest; the principal shrinks slowly and interest piles up."
+    },
+    {
+      "id": "cre_003",
+      "category": "Credit",
+      "prompt": "Your credit score is mostly affected by:",
+      "choices": [
+        "How much you earn",
+        "Payment history and how much of your credit you use",
+        "Your age",
+        "How many bank accounts you have"
+      ],
+      "correctIndex": 1,
+      "explanation": "On-time payments and low utilization are the biggest drivers of a good score."
+    },
+    {
+      "id": "cre_004",
+      "category": "Credit",
+      "prompt": "Credit utilization is:",
+      "choices": [
+        "The percentage of your available credit you are currently using",
+        "The number of credit cards you own",
+        "The interest rate on your card",
+        "Your monthly payment"
+      ],
+      "correctIndex": 0,
+      "explanation": "Lower utilization (often under 30%) usually helps your score."
+    },
+    {
+      "id": "cre_005",
+      "category": "Credit",
+      "prompt": "Principal on a loan means:",
+      "choices": [
+        "The head of the bank",
+        "The original amount borrowed, not including interest",
+        "The interest rate",
+        "The total cost of the loan"
+      ],
+      "correctIndex": 1,
+      "explanation": "Each payment goes partly to principal (lowers what you owe) and partly to interest (cost of borrowing)."
+    },
+    {
+      "id": "cre_006",
+      "category": "Credit",
+      "prompt": "A loan with a 5-year term vs. a 15-year term at the same APR:",
+      "choices": [
+        "5-year: lower monthly payment, less total interest",
+        "15-year: lower monthly payment, more total interest",
+        "15-year: same total interest as 5-year",
+        "There is no difference"
+      ],
+      "correctIndex": 1,
+      "explanation": "Longer terms cost less each month but more overall because interest compounds over more years."
+    },
+    {
+      "id": "cre_007",
+      "category": "Credit",
+      "prompt": "A missed loan payment typically causes:",
+      "choices": [
+        "Nothing bad if it is only one",
+        "Late fees and potential damage to your credit score",
+        "An automatic refund",
+        "Principal forgiveness"
+      ],
+      "correctIndex": 1,
+      "explanation": "Payment history is the biggest factor in credit scores -- one miss can hurt for years."
+    },
+    {
+      "id": "cre_008",
+      "category": "Credit",
+      "prompt": "Secured vs. unsecured credit: secured debt is:",
+      "choices": [
+        "Backed by collateral the lender can take if you default",
+        "Impossible to default on",
+        "Always interest-free",
+        "Only available to corporations"
+      ],
+      "correctIndex": 0,
+      "explanation": "A car loan is secured by the car; an unpaid credit card is unsecured."
+    },
+    {
+      "id": "cre_009",
+      "category": "Credit",
+      "prompt": "A good reason to take on debt is:",
+      "choices": [
+        "To buy depreciating luxuries you cannot afford",
+        "To fund an investment or asset expected to earn more than the interest cost",
+        "To avoid paying cash for coffee",
+        "Because borrowing is free"
+      ],
+      "correctIndex": 1,
+      "explanation": "If your asset earns more than the loan costs, debt can be a lever. If it earns less, debt hurts you."
+    },
+    {
+      "id": "cre_010",
+      "category": "Credit",
+      "prompt": "Credit card interest is typically:",
+      "choices": [
+        "Lower than auto loans",
+        "Much higher than most other consumer loans",
+        "Always 0%",
+        "The same as a mortgage"
+      ],
+      "correctIndex": 1,
+      "explanation": "Credit card APRs commonly range from 15% to 30% or more."
+    },
+    {
+      "id": "cre_011",
+      "category": "Credit",
+      "prompt": "A down payment is:",
+      "choices": [
+        "The first monthly payment on a loan",
+        "Money you pay upfront, reducing the amount you need to borrow",
+        "A fee paid to your bank",
+        "The interest rate on a loan"
+      ],
+      "correctIndex": 1,
+      "explanation": "Larger down payments shrink the loan and usually get you a better rate."
+    },
+    {
+      "id": "cre_012",
+      "category": "Credit",
+      "prompt": "Refinancing a loan means:",
+      "choices": [
+        "Taking out a new loan to replace an existing one, often at better terms",
+        "Missing a payment on purpose",
+        "Declaring bankruptcy",
+        "Paying interest only"
+      ],
+      "correctIndex": 0,
+      "explanation": "If interest rates drop, refinancing can lower your payments or total interest."
+    },
+    {
+      "id": "cre_013",
+      "category": "Credit",
+      "prompt": "Defaulting on a loan means:",
+      "choices": [
+        "Paying it off early",
+        "Failing to make payments as agreed",
+        "Refinancing at a lower rate",
+        "Asking for a new credit limit"
+      ],
+      "correctIndex": 1,
+      "explanation": "Defaults can lead to collections, seizure of collateral, and major credit damage."
+    },
+    {
+      "id": "cre_014",
+      "category": "Credit",
+      "prompt": "Why does a higher credit score help you?",
+      "choices": [
+        "It guarantees you free loans",
+        "Lenders offer you lower interest rates and better terms",
+        "You do not need insurance anymore",
+        "It raises your income"
+      ],
+      "correctIndex": 1,
+      "explanation": "Better scores signal lower risk, so lenders compete for your business with better rates."
+    },
+    {
+      "id": "cre_015",
+      "category": "Credit",
+      "prompt": "The total cost of a loan is best understood by looking at:",
+      "choices": [
+        "Only the monthly payment",
+        "The APR plus fees across the full term of the loan",
+        "The first year of payments only",
+        "The minimum payment listed on the statement"
+      ],
+      "correctIndex": 1,
+      "explanation": "Monthly payment alone hides how much you pay in interest over time."
+    },
+    {
+      "id": "cre_016",
+      "category": "Credit",
+      "prompt": "Maxing out a credit card (using nearly all of your limit) usually:",
+      "choices": [
+        "Improves your score by showing active use",
+        "Hurts your score because utilization is very high",
+        "Has no effect",
+        "Unlocks a lower interest rate"
+      ],
+      "correctIndex": 1,
+      "explanation": "High utilization signals stress on your finances to lenders."
+    },
+    {
+      "id": "cre_017",
+      "category": "Credit",
+      "prompt": "A business loan vs. a credit card for a large purchase:",
+      "choices": [
+        "Credit cards almost always cost less",
+        "A structured business loan often has a lower APR and clear payoff plan",
+        "Credit cards must always be used for business",
+        "They are identical products"
+      ],
+      "correctIndex": 1,
+      "explanation": "For big, planned expenses, a loan with a fixed term usually beats carrying credit card debt."
+    },
+    {
+      "id": "cre_018",
+      "category": "Credit",
+      "prompt": "If you have $1,000 extra and a credit card debt at 20% APR, the highest-return move is usually:",
+      "choices": [
+        "Invest in a stock hoping for a 10% return",
+        "Pay down the 20% debt -- a guaranteed 'return' equal to the APR",
+        "Leave the money in checking",
+        "Buy a lottery ticket"
+      ],
+      "correctIndex": 1,
+      "explanation": "Eliminating a 20% interest cost is like earning a guaranteed 20% -- hard to beat."
+    },
+    {
+      "id": "cre_019",
+      "category": "Credit",
+      "prompt": "Amortization is:",
+      "choices": [
+        "A formula for paying off a loan over time with equal periodic payments",
+        "The penalty for missing a payment",
+        "The interest-only period of a loan",
+        "A type of insurance"
+      ],
+      "correctIndex": 0,
+      "explanation": "Early payments are mostly interest; later payments mostly principal."
+    },
+    {
+      "id": "cre_020",
+      "category": "Credit",
+      "prompt": "You want to buy a rival-owned lot for $1,500. You have $700 in checking. The smartest first step is usually:",
+      "choices": [
+        "Finance the purchase with a loan you can realistically repay",
+        "Max out a credit card for the $800 gap",
+        "Skip the purchase entirely forever",
+        "Sell all your investments in a panic"
+      ],
+      "correctIndex": 0,
+      "explanation": "A planned loan with manageable payments is usually cheaper and less risky than high-APR credit card debt."
+    }
+  ]
+}

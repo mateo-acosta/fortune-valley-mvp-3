@@ -14,6 +14,8 @@ namespace FortuneValley.Domain.Enums
         InsuranceSelection,
         LoanSelection,
         InsuranceDetail,
-        LotSelection
+        LotSelection,
+        LotInfo,
+        Questions
     }
 }

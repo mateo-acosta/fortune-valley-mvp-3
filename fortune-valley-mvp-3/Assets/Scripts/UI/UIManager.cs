@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using FortuneValley.Domain.Enums;
+using FortuneValley.Core;
+using FortuneValley.UI.Popups;
 
 namespace FortuneValley.UI
 {
@@ -61,6 +63,12 @@ namespace FortuneValley.UI
         [Tooltip("Lot selection popup for insurance purchase")]
         [SerializeField] private UIPopup _insuranceLotSelectionPopup;
 
+        [Tooltip("Lot info popup opened by world-space LotWorldCanvas click")]
+        [SerializeField] private LotInfoPopup _lotInfoPopup;
+
+        [Tooltip("QuestionMaster popup opened by the HUD button")]
+        [SerializeField] private UIPopup _questionsPopup;
+
         [Header("Overlay")]
         [Tooltip("Dark overlay behind popups")]
         [SerializeField] private GameObject _popupOverlay;
@@ -95,6 +103,11 @@ namespace FortuneValley.UI
             if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
             if (_insurancePanel != null) _insurancePanel.OnCloseRequested += HandlePanelCloseRequested;
             if (_loanPanel != null) _loanPanel.OnCloseRequested += HandlePanelCloseRequested;
+            if (_lotInfoPopup != null) _lotInfoPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_questionsPopup != null) _questionsPopup.OnCloseRequested += HandlePopupCloseRequested;
+
+            GameEvents.OnLotInfoRequested += HandleLotInfoRequested;
+            GameEvents.OnLotInsuranceRequested += HandleLotInsuranceRequested;
 
             HideAllPanels();
             HideAllPopups();
@@ -117,6 +130,25 @@ namespace FortuneValley.UI
             if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
             if (_insurancePanel != null) _insurancePanel.OnCloseRequested -= HandlePanelCloseRequested;
             if (_loanPanel != null) _loanPanel.OnCloseRequested -= HandlePanelCloseRequested;
+            if (_lotInfoPopup != null) _lotInfoPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_questionsPopup != null) _questionsPopup.OnCloseRequested -= HandlePopupCloseRequested;
+
+            GameEvents.OnLotInfoRequested -= HandleLotInfoRequested;
+            GameEvents.OnLotInsuranceRequested -= HandleLotInsuranceRequested;
+        }
+
+        private void HandleLotInfoRequested(string lotId)
+        {
+            if (_lotInfoPopup == null) return;
+            _lotInfoPopup.ConfigureForLotId(lotId);
+            ShowPopup(_lotInfoPopup);
+        }
+
+        private void HandleLotInsuranceRequested(string lotId)
+        {
+            // Pre-filter hook: open the panel. Sub-panels can subscribe to OnLotInsuranceRequested
+            // separately to apply a lot-specific filter. HUD-button entry stays unchanged.
+            ShowPanel(PanelType.Insurance);
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -302,6 +334,8 @@ namespace FortuneValley.UI
             if (_loanSelectionPopup != null) _loanSelectionPopup.Hide();
             if (_insuranceDetailPopup != null) _insuranceDetailPopup.Hide();
             if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.Hide();
+            if (_lotInfoPopup != null) _lotInfoPopup.Hide();
+            if (_questionsPopup != null) _questionsPopup.Hide();
 
             if (_popupOverlay != null)
             {
@@ -323,6 +357,8 @@ namespace FortuneValley.UI
                 PopupType.LoanSelection => _loanSelectionPopup,
                 PopupType.InsuranceDetail => _insuranceDetailPopup,
                 PopupType.LotSelection => _insuranceLotSelectionPopup,
+                PopupType.LotInfo => _lotInfoPopup,
+                PopupType.Questions => _questionsPopup,
                 _ => null
             };
         }

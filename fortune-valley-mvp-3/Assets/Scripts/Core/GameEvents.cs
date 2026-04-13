@@ -424,6 +424,61 @@ namespace FortuneValley.Core
         public static void RaiseDayEnd(int dayNumber) => OnDayEnd?.Invoke(dayNumber);
 
         // ═══════════════════════════════════════════════════════════════
+        // LOT INFO / TIER EVENTS (world-space click flow)
+        // ═══════════════════════════════════════════════════════════════
+
+        // UI intent: open LotInfoPopup for this lot.
+        public static event Action<string> OnLotInfoRequested;
+        public static void RaiseLotInfoRequested(string lotId) => OnLotInfoRequested?.Invoke(lotId);
+
+        // UI intent: upgrade a player-owned lot to the next tier.
+        public static event Action<string> OnLotUpgradeRequested;
+        public static void RaiseLotUpgradeRequested(string lotId) => OnLotUpgradeRequested?.Invoke(lotId);
+
+        // Confirmation: a lot's tier changed. lotId, newTier (1..3).
+        public static event Action<string, int> OnLotTierChanged;
+        public static void RaiseLotTierChanged(string lotId, int newTier) => OnLotTierChanged?.Invoke(lotId, newTier);
+
+        // UI intent: open InsurancePanel pre-filtered to this lot.
+        public static event Action<string> OnLotInsuranceRequested;
+        public static void RaiseLotInsuranceRequested(string lotId) => OnLotInsuranceRequested?.Invoke(lotId);
+
+        // ═══════════════════════════════════════════════════════════════
+        // QUESTIONMASTER EVENTS
+        // ═══════════════════════════════════════════════════════════════
+
+        // UI intent: start or restart a session.
+        public static event Action OnQuestionStartRequested;
+        public static void RaiseQuestionStartRequested() => OnQuestionStartRequested?.Invoke();
+
+        // UI intent: player chose an answer. chosenIndex -1 denotes timeout (fired by manager, not UI).
+        public static event Action<int> OnQuestionAnswerSubmitted;
+        public static void RaiseQuestionAnswerSubmitted(int chosenIndex) => OnQuestionAnswerSubmitted?.Invoke(chosenIndex);
+
+        public static event Action OnQuestionSessionStarted;
+        public static void RaiseQuestionSessionStarted() => OnQuestionSessionStarted?.Invoke();
+
+        // question, currentStreak
+        public static event Action<QuestionData, int> OnQuestionPresented;
+        public static void RaiseQuestionPresented(QuestionData q, int streak) => OnQuestionPresented?.Invoke(q, streak);
+
+        // remainingSeconds, totalSeconds
+        public static event Action<float, float> OnQuestionTimerTick;
+        public static void RaiseQuestionTimerTick(float remaining, float total) => OnQuestionTimerTick?.Invoke(remaining, total);
+
+        // correct, chosenIndex (-1 on timeout), correctIndex
+        public static event Action<bool, int, int> OnQuestionAnswered;
+        public static void RaiseQuestionAnswered(bool correct, int chosenIndex, int correctIndex)
+            => OnQuestionAnswered?.Invoke(correct, chosenIndex, correctIndex);
+
+        // amount, newStreak
+        public static event Action<int, int> OnQuestionRewardGranted;
+        public static void RaiseQuestionRewardGranted(int amount, int newStreak) => OnQuestionRewardGranted?.Invoke(amount, newStreak);
+
+        public static event Action OnQuestionSessionEnded;
+        public static void RaiseQuestionSessionEnded() => OnQuestionSessionEnded?.Invoke();
+
+        // ═══════════════════════════════════════════════════════════════
         // CLEANUP (call when exiting play mode or restarting)
         // ═══════════════════════════════════════════════════════════════
 
@@ -512,6 +567,22 @@ namespace FortuneValley.Core
 
             // Day cycle
             OnDayEnd = null;
+
+            // Lot info / tier
+            OnLotInfoRequested = null;
+            OnLotUpgradeRequested = null;
+            OnLotTierChanged = null;
+            OnLotInsuranceRequested = null;
+
+            // QuestionMaster
+            OnQuestionStartRequested = null;
+            OnQuestionAnswerSubmitted = null;
+            OnQuestionSessionStarted = null;
+            OnQuestionPresented = null;
+            OnQuestionTimerTick = null;
+            OnQuestionAnswered = null;
+            OnQuestionRewardGranted = null;
+            OnQuestionSessionEnded = null;
         }
     }
 }

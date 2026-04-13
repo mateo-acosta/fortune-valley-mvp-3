@@ -41,6 +41,10 @@ namespace FortuneValley.UI.HUD
         [Tooltip("Credit tab button (opens Loan panel)")]
         [SerializeField] private Button _creditTabButton;
 
+        [Header("QuestionMaster")]
+        [Tooltip("Opens the QuestionMaster popup")]
+        [SerializeField] private Button _questionMasterButton;
+
         [Header("Dependencies")]
         [SerializeField] private UIManager _uiManager;
 
@@ -101,6 +105,16 @@ namespace FortuneValley.UI.HUD
             {
                 _creditTabButton.onClick.AddListener(OnCreditTabClicked);
             }
+
+            if (_questionMasterButton != null)
+            {
+                _questionMasterButton.onClick.AddListener(OnQuestionMasterClicked);
+            }
+        }
+
+        private void OnQuestionMasterClicked()
+        {
+            _uiManager.ShowPopup(PopupType.Questions);
         }
 
         // ═══════════════════════════════════════════════════════════════

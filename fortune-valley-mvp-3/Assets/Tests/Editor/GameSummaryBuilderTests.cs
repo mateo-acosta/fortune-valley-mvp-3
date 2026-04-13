@@ -26,6 +26,18 @@ namespace FortuneValley.Tests
             public float CheckingBalance { get; set; }
             public float InvestingBalance { get; set; }
             public float TotalLiquidBalance => CheckingBalance + InvestingBalance;
+
+            public bool TrySpendChecking(float amount, string reason = "Unknown")
+            {
+                if (CheckingBalance < amount) return false;
+                CheckingBalance -= amount;
+                return true;
+            }
+
+            public void AddToChecking(float amount, string source = "Unknown")
+            {
+                CheckingBalance += amount;
+            }
         }
 
         private class StubInvestmentService : IInvestmentService

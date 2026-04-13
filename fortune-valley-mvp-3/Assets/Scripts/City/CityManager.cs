@@ -27,6 +27,20 @@ namespace FortuneValley.Core
         [Header("Dependencies")]
         [SerializeField] private CurrencyManager _currencyManager;
 
+        [Header("Starter Assignment")]
+        [Tooltip("Lot the player begins with at Tier 2")]
+        [SerializeField] private CityLotDefinition _playerStarterLot;
+
+        [Tooltip("Lot the rival begins with at Tier 2")]
+        [SerializeField] private CityLotDefinition _rivalStarterLot;
+
+        [Header("Tier Defaults")]
+        [Tooltip("Tier a lot is set to when purchased fresh (from None)")]
+        [SerializeField] private int _tierOnFreshPurchase = 1;
+
+        [Tooltip("Tier assigned to the starter lots at game start")]
+        [SerializeField] private int _tierOnStart = 2;
+
         [Header("Debug")]
         [SerializeField] private bool _logPurchases = false;
 
@@ -36,6 +50,10 @@ namespace FortuneValley.Core
 
         private Dictionary<string, Owner> _lotOwnership = new Dictionary<string, Owner>();
         private Dictionary<string, int> _purchaseTick = new Dictionary<string, int>();
+        private Dictionary<string, int> _lotTier = new Dictionary<string, int>();
+
+        // Interface seam -- production mirrors _currencyManager; tests can inject a substitute via reflection.
+        private ICurrencyService _currency;
 
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
@@ -51,6 +69,11 @@ namespace FortuneValley.Core
         /// instead of calling GetOwner() to respect the UI structural boundary.
         /// </summary>
         public IReadOnlyDictionary<string, Owner> LotOwnership => _lotOwnership;
+
+        /// <summary>
+        /// Read-only view of per-lot tier (1..3). Missing key means not-yet-owned.
+        /// </summary>
+        public IReadOnlyDictionary<string, int> LotTiers => _lotTier;
 
         /// <summary>
         /// Total number of lots in the city.
@@ -114,11 +137,21 @@ namespace FortuneValley.Core
         // LIFECYCLE
         // ═══════════════════════════════════════════════════════════════
 
+        private void Awake()
+        {
+            // Cache the ICurrencyService seam; tests may overwrite via reflection.
+            if (_currency == null)
+            {
+                _currency = _currencyManager;
+            }
+        }
+
         private void OnEnable()
         {
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnTick += HandleTick;
             GameEvents.OnPurchaseLotRequested += HandlePurchaseLotRequested;
+            GameEvents.OnLotUpgradeRequested += HandleLotUpgradeRequested;
             GameEvents.OnLoanOriginated += HandleLoanOriginated;
         }
 
@@ -127,6 +160,7 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnPurchaseLotRequested -= HandlePurchaseLotRequested;
+            GameEvents.OnLotUpgradeRequested -= HandleLotUpgradeRequested;
             GameEvents.OnLoanOriginated -= HandleLoanOriginated;
         }
 
@@ -159,8 +193,33 @@ namespace FortuneValley.Core
         private void HandleGameStart()
         {
             ResetOwnership();
+            SeedStarterLots();
             // Notify UI components of lot count so they can initialize without querying CityManager directly
             GameEvents.RaiseCityInitialized(_allLots.Count);
+        }
+
+        private void SeedStarterLots()
+        {
+            if (_playerStarterLot != null)
+            {
+                _lotOwnership[_playerStarterLot.LotId] = Owner.Player;
+                _lotTier[_playerStarterLot.LotId] = _tierOnStart;
+                GameEvents.RaiseLotPurchased(_playerStarterLot.LotId, Owner.Player);
+                GameEvents.RaiseLotTierChanged(_playerStarterLot.LotId, _tierOnStart);
+            }
+
+            if (_rivalStarterLot != null)
+            {
+                _lotOwnership[_rivalStarterLot.LotId] = Owner.Rival;
+                _lotTier[_rivalStarterLot.LotId] = _tierOnStart;
+                GameEvents.RaiseLotPurchased(_rivalStarterLot.LotId, Owner.Rival);
+                GameEvents.RaiseLotTierChanged(_rivalStarterLot.LotId, _tierOnStart);
+            }
+        }
+
+        private void HandleLotUpgradeRequested(string lotId)
+        {
+            TryUpgradeLot(lotId);
         }
 
         private void HandleTick(int tickNumber)
@@ -205,7 +264,9 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Try to purchase a lot for the player.
+        /// Try to purchase a lot for the player. Resolves cost based on current owner:
+        /// None -> BaseCost. Rival -> BaseCost * RivalBuyoutMultiplier (tier still resets to T1).
+        /// Player-owned lots cannot be repurchased.
         /// </summary>
         /// <returns>True if purchase succeeded</returns>
         public bool TryPurchaseLot(string lotId, int currentTick)
@@ -217,27 +278,100 @@ namespace FortuneValley.Core
                 return false;
             }
 
-            // Check ownership
-            if (GetOwner(lotId) != Owner.None)
+            Owner currentOwner = GetOwner(lotId);
+            if (currentOwner == Owner.Player)
             {
-                Debug.Log($"[CityManager] Lot {lotId} already owned");
+                Debug.Log($"[CityManager] Lot {lotId} already owned by player");
                 return false;
             }
 
-            // Try to spend
-            if (!_currencyManager.TrySpendChecking(lot.BaseCost, $"Purchase lot: {lot.DisplayName}"))
+            float cost = ResolvePurchaseCost(lot, currentOwner);
+
+            if (_currency == null || !_currency.TrySpendChecking(cost, $"Purchase lot: {lot.DisplayName}"))
             {
-                Debug.Log($"[CityManager] Cannot afford lot {lotId}. Cost: ${lot.BaseCost:F0}");
+                Debug.Log($"[CityManager] Cannot afford lot {lotId}. Cost: ${cost:F0}");
                 return false;
             }
 
-            // Purchase successful
+            // Purchase successful. Tier resets to T1 regardless of prior state.
+            _lotTier[lotId] = _tierOnFreshPurchase;
             SetOwner(lotId, Owner.Player, currentTick);
+            GameEvents.RaiseLotTierChanged(lotId, _tierOnFreshPurchase);
             return true;
         }
 
         /// <summary>
+        /// Compute the purchase price the player owes for a lot given its current owner.
+        /// Public for test access and for UI display.
+        /// </summary>
+        public float ResolvePurchaseCost(CityLotDefinition lot, Owner currentOwner)
+        {
+            if (lot == null) return 0f;
+            return currentOwner == Owner.Rival
+                ? lot.BaseCost * lot.RivalBuyoutMultiplier
+                : lot.BaseCost;
+        }
+
+        /// <summary>
+        /// Convenience overload: resolve cost by lotId + current owner from state.
+        /// </summary>
+        public float ResolvePurchaseCost(string lotId)
+        {
+            return ResolvePurchaseCost(GetLot(lotId), GetOwner(lotId));
+        }
+
+        /// <summary>
+        /// Try to upgrade a player-owned lot to the next tier.
+        /// Rejects if not player-owned, already at max tier, or insufficient funds.
+        /// </summary>
+        /// <returns>True if upgrade succeeded</returns>
+        public bool TryUpgradeLot(string lotId)
+        {
+            var lot = GetLot(lotId);
+            if (lot == null)
+            {
+                Debug.LogWarning($"[CityManager] Upgrade rejected: lot {lotId} not found");
+                return false;
+            }
+
+            if (GetOwner(lotId) != Owner.Player)
+            {
+                Debug.Log($"[CityManager] Upgrade rejected: {lotId} not player-owned");
+                return false;
+            }
+
+            int currentTier = GetTier(lotId);
+            if (currentTier >= 3)
+            {
+                Debug.Log($"[CityManager] Upgrade rejected: {lotId} already at max tier");
+                return false;
+            }
+
+            int nextTier = currentTier + 1;
+            float cost = nextTier == 2 ? lot.Tier2UpgradeCost : lot.Tier3UpgradeCost;
+
+            if (_currency == null || !_currency.TrySpendChecking(cost, $"Upgrade {lot.DisplayName} to T{nextTier}"))
+            {
+                Debug.Log($"[CityManager] Upgrade rejected: cannot afford ${cost:F0} for {lotId}");
+                return false;
+            }
+
+            _lotTier[lotId] = nextTier;
+            GameEvents.RaiseLotTierChanged(lotId, nextTier);
+            return true;
+        }
+
+        /// <summary>
+        /// Get the current tier of a lot (1..3), or 0 if not yet owned.
+        /// </summary>
+        public int GetTier(string lotId)
+        {
+            return _lotTier.TryGetValue(lotId, out int tier) ? tier : 0;
+        }
+
+        /// <summary>
         /// Purchase a lot for the rival (no currency check - rival has own economy).
+        /// Rival-purchased lots start at T1 like the player's fresh purchases.
         /// </summary>
         /// <returns>True if purchase succeeded</returns>
         public bool RivalPurchaseLot(string lotId, int currentTick)
@@ -248,7 +382,9 @@ namespace FortuneValley.Core
                 return false;
             }
 
+            _lotTier[lotId] = _tierOnFreshPurchase;
             SetOwner(lotId, Owner.Rival, currentTick);
+            GameEvents.RaiseLotTierChanged(lotId, _tierOnFreshPurchase);
             return true;
         }
 
@@ -323,6 +459,7 @@ namespace FortuneValley.Core
         {
             _lotOwnership.Clear();
             _purchaseTick.Clear();
+            _lotTier.Clear();
 
             foreach (var lot in _allLots)
             {
