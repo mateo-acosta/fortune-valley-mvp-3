@@ -3,6 +3,7 @@ using UnityEngine;
 using FortuneValley.Domain.Enums;
 using FortuneValley.Core;
 using FortuneValley.UI.Popups;
+using FortuneValley.UI.Panels;
 
 namespace FortuneValley.UI
 {
@@ -30,7 +31,7 @@ namespace FortuneValley.UI
         [SerializeField] private UIPanel _insurancePanel;
 
         [Tooltip("Loan management panel (read-only)")]
-        [SerializeField] private UIPanel _loanPanel;
+        [SerializeField] private LoanPanel _loanPanel;
 
         [Header("Popup References")]
         [Tooltip("Lot purchase confirmation popup")]
@@ -108,6 +109,7 @@ namespace FortuneValley.UI
 
             GameEvents.OnLotInfoRequested += HandleLotInfoRequested;
             GameEvents.OnLotInsuranceRequested += HandleLotInsuranceRequested;
+            GameEvents.OnLotLoanExploreRequested += HandleLotLoanExploreRequested;
 
             HideAllPanels();
             HideAllPopups();
@@ -135,6 +137,7 @@ namespace FortuneValley.UI
 
             GameEvents.OnLotInfoRequested -= HandleLotInfoRequested;
             GameEvents.OnLotInsuranceRequested -= HandleLotInsuranceRequested;
+            GameEvents.OnLotLoanExploreRequested -= HandleLotLoanExploreRequested;
         }
 
         private void HandleLotInfoRequested(string lotId)
@@ -149,6 +152,18 @@ namespace FortuneValley.UI
             // Pre-filter hook: open the panel. Sub-panels can subscribe to OnLotInsuranceRequested
             // separately to apply a lot-specific filter. HUD-button entry stays unchanged.
             ShowPanel(PanelType.Insurance);
+        }
+
+        private void HandleLotLoanExploreRequested(string lotId)
+        {
+            if (_loanPanel == null) return;
+            // Stage pre-selection BEFORE the panel activates so the sidebar's OnEnable
+            // picks up the Explore-tab override instead of resetting to Home.
+            _loanPanel.PrepareExploreForLot(lotId);
+            ShowPanel(PanelType.Loan);
+            // Re-entry safety: if the panel was already visible, the activation hook
+            // didn't fire. Force the tab and pre-selection now.
+            _loanPanel.OpenExploreForLot(lotId);
         }
 
         // ═══════════════════════════════════════════════════════════════

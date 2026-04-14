@@ -189,12 +189,14 @@ namespace FortuneValley.Core
         {
             if (!CanLog()) return;
 
+            // Loan proceeds now deposit into checking (no down payment). The line item
+            // reflects the inflow so the server ledger stays consistent with balances.
             TryLog(NewBuilder()
                 .Type("loan_taken")
                 .Instrument(loan.LotId)
                 .Amount(loan.Principal)
                 .Category("transfer")
-                .AddLineItem("checking", -loan.DownPayment, "outflow", _cachedCheckingBalance)
+                .AddLineItem("checking", loan.Principal, "inflow", _cachedCheckingBalance)
                 .Build());
         }
 

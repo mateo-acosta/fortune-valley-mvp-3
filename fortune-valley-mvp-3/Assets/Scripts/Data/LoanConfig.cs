@@ -41,6 +41,9 @@ namespace FortuneValley.Core
         [Tooltip("Maximum debt-to-income ratio for approval (e.g., 0.40 for 40%)")]
         [SerializeField] private float _maxDtiRatio = 0.40f;
 
+        [Tooltip("Maximum principal this loan can finance. Used to filter loans per lot cost.")]
+        [SerializeField] private float _maxPrincipal = 1000000f;
+
         // Read-only accessors
         public string LoanId => _loanId;
         public string DisplayName => _displayName;
@@ -50,5 +53,6 @@ namespace FortuneValley.Core
         public float DownPaymentPercent => _downPaymentPercent;
         public int MinimumCreditScore => _minimumCreditScore;
         public float MaxDtiRatio => _maxDtiRatio;
+        public float MaxPrincipal => _maxPrincipal;
     }
 }

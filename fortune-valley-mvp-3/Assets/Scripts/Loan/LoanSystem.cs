@@ -95,31 +95,21 @@ namespace FortuneValley.Core
                 return;
             }
 
-            // Deduct down payment from checking
-            float downPayment = price * config.DownPaymentPercent;
-            if (downPayment > 0f && !_currencyManager.TrySpendChecking(downPayment, $"Down payment: lot {lotId}"))
-            {
-                if (_logTransactions)
-                    Debug.Log($"[LoanSystem] Cannot afford down payment ${downPayment:F2} for lot {lotId}.");
-                return;
-            }
-
-            // Create loan via portfolio
+            // POC flow: no down payment. Full principal = lot price. Loan proceeds deposit
+            // into checking; the lot itself is not auto-purchased (player must click Buy again).
             ActiveLoan loan = _portfolio.Originate(
                 config.LoanId, lotId, price,
                 config.APR, config.TermMonths,
-                config.DownPaymentPercent, InitialStartDay);
+                0f, InitialStartDay);
 
             if (loan == null)
             {
-                // Refund down payment if loan creation failed (e.g., duplicate)
-                if (downPayment > 0f)
-                    _currencyManager.AddToChecking(downPayment, $"Refund: loan rejected for lot {lotId}");
-
                 if (_logTransactions)
                     Debug.Log($"[LoanSystem] Loan rejected for lot {lotId} (duplicate or zero principal).");
                 return;
             }
+
+            _currencyManager.AddToChecking(price, $"Loan proceeds: {config.DisplayName} for lot {lotId}");
 
             if (_logTransactions)
             {

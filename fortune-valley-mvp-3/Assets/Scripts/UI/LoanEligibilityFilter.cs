@@ -17,12 +17,15 @@ namespace FortuneValley.UI
         /// <summary>
         /// Evaluate each loan config against the player's current credit score and DTI ratio.
         /// Returns one result per config with eligibility and a human-readable reason.
+        /// Configs whose MaxPrincipal is below requiredPrincipal are excluded entirely
+        /// (they cannot finance the lot regardless of creditworthiness).
         /// </summary>
         /// <param name="configs">Available loan configs (read from LoanSystem.AvailableLoans property)</param>
         /// <param name="creditScore">Player's current credit score (read from CreditCardSystem.CreditScore property)</param>
         /// <param name="dtiRatio">Current debt-to-income ratio (0.0 to 1.0+)</param>
+        /// <param name="requiredPrincipal">Principal needed to finance the target lot. Configs with MaxPrincipal below this are dropped.</param>
         public static List<LoanEligibilityResult> Evaluate(
-            IReadOnlyList<LoanConfig> configs, int creditScore, float dtiRatio)
+            IReadOnlyList<LoanConfig> configs, int creditScore, float dtiRatio, float requiredPrincipal)
         {
             if (configs == null)
                 return new List<LoanEligibilityResult>();
@@ -33,6 +36,9 @@ namespace FortuneValley.UI
             {
                 var config = configs[i];
                 if (config == null) continue;
+
+                // Drop loans that cannot cover the lot price at all.
+                if (config.MaxPrincipal < requiredPrincipal) continue;
 
                 // Check credit score threshold
                 if (creditScore < config.MinimumCreditScore)

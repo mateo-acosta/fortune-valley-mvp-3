@@ -107,7 +107,7 @@ namespace FortuneValley.Core
                 {
                     if (GetOwner(lot.LotId) == Owner.Player)
                     {
-                        total += lot.IncomeBonus;
+                        total += lot.GetIncomeAtTier(GetTier(lot.LotId));
                     }
                 }
                 return total;
@@ -126,7 +126,7 @@ namespace FortuneValley.Core
                 {
                     if (GetOwner(lot.LotId) == Owner.Rival)
                     {
-                        total += lot.IncomeBonus;
+                        total += lot.GetIncomeAtTier(GetTier(lot.LotId));
                     }
                 }
                 return total;
@@ -152,7 +152,6 @@ namespace FortuneValley.Core
             GameEvents.OnTick += HandleTick;
             GameEvents.OnPurchaseLotRequested += HandlePurchaseLotRequested;
             GameEvents.OnLotUpgradeRequested += HandleLotUpgradeRequested;
-            GameEvents.OnLoanOriginated += HandleLoanOriginated;
         }
 
         private void OnDisable()
@@ -161,33 +160,16 @@ namespace FortuneValley.Core
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnPurchaseLotRequested -= HandlePurchaseLotRequested;
             GameEvents.OnLotUpgradeRequested -= HandleLotUpgradeRequested;
-            GameEvents.OnLoanOriginated -= HandleLoanOriginated;
         }
 
         /// <summary>
         /// Intent event handler: UI requested a cash lot purchase.
+        /// Loan origination no longer triggers ownership transfer -- the player
+        /// must click Buy again after the loan proceeds land in checking.
         /// </summary>
         private void HandlePurchaseLotRequested(string lotId, int tick)
         {
             TryPurchaseLot(lotId, tick);
-        }
-
-        /// <summary>
-        /// Loan originated: LoanSystem processed the loan, now assign lot to player.
-        /// Down payment already deducted by LoanSystem.
-        /// </summary>
-        private void HandleLoanOriginated(ActiveLoan loan)
-        {
-            if (loan == null) return;
-
-            var lot = GetLot(loan.LotId);
-            if (lot == null) return;
-
-            // Verify lot is still available (rival could have bought it)
-            if (GetOwner(loan.LotId) != Owner.None) return;
-
-            // Assign lot to player (no currency deduction -- loan covers it)
-            SetOwner(loan.LotId, Owner.Player, loan.StartDay);
         }
 
         private void HandleGameStart()

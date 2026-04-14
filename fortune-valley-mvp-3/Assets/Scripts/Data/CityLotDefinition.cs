@@ -64,6 +64,19 @@ namespace FortuneValley.Core
         public string Description => _description;
         public float BaseCost => _baseCost;
         public float IncomeBonus => _incomeBonus;
+
+        private const float TierOneIncomeMultiplier = 0.5f;
+        private const float TierTwoIncomeMultiplier = 1f;
+        private const float TierThreeIncomeMultiplier = 2f;
+
+        // Per-tick income scaled by tier. _incomeBonus is treated as the T2 baseline.
+        public float GetIncomeAtTier(int tier)
+        {
+            if (tier == 1) return _incomeBonus * TierOneIncomeMultiplier;
+            if (tier == 2) return _incomeBonus * TierTwoIncomeMultiplier;
+            if (tier == 3) return _incomeBonus * TierThreeIncomeMultiplier;
+            return 0f;
+        }
         public float Tier2UpgradeCost => _tier2UpgradeCost;
         public float Tier3UpgradeCost => _tier3UpgradeCost;
         public float RivalBuyoutMultiplier => _rivalBuyoutMultiplier;

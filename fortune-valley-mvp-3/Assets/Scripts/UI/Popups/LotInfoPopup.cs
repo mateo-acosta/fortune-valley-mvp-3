@@ -48,10 +48,15 @@ namespace FortuneValley.UI.Popups
         [SerializeField] private TextMeshProUGUI _costText;
         [SerializeField] private TextMeshProUGUI _roiText;
         [SerializeField] private TextMeshProUGUI _affordabilityText;
+        [Tooltip("Cost text inside Non-OwnedLotDetailPanel")]
+        [SerializeField] private TextMeshProUGUI _costTextUnowned;
+        [Tooltip("ROI text inside Non-OwnedLotDetailPanel")]
+        [SerializeField] private TextMeshProUGUI _roiTextUnowned;
+        [Tooltip("Affordability text inside Non-OwnedLotDetailPanel")]
+        [SerializeField] private TextMeshProUGUI _affordabilityTextUnowned;
 
         [Header("Buttons")]
         [SerializeField] private Button _buyButton;
-        [SerializeField] private Button _financeButton;
         [SerializeField] private Button _upgradeButton;
         [SerializeField] private Button _insuranceButton;
         [Tooltip("Close button inside OwnedLotDetailPanel")]
@@ -91,7 +96,6 @@ namespace FortuneValley.UI.Popups
         private void Awake()
         {
             if (_buyButton != null) _buyButton.onClick.AddListener(HandleBuyClicked);
-            if (_financeButton != null) _financeButton.onClick.AddListener(HandleFinanceClicked);
             if (_upgradeButton != null) _upgradeButton.onClick.AddListener(HandleUpgradeClicked);
             if (_insuranceButton != null) _insuranceButton.onClick.AddListener(HandleInsuranceClicked);
             if (_closeButton != null) _closeButton.onClick.AddListener(HandleCloseClicked);
@@ -225,43 +229,40 @@ namespace FortuneValley.UI.Popups
                 ? _currentLot.BaseCost * _currentLot.RivalBuyoutMultiplier
                 : _currentLot.BaseCost;
 
-            if (_costText != null)
+            string costCopy;
+            if (_currentOwner == Owner.Player)
             {
-                if (_currentOwner == Owner.Player)
+                int nextTier = _currentTier + 1;
+                if (_currentTier >= 3)
                 {
-                    int nextTier = _currentTier + 1;
-                    if (_currentTier >= 3)
-                    {
-                        _costText.text = "";
-                    }
-                    else
-                    {
-                        float upCost = nextTier == 2 ? _currentLot.Tier2UpgradeCost : _currentLot.Tier3UpgradeCost;
-                        _costText.text = $"Upgrade cost: ${upCost:N0}";
-                    }
+                    costCopy = "";
                 }
                 else
                 {
-                    _costText.text = $"Cost: ${_currentResolvedCost:N0}";
+                    float upCost = nextTier == 2 ? _currentLot.Tier2UpgradeCost : _currentLot.Tier3UpgradeCost;
+                    costCopy = $"Upgrade cost: ${upCost:N0}";
                 }
             }
+            else
+            {
+                costCopy = $"Cost: ${_currentResolvedCost:N0}";
+            }
+            SetTextPair(_costText, _costTextUnowned, costCopy);
         }
 
         private void UpdateRoiDisplay()
         {
-            if (_roiText == null) return;
-            if (_currentOwner == Owner.Player)
+            string roiCopy;
+            if (_currentOwner == Owner.Player || _currentLot.IncomeBonus <= 0f)
             {
-                _roiText.text = "";
-                return;
+                roiCopy = "";
             }
-            if (_currentLot.IncomeBonus <= 0f)
+            else
             {
-                _roiText.text = "";
-                return;
+                int daysToPayback = Mathf.CeilToInt(_currentResolvedCost / _currentLot.IncomeBonus);
+                roiCopy = $"Payback: ~{daysToPayback} days";
             }
-            int daysToPayback = Mathf.CeilToInt(_currentResolvedCost / _currentLot.IncomeBonus);
-            _roiText.text = $"Payback: ~{daysToPayback} days";
+            SetTextPair(_roiText, _roiTextUnowned, roiCopy);
         }
 
         private void UpdateButtons()
@@ -273,7 +274,6 @@ namespace FortuneValley.UI.Popups
             SetActive(_unownedLayoutRoot, !playerOwned);
 
             SetActive(_buyButton, _currentOwner != Owner.Player);
-            SetActive(_financeButton, _currentOwner == Owner.None);
             bool canUpgrade = playerOwned && _currentTier < 3;
             SetActive(_upgradeButton, canUpgrade);
             SetActive(_insuranceButton, playerOwned);
@@ -316,25 +316,29 @@ namespace FortuneValley.UI.Popups
 
             bool canAfford = balance >= cost;
 
-            if (_affordabilityText != null)
+            string affordCopy;
+            Color affordColor;
+            if (!showAffordability)
             {
-                if (!showAffordability)
-                {
-                    _affordabilityText.text = "";
-                }
-                else if (canAfford)
-                {
-                    _affordabilityText.text = "You can afford this!";
-                    _affordabilityText.color = _canAffordColor;
-                }
-                else
-                {
-                    _affordabilityText.text = $"Need ${cost - balance:N0} more";
-                    _affordabilityText.color = _cannotAffordColor;
-                }
+                affordCopy = "";
+                affordColor = Color.white;
             }
+            else if (canAfford)
+            {
+                affordCopy = "You can afford this!";
+                affordColor = _canAffordColor;
+            }
+            else
+            {
+                affordCopy = $"Need ${cost - balance:N0} more";
+                affordColor = _cannotAffordColor;
+            }
+            if (_affordabilityText != null) { _affordabilityText.text = affordCopy; _affordabilityText.color = affordColor; }
+            if (_affordabilityTextUnowned != null) { _affordabilityTextUnowned.text = affordCopy; _affordabilityTextUnowned.color = affordColor; }
 
-            if (_buyButton != null) _buyButton.interactable = (_currentOwner != Owner.Player) && canAfford;
+            // Buy is always interactable for non-player-owned lots. If the player cannot
+            // afford, the click routes to the Credit panel Explore tab pre-selected to this lot.
+            if (_buyButton != null) _buyButton.interactable = _currentOwner != Owner.Player;
             // Upgrade interactivity also respects affordability + debounce.
             if (_upgradeButton != null && _currentOwner == Owner.Player)
             {
@@ -347,14 +351,19 @@ namespace FortuneValley.UI.Popups
         private void HandleBuyClicked()
         {
             if (_currentLot == null) return;
-            GameEvents.RaisePurchaseLotRequested(_currentLot.LotId, 0);
-            HandleCloseClicked();
-        }
 
-        private void HandleFinanceClicked()
-        {
-            if (_currentLot == null) return;
-            GameEvents.RaiseLoanSelectionRequested(_currentLot.LotId, _currentLot.BaseCost);
+            // Affordability branch: pay cash if we have enough, otherwise route to loan shopping.
+            bool canAfford = _currencyManager != null
+                && _currencyManager.CheckingBalance >= _currentResolvedCost;
+
+            if (canAfford)
+            {
+                GameEvents.RaisePurchaseLotRequested(_currentLot.LotId, 0);
+            }
+            else
+            {
+                GameEvents.RaiseLotLoanExploreRequested(_currentLot.LotId);
+            }
             HandleCloseClicked();
         }
 

@@ -64,6 +64,19 @@ namespace FortuneValley.Core
         /// </summary>
         public int TicksUntilPurchase { get; private set; }
 
+        /// <summary>
+        /// Rival's cumulative per-tick income: base config rate + tier-scaled lot bonuses.
+        /// </summary>
+        public float TotalIncomePerTick
+        {
+            get
+            {
+                float lotBonus = _cityManager != null ? _cityManager.RivalLotIncomeBonus : 0f;
+                float baseRate = _config != null ? _config.IncomePerTick : 0f;
+                return baseRate + lotBonus;
+            }
+        }
+
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
         // ═══════════════════════════════════════════════════════════════

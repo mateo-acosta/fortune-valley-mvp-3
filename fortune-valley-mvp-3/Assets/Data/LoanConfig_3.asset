@@ -20,3 +20,4 @@ MonoBehaviour:
   _loanImage: {fileID: 21300000, guid: 8767d6332dfdf47e2a0b3cb281ab450b, type: 3}
   _minimumCreditScore: 720
   _maxDtiRatio: 0.35
+  _maxPrincipal: 150000

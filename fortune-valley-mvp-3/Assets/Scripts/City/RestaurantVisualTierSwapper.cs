@@ -23,6 +23,9 @@ namespace FortuneValley.Core
         [SerializeField] private GameObject _rivalT2;
         [SerializeField] private GameObject _rivalT3;
 
+        [Header("For Sale Sign")]
+        [SerializeField] private GameObject _forSaleSign;
+
         private Owner _owner = Owner.None;
         private int _tier;
 
@@ -71,6 +74,8 @@ namespace FortuneValley.Core
             SetActiveIfNotNull(_rivalT1, false);
             SetActiveIfNotNull(_rivalT2, false);
             SetActiveIfNotNull(_rivalT3, false);
+
+            SetActiveIfNotNull(_forSaleSign, _owner == Owner.None);
 
             if (_owner == Owner.None || _tier <= 0) return;
 

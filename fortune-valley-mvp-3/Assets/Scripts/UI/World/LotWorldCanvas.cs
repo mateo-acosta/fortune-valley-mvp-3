@@ -8,8 +8,8 @@ namespace FortuneValley.UI.World
 {
     /// <summary>
     /// Attached to each WorldSpaceCanvas_Building hovering over a RestaurantVisual.
-    /// On button click, raises LotInfoRequested so UIManager can open the screen-space popup.
-    /// Also displays live lot info (name, tier, income) on its own canvas children.
+    /// Displays lot title, tier/status, per-second income, ownership color indicator,
+    /// and a context-aware Buy/Manage button that raises LotInfoRequested.
     /// </summary>
     public class LotWorldCanvas : MonoBehaviour
     {
@@ -18,20 +18,29 @@ namespace FortuneValley.UI.World
 
         [Header("Click")]
         [SerializeField] private Button _clickButton;
+        [SerializeField] private TextMeshProUGUI _buttonLabel;
 
         [Header("Live Info Display")]
-        [Tooltip("Displays the lot's DisplayName")]
         [SerializeField] private TextMeshProUGUI _titleText;
-        [Tooltip("Displays 'For Sale' when unowned, 'Tier N' when owned")]
         [SerializeField] private TextMeshProUGUI _levelText;
-        [Tooltip("Displays income when player-owned; blank otherwise")]
         [SerializeField] private TextMeshProUGUI _incomeText;
+        [SerializeField] private Image _ownerIndicator;
 
         [Header("Copy")]
         [SerializeField] private string _forSaleLabel = "For Sale";
         [SerializeField] private string _tierFormat = "Tier {0}";
-        [SerializeField] private string _incomeFormat = "+${0:N0}/day";
-        [SerializeField] private string _rivalLabel = "Rival";
+        [SerializeField] private string _rivalTierFormat = "Rival Tier {0}";
+        [SerializeField] private string _incomeFormat = "+${0:N0}/sec";
+        [SerializeField] private string _buyButtonLabel = "Buy";
+        [SerializeField] private string _manageButtonLabel = "Manage";
+
+        [Header("Owner Colors")]
+        [SerializeField] private Color _colorForSale = new Color(0.25f, 0.55f, 1f, 1f);
+        [SerializeField] private Color _colorPlayer = new Color(0.25f, 0.85f, 0.35f, 1f);
+        [SerializeField] private Color _colorRival = new Color(0.9f, 0.25f, 0.25f, 1f);
+
+        [Header("For-Sale Preview Tier")]
+        [SerializeField] private int _previewTierWhenForSale = 1;
 
         private Owner _owner = Owner.None;
         private int _tier;
@@ -94,15 +103,17 @@ namespace FortuneValley.UI.World
 
             if (_titleText != null) _titleText.text = _lot.DisplayName;
 
+            int displayTier = _owner == Owner.None ? _previewTierWhenForSale : _tier;
+
             if (_levelText != null)
             {
-                if (_owner == Owner.None || _tier <= 0)
+                if (_owner == Owner.None)
                 {
                     _levelText.text = _forSaleLabel;
                 }
                 else if (_owner == Owner.Rival)
                 {
-                    _levelText.text = _rivalLabel + " " + string.Format(_tierFormat, _tier);
+                    _levelText.text = string.Format(_rivalTierFormat, _tier);
                 }
                 else
                 {
@@ -112,9 +123,20 @@ namespace FortuneValley.UI.World
 
             if (_incomeText != null)
             {
-                _incomeText.text = _owner == Owner.Player && _lot.IncomeBonus > 0f
-                    ? string.Format(_incomeFormat, _lot.IncomeBonus)
-                    : string.Empty;
+                float income = _lot.GetIncomeAtTier(displayTier);
+                _incomeText.text = string.Format(_incomeFormat, income);
+            }
+
+            if (_ownerIndicator != null)
+            {
+                if (_owner == Owner.Player) _ownerIndicator.color = _colorPlayer;
+                else if (_owner == Owner.Rival) _ownerIndicator.color = _colorRival;
+                else _ownerIndicator.color = _colorForSale;
+            }
+
+            if (_buttonLabel != null)
+            {
+                _buttonLabel.text = _owner == Owner.Player ? _manageButtonLabel : _buyButtonLabel;
             }
         }
     }

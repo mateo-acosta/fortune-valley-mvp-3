@@ -6,33 +6,14 @@ using FortuneValley.Core;
 namespace FortuneValley.UI.HUD
 {
     /// <summary>
-    /// Main game HUD controller.
-    /// Manages the top bar (account displays, day counter, bot progress)
-    /// and bottom bar (navigation buttons).
+    /// Bottom-bar navigation controller for the Homebase HUD.
+    /// Wires tab buttons to UIManager panel/popup toggles.
+    /// Account balance displays (Checking / Investing / Credit) are NOT managed here —
+    /// each AccountDisplay self-subscribes to its GameEvents balance event.
+    /// DaySpeedDisplay and BotProgressBar likewise self-initialize.
     /// </summary>
     public class GameHUD : MonoBehaviour
     {
-        // ═══════════════════════════════════════════════════════════════
-        // REFERENCES - TOP BAR
-        // ═══════════════════════════════════════════════════════════════
-
-        [Header("Account Displays")]
-        [SerializeField] private AccountDisplay _checkingDisplay;
-        [SerializeField] private AccountDisplay _investingDisplay;
-
-        [Header("Day & Speed")]
-        [SerializeField] private DaySpeedDisplay _daySpeedDisplay;
-
-        // ═══════════════════════════════════════════════════════════════
-        // REFERENCES - BOTTOM BAR
-        // ═══════════════════════════════════════════════════════════════
-
-        [Header("Navigation Buttons")]
-        [SerializeField] private Button _portfolioButton;
-        [SerializeField] private Button _lotsButton;
-        [SerializeField] private Button _transferButton;
-        [SerializeField] private Button _restaurantButton;
-
         [Header("Financial System Tabs")]
         [Tooltip("Investing tab button (opens Portfolio panel)")]
         [SerializeField] private Button _investingTabButton;
@@ -46,21 +27,8 @@ namespace FortuneValley.UI.HUD
         [SerializeField] private Button _questionMasterButton;
 
         [Header("Dependencies")]
+        [Tooltip("HomebaseSceneManager. Required — receives TogglePanel / ShowPopup calls from tab buttons.")]
         [SerializeField] private UIManager _uiManager;
-
-        // ═══════════════════════════════════════════════════════════════
-        // LIFECYCLE
-        // ═══════════════════════════════════════════════════════════════
-
-        private void OnEnable()
-        {
-            GameEvents.OnGameStart += HandleGameStart;
-        }
-
-        private void OnDisable()
-        {
-            GameEvents.OnGameStart -= HandleGameStart;
-        }
 
         private void Start()
         {
@@ -71,26 +39,6 @@ namespace FortuneValley.UI.HUD
 
         private void SetupButtons()
         {
-            if (_portfolioButton != null)
-            {
-                _portfolioButton.onClick.AddListener(OnPortfolioClicked);
-            }
-
-            if (_lotsButton != null)
-            {
-                _lotsButton.onClick.AddListener(OnLotsClicked);
-            }
-
-            if (_transferButton != null)
-            {
-                _transferButton.onClick.AddListener(OnTransferClicked);
-            }
-
-            if (_restaurantButton != null)
-            {
-                _restaurantButton.onClick.AddListener(OnRestaurantClicked);
-            }
-
             if (_investingTabButton != null)
             {
                 _investingTabButton.onClick.AddListener(OnInvestingTabClicked);
@@ -112,54 +60,6 @@ namespace FortuneValley.UI.HUD
             }
         }
 
-        private void OnQuestionMasterClicked()
-        {
-            _uiManager.ShowPopup(PopupType.Questions);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // EVENT HANDLERS
-        // ═══════════════════════════════════════════════════════════════
-
-        private void HandleGameStart()
-        {
-            // Hide the investing display - show a single unified "Balance" label
-            if (_investingDisplay != null)
-            {
-                _investingDisplay.gameObject.SetActive(false);
-            }
-
-            if (_checkingDisplay != null)
-            {
-                _checkingDisplay.SetLabel("Balance");
-            }
-            // BotProgressBar self-initializes via GameEvents.OnCityInitialized (raised by CityManager)
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // BUTTON CALLBACKS
-        // ═══════════════════════════════════════════════════════════════
-
-        private void OnPortfolioClicked()
-        {
-            _uiManager.TogglePanel(PanelType.Portfolio);
-        }
-
-        private void OnLotsClicked()
-        {
-            _uiManager.TogglePanel(PanelType.Lots);
-        }
-
-        private void OnTransferClicked()
-        {
-            _uiManager.ShowPopup(PopupType.Transfer);
-        }
-
-        private void OnRestaurantClicked()
-        {
-            _uiManager.TogglePanel(PanelType.Restaurant);
-        }
-
         private void OnInvestingTabClicked()
         {
             _uiManager.TogglePanel(PanelType.Portfolio);
@@ -175,30 +75,9 @@ namespace FortuneValley.UI.HUD
             _uiManager.TogglePanel(PanelType.Loan);
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // PUBLIC METHODS
-        // ═══════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Initialize the HUD with current game state.
-        /// Call after CurrencyManager is initialized.
-        /// </summary>
-        public void Initialize(float checkingBalance, float investingBalance, int currentDay)
+        private void OnQuestionMasterClicked()
         {
-            if (_checkingDisplay != null)
-            {
-                _checkingDisplay.UpdateBalance(checkingBalance, 0);
-            }
-
-            if (_investingDisplay != null)
-            {
-                _investingDisplay.UpdateBalance(investingBalance, 0);
-            }
-
-            if (_daySpeedDisplay != null)
-            {
-                _daySpeedDisplay.UpdateDay(currentDay);
-            }
+            _uiManager.ShowPopup(PopupType.Questions);
         }
     }
 }

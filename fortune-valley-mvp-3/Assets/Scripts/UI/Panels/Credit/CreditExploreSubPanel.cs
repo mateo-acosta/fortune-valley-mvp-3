@@ -80,6 +80,10 @@ namespace FortuneValley.UI.Panels.Credit
 
         private readonly CreditExploreState _state = new CreditExploreState();
 
+        // Lot the player was looking at when they opened Explore from the "buy but
+        // can't afford" flow. Consumed on first Refresh so the dropdown pre-selects it.
+        private string _pendingLotId;
+
         // ===============================================================
         // LIFECYCLE
         // ===============================================================
@@ -177,11 +181,38 @@ namespace FortuneValley.UI.Panels.Credit
         // REFRESH
         // ===============================================================
 
+        /// <summary>
+        /// Called by LoanPanel when the player entered Explore from an unaffordable
+        /// lot Buy click. The next Refresh pre-selects this lot in the dropdown.
+        /// </summary>
+        public void SetPendingLotId(string lotId)
+        {
+            _pendingLotId = lotId;
+            if (isActiveAndEnabled) Refresh();
+        }
+
         protected override void Refresh()
         {
             Debug.Log($"[CreditExplore] Refresh called. cityManager null={_cityManager == null}");
             RefreshLotDropdown();
+            ApplyPendingLotSelection();
             RefreshLoansForSelectedLot();
+        }
+
+        private void ApplyPendingLotSelection()
+        {
+            if (string.IsNullOrEmpty(_pendingLotId)) return;
+            if (_lotDropdown == null) return;
+
+            for (int i = 0; i < _state.AvailableLots.Count; i++)
+            {
+                if (_state.AvailableLots[i] != null && _state.AvailableLots[i].LotId == _pendingLotId)
+                {
+                    _lotDropdown.value = i;
+                    break;
+                }
+            }
+            _pendingLotId = null;
         }
 
         private void RefreshLotDropdown()
@@ -258,7 +289,8 @@ namespace FortuneValley.UI.Panels.Credit
             float dtiRatio = CreditExploreIncomeEstimator.ComputeDtiRatio(
                 monthlyDebt, monthlyIncome);
 
-            _state.SetFilteredLoans(LoanEligibilityFilter.Evaluate(configs, creditScore, dtiRatio));
+            float lotPrice = _state.AvailableLots[lotIndex].BaseCost;
+            _state.SetFilteredLoans(LoanEligibilityFilter.Evaluate(configs, creditScore, dtiRatio, lotPrice));
 
             if (_state.FilteredLoans.Count == 0)
             {

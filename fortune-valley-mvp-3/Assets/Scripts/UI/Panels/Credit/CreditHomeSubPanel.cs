@@ -134,14 +134,14 @@ namespace FortuneValley.UI.Panels.Credit
                 if (_totalDebtText != null)
                     _totalDebtText.text = $"Total Debt: ${_loanSystem.TotalOutstandingPrincipal:N2}";
                 if (_totalMonthlyText != null)
-                    _totalMonthlyText.text = $"Monthly Payments: ${_loanSystem.TotalMonthlyDebt:N2}";
+                    _totalMonthlyText.text = $"${_loanSystem.TotalMonthlyDebt:N2}";
             }
 
             // Credit card summary (property reads only)
             if (_creditCardSystem != null)
             {
                 if (_creditScoreText != null)
-                    _creditScoreText.text = $"Credit Score: {_creditCardSystem.CreditScore}";
+                    _creditScoreText.text = $"{_creditCardSystem.CreditScore}";
                 if (_creditBalanceText != null)
                     _creditBalanceText.text = $"CC Balance: ${_creditCardSystem.CurrentBalance:N2}";
                 if (_availableCreditText != null)

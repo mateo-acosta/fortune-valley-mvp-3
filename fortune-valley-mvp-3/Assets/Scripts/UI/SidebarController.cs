@@ -44,20 +44,40 @@ namespace FortuneValley.UI
         private int _activeIndex = -1;
         private bool _initialized;
 
+        // One-shot override so callers can open the panel on a non-default tab
+        // (e.g. "buy but can't afford" routes to Explore). Cleared after use.
+        private int _pendingInitialOverride = -1;
+
+        /// <summary>
+        /// Sets the tab to show on the next initialization/open instead of the default.
+        /// Consumed once by Start() or OnEnable(), whichever fires first.
+        /// </summary>
+        public void SetInitialIndexOverride(int index)
+        {
+            _pendingInitialOverride = index;
+        }
+
         private void Start()
         {
             CacheButtonImages();
             DebugCachedRefs();
             WireButtons();
-            SwitchTo(_defaultIndex);
+            SwitchTo(ResolveStartIndex());
             _initialized = true;
         }
 
         private void OnEnable()
         {
-            // Reset to Home tab each time the panel is opened
+            // Reset to the default tab each time the panel is opened, unless an override is pending.
             if (_initialized)
-                SwitchTo(_defaultIndex);
+                SwitchTo(ResolveStartIndex());
+        }
+
+        private int ResolveStartIndex()
+        {
+            int index = _pendingInitialOverride >= 0 ? _pendingInitialOverride : _defaultIndex;
+            _pendingInitialOverride = -1;
+            return index;
         }
 
         /// <summary>

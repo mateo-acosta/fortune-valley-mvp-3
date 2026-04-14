@@ -443,6 +443,11 @@ namespace FortuneValley.Core
         public static event Action<string> OnLotInsuranceRequested;
         public static void RaiseLotInsuranceRequested(string lotId) => OnLotInsuranceRequested?.Invoke(lotId);
 
+        // UI intent: open CreditSystemPanel on Explore tab pre-selected to this lot
+        // (fired by LotInfoPopup when player clicks Buy but cannot afford).
+        public static event Action<string> OnLotLoanExploreRequested;
+        public static void RaiseLotLoanExploreRequested(string lotId) => OnLotLoanExploreRequested?.Invoke(lotId);
+
         // ═══════════════════════════════════════════════════════════════
         // QUESTIONMASTER EVENTS
         // ═══════════════════════════════════════════════════════════════
@@ -573,6 +578,7 @@ namespace FortuneValley.Core
             OnLotUpgradeRequested = null;
             OnLotTierChanged = null;
             OnLotInsuranceRequested = null;
+            OnLotLoanExploreRequested = null;
 
             // QuestionMaster
             OnQuestionStartRequested = null;

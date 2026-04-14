@@ -97,15 +97,10 @@ namespace FortuneValley.UI.HUD
 
         private void Start()
         {
-            // Set label based on account type (unless overridden)
-            if (_labelText != null && string.IsNullOrEmpty(_customLabel))
+            // Label is intentionally hidden: HUD shows balance only.
+            if (_labelText != null)
             {
-                _labelText.text = _accountType switch
-                {
-                    AccountType.Checking => "Checking",
-                    AccountType.CreditCard => "Credit Card",
-                    _ => "Investing"
-                };
+                _labelText.gameObject.SetActive(false);
             }
 
             // Hide delta initially
@@ -191,7 +186,6 @@ namespace FortuneValley.UI.HUD
         {
             _currentBalance = newBalance;
 
-            // Update balance text
             if (_balanceText != null)
             {
                 _balanceText.text = FormatCurrency(newBalance);
@@ -236,7 +230,7 @@ namespace FortuneValley.UI.HUD
             _deltaTimer = _deltaDisplayDuration;
         }
 
-        private string FormatCurrency(float amount)
+private string FormatCurrency(float amount)
         {
             if (Mathf.Abs(amount) >= 1000)
             {

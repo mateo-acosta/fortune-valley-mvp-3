@@ -34,7 +34,7 @@ namespace FortuneValley.Tests
         {
             var configs = new List<LoanConfig> { _starterLoan, _standardLoan, _premiumLoan };
 
-            var results = LoanEligibilityFilter.Evaluate(configs, 800, 0.10f);
+            var results = LoanEligibilityFilter.Evaluate(configs, 800, 0.10f, 0f);
 
             Assert.AreEqual(3, results.Count);
             Assert.IsTrue(results[0].IsEligible);
@@ -47,7 +47,7 @@ namespace FortuneValley.Tests
         {
             var configs = new List<LoanConfig> { _premiumLoan };
 
-            var results = LoanEligibilityFilter.Evaluate(configs, 700, 0.10f);
+            var results = LoanEligibilityFilter.Evaluate(configs, 700, 0.10f, 0f);
 
             Assert.AreEqual(1, results.Count);
             Assert.IsFalse(results[0].IsEligible);
@@ -59,7 +59,7 @@ namespace FortuneValley.Tests
         {
             var configs = new List<LoanConfig> { _standardLoan };
 
-            var results = LoanEligibilityFilter.Evaluate(configs, 650, 0.10f);
+            var results = LoanEligibilityFilter.Evaluate(configs, 650, 0.10f, 0f);
 
             Assert.AreEqual(1, results.Count);
             Assert.IsTrue(results[0].IsEligible);
@@ -70,7 +70,7 @@ namespace FortuneValley.Tests
         {
             var configs = new List<LoanConfig> { _premiumLoan };
 
-            var results = LoanEligibilityFilter.Evaluate(configs, 800, 0.50f);
+            var results = LoanEligibilityFilter.Evaluate(configs, 800, 0.50f, 0f);
 
             Assert.AreEqual(1, results.Count);
             Assert.IsFalse(results[0].IsEligible);
@@ -83,7 +83,7 @@ namespace FortuneValley.Tests
             var configs = new List<LoanConfig> { _starterLoan, _standardLoan, _premiumLoan };
 
             // Score 660: qualifies for Starter (550) and Standard (650), not Premium (750)
-            var results = LoanEligibilityFilter.Evaluate(configs, 660, 0.10f);
+            var results = LoanEligibilityFilter.Evaluate(configs, 660, 0.10f, 0f);
 
             Assert.AreEqual(3, results.Count);
             Assert.IsTrue(results[0].IsEligible);   // Starter
@@ -96,7 +96,7 @@ namespace FortuneValley.Tests
         {
             var configs = new List<LoanConfig> { _standardLoan };
 
-            var results = LoanEligibilityFilter.Evaluate(configs, 700, 0f);
+            var results = LoanEligibilityFilter.Evaluate(configs, 700, 0f, 0f);
 
             Assert.IsTrue(results[0].IsEligible);
         }
@@ -104,7 +104,7 @@ namespace FortuneValley.Tests
         [Test]
         public void NullConfigs_ReturnsEmptyList()
         {
-            var results = LoanEligibilityFilter.Evaluate(null, 700, 0.10f);
+            var results = LoanEligibilityFilter.Evaluate(null, 700, 0.10f, 0f);
             Assert.AreEqual(0, results.Count);
         }
 
@@ -113,7 +113,7 @@ namespace FortuneValley.Tests
         {
             var configs = new List<LoanConfig> { _starterLoan };
 
-            var results = LoanEligibilityFilter.Evaluate(configs, 700, 0.10f);
+            var results = LoanEligibilityFilter.Evaluate(configs, 700, 0.10f, 0f);
 
             Assert.IsTrue(results[0].IsEligible);
             Assert.AreEqual(string.Empty, results[0].Reason);

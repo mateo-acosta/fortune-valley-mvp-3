@@ -58,7 +58,7 @@ namespace FortuneValley.Tests
         // ===============================================================
 
         [Test]
-        public void LoanPurchaseRequested_OriginatesLoan()
+        public void LoanPurchaseRequested_OriginatesLoanWithFullPrincipal()
         {
             ActiveLoan originatedLoan = null;
             GameEvents.OnLoanOriginated += (loan) => originatedLoan = loan;
@@ -67,31 +67,33 @@ namespace FortuneValley.Tests
 
             Assert.IsNotNull(originatedLoan);
             Assert.AreEqual("lot1", originatedLoan.LotId);
-            Assert.AreEqual(8000f, originatedLoan.Principal, 0.01f); // 10000 - 20%
+            // No down payment in the POC flow: principal == full lot price.
+            Assert.AreEqual(10000f, originatedLoan.Principal, 0.01f);
         }
 
         [Test]
-        public void LoanPurchaseRequested_DeductsDownPayment()
+        public void LoanPurchaseRequested_DepositsPrincipalIntoChecking()
         {
             float balanceBefore = _currencyManager.CheckingBalance;
 
             GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 10000f);
 
-            // Down payment = 10000 * 0.20 = 2000
-            Assert.AreEqual(balanceBefore - 2000f, _currencyManager.CheckingBalance, 0.01f);
+            // Loan proceeds now land in checking so the player can subsequently buy the lot.
+            Assert.AreEqual(balanceBefore + 10000f, _currencyManager.CheckingBalance, 0.01f);
         }
 
         [Test]
-        public void LoanPurchaseRequested_InsufficientFundsForDownPayment_NoLoan()
+        public void LoanPurchaseRequested_LowCheckingBalance_StillOriginates()
         {
-            _currencyManager.SetCheckingBalance(100f); // Not enough for $2000 down
+            _currencyManager.SetCheckingBalance(0f); // No balance required -- no down payment.
 
             ActiveLoan originatedLoan = null;
             GameEvents.OnLoanOriginated += (loan) => originatedLoan = loan;
 
             GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 10000f);
 
-            Assert.IsNull(originatedLoan);
+            Assert.IsNotNull(originatedLoan);
+            Assert.AreEqual(10000f, _currencyManager.CheckingBalance, 0.01f);
         }
 
         [Test]
@@ -106,12 +108,12 @@ namespace FortuneValley.Tests
         }
 
         [Test]
-        public void LoanPurchaseRequested_DuplicateLot_RefundsDownPayment()
+        public void LoanPurchaseRequested_DuplicateLot_NoSecondDeposit()
         {
             GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 10000f);
             float balanceAfterFirst = _currencyManager.CheckingBalance;
 
-            // Second loan on same lot should be rejected and refund the down payment
+            // Second loan on same lot is rejected -- checking balance must not change again.
             GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 10000f);
 
             Assert.AreEqual(balanceAfterFirst, _currencyManager.CheckingBalance, 0.01f);

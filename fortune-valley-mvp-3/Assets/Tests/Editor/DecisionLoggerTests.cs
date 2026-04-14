@@ -239,16 +239,17 @@ namespace FortuneValley.Tests
         [Test]
         public void HandleLoanOriginated_BuildsCorrectDTO()
         {
-            var dto = BuildLoanOriginatedDTO("lot_1", 8000f, 2000f);
+            // POC flow: loan proceeds deposit into checking as an inflow. No down payment.
+            var dto = BuildLoanOriginatedDTO("lot_1", 10000f);
 
             Assert.AreEqual("loan_taken", dto.decision_type);
             Assert.AreEqual("lot_1", dto.instrument_id);
-            Assert.AreEqual(8000f, dto.gross_amount, 0.01f);
+            Assert.AreEqual(10000f, dto.gross_amount, 0.01f);
             Assert.AreEqual("transfer", dto.category);
             Assert.AreEqual(1, dto.line_items.Length);
             Assert.AreEqual("checking", dto.line_items[0].account_affected);
-            Assert.AreEqual(-2000f, dto.line_items[0].change_amount, 0.01f);
-            Assert.AreEqual("outflow", dto.line_items[0].flow_category);
+            Assert.AreEqual(10000f, dto.line_items[0].change_amount, 0.01f);
+            Assert.AreEqual("inflow", dto.line_items[0].flow_category);
         }
 
         [Test]
@@ -379,14 +380,14 @@ namespace FortuneValley.Tests
             };
         }
 
-        private static DecisionEventDTO BuildLoanOriginatedDTO(string lotId, float principal, float downPayment)
+        private static DecisionEventDTO BuildLoanOriginatedDTO(string lotId, float principal)
         {
             return new DecisionDTOBuilder(null, null)
                 .Type("loan_taken")
                 .Instrument(lotId)
                 .Amount(principal)
                 .Category("transfer")
-                .AddLineItem("checking", -downPayment, "outflow")
+                .AddLineItem("checking", principal, "inflow")
                 .Build();
         }
 
