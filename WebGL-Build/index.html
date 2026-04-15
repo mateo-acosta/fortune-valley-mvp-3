@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Fortune Valley</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #1a1a1a; color: #ccc; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    #unity-container { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    #unity-canvas { background: #231F20; width: 100%; height: 100%; display: block; }
+    #unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; }
+    #unity-progress-bar-empty { width: 280px; height: 18px; margin-top: 12px; background: #333; border-radius: 9px; overflow: hidden; }
+    #unity-progress-bar-full { width: 0%; height: 100%; background: #4caf50; transition: width 0.2s; }
+    #unity-warning { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); background: #b00; color: white; padding: 6px 12px; border-radius: 4px; display: none; }
+  </style>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="unity-loading-bar">
+      <div>Loading Fortune Valley...</div>
+      <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
+    </div>
+    <div id="unity-warning"></div>
+  </div>
+  <script>
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingBar = document.querySelector("#unity-loading-bar");
+    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+    var warningBanner = document.querySelector("#unity-warning");
+
+    function unityShowBanner(msg, type) {
+      warningBanner.style.display = "block";
+      warningBanner.style.background = type === "error" ? "#b00" : "#a60";
+      warningBanner.textContent = msg;
+    }
+
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/e3e76446a25efefd347e1395108c8283.loader.js";
+    var config = {
+      arguments: [],
+      dataUrl: buildUrl + "/55b115ed5cd412feca160ee02dc1ce2e.data.br",
+      frameworkUrl: buildUrl + "/8e17ee0b46440aa5e2b4c0983c775cc1.framework.js.br",
+      codeUrl: buildUrl + "/ebe3424e4986cdb99421542591f579f0.wasm.br",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "AloraFinance",
+      productName: "Fortune Valley",
+      productVersion: "1.0",
+      showBanner: unityShowBanner,
+    };
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (progress) {
+        progressBarFull.style.width = (100 * progress) + "%";
+      }).then(function (unityInstance) {
+        loadingBar.style.display = "none";
+      }).catch(function (message) {
+        unityShowBanner(message, "error");
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
