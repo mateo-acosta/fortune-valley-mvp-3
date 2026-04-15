@@ -7,6 +7,9 @@
 
 # Allow WebGL build files in GitHub Pages deployment
 !docs/**/[Bb]uild/
+!WebGL-Build/
+!WebGL-Build/Build/
+!WebGL-Build/Build/**
 **/[Ll]ogs/
 **/[Uu]ser[Ss]ettings/
 *.log
