@@ -73,11 +73,20 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Check if the player is signed in as a student (persistence available).
+        /// Check if the current session can persist game data to the server.
+        ///
+        /// Persistence is allowed for:
+        ///  - students (student_id in JWT, writes go to their own data)
+        ///  - teacher preview sessions (student_id is null, JWT role is
+        ///    "teacher_preview"; the Rails API flags these sessions with
+        ///    preview: true so they are excluded from classroom aggregates)
         /// </summary>
         public bool CanPersist()
         {
-            return JSBridge.IsSignedIn() && JSBridge.GetRole() == "student";
+            if (!JSBridge.IsSignedIn()) return false;
+
+            string role = JSBridge.GetRole();
+            return role == "student" || role == "teacher_preview";
         }
 
 #if UNITY_INCLUDE_TESTS
