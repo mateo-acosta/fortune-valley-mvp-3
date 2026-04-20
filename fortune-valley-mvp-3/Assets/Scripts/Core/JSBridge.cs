@@ -25,6 +25,12 @@ namespace FortuneValley.Core
 
         [DllImport("__Internal")]
         private static extern void FVBridge_LogDecision(string json);
+
+        [DllImport("__Internal")]
+        private static extern void FVBridge_StartSession(string gameMode);
+
+        [DllImport("__Internal")]
+        private static extern void FVBridge_EndSession(string sessionId);
 #endif
 
         public static string GetCsrfToken()
@@ -69,6 +75,24 @@ namespace FortuneValley.Core
             FVBridge_LogDecision(json);
 #else
             Debug.Log($"[JSBridge] LogDecision (editor): {json}");
+#endif
+        }
+
+        public static void StartSession(string gameMode)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            FVBridge_StartSession(gameMode);
+#else
+            Debug.Log($"[JSBridge] StartSession (editor): {gameMode}");
+#endif
+        }
+
+        public static void EndSession(string sessionId)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            FVBridge_EndSession(sessionId);
+#else
+            Debug.Log($"[JSBridge] EndSession (editor): {sessionId}");
 #endif
         }
     }

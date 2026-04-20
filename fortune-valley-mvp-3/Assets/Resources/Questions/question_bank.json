@@ -512,7 +512,7 @@
     },
     {
       "id": "cre_001",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "APR stands for:",
       "choices": [
         "Actual Payment Rate",
@@ -525,7 +525,7 @@
     },
     {
       "id": "cre_002",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Paying only the minimum on a credit card each month usually:",
       "choices": [
         "Pays off the balance quickly",
@@ -538,7 +538,7 @@
     },
     {
       "id": "cre_003",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Your credit score is mostly affected by:",
       "choices": [
         "How much you earn",
@@ -551,7 +551,7 @@
     },
     {
       "id": "cre_004",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Credit utilization is:",
       "choices": [
         "The percentage of your available credit you are currently using",
@@ -564,7 +564,7 @@
     },
     {
       "id": "cre_005",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Principal on a loan means:",
       "choices": [
         "The head of the bank",
@@ -577,7 +577,7 @@
     },
     {
       "id": "cre_006",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "A loan with a 5-year term vs. a 15-year term at the same APR:",
       "choices": [
         "5-year: lower monthly payment, less total interest",
@@ -590,7 +590,7 @@
     },
     {
       "id": "cre_007",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "A missed loan payment typically causes:",
       "choices": [
         "Nothing bad if it is only one",
@@ -603,7 +603,7 @@
     },
     {
       "id": "cre_008",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Secured vs. unsecured credit: secured debt is:",
       "choices": [
         "Backed by collateral the lender can take if you default",
@@ -616,7 +616,7 @@
     },
     {
       "id": "cre_009",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "A good reason to take on debt is:",
       "choices": [
         "To buy depreciating luxuries you cannot afford",
@@ -629,7 +629,7 @@
     },
     {
       "id": "cre_010",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Credit card interest is typically:",
       "choices": [
         "Lower than auto loans",
@@ -642,7 +642,7 @@
     },
     {
       "id": "cre_011",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "A down payment is:",
       "choices": [
         "The first monthly payment on a loan",
@@ -655,7 +655,7 @@
     },
     {
       "id": "cre_012",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Refinancing a loan means:",
       "choices": [
         "Taking out a new loan to replace an existing one, often at better terms",
@@ -668,7 +668,7 @@
     },
     {
       "id": "cre_013",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Defaulting on a loan means:",
       "choices": [
         "Paying it off early",
@@ -681,7 +681,7 @@
     },
     {
       "id": "cre_014",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Why does a higher credit score help you?",
       "choices": [
         "It guarantees you free loans",
@@ -694,7 +694,7 @@
     },
     {
       "id": "cre_015",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "The total cost of a loan is best understood by looking at:",
       "choices": [
         "Only the monthly payment",
@@ -707,7 +707,7 @@
     },
     {
       "id": "cre_016",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Maxing out a credit card (using nearly all of your limit) usually:",
       "choices": [
         "Improves your score by showing active use",
@@ -720,7 +720,7 @@
     },
     {
       "id": "cre_017",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "A business loan vs. a credit card for a large purchase:",
       "choices": [
         "Credit cards almost always cost less",
@@ -733,7 +733,7 @@
     },
     {
       "id": "cre_018",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "If you have $1,000 extra and a credit card debt at 20% APR, the highest-return move is usually:",
       "choices": [
         "Invest in a stock hoping for a 10% return",
@@ -746,7 +746,7 @@
     },
     {
       "id": "cre_019",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "Amortization is:",
       "choices": [
         "A formula for paying off a loan over time with equal periodic payments",
@@ -759,7 +759,7 @@
     },
     {
       "id": "cre_020",
-      "category": "Credit",
+      "category": "CreditAndLoans",
       "prompt": "You want to buy a rival-owned lot for $1,500. You have $700 in checking. The smartest first step is usually:",
       "choices": [
         "Finance the purchase with a loan you can realistically repay",

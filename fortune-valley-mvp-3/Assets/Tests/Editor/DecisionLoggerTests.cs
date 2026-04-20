@@ -100,6 +100,27 @@ namespace FortuneValley.Tests
             Assert.DoesNotThrow(() => GameEvents.RaiseLoanPaymentMade(loan, 700f));
         }
 
+        [Test]
+        public void OnEnable_SubscribesToLoanPaymentMissed()
+        {
+            var loan = new ActiveLoan("l1", "lot1", 8000f, 0.10f, 12, 700f, 2000f, 5);
+            Assert.DoesNotThrow(() => GameEvents.RaiseLoanPaymentMissed(loan));
+        }
+
+        [Test]
+        public void OnEnable_SubscribesToLoanPaidOff()
+        {
+            var loan = new ActiveLoan("l1", "lot1", 8000f, 0.10f, 12, 700f, 2000f, 5);
+            Assert.DoesNotThrow(() => GameEvents.RaiseLoanPaidOff(loan));
+        }
+
+        [Test]
+        public void OnEnable_SubscribesToQuestionAnswered()
+        {
+            var q = new QuestionData { id = "inv_001", category = "Investing", prompt = "?", choices = new[] { "a", "b", "c", "d" }, correctIndex = 1 };
+            Assert.DoesNotThrow(() => GameEvents.RaiseQuestionAnswered(q, true, 1, 1, 2));
+        }
+
         // ===============================================================
         // NULL APICLENT GUARD TESTS
         // ===============================================================
@@ -267,6 +288,83 @@ namespace FortuneValley.Tests
             Assert.AreEqual("outflow", dto.line_items[0].flow_category);
         }
 
+        [Test]
+        public void HandleLoanPaymentMissed_BuildsCorrectDTO()
+        {
+            var loan = new ActiveLoan("loan_1", "lot_1", 8000f, 0.10f, 12, 700f, 0f, 5);
+            loan.RecordMissedPayment();
+            loan.RecordMissedPayment();
+
+            var dto = BuildLoanPaymentMissedDTO(loan);
+
+            Assert.AreEqual("loan_payment_missed", dto.decision_type);
+            Assert.AreEqual("lot_1", dto.instrument_id);
+            Assert.AreEqual(700f, dto.gross_amount, 0.01f);
+            Assert.AreEqual("event", dto.category);
+            Assert.IsNull(dto.line_items, "missed payments should not create ledger line items");
+            Assert.IsNotNull(dto.metadata_json);
+            StringAssert.Contains("\"total_missed_payments\":2", dto.metadata_json);
+            StringAssert.Contains("\"loan_id\":\"loan_1\"", dto.metadata_json);
+        }
+
+        [Test]
+        public void HandleLoanPaidOff_BuildsCorrectDTO()
+        {
+            var loan = new ActiveLoan("loan_1", "lot_1", 5000f, 0.10f, 24, 230f, 0f, 5);
+            // Pay it off
+            for (int i = 0; i < 30 && !loan.IsPaidOff; i++) loan.ApplyPayment();
+
+            var dto = BuildLoanPaidOffDTO(loan);
+
+            Assert.AreEqual("loan_paid_off", dto.decision_type);
+            Assert.AreEqual("lot_1", dto.instrument_id);
+            Assert.AreEqual(0f, dto.gross_amount, 0.01f);
+            Assert.AreEqual("event", dto.category);
+            Assert.IsNotNull(dto.metadata_json);
+            StringAssert.Contains("\"original_principal\":5000", dto.metadata_json);
+            StringAssert.Contains("\"term_months\":24", dto.metadata_json);
+            StringAssert.Contains("\"months_to_payoff\":", dto.metadata_json);
+        }
+
+        [Test]
+        public void HandleQuestionAnswered_CorrectAnswer_BuildsCorrectDTO()
+        {
+            var q = new QuestionData { id = "inv_003", category = "Investing" };
+            var dto = BuildQuizAnswerDTO(q, correct: true, chosenIndex: 1, correctIndex: 1, streak: 3);
+
+            Assert.AreEqual("quiz_answer", dto.decision_type);
+            Assert.AreEqual("inv_003", dto.instrument_id);
+            Assert.AreEqual("Investing", dto.quiz_category);
+            Assert.AreEqual("event", dto.category);
+            StringAssert.Contains("\"correct\":true", dto.metadata_json);
+            StringAssert.Contains("\"streak\":3", dto.metadata_json);
+            StringAssert.Contains("\"timed_out\":false", dto.metadata_json);
+        }
+
+        [Test]
+        public void HandleQuestionAnswered_IncorrectAnswer_BuildsCorrectDTO()
+        {
+            var q = new QuestionData { id = "inv_004", category = "Investing" };
+            var dto = BuildQuizAnswerDTO(q, correct: false, chosenIndex: 2, correctIndex: 0, streak: 0);
+
+            StringAssert.Contains("\"correct\":false", dto.metadata_json);
+            StringAssert.Contains("\"streak\":0", dto.metadata_json);
+            StringAssert.Contains("\"chosen_index\":2", dto.metadata_json);
+            StringAssert.Contains("\"correct_index\":0", dto.metadata_json);
+            StringAssert.Contains("\"timed_out\":false", dto.metadata_json);
+        }
+
+        [Test]
+        public void HandleQuestionAnswered_TimedOut_EncodesTimedOutFlag()
+        {
+            var q = new QuestionData { id = "ins_001", category = "Insurance" };
+            var dto = BuildQuizAnswerDTO(q, correct: false, chosenIndex: -1, correctIndex: 2, streak: 0);
+
+            Assert.AreEqual("Insurance", dto.quiz_category);
+            StringAssert.Contains("\"timed_out\":true", dto.metadata_json);
+            StringAssert.Contains("\"chosen_index\":-1", dto.metadata_json);
+        }
+
         // ===============================================================
         // HELPERS
         // ===============================================================
@@ -399,6 +497,50 @@ namespace FortuneValley.Tests
                 .Amount(amountPaid)
                 .Category("expense")
                 .AddLineItem("checking", amountPaid, "outflow")
+                .Build();
+        }
+
+        private static DecisionEventDTO BuildLoanPaymentMissedDTO(ActiveLoan loan)
+        {
+            return new DecisionDTOBuilder(null, null)
+                .Type("loan_payment_missed")
+                .Instrument(loan.LotId)
+                .Amount(loan.MonthlyPayment)
+                .Category("event")
+                .AddMetaString("loan_id", loan.LoanId)
+                .AddMetaString("lot_id", loan.LotId)
+                .AddMetaInt("total_missed_payments", loan.MissedPayments)
+                .Build();
+        }
+
+        private static DecisionEventDTO BuildLoanPaidOffDTO(ActiveLoan loan)
+        {
+            return new DecisionDTOBuilder(null, null)
+                .Type("loan_paid_off")
+                .Instrument(loan.LotId)
+                .Amount(0f)
+                .Category("event")
+                .AddMetaString("loan_id", loan.LoanId)
+                .AddMetaString("lot_id", loan.LotId)
+                .AddMetaFloat("original_principal", loan.Principal)
+                .AddMetaInt("term_months", loan.TermMonths)
+                .AddMetaInt("months_to_payoff", loan.PaymentsMade)
+                .Build();
+        }
+
+        private static DecisionEventDTO BuildQuizAnswerDTO(QuestionData q, bool correct, int chosenIndex, int correctIndex, int streak)
+        {
+            bool timedOut = chosenIndex == -1;
+            return new DecisionDTOBuilder(null, null)
+                .Type("quiz_answer")
+                .Instrument(q.id)
+                .QuizCategory(q.category)
+                .Category("event")
+                .AddMetaBool("correct", correct)
+                .AddMetaInt("chosen_index", chosenIndex)
+                .AddMetaInt("correct_index", correctIndex)
+                .AddMetaInt("streak", streak)
+                .AddMetaBool("timed_out", timedOut)
                 .Build();
         }
 

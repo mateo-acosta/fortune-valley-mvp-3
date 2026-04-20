@@ -147,7 +147,7 @@ namespace FortuneValley.UI.Popups
             }
         }
 
-        private void HandleQuestionAnswered(bool correct, int chosenIndex, int correctIndex)
+        private void HandleQuestionAnswered(QuestionData question, bool correct, int chosenIndex, int correctIndex, int currentStreak)
         {
             // Lock all buttons; paint the chosen and correct ones.
             if (_answerButtons != null)

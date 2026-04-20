@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 using FortuneValley.Domain.Entities;
 
 namespace FortuneValley.Core
@@ -13,12 +10,26 @@ namespace FortuneValley.Core
     /// State saves are sent immediately via JS bridge (no UnityWebRequest needed
     /// since the browser JS handles the fetch).
     /// </summary>
-    public class APIClient : MonoBehaviour
+    public class APIClient : MonoBehaviour, IAPIClient
     {
         [SerializeField] private float _flushIntervalSeconds = 5f;
 
         private readonly List<string> _decisionBuffer = new List<string>();
         private float _timeSinceLastFlush;
+        private IJSBridge _bridge;
+
+        private IJSBridge Bridge
+        {
+            get
+            {
+                if (_bridge == null) _bridge = new StaticJSBridge();
+                return _bridge;
+            }
+        }
+
+        // Test hook: lets PlayMode/EditMode tests swap the bridge.
+        // Production code never sets this.
+        public void SetBridge(IJSBridge bridge) { _bridge = bridge; }
 
         private void Update()
         {
@@ -38,7 +49,7 @@ namespace FortuneValley.Core
         public void SaveState(GamePlayerStateDTO state)
         {
             string json = JsonUtility.ToJson(state);
-            JSBridge.SaveState(json);
+            Bridge.SaveState(json);
         }
 
         /// <summary>
@@ -66,7 +77,7 @@ namespace FortuneValley.Core
             // Send each buffered decision via JS bridge
             for (int i = 0; i < _decisionBuffer.Count; i++)
             {
-                JSBridge.LogDecision(_decisionBuffer[i]);
+                Bridge.LogDecision(_decisionBuffer[i]);
             }
 
             _decisionBuffer.Clear();
@@ -83,9 +94,9 @@ namespace FortuneValley.Core
         /// </summary>
         public bool CanPersist()
         {
-            if (!JSBridge.IsSignedIn()) return false;
+            if (!Bridge.IsSignedIn()) return false;
 
-            string role = JSBridge.GetRole();
+            string role = Bridge.GetRole();
             return role == "student" || role == "teacher_preview";
         }
 

@@ -43,5 +43,29 @@ mergeInto(LibraryManager.library, {
         window.FV.onUnityDecision(json);
       }
     } catch(e) {}
+  },
+
+  // Triggers window.FV.startSession(gameMode) on the Rails side.
+  // The Rails helper is responsible for POST /api/game/session/start
+  // and for SendMessage'ing the resolved session_id back to the
+  // DecisionLogger GameObject in Unity. Fire-and-forget here.
+  FVBridge_StartSession: function(gameModePtr) {
+    var gameMode = UTF8ToString(gameModePtr);
+    try {
+      if (window.FV && typeof window.FV.startSession === 'function') {
+        Promise.resolve(window.FV.startSession(gameMode)).catch(function() {});
+      }
+    } catch(e) {}
+  },
+
+  // Fire-and-forget. If sessionId is empty string, Rails falls back to
+  // its cached sessionId internally (see unity_bridge_controller.js).
+  FVBridge_EndSession: function(sessionIdPtr) {
+    var sessionId = UTF8ToString(sessionIdPtr);
+    try {
+      if (window.FV && typeof window.FV.endSession === 'function') {
+        Promise.resolve(window.FV.endSession(sessionId)).catch(function() {});
+      }
+    } catch(e) {}
   }
 });

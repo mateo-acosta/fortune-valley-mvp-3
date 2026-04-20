@@ -5,8 +5,8 @@ namespace FortuneValley.Core
 {
     /// <summary>
     /// Periodically saves game state to the server via APIClient.
-    /// Also flushes on game end and fires a save on application quit/pause (tab close).
-    /// Wiring: GameManager or GameFlowController assigns the state-building callback.
+    /// Teardown on game end and tab close is orchestrated by GameSessionController,
+    /// which calls FlushFinalSave() directly so ordering is deterministic.
     /// </summary>
     public class AutoSaveController : MonoBehaviour
     {
@@ -19,14 +19,12 @@ namespace FortuneValley.Core
         private void OnEnable()
         {
             GameEvents.OnTick += HandleTick;
-            GameEvents.OnGameEnd += HandleGameEnd;
             GameEvents.OnStateBuildFuncProvided += HandleBuildFuncProvided;
         }
 
         private void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
-            GameEvents.OnGameEnd -= HandleGameEnd;
             GameEvents.OnStateBuildFuncProvided -= HandleBuildFuncProvided;
         }
 
@@ -45,27 +43,13 @@ namespace FortuneValley.Core
             }
         }
 
-        private void HandleGameEnd(FortuneValley.Domain.Enums.Owner winner)
+        /// <summary>
+        /// Invoked by GameSessionController during teardown. Performs a final
+        /// save before decisions flush and the session closes.
+        /// </summary>
+        public void FlushFinalSave()
         {
-            // Final save + flush on game end
             PerformSave();
-            if (_apiClient != null)
-            {
-                _apiClient.FlushDecisions();
-            }
-        }
-
-        private void OnApplicationPause(bool pauseStatus)
-        {
-            // On WebGL, this fires when the tab loses focus
-            if (pauseStatus)
-            {
-                PerformSave();
-                if (_apiClient != null)
-                {
-                    _apiClient.FlushDecisions();
-                }
-            }
         }
 
         private void PerformSave()

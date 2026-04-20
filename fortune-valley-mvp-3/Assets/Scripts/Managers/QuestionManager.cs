@@ -138,10 +138,14 @@ namespace FortuneValley.Managers
 
         private void ResolveAnswer(int chosenIndex)
         {
-            int correctIndex = _session.Current != null ? _session.Current.correctIndex : -1;
+            // Snapshot current before Submit advances state.
+            var question = _session.Current;
+            int correctIndex = question != null ? question.correctIndex : -1;
             bool correct = _session.Submit(chosenIndex);
+            // Streak is post-Submit: session increments on correct, resets to 0 otherwise.
+            int streak = _session.Streak;
 
-            GameEvents.RaiseQuestionAnswered(correct, chosenIndex, correctIndex);
+            GameEvents.RaiseQuestionAnswered(question, correct, chosenIndex, correctIndex, streak);
 
             if (correct)
             {

@@ -95,11 +95,23 @@ namespace FortuneValley.Tests
 
         [TestCase("investing")]
         [TestCase("INSURANCE")]
-        [TestCase("Credit")]
+        [TestCase("CreditAndLoans")]
+        [TestCase("creditandloans")]
+        [TestCase("Taxes")]
+        [TestCase("Budgeting")]
         public void CategoryCasing_Permissive(string category)
         {
             var q = Valid(); q.category = category;
             Assert.IsTrue(QuestionBankLoader.IsValid(q, out _));
+        }
+
+        [Test]
+        public void LegacyCreditCategory_Rejected_AfterRetagToCreditAndLoans()
+        {
+            var q = Valid(); q.category = "Credit";
+            Assert.IsFalse(QuestionBankLoader.IsValid(q, out string reason),
+                "'Credit' was renamed to 'CreditAndLoans'; bank should be retagged");
+            StringAssert.Contains("category", reason.ToLower());
         }
     }
 }

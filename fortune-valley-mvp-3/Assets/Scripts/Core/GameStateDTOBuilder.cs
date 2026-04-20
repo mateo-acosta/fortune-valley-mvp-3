@@ -50,7 +50,8 @@ namespace FortuneValley.Core
                 investment_balance = _currencyManager != null ? _currencyManager.InvestingBalance : 0f,
                 credit_balance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f,
                 credit_score = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0,
-                restaurant_level = _restaurantSystem != null ? _restaurantSystem.CurrentLevel : 1
+                restaurant_level = _restaurantSystem != null ? _restaurantSystem.CurrentLevel : 1,
+                monthly_income = ComputeMonthlyIncome()
             };
 
             BuildLotOwnership(dto);
@@ -58,6 +59,17 @@ namespace FortuneValley.Core
             BuildInsurancePolicies(dto);
 
             return dto;
+        }
+
+        // Same formula as MonthlyPaymentDayController so dashboard DTI/liquidity
+        // ratios line up with what the student sees on their payment day popup.
+        private float ComputeMonthlyIncome()
+        {
+            if (_restaurantSystem == null || _timeManager == null || _creditCardSystem == null) return 0f;
+            return DtiCalculator.ComputeMonthlyIncome(
+                _restaurantSystem.TotalIncomePerTick,
+                _timeManager.TicksPerDay,
+                _creditCardSystem.BillingCycleDays);
         }
 
         private void BuildLotOwnership(GamePlayerStateDTO dto)

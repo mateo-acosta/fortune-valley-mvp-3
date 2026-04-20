@@ -471,10 +471,13 @@ namespace FortuneValley.Core
         public static event Action<float, float> OnQuestionTimerTick;
         public static void RaiseQuestionTimerTick(float remaining, float total) => OnQuestionTimerTick?.Invoke(remaining, total);
 
-        // correct, chosenIndex (-1 on timeout), correctIndex
-        public static event Action<bool, int, int> OnQuestionAnswered;
-        public static void RaiseQuestionAnswered(bool correct, int chosenIndex, int correctIndex)
-            => OnQuestionAnswered?.Invoke(correct, chosenIndex, correctIndex);
+        // question, correct, chosenIndex (-1 on timeout), correctIndex, currentStreak
+        // Streak reflects the session-level correct-answer count AFTER this submission
+        // resolves (0 if this answer was wrong or timed out; n if this answer continued
+        // a streak of length n).
+        public static event Action<QuestionData, bool, int, int, int> OnQuestionAnswered;
+        public static void RaiseQuestionAnswered(QuestionData question, bool correct, int chosenIndex, int correctIndex, int currentStreak)
+            => OnQuestionAnswered?.Invoke(question, correct, chosenIndex, correctIndex, currentStreak);
 
         // amount, newStreak
         public static event Action<int, int> OnQuestionRewardGranted;

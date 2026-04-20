@@ -129,5 +129,67 @@ namespace FortuneValley.Tests
             Assert.AreEqual(1, dto.line_items.Length);
             Assert.AreEqual(-2000f, dto.line_items[0].change_amount);
         }
+
+        [Test]
+        public void Build_AlwaysSetsClientTimestampMs()
+        {
+            long beforeMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - 1;
+            var dto = new DecisionDTOBuilder(TestSessionId, TestGameMode)
+                .Type("loan_taken")
+                .Build();
+            long afterMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 1;
+
+            Assert.GreaterOrEqual(dto.client_timestamp_ms, beforeMs);
+            Assert.LessOrEqual(dto.client_timestamp_ms, afterMs);
+        }
+
+        [Test]
+        public void Build_WithNoMetadata_ReturnsNullJson()
+        {
+            var dto = new DecisionDTOBuilder(TestSessionId, TestGameMode)
+                .Type("franchise_upgrade")
+                .Build();
+
+            Assert.IsNull(dto.metadata_json);
+        }
+
+        [Test]
+        public void AddMetaString_EscapesQuotesAndBackslashes()
+        {
+            var dto = new DecisionDTOBuilder(TestSessionId, TestGameMode)
+                .Type("quiz_answer")
+                .AddMetaString("note", "he said \"hi\" \\ then left")
+                .Build();
+
+            Assert.IsNotNull(dto.metadata_json);
+            StringAssert.Contains("\\\"hi\\\"", dto.metadata_json);
+            StringAssert.Contains("\\\\", dto.metadata_json);
+        }
+
+        [Test]
+        public void AddMetaInt_AddMetaBool_AddMetaFloat_SerializeUnquoted()
+        {
+            var dto = new DecisionDTOBuilder(TestSessionId, TestGameMode)
+                .Type("quiz_answer")
+                .AddMetaBool("correct", true)
+                .AddMetaInt("streak", 3)
+                .AddMetaFloat("weight", 2.5f)
+                .Build();
+
+            StringAssert.Contains("\"correct\":true", dto.metadata_json);
+            StringAssert.Contains("\"streak\":3", dto.metadata_json);
+            StringAssert.Contains("\"weight\":2.5", dto.metadata_json);
+        }
+
+        [Test]
+        public void QuizCategory_SetsTopLevelField()
+        {
+            var dto = new DecisionDTOBuilder(TestSessionId, TestGameMode)
+                .Type("quiz_answer")
+                .QuizCategory("Investing")
+                .Build();
+
+            Assert.AreEqual("Investing", dto.quiz_category);
+        }
     }
 }

@@ -48,6 +48,9 @@ namespace FortuneValley.Core
             GameEvents.OnAccidentResolved += HandleAccidentResolved;
             GameEvents.OnLoanOriginated += HandleLoanOriginated;
             GameEvents.OnLoanPaymentMade += HandleLoanPaymentMade;
+            GameEvents.OnLoanPaymentMissed += HandleLoanPaymentMissed;
+            GameEvents.OnLoanPaidOff += HandleLoanPaidOff;
+            GameEvents.OnQuestionAnswered += HandleQuestionAnswered;
 
             // Balance tracking for running_balance in line items
             GameEvents.OnCheckingBalanceChanged += HandleCheckingBalanceChanged;
@@ -66,6 +69,9 @@ namespace FortuneValley.Core
             GameEvents.OnAccidentResolved -= HandleAccidentResolved;
             GameEvents.OnLoanOriginated -= HandleLoanOriginated;
             GameEvents.OnLoanPaymentMade -= HandleLoanPaymentMade;
+            GameEvents.OnLoanPaymentMissed -= HandleLoanPaymentMissed;
+            GameEvents.OnLoanPaidOff -= HandleLoanPaidOff;
+            GameEvents.OnQuestionAnswered -= HandleQuestionAnswered;
 
             GameEvents.OnCheckingBalanceChanged -= HandleCheckingBalanceChanged;
             GameEvents.OnInvestingBalanceChanged -= HandleInvestingBalanceChanged;
@@ -210,6 +216,61 @@ namespace FortuneValley.Core
                 .Amount(amountPaid)
                 .Category("expense")
                 .AddLineItem("checking", amountPaid, "outflow", _cachedCheckingBalance)
+                .Build());
+        }
+
+        private void HandleLoanPaymentMissed(ActiveLoan loan)
+        {
+            if (!CanLog()) return;
+
+            // No money moved (insufficient funds) so no line items. Amount records
+            // the scheduled payment so teachers can see what the student was short on.
+            TryLog(NewBuilder()
+                .Type("loan_payment_missed")
+                .Instrument(loan.LotId)
+                .Amount(loan.MonthlyPayment)
+                .Category("event")
+                .AddMetaString("loan_id", loan.LoanId)
+                .AddMetaString("lot_id", loan.LotId)
+                .AddMetaInt("total_missed_payments", loan.MissedPayments)
+                .Build());
+        }
+
+        private void HandleLoanPaidOff(ActiveLoan loan)
+        {
+            if (!CanLog()) return;
+
+            TryLog(NewBuilder()
+                .Type("loan_paid_off")
+                .Instrument(loan.LotId)
+                .Amount(0f)
+                .Category("event")
+                .AddMetaString("loan_id", loan.LoanId)
+                .AddMetaString("lot_id", loan.LotId)
+                .AddMetaFloat("original_principal", loan.Principal)
+                .AddMetaInt("term_months", loan.TermMonths)
+                .AddMetaInt("months_to_payoff", loan.PaymentsMade)
+                .Build());
+        }
+
+        private void HandleQuestionAnswered(QuestionData question, bool correct, int chosenIndex, int correctIndex, int currentStreak)
+        {
+            if (!CanLog()) return;
+            if (question == null) return;
+
+            // Timeout is encoded as chosenIndex == -1 per QuestionManager.ResolveAnswer.
+            bool timedOut = chosenIndex == -1;
+
+            TryLog(NewBuilder()
+                .Type("quiz_answer")
+                .Instrument(question.id)
+                .QuizCategory(question.category)
+                .Category("event")
+                .AddMetaBool("correct", correct)
+                .AddMetaInt("chosen_index", chosenIndex)
+                .AddMetaInt("correct_index", correctIndex)
+                .AddMetaInt("streak", currentStreak)
+                .AddMetaBool("timed_out", timedOut)
                 .Build());
         }
 

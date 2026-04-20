@@ -18,6 +18,7 @@ namespace FortuneValley.Domain.Entities
         public int credit_score;
         public int budget_variance_streak;
         public float tax_liability_ytd;
+        public float monthly_income;
 
         // JSONB columns (serialized as arrays/objects)
         public string[] lots_owned;
