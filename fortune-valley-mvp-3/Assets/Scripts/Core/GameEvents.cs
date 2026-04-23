@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using FortuneValley.Domain.Enums;
 using FortuneValley.Domain.Entities;
+using FortuneValley.Domain.Tutorial;
 
 namespace FortuneValley.Core
 {
@@ -286,12 +287,22 @@ namespace FortuneValley.Core
         /// </summary>
         public static event Action OnReturnToTitleRequested;
 
+        /// <summary>
+        /// Fired by BootFlowRouter once it has computed which path a player
+        /// should take after clicking Start. GameFlowController subscribes
+        /// and routes: FirstTimeTutorial runs the tutorial controller,
+        /// NormalCarousel shows the existing rules carousel, SkipTutorial
+        /// goes directly to countdown (teacher preview path).
+        /// </summary>
+        public static event Action<BootFlow> OnBootFlowDecided;
+
         // ═══════════════════════════════════════════════════════════════
         // EVENT INVOKERS (called by systems to fire events)
         // ═══════════════════════════════════════════════════════════════
 
         public static void RaiseTick(int tickNumber) => OnTick?.Invoke(tickNumber);
         public static void RaiseGameSpeedChanged(float speed) => OnGameSpeedChanged?.Invoke(speed);
+        public static void RaiseBootFlowDecided(BootFlow flow) => OnBootFlowDecided?.Invoke(flow);
         public static void RaiseCurrencyChanged(float newBalance, float delta) => OnCurrencyChanged?.Invoke(newBalance, delta);
         public static void RaiseCheckingBalanceChanged(float balance, float delta) => OnCheckingBalanceChanged?.Invoke(balance, delta);
         public static void RaiseInvestingBalanceChanged(float balance, float delta) => OnInvestingBalanceChanged?.Invoke(balance, delta);
@@ -558,6 +569,7 @@ namespace FortuneValley.Core
             OnCountdownComplete = null;
             OnRestartRequested = null;
             OnReturnToTitleRequested = null;
+            OnBootFlowDecided = null;
 
             // Intent events
             OnPurchaseLotRequested = null;
