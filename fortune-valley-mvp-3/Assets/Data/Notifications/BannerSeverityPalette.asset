@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2c255e0ab2894225960d6ab0a03ab53, type: 3}
+  m_Name: BannerSeverityPalette
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Notifications.BannerSeverityPalette
+  _entries:
+  - severity: 0
+    color: {r: 0.33397114, g: 0.52503777, b: 0.8962264, a: 1}
+    defaultIcon: {fileID: 21300000, guid: 7abe12c60ed9d422d8c6e51df67b5306, type: 3}
+    durationSeconds: 1
+  - severity: 1
+    color: {r: 0.3951584, g: 0.754717, b: 0.41780648, a: 1}
+    defaultIcon: {fileID: 21300000, guid: 2c77416988eee405f83c60d6d54830cb, type: 3}
+    durationSeconds: 1
+  - severity: 2
+    color: {r: 0.9433962, g: 0.90279084, b: 0.4138483, a: 1}
+    defaultIcon: {fileID: 21300000, guid: 99fd16f75706e44a19531ba5b55f4f58, type: 3}
+    durationSeconds: 1
+  - severity: 3
+    color: {r: 0.9528302, g: 0.63397247, b: 0.36405307, a: 1}
+    defaultIcon: {fileID: 21300000, guid: aa5a7bca8bcaf437f9b920981b31c39f, type: 3}
+    durationSeconds: 1
+  - severity: 4
+    color: {r: 0.9716981, g: 0.27959237, b: 0.3001329, a: 1}
+    defaultIcon: {fileID: 21300000, guid: 62d839ef56db74d20a4be53497637a45, type: 3}
+    durationSeconds: 1

@@ -5169,6 +5169,50 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &86798594
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 86798595}
+  m_Layer: 0
+  m_Name: TutorialSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &86798595
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86798594}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 208.40515, y: 315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1148053958}
+  - {fileID: 741468548}
+  - {fileID: 1631437522}
+  - {fileID: 1884720211}
+  - {fileID: 974341865}
+  - {fileID: 1307738801}
+  - {fileID: 1121383289}
+  - {fileID: 446300843}
+  - {fileID: 780870574}
+  - {fileID: 1113808618}
+  - {fileID: 1777056216}
+  - {fileID: 887059679}
+  - {fileID: 477635121}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &90295538
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10601,6 +10645,42 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f2b2a511f1b2f4b919b623ce07a0f6b8, type: 3}
   m_PrefabInstance: {fileID: 215474838}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &215809230
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 215809231}
+  m_Layer: 0
+  m_Name: TutorialUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &215809231
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 215809230}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1904436049}
+  m_Father: {fileID: 256036796}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 2700, y: 1440}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &222148320
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11903,6 +11983,7 @@ RectTransform:
   - {fileID: 1618389488}
   - {fileID: 2075326520942053918}
   - {fileID: 1558755895}
+  - {fileID: 215809231}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -23051,6 +23132,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 445105333}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &446300842
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 446300843}
+  - component: {fileID: 446300844}
+  m_Layer: 0
+  m_Name: InsuranceGuidanceDispatcher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &446300843
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446300842}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &446300844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446300842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 271e2cd46132c4388b0cb266cf0c82c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Notifications.Dispatchers.InsuranceGuidanceDispatcher
+  _controller: {fileID: 1631437521}
+  _accidentOccurredTip: {fileID: 11400000, guid: cb4f750cb2e5b48c08bd84ba6daa62dc, type: 2}
+  _accidentResolvedTip: {fileID: 11400000, guid: 1588f3664268e464185db6b21d09503c, type: 2}
 --- !u!224 &446784366 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1845049988654058429, guid: 9ec97f09ff86d40c9917bac322da11c2, type: 3}
@@ -24402,6 +24530,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 476726122}
   m_CullTransparentMesh: 1
+--- !u!1 &477635120
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 477635121}
+  - component: {fileID: 477635122}
+  m_Layer: 0
+  m_Name: SceneBootTutorialTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &477635121
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 477635120}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &477635122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 477635120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7793af2dcad25432e95e1806ee2efb4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Tutorial.SceneBootTutorialTrigger
+  _stateAccessor: {fileID: 741468547}
+  _apiClient: {fileID: 2029218237}
+  _startupDelaySeconds: 1
 --- !u!1 &477789357
 GameObject:
   m_ObjectHideFlags: 0
@@ -30390,6 +30565,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!1 &598952319 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8264170300342067559, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &598952321 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7987953128723748304, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 598952319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &600045150
 GameObject:
   m_ObjectHideFlags: 0
@@ -36724,6 +36915,50 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0bad22992fd1449a3bfdccd5954343c7, type: 3}
   m_PrefabInstance: {fileID: 739368666}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &741468546
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 741468548}
+  - component: {fileID: 741468547}
+  m_Layer: 0
+  m_Name: PlayerStateAccessor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &741468547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741468546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f14e768a2fb964c899cffacbaa3d7547, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Tutorial.PlayerStateAccessor
+--- !u!4 &741468548
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741468546}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &742968415
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38195,6 +38430,52 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 780637173}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &780870573
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 780870574}
+  - component: {fileID: 780870575}
+  m_Layer: 0
+  m_Name: MonthlyCycleAggregator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &780870574
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 780870573}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &780870575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 780870573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06d97a5a12cfa442688fbf15c87aef3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Notifications.Dispatchers.MonthlyCycleAggregator
+  _controller: {fileID: 1631437521}
+  _monthlySummaryTip: {fileID: 11400000, guid: ddf2ca9850419449c9d4df5a625b50ae, type: 2}
 --- !u!1001 &782755751
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43204,6 +43485,17 @@ Transform:
   - {fileID: 648873227}
   m_Father: {fileID: 1560656860}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &877208226 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 551484566309084505, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &878168948
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43488,6 +43780,52 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e4d1ebd84262741b1b70f045259c8d6a, type: 3}
   m_PrefabInstance: {fileID: 886426251}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &887059678
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 887059679}
+  - component: {fileID: 887059680}
+  m_Layer: 0
+  m_Name: ReplayTutorialService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &887059679
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 887059678}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &887059680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 887059678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b35d0357a90af447a85b41c09b89c7ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Tutorial.ReplayTutorialService
+  _apiClient: {fileID: 2029218237}
+  _playerStateAccessor: {fileID: 741468547}
 --- !u!1001 &887367246
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -47368,6 +47706,53 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 827681837694975460, guid: 3425f67d779414ac3941d1c03034b9d5, type: 3}
   m_PrefabInstance: {fileID: 974120950}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &974341864
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 974341865}
+  - component: {fileID: 974341866}
+  m_Layer: 0
+  m_Name: LotGuidanceDispatcher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &974341865
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974341864}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &974341866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974341864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da27215e99554eae8d90321a3074140, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Notifications.Dispatchers.LotGuidanceDispatcher
+  _controller: {fileID: 1631437521}
+  _lotPurchasedTip: {fileID: 11400000, guid: 460ff839c4dab45659d94e69cc4cdbd1, type: 2}
+  _restaurantUpgradedTip: {fileID: 11400000, guid: 477cb63ed919241ed81f93d730531a3c, type: 2}
 --- !u!1001 &976909700
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -55393,6 +55778,68 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0bad22992fd1449a3bfdccd5954343c7, type: 3}
   m_PrefabInstance: {fileID: 1113784681}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1113808615
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1113808618}
+  - component: {fileID: 1113808616}
+  - component: {fileID: 1113808617}
+  m_Layer: 0
+  m_Name: TutorialTargetRegistry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1113808616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113808615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95a5d33bfd773471ba77bd2c1f84d573, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Tutorial.TutorialTargetRegistry
+  _staticEntries: []
+  _resolverBehaviours:
+  - {fileID: 1113808616}
+--- !u!114 &1113808617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113808615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 683436f53c6ea44e99a277aed2385d7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Tutorial.LotTutorialTargetResolver
+  _cityManager: {fileID: 2029218248}
+  _lotVisuals: []
+--- !u!4 &1113808618
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113808615}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1115020520
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -55586,6 +56033,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!1 &1121383288
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1121383289}
+  - component: {fileID: 1121383290}
+  m_Layer: 0
+  m_Name: CreditGuidanceDispatcher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1121383289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121383288}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1121383290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121383288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d7fa10690a049559e91da4238df3a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Notifications.Dispatchers.CreditGuidanceDispatcher
+  _controller: {fileID: 1631437521}
+  _creditScoreChangedTip: {fileID: 11400000, guid: 241ac0336146a41418fb500b0498be6a, type: 2}
+  _creditCardStatementTip: {fileID: 11400000, guid: f5cb96422458040ef8cb1c35c4a9302c, type: 2}
 --- !u!1001 &1123687551
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -56453,6 +56947,50 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1148053956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1148053958}
+  - component: {fileID: 1148053957}
+  m_Layer: 0
+  m_Name: GameEventBus
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1148053957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148053956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed82c062649394fa1a19f4d98ceefff8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.GameEventBusBehaviour
+--- !u!4 &1148053958
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148053956}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1148294809
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -63782,6 +64320,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!1 &1307738800
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1307738801}
+  - component: {fileID: 1307738802}
+  m_Layer: 0
+  m_Name: RivalGuidanceDispatcher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1307738801
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307738800}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1307738802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307738800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e78b070ce3e32410685dece5309526d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Notifications.Dispatchers.RivalGuidanceDispatcher
+  _controller: {fileID: 1631437521}
+  _rivalTargetingTip: {fileID: 11400000, guid: d55b7c5855e9c4c3f8a1bf3aaeda13ac, type: 2}
 --- !u!1 &1308497728
 GameObject:
   m_ObjectHideFlags: 0
@@ -78537,6 +79121,51 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f9cd467ae46254ac989bb63b1567789d, type: 3}
   m_PrefabInstance: {fileID: 1630806105}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1631437520
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1631437522}
+  - component: {fileID: 1631437521}
+  m_Layer: 0
+  m_Name: GuidanceController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1631437521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631437520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fb1a2edb73d343b192936735dda9080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Notifications.GuidanceController
+  _busBehaviour: {fileID: 1148053957}
+--- !u!4 &1631437522
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631437520}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1632239434
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -84268,6 +84897,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1751257869}
   m_CullTransparentMesh: 1
+--- !u!114 &1751700991 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 202023563147906285, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1752415918
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -85506,6 +86146,56 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 1776192418}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1777056215
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1777056216}
+  - component: {fileID: 1777056217}
+  m_Layer: 0
+  m_Name: IntroTutorialController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1777056216
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777056215}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1777056217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777056215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81fac6be70d214371b2269e772c173c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Tutorial.IntroTutorialController
+  _timeManager: {fileID: 2029218250}
+  _guidanceController: {fileID: 1631437521}
+  _targetRegistry: {fileID: 1113808616}
+  _script: {fileID: 11400000, guid: c4bb054fc0b3b4169879466ed50a0767, type: 2}
+  _playerStateAccessor: {fileID: 741468547}
+  _apiClient: {fileID: 2029218237}
 --- !u!1 &1779316121
 GameObject:
   m_ObjectHideFlags: 0
@@ -86197,6 +86887,66 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 65a4d036da98844fea1cef419dd55e12, type: 3}
   m_PrefabInstance: {fileID: 1789123356}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1790372112 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8063138287463009716, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1790372114 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6541521097083635406, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790372112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1790372116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790372112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1790372114}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1790765936
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -86579,6 +87329,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1798987390}
   m_CullTransparentMesh: 1
+--- !u!1 &1800938875 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6795650147257315275, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1801499883
 GameObject:
   m_ObjectHideFlags: 0
@@ -87786,6 +88541,86 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 1823047347}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1823086279
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1823086280}
+  - component: {fileID: 1823086281}
+  - component: {fileID: 1823086282}
+  m_Layer: 0
+  m_Name: Notifications
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1823086280
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823086279}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2075326520942053918}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 25, y: 75}
+  m_SizeDelta: {x: 450, y: 300}
+  m_Pivot: {x: 0, y: 0.5}
+--- !u!114 &1823086281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823086279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 15
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
+--- !u!114 &1823086282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1823086279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b37f60581dc4c1ea1007533fcdb939, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Notifications.BannerStackUI
+  _busBehaviour: {fileID: 1148053957}
+  _palette: {fileID: 11400000, guid: 568a56a9969664e69996fe1d4f92427f, type: 2}
+  _bannerPrefab: {fileID: 3362899670093882242, guid: 2a736b207ff8543faad2e5a02a363111, type: 3}
+  _bannerParent: {fileID: 1823086280}
+  _slotPositions: []
 --- !u!1001 &1827617719
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -89999,6 +90834,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1880691491}
   m_CullTransparentMesh: 0
+--- !u!1 &1884720210
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1884720211}
+  - component: {fileID: 1884720212}
+  m_Layer: 0
+  m_Name: LoanGuidanceDispatcher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1884720211
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884720210}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -208.40515, y: -315.77478, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 86798595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1884720212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884720210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7f63731f9564055811b66eae387a8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Notifications.Dispatchers.LoanGuidanceDispatcher
+  _controller: {fileID: 1631437521}
+  _loanTakenTip: {fileID: 11400000, guid: 87d088db0af514bd3886316806cae179, type: 2}
+  _loanHeldWithoutLotTip: {fileID: 11400000, guid: b52c8f0e28a774581b4f7082f3c57e5e, type: 2}
+  _heldThresholdTicks: 5
 --- !u!1001 &1885643886
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -91251,6 +92134,50 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d8836c171cf8142f8abfc302ee3c40ff, type: 3}
   m_PrefabInstance: {fileID: 1903035240}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1904436048 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6766197391499400843, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1904436049 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+  m_PrefabInstance: {fileID: 7231783922015829064}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1904436050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904436048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcf7342338d7840df95445e8e6357752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Tutorial.TutorialOverlayUI
+  _root: {fileID: 1904436048}
+  _canvasGroup: {fileID: 1904436051}
+  _portraitImage: {fileID: 877208226}
+  _poseSprites: []
+  _dialogText: {fileID: 1751700991}
+  _advanceTapArea: {fileID: 1790372116}
+  _tapIndicator: {fileID: 1800938875}
+  _charsPerSecond: 30
+  _skipButtonRoot: {fileID: 598952319}
+  _skipButton: {fileID: 598952321}
+--- !u!225 &1904436051
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904436048}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1906572359
 GameObject:
   m_ObjectHideFlags: 0
@@ -105946,6 +106873,7 @@ RectTransform:
   - {fileID: 2075326520855092685}
   - {fileID: 2113572267}
   - {fileID: 2075326520270461313}
+  - {fileID: 1823086280}
   m_Father: {fileID: 256036796}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
@@ -108176,6 +109104,136 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1001 &7231783922015829064
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 215809231}
+    m_Modifications:
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6766197391499400843, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_Name
+      value: Scene1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9054731464049815244, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6766197391499400843, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1904436051}
+    - targetCorrespondingSourceObject: {fileID: 6766197391499400843, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1904436050}
+    - targetCorrespondingSourceObject: {fileID: 8063138287463009716, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1790372116}
+  m_SourcePrefab: {fileID: 100100000, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
 --- !u!224 &8220482118835219605
 RectTransform:
   m_ObjectHideFlags: 0
@@ -108508,3 +109566,4 @@ SceneRoots:
   - {fileID: 1152439417}
   - {fileID: 256036796}
   - {fileID: 648706025}
+  - {fileID: 86798595}

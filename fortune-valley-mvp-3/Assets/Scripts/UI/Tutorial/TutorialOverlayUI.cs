@@ -49,7 +49,7 @@ namespace FortuneValley.UI.Tutorial
         private float _revealedChars;
         private bool _revealComplete;
 
-        public bool IsShowing => _root != null && _root.activeSelf;
+        public bool IsShowing => _canvasGroup != null && _canvasGroup.alpha > 0f;
         public bool IsTypewriterComplete => _revealComplete;
 
         private void Awake()
@@ -107,14 +107,26 @@ namespace FortuneValley.UI.Tutorial
 
         public void Show()
         {
-            if (_root != null) _root.SetActive(true);
-            if (_canvasGroup != null) _canvasGroup.alpha = 1f;
+            // Use CanvasGroup (not SetActive) so subscriptions in OnEnable
+            // stay alive when the overlay is hidden. A SetActive-hidden
+            // overlay would stop listening for OnTutorialOverlayVisibilityChanged
+            // and could never be re-shown via the event.
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = 1f;
+                _canvasGroup.blocksRaycasts = true;
+                _canvasGroup.interactable = true;
+            }
         }
 
         public void Hide()
         {
-            if (_root != null) _root.SetActive(false);
-            if (_canvasGroup != null) _canvasGroup.alpha = 0f;
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = 0f;
+                _canvasGroup.blocksRaycasts = false;
+                _canvasGroup.interactable = false;
+            }
             if (_tapIndicator != null) _tapIndicator.SetActive(false);
             HideSkipButton();
         }
