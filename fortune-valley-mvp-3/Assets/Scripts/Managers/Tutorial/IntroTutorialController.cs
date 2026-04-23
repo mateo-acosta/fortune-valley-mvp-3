@@ -5,6 +5,10 @@ using FortuneValley.Domain.Enums;
 using FortuneValley.Domain.Tutorial;
 using FortuneValley.Managers.Notifications;
 
+// NOTE: PlayerPrefs is used as a local fallback flag so a brief network
+// outage on completion does not cause the tutorial to re-run on reload.
+// The Rails API retry queue on APIClient eventually persists the flag.
+
 namespace FortuneValley.Managers.Tutorial
 {
     /// <summary>
@@ -30,16 +34,24 @@ namespace FortuneValley.Managers.Tutorial
     /// </summary>
     public class IntroTutorialController : MonoBehaviour
     {
+        public const string PlayerPrefsKeyPrefix = "FV_TutorialCompleted_";
+
         [SerializeField] private TimeManager _timeManager;
         [SerializeField] private GuidanceController _guidanceController;
         [SerializeField] private TutorialTargetRegistry _targetRegistry;
         [SerializeField] private IntroScriptSO _script;
+        [SerializeField] private PlayerStateAccessor _playerStateAccessor;
+        [SerializeField] private APIClient _apiClient;
 
+        private IKeyValueStore _keyValueStore;
         private TutorialSequenceMachine _machine;
         private TutorialStepKind _activeWaitKind = TutorialStepKind.Dialog;
         private bool _awaitingAdvanceTap;
         private bool _isActive;
         private bool _skipRevealed;
+        private bool _lastEndWasSkip;
+
+        public bool LastEndWasSkip => _lastEndWasSkip;
 
         public bool IsActive => _isActive;
         public int CurrentStepIndex => _machine != null ? _machine.CurrentIndex : -1;
@@ -72,12 +84,18 @@ namespace FortuneValley.Managers.Tutorial
             TimeManager timeManager,
             GuidanceController guidanceController,
             TutorialTargetRegistry targetRegistry,
-            IntroScriptSO script)
+            IntroScriptSO script,
+            PlayerStateAccessor playerStateAccessor = null,
+            APIClient apiClient = null,
+            IKeyValueStore keyValueStore = null)
         {
             _timeManager = timeManager;
             _guidanceController = guidanceController;
             _targetRegistry = targetRegistry;
             _script = script;
+            _playerStateAccessor = playerStateAccessor;
+            _apiClient = apiClient;
+            _keyValueStore = keyValueStore;
             _machine = new TutorialSequenceMachine(script);
         }
 
@@ -92,6 +110,7 @@ namespace FortuneValley.Managers.Tutorial
 
             _isActive = true;
             _skipRevealed = false;
+            _lastEndWasSkip = false;
 
             if (_timeManager != null) _timeManager.AcquirePause();
             if (_guidanceController != null) _guidanceController.SetSuppressed(true);
@@ -125,6 +144,7 @@ namespace FortuneValley.Managers.Tutorial
             if (!_skipRevealed) return;
             if (_machine == null) return;
 
+            _lastEndWasSkip = true;
             _machine.JumpToEnd();
             EndTutorial();
         }
@@ -193,6 +213,8 @@ namespace FortuneValley.Managers.Tutorial
         {
             ExitCurrentStep();
 
+            PersistCompletionFlag();
+
             GameEvents.RaiseTutorialInputBlockChanged(false);
             GameEvents.RaiseTutorialOverlayVisibilityChanged(false);
 
@@ -202,6 +224,34 @@ namespace FortuneValley.Managers.Tutorial
             _isActive = false;
             GameEvents.RaiseTutorialComplete();
         }
+
+        /// <summary>
+        /// Writes the tutorial_completed flag to PlayerPrefs first (so a
+        /// network failure on SaveState does not cause the tutorial to
+        /// re-run on reload), mutates the cached player state, and then
+        /// calls APIClient.SaveState. Any of the three steps is optional:
+        /// missing PlayerStateAccessor / APIClient / KV store skips that
+        /// half of persistence without blocking the others.
+        /// </summary>
+        private void PersistCompletionFlag()
+        {
+            string gameMode = "homebase";
+            GamePlayerStateDTO state = _playerStateAccessor != null ? _playerStateAccessor.Current : null;
+            if (state != null)
+            {
+                state.tutorial_completed = true;
+                if (!string.IsNullOrEmpty(state.game_mode)) gameMode = state.game_mode;
+                if (_apiClient != null) _apiClient.SaveState(state);
+            }
+
+            var store = _keyValueStore ?? PlayerPrefsStore;
+            store.SetInt(PlayerPrefsKeyPrefix + gameMode, 1);
+            store.Save();
+        }
+
+        private static IKeyValueStore _playerPrefsStore;
+        private static IKeyValueStore PlayerPrefsStore =>
+            _playerPrefsStore ??= new PlayerPrefsKeyValueStore();
 
         // ═══════════════════════════════════════════════════════════════
         // WAIT-EVENT SUBSCRIPTION PER STEP KIND
