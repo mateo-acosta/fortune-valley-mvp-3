@@ -40,6 +40,13 @@ namespace FortuneValley.Core
         private int _currentSpeedIndex = 1; // Default to 1x speed
         private bool _isRunning = false;
 
+        // Reference-counted pause lock, orthogonal to the user-facing speed slider.
+        // Callers (e.g. the tutorial controller) acquire a lock to freeze ticks
+        // without changing the player's selected speed; releasing the last lock
+        // resumes emission at the previously selected speed. Clamped at zero so
+        // mismatched release calls cannot leave the counter negative.
+        private int _pauseLockCount = 0;
+
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
         // ═══════════════════════════════════════════════════════════════
@@ -75,6 +82,20 @@ namespace FortuneValley.Core
         /// </summary>
         public bool IsPaused => CurrentSpeed == 0f;
 
+        /// <summary>
+        /// True while at least one caller holds a pause lock via AcquirePause().
+        /// Independent of the player's speed selection. Systems should query
+        /// this before reacting to anything tick-driven; Update() already
+        /// suppresses tick emission while held.
+        /// </summary>
+        public bool IsPauseLocked => _pauseLockCount > 0;
+
+        /// <summary>
+        /// Number of outstanding pause locks. Intended primarily for diagnostics
+        /// and tests; production callers should pair Acquire/Release.
+        /// </summary>
+        public int PauseLockCount => _pauseLockCount;
+
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
         // ═══════════════════════════════════════════════════════════════
@@ -94,7 +115,7 @@ namespace FortuneValley.Core
 
         private void Update()
         {
-            if (!_isRunning || IsPaused)
+            if (!_isRunning || IsPaused || IsPauseLocked)
                 return;
 
             // Accumulate time, scaled by current speed
@@ -157,6 +178,28 @@ namespace FortuneValley.Core
                 _currentSpeedIndex = index;
                 GameEvents.RaiseGameSpeedChanged(CurrentSpeed);
             }
+        }
+
+        /// <summary>
+        /// Acquire a pause lock. Each call must be matched by a ReleasePause()
+        /// call. While any locks are outstanding, Update() suppresses all tick
+        /// emission regardless of speed selection. Used by the onboarding
+        /// tutorial to freeze the simulation (rival, monthly cycle, accidents,
+        /// income) during scripted beats without mutating player-facing speed.
+        /// </summary>
+        public void AcquirePause()
+        {
+            _pauseLockCount++;
+        }
+
+        /// <summary>
+        /// Release one pause lock. Clamped to zero so an unmatched release
+        /// leaves the counter at zero instead of going negative and silently
+        /// corrupting the next acquire.
+        /// </summary>
+        public void ReleasePause()
+        {
+            if (_pauseLockCount > 0) _pauseLockCount--;
         }
 
         /// <summary>
