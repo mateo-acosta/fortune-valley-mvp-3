@@ -123,7 +123,6 @@ namespace FortuneValley.City
 
         private void Update()
         {
-            if (s_openPanelCount > 0) return;
             if (!_boundsReady) return;
             if (_camera == null) _camera = Camera.main;
             if (_camera == null) return;
@@ -133,8 +132,26 @@ namespace FortuneValley.City
 
             Vector2 mousePos = mouse.position.ReadValue();
             Ray ray = _camera.ScreenPointToRay(mousePos);
-
             bool hitThis = _bounds.IntersectRay(ray);
+
+            // Click detection runs even when a modal panel is open so the
+            // onboarding tutorial's WaitForRestaurantTap step can advance
+            // while the tutorial overlay's OnBlockingPanelOpenChanged broadcast
+            // has incremented s_openPanelCount.
+            if (_raiseRestaurantSelectedOnClick && hitThis
+                && mouse.leftButton.wasPressedThisFrame
+                && IsPlayerOwned())
+            {
+                Debug.Log($"[BlockHover] Click on {name} (player-owned) -> RaiseRestaurantSelected");
+                GameEvents.RaiseRestaurantSelected();
+            }
+
+            // Hover canvas is suppressed while any modal panel is open.
+            if (s_openPanelCount > 0)
+            {
+                if (_isHovered) { _isHovered = false; Hide(); }
+                return;
+            }
 
             if (hitThis && !_isHovered)
             {
@@ -147,17 +164,6 @@ namespace FortuneValley.City
                 _isHovered = false;
                 Debug.Log($"[BlockHover] Exit on {name}");
                 Hide();
-            }
-
-            // Click-to-select for player-owned blocks. The block footprint is
-            // shared with the hover check above, so a click is "in bounds"
-            // whenever the user is currently hovering this block.
-            if (_raiseRestaurantSelectedOnClick && _isHovered
-                && mouse.leftButton.wasPressedThisFrame
-                && IsPlayerOwned())
-            {
-                Debug.Log($"[BlockHover] Click on {name} (player-owned) -> RaiseRestaurantSelected");
-                GameEvents.RaiseRestaurantSelected();
             }
         }
 

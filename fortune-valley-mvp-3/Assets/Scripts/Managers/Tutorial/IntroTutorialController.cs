@@ -186,6 +186,9 @@ namespace FortuneValley.Managers.Tutorial
             // WaitForX step: resolve the target and subscribe to the matching event.
             _awaitingAdvanceTap = false;
             Transform target = _targetRegistry != null ? _targetRegistry.GetTarget(step.TargetKind) : null;
+            Debug.Log($"[IntroTutorialController] WaitFor step entered. kind={step.Kind} " +
+                      $"targetKind={step.TargetKind} " +
+                      $"target={(target == null ? "null" : target.name + " at " + target.position)}");
             GameEvents.RaiseTutorialHighlightTarget(target);
             SubscribeWaitEvent(step.Kind);
         }
