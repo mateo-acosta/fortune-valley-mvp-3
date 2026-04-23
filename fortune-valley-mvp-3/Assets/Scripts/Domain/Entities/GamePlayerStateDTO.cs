@@ -33,5 +33,9 @@ namespace FortuneValley.Domain.Entities
         public bool bankruptcy_flag;
         public int restaurant_level;
         public int current_tick;
+
+        // Per-lot cosmetic neighbor picks (one entry per filled tier slot on each owned block).
+        // Populated by GameStateDTOBuilder from CityManager once the block system is wired.
+        public CosmeticVariantChoice[] cosmetic_variants;
     }
 }

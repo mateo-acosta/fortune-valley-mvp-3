@@ -449,6 +449,34 @@ namespace FortuneValley.Core
         public static void RaiseLotLoanExploreRequested(string lotId) => OnLotLoanExploreRequested?.Invoke(lotId);
 
         // ═══════════════════════════════════════════════════════════════
+        // BLOCK / COSMETIC VARIANT EVENTS
+        // ═══════════════════════════════════════════════════════════════
+
+        // Intent: BlockController requests the picker open because a tier just unlocked.
+        // Parameters: lotId (the owned lot on the block), tierSlot (0..2, == newTier - 1).
+        public static event Action<string, int> OnCosmeticPickerOpened;
+        public static void RaiseCosmeticPickerOpened(string lotId, int tierSlot) => OnCosmeticPickerOpened?.Invoke(lotId, tierSlot);
+
+        // Confirmation: player picked a variant. Parameters: lotId, tierSlot, variantId (index into catalog).
+        public static event Action<string, int, int> OnCosmeticVariantChosen;
+        public static void RaiseCosmeticVariantChosen(string lotId, int tierSlot, int variantId) => OnCosmeticVariantChosen?.Invoke(lotId, tierSlot, variantId);
+
+        // Visual apply: raised by CityManager after a pick is stored (fresh pick or save replay).
+        // instant==true on save-replay so BlockController instantiates without the DOTween animation.
+        public static event Action<string, int, int, bool> OnCosmeticVariantApplied;
+        public static void RaiseCosmeticVariantApplied(string lotId, int tierSlot, int variantId, bool instant) => OnCosmeticVariantApplied?.Invoke(lotId, tierSlot, variantId, instant);
+
+        // Save replay: raised by GameSaveBootstrapper when the host page delivers saved state.
+        // CityManager subscribes to apply cosmetic variants (and future: tiers, ownership, finances).
+        public static event Action<GamePlayerStateDTO> OnSaveStateLoaded;
+        public static void RaiseSaveStateLoaded(GamePlayerStateDTO dto) => OnSaveStateLoaded?.Invoke(dto);
+
+        // Raised by UIPopup.Show/Hide so world-space interaction systems (e.g. BlockHoverController)
+        // can suppress input while a modal popup is open. True = opening, false = closing.
+        public static event Action<bool> OnBlockingPanelOpenChanged;
+        public static void RaiseBlockingPanelOpenChanged(bool open) => OnBlockingPanelOpenChanged?.Invoke(open);
+
+        // ═══════════════════════════════════════════════════════════════
         // QUESTIONMASTER EVENTS
         // ═══════════════════════════════════════════════════════════════
 
@@ -582,6 +610,13 @@ namespace FortuneValley.Core
             OnLotTierChanged = null;
             OnLotInsuranceRequested = null;
             OnLotLoanExploreRequested = null;
+
+            // Block / cosmetic variants
+            OnCosmeticPickerOpened = null;
+            OnCosmeticVariantChosen = null;
+            OnCosmeticVariantApplied = null;
+            OnSaveStateLoaded = null;
+            OnBlockingPanelOpenChanged = null;
 
             // QuestionMaster
             OnQuestionStartRequested = null;

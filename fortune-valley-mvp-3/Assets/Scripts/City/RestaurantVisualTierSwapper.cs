@@ -26,6 +26,10 @@ namespace FortuneValley.Core
         [Header("For Sale Sign")]
         [SerializeField] private GameObject _forSaleSign;
 
+        [Header("Vacant Lot Mesh")]
+        [Tooltip("Dirt/vacant visual shown when the lot has no owner. Hidden once the lot is bought.")]
+        [SerializeField] private GameObject _vacantLotMesh;
+
         private Owner _owner = Owner.None;
         private int _tier;
 
@@ -76,6 +80,7 @@ namespace FortuneValley.Core
             SetActiveIfNotNull(_rivalT3, false);
 
             SetActiveIfNotNull(_forSaleSign, _owner == Owner.None);
+            SetActiveIfNotNull(_vacantLotMesh, _owner == Owner.None);
 
             if (_owner == Owner.None || _tier <= 0) return;
 
