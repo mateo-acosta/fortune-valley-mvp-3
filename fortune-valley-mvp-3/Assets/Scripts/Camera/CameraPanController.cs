@@ -6,9 +6,10 @@ using UnityEngine.EventSystems;
 namespace FortuneValley.CameraControl
 {
     /// <summary>
-    /// Click and drag camera panning.
-    /// Includes drag threshold to prevent accidental panning on quick taps.
-    /// Works with both mouse and touch input.
+    /// Click and drag camera panning with scroll/pinch zoom.
+    /// Constrains the camera to an inspector-editable rectangular fence on the XZ plane
+    /// and to a min/max orthographic zoom range. Zoom is anchored to the cursor position
+    /// (the world point under the cursor stays stationary during zoom).
     /// </summary>
     public class CameraPanController : MonoBehaviour
     {
@@ -19,6 +20,30 @@ namespace FortuneValley.CameraControl
         [Header("Pan Settings")]
         [Tooltip("Pixels of movement before panning starts (prevents accidental pan on tap)")]
         [SerializeField] private float _dragThreshold = 10f;
+
+        [Header("Zoom Settings")]
+        [Tooltip("Mouse wheel zoom speed (orthographic size units per scroll tick)")]
+        [SerializeField] private float _scrollZoomSpeed = 0.01f;
+
+        [Tooltip("Touch pinch zoom speed (orthographic size units per pixel of pinch delta)")]
+        [SerializeField] private float _pinchZoomSpeed = 0.01f;
+
+        [Tooltip("Minimum orthographic size (most zoomed in)")]
+        [SerializeField] private float _minZoom = 4f;
+
+        [Tooltip("Maximum orthographic size (most zoomed out)")]
+        [SerializeField] private float _maxZoom = 14f;
+
+        [Header("Camera Fence (XZ world bounds)")]
+        [SerializeField] private float _minX = -20f;
+        [SerializeField] private float _maxX = 20f;
+        [SerializeField] private float _minZ = -20f;
+        [SerializeField] private float _maxZ = 20f;
+
+        [Header("Gizmo")]
+        [SerializeField] private Color _fenceGizmoColor = new Color(1f, 0.92f, 0.016f, 0.8f);
+        [Tooltip("Y level at which the fence gizmo is drawn (visual only)")]
+        [SerializeField] private float _fenceGizmoY = 0f;
 
         [Header("References")]
         [Tooltip("Camera to use for raycasting. If null, uses Camera.main.")]
@@ -32,7 +57,8 @@ namespace FortuneValley.CameraControl
         private DragState _state = DragState.Idle;
         private Vector2 _dragStartPosition;
         private Vector3 _lastWorldPosition;
-        // Reusable objects to avoid per-frame allocation in IsPointerOverUI
+        private float _lastPinchDistance;
+        private bool _pinchActive;
         private readonly List<RaycastResult> _uiRaycastResults = new List<RaycastResult>();
         private PointerEventData _cachedPointerEventData;
 
@@ -40,10 +66,6 @@ namespace FortuneValley.CameraControl
         // PUBLIC ACCESSORS
         // ═══════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// True when camera is actively being dragged.
-        /// Use this to suppress other input (e.g., lot selection).
-        /// </summary>
         public bool IsPanning => _state == DragState.Panning;
 
         // ═══════════════════════════════════════════════════════════════
@@ -60,13 +82,29 @@ namespace FortuneValley.CameraControl
 
         private void Update()
         {
-            // Don't pan when pointer is over UI
-            if (IsPointerOverUI())
+            bool pointerOverUI = IsPointerOverUI();
+
+            // Zoom runs independently of pan state; skip when pointer is over UI
+            if (!pointerOverUI)
+            {
+                HandleZoom();
+            }
+
+            if (pointerOverUI)
             {
                 if (_state != DragState.Idle)
                 {
                     _state = DragState.Idle;
                 }
+                ClampCameraToFence();
+                return;
+            }
+
+            // Two-finger touch is for pinch zoom, not pan
+            if (IsTwoFingerTouch())
+            {
+                _state = DragState.Idle;
+                ClampCameraToFence();
                 return;
             }
 
@@ -87,10 +125,12 @@ namespace FortuneValley.CameraControl
                     HandlePanningState(isPressed, pointerPos);
                     break;
             }
+
+            ClampCameraToFence();
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // STATE HANDLERS
+        // PAN STATE HANDLERS
         // ═══════════════════════════════════════════════════════════════
 
         private void HandleIdleState(bool isPressed, Vector2 pointerPos)
@@ -107,12 +147,10 @@ namespace FortuneValley.CameraControl
         {
             if (!isPressed)
             {
-                // Released before threshold - this was a tap, not a drag
                 _state = DragState.Idle;
             }
             else if (Vector2.Distance(pointerPos, _dragStartPosition) > _dragThreshold)
             {
-                // Exceeded threshold - start panning
                 _state = DragState.Panning;
                 _lastWorldPosition = GetWorldPosition(pointerPos);
             }
@@ -123,28 +161,114 @@ namespace FortuneValley.CameraControl
             if (!isPressed)
             {
                 _state = DragState.Idle;
+                return;
             }
-            else
+
+            Vector3 currentWorld = GetWorldPosition(pointerPos);
+            Vector3 delta = _lastWorldPosition - currentWorld;
+            transform.position += new Vector3(delta.x, 0, delta.z);
+            _lastWorldPosition = GetWorldPosition(pointerPos);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ZOOM
+        // ═══════════════════════════════════════════════════════════════
+
+        private void HandleZoom()
+        {
+            if (_camera == null || !_camera.orthographic) return;
+
+            // Two-finger pinch takes priority when active
+            if (HandlePinchZoom()) return;
+
+            float scroll = 0f;
+            if (Mouse.current != null)
             {
-                // Calculate world-space movement and apply to camera
-                Vector3 currentWorld = GetWorldPosition(pointerPos);
-                Vector3 delta = _lastWorldPosition - currentWorld;
-
-                // Move camera in world XZ plane
-                transform.position += new Vector3(delta.x, 0, delta.z);
-
-                // Update reference position for next frame
-                _lastWorldPosition = GetWorldPosition(pointerPos);
+                scroll = Mouse.current.scroll.y.ReadValue();
             }
+
+            if (Mathf.Approximately(scroll, 0f)) return;
+
+            Vector2 pointerPos = GetPointerPosition();
+            float delta = -scroll * _scrollZoomSpeed;
+            ApplyZoom(delta, pointerPos);
+        }
+
+        private bool HandlePinchZoom()
+        {
+            if (Touchscreen.current == null) return false;
+
+            var touches = Touchscreen.current.touches;
+            if (touches.Count < 2) { _pinchActive = false; return false; }
+
+            var t0 = touches[0];
+            var t1 = touches[1];
+            if (!t0.press.isPressed || !t1.press.isPressed) { _pinchActive = false; return false; }
+
+            Vector2 p0 = t0.position.ReadValue();
+            Vector2 p1 = t1.position.ReadValue();
+            float dist = Vector2.Distance(p0, p1);
+
+            if (!_pinchActive)
+            {
+                _pinchActive = true;
+                _lastPinchDistance = dist;
+                return true;
+            }
+
+            float pinchDelta = dist - _lastPinchDistance;
+            _lastPinchDistance = dist;
+
+            Vector2 midpoint = (p0 + p1) * 0.5f;
+            float zoomDelta = -pinchDelta * _pinchZoomSpeed;
+            ApplyZoom(zoomDelta, midpoint);
+            return true;
+        }
+
+        /// <summary>
+        /// Change orthographic size by delta, keeping the world point under the
+        /// given screen position anchored (zoom-to-cursor).
+        /// </summary>
+        private void ApplyZoom(float sizeDelta, Vector2 anchorScreenPos)
+        {
+            Vector3 worldBefore = GetWorldPosition(anchorScreenPos);
+
+            float newSize = Mathf.Clamp(_camera.orthographicSize + sizeDelta, _minZoom, _maxZoom);
+            if (Mathf.Approximately(newSize, _camera.orthographicSize)) return;
+
+            _camera.orthographicSize = newSize;
+
+            Vector3 worldAfter = GetWorldPosition(anchorScreenPos);
+            Vector3 shift = worldBefore - worldAfter;
+            transform.position += new Vector3(shift.x, 0f, shift.z);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // FENCE
+        // ═══════════════════════════════════════════════════════════════
+
+        private void ClampCameraToFence()
+        {
+            Vector3 p = transform.position;
+            p.x = Mathf.Clamp(p.x, _minX, _maxX);
+            p.z = Mathf.Clamp(p.z, _minZ, _maxZ);
+            transform.position = p;
         }
 
         // ═══════════════════════════════════════════════════════════════
         // INPUT HELPERS
         // ═══════════════════════════════════════════════════════════════
 
+        private bool IsTwoFingerTouch()
+        {
+            if (Touchscreen.current == null) return false;
+            var touches = Touchscreen.current.touches;
+            if (touches.Count < 2) return false;
+            return touches[0].press.isPressed && touches[1].press.isPressed;
+        }
+
         private bool GetPointerPressed()
         {
-            // Check touch first (mobile), then mouse (desktop)
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
             {
                 return true;
@@ -160,7 +284,6 @@ namespace FortuneValley.CameraControl
 
         private Vector2 GetPointerPosition()
         {
-            // Check touch first (mobile), then mouse (desktop)
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
             {
                 return Touchscreen.current.primaryTouch.position.ReadValue();
@@ -176,7 +299,6 @@ namespace FortuneValley.CameraControl
 
         private Vector3 GetWorldPosition(Vector2 screenPos)
         {
-            // Cast ray from screen to ground plane (y = 0)
             Ray ray = _camera.ScreenPointToRay(screenPos);
             Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
 
@@ -199,7 +321,6 @@ namespace FortuneValley.CameraControl
             _uiRaycastResults.Clear();
             EventSystem.current.RaycastAll(_cachedPointerEventData, _uiRaycastResults);
 
-            // Only count actual UI hits, not PhysicsRaycaster 3D collider hits
             for (int i = 0; i < _uiRaycastResults.Count; i++)
             {
                 if (!(_uiRaycastResults[i].module is PhysicsRaycaster))
@@ -207,5 +328,24 @@ namespace FortuneValley.CameraControl
             }
             return false;
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // EDITOR
+        // ═══════════════════════════════════════════════════════════════
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = _fenceGizmoColor;
+            Vector3 a = new Vector3(_minX, _fenceGizmoY, _minZ);
+            Vector3 b = new Vector3(_maxX, _fenceGizmoY, _minZ);
+            Vector3 c = new Vector3(_maxX, _fenceGizmoY, _maxZ);
+            Vector3 d = new Vector3(_minX, _fenceGizmoY, _maxZ);
+            Gizmos.DrawLine(a, b);
+            Gizmos.DrawLine(b, c);
+            Gizmos.DrawLine(c, d);
+            Gizmos.DrawLine(d, a);
+        }
+#endif
     }
 }
