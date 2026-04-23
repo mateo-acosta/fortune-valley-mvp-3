@@ -14,8 +14,10 @@ namespace FortuneValley.Tests
     [TestFixture]
     public class LoanGuidanceDispatcherTests
     {
-        private GameObject _go;
+        private GameObject _dispatcherGo;
+        private GameObject _controllerGo;
         private LoanGuidanceDispatcher _dispatcher;
+        private GuidanceController _controller;
         private FakeGameEventBus _bus;
         private GuidanceTipSO _tip;
         private LoanTakenMessageBuilder _builder;
@@ -23,31 +25,40 @@ namespace FortuneValley.Tests
         [SetUp]
         public void SetUp()
         {
-            _go = new GameObject("Dispatcher");
-            _dispatcher = _go.AddComponent<LoanGuidanceDispatcher>();
+            _controllerGo = new GameObject("Controller");
+            _controller = _controllerGo.AddComponent<GuidanceController>();
             _bus = new FakeGameEventBus();
-            _tip = MakeTip(
+            var now = new FakeNowProvider();
+            var store = new InMemoryKeyValueStore();
+            var prefs = new PlayerPrefsDebouncedFlusher(store, now);
+            var filter = new RepeatPolicyFilter(now, prefs);
+            _controller.Initialize(_bus, filter);
+
+            _dispatcherGo = new GameObject("Dispatcher");
+            _dispatcher = _dispatcherGo.AddComponent<LoanGuidanceDispatcher>();
+            _tip = GuidanceTipFactory.Make(
                 triggerKind: GuidanceTriggerKind.LoanTaken,
                 severity: GuidanceSeverity.Info,
                 targetIntent: GuidanceTargetIntent.LotsPanel,
                 title: "Loan: {0}",
-                message: "You borrowed {0} for {1}");
+                message: "You borrowed {0} for {1}",
+                repeatPolicy: RepeatPolicy.EveryTime);
             _builder = new LoanTakenMessageBuilder();
-            _dispatcher.Initialize(_bus, _tip, _builder);
+            _dispatcher.Initialize(_controller, _tip, _builder);
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (_go != null) Object.DestroyImmediate(_go);
+            if (_dispatcherGo != null) Object.DestroyImmediate(_dispatcherGo);
+            if (_controllerGo != null) Object.DestroyImmediate(_controllerGo);
             if (_tip != null) Object.DestroyImmediate(_tip);
         }
 
         [Test]
-        public void HandleLoanOriginated_RaisesBannerRequestOnBus()
+        public void HandleLoanOriginated_EmitsBannerThroughController()
         {
-            var loan = new ActiveLoan("L1", "lot_a", principal: 5000, apr: 0.05f,
-                termMonths: 24, monthlyPayment: 250, downPayment: 500, startDay: 1);
+            var loan = new ActiveLoan("L1", "lot_a", 5000, 0.05f, 24, 250, 500, 1);
 
             _dispatcher.HandleLoanOriginated(loan);
 
@@ -70,30 +81,22 @@ namespace FortuneValley.Tests
         [Test]
         public void HandleLoanOriginated_NoTipConfigured_DoesNotThrow()
         {
-            _dispatcher.Initialize(_bus, null, _builder);
+            _dispatcher.Initialize(_controller, null, _builder);
             var loan = new ActiveLoan("L1", "lot_a", 5000, 0.05f, 24, 250, 0, 1);
             Assert.DoesNotThrow(() => _dispatcher.HandleLoanOriginated(loan));
             Assert.AreEqual(0, _bus.CountOf<GuidanceBannerRequest>());
         }
 
         [Test]
-        public void HandleLoanOriginated_UsesTipSeverityAndIntent()
+        public void HandleLoanOriginated_RespectsControllerSuppression()
         {
-            var warningTip = MakeTip(
-                GuidanceTriggerKind.LoanTaken,
-                GuidanceSeverity.Warning,
-                GuidanceTargetIntent.LoanPanel,
-                "t", "m");
-            _dispatcher.Initialize(_bus, warningTip, _builder);
+            _controller.SetSuppressed(true);
+            var loan = new ActiveLoan("L1", "lot_a", 5000, 0.05f, 24, 250, 0, 1);
 
-            var loan = new ActiveLoan("L2", "lot_b", 1000, 0.04f, 12, 85, 0, 1);
             _dispatcher.HandleLoanOriginated(loan);
 
-            var raised = (GuidanceBannerRequest)_bus.RaisedEvents[0];
-            Assert.AreEqual(GuidanceSeverity.Warning, raised.Severity);
-            Assert.AreEqual(GuidanceTargetIntent.LoanPanel, raised.TargetIntent);
-
-            Object.DestroyImmediate(warningTip);
+            Assert.AreEqual(0, _bus.CountOf<GuidanceBannerRequest>(),
+                "Tutorial suppression should prevent the banner from reaching the bus");
         }
 
         [Test]
@@ -106,34 +109,6 @@ namespace FortuneValley.Tests
             _dispatcher.HandleLoanOriginated(loan2);
 
             Assert.AreEqual(2, _bus.CountOf<GuidanceBannerRequest>());
-        }
-
-        // ===============================================================
-        // HELPERS
-        // ===============================================================
-
-        private static GuidanceTipSO MakeTip(
-            GuidanceTriggerKind triggerKind,
-            GuidanceSeverity severity,
-            GuidanceTargetIntent targetIntent,
-            string title,
-            string message)
-        {
-            var tip = ScriptableObject.CreateInstance<GuidanceTipSO>();
-            tip.name = "test-tip";
-            SetPrivateField(tip, "_triggerKind", triggerKind);
-            SetPrivateField(tip, "_severity", severity);
-            SetPrivateField(tip, "_targetIntent", targetIntent);
-            SetPrivateField(tip, "_titleTemplate", title);
-            SetPrivateField(tip, "_messageTemplate", message);
-            return tip;
-        }
-
-        private static void SetPrivateField(object target, string fieldName, object value)
-        {
-            var field = target.GetType().GetField(fieldName,
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            field.SetValue(target, value);
         }
     }
 }
