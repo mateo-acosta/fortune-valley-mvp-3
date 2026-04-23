@@ -37,5 +37,9 @@ namespace FortuneValley.Domain.Entities
         // Per-lot cosmetic neighbor picks (one entry per filled tier slot on each owned block).
         // Populated by GameStateDTOBuilder from CityManager once the block system is wired.
         public CosmeticVariantChoice[] cosmetic_variants;
+
+        // Set true when the player has finished (or skipped) the onboarding tutorial.
+        // Server-side default is false; missing field on response defaults to false on deserialize.
+        public bool tutorial_completed;
     }
 }
