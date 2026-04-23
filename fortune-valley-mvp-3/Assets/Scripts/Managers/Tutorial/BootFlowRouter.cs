@@ -11,17 +11,41 @@ namespace FortuneValley.Managers.Tutorial
     /// the decision function static) pulls future boot branches out of
     /// GameFlowController and makes the rule set easy to extend: a new
     /// BootFlow enum value plus one new case in <see cref="Decide"/>.
+    ///
+    /// Production wiring: subscribe to <c>GameEvents.OnStartRequested</c>
+    /// in <see cref="OnEnable"/>; on fire, pull player state from
+    /// <see cref="PlayerStateAccessor"/> and role from the API client's
+    /// JS-bridge role accessor, then broadcast via
+    /// <c>GameEvents.OnBootFlowDecided</c>.
     /// </summary>
     public class BootFlowRouter : MonoBehaviour
     {
+        [SerializeField] private PlayerStateAccessor _stateAccessor;
+        [SerializeField] private APIClient _apiClient;
+
+        private void OnEnable()
+        {
+            GameEvents.OnStartRequested += HandleStartRequested;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnStartRequested -= HandleStartRequested;
+        }
+
+        private void HandleStartRequested()
+        {
+            GamePlayerStateDTO state = _stateAccessor != null ? _stateAccessor.Current : null;
+            string role = _apiClient != null ? _apiClient.GetRole() : null;
+            DecideAndBroadcast(state, role);
+        }
+
         /// <summary>
         /// Pure decision function. Teacher preview short-circuits to
         /// SkipTutorial even if the player state says the tutorial is
-        /// incomplete (the role is an evaluator path that bypasses both
-        /// the tutorial and the rules carousel). Otherwise we ask
-        /// <see cref="IntroGate.ShouldRunIntro"/> whether the tutorial
-        /// should run, returning FirstTimeTutorial if yes and
-        /// NormalCarousel if no.
+        /// incomplete. Otherwise we ask <see cref="IntroGate.ShouldRunIntro"/>
+        /// whether the tutorial should run, returning FirstTimeTutorial
+        /// if yes and NormalCarousel if no.
         /// </summary>
         public static BootFlow Decide(GamePlayerStateDTO state, string role)
         {
@@ -32,11 +56,8 @@ namespace FortuneValley.Managers.Tutorial
         }
 
         /// <summary>
-        /// Production helper: compute and broadcast the decision. Callers
-        /// pass the already-loaded state and the role string from the
-        /// JSBridge auth layer. GameFlowController subscribes to
-        /// <c>GameEvents.OnBootFlowDecided</c> and routes based on the
-        /// resulting flow.
+        /// Compute and broadcast the decision. Callers pass the already-loaded
+        /// state and the role string from the auth layer.
         /// </summary>
         public void DecideAndBroadcast(GamePlayerStateDTO state, string role)
         {

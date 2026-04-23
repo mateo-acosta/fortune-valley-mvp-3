@@ -9,6 +9,7 @@ namespace FortuneValley.Core
     public interface IAPIClient
     {
         bool CanPersist();
+        string GetRole();
         void SaveState(GamePlayerStateDTO state);
         void EnqueueDecision(DecisionEventDTO decision);
         void FlushDecisions();

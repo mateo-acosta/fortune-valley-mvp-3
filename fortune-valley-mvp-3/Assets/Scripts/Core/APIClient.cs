@@ -100,6 +100,13 @@ namespace FortuneValley.Core
             return role == "student" || role == "teacher_preview";
         }
 
+        /// <summary>
+        /// Current JWT role as reported by the JS bridge (e.g. "student",
+        /// "teacher_preview"). Returned verbatim so callers can apply their
+        /// own branching rules without re-implementing the bridge.
+        /// </summary>
+        public string GetRole() => Bridge.GetRole();
+
 #if UNITY_INCLUDE_TESTS
         /// <summary>
         /// Test spy: stores the last DTO passed to EnqueueDecision.

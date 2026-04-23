@@ -296,6 +296,22 @@ namespace FortuneValley.Core
         /// </summary>
         public static event Action<BootFlow> OnBootFlowDecided;
 
+        /// <summary>
+        /// Fired by GameFlowController when a FirstTimeTutorial flow has
+        /// been decided. The IntroTutorialController subscribes and begins
+        /// its scripted sequence. In sessions where the tutorial controller
+        /// is not present in the scene the flow falls back to the normal
+        /// carousel path so players are never left on a blank screen.
+        /// </summary>
+        public static event Action OnTutorialStartRequested;
+
+        /// <summary>
+        /// Fired by IntroTutorialController when its final step completes
+        /// (or the Skip button confirms). GameFlowController subscribes and
+        /// resumes the normal countdown path.
+        /// </summary>
+        public static event Action OnTutorialComplete;
+
         // ═══════════════════════════════════════════════════════════════
         // EVENT INVOKERS (called by systems to fire events)
         // ═══════════════════════════════════════════════════════════════
@@ -303,6 +319,8 @@ namespace FortuneValley.Core
         public static void RaiseTick(int tickNumber) => OnTick?.Invoke(tickNumber);
         public static void RaiseGameSpeedChanged(float speed) => OnGameSpeedChanged?.Invoke(speed);
         public static void RaiseBootFlowDecided(BootFlow flow) => OnBootFlowDecided?.Invoke(flow);
+        public static void RaiseTutorialStartRequested() => OnTutorialStartRequested?.Invoke();
+        public static void RaiseTutorialComplete() => OnTutorialComplete?.Invoke();
         public static void RaiseCurrencyChanged(float newBalance, float delta) => OnCurrencyChanged?.Invoke(newBalance, delta);
         public static void RaiseCheckingBalanceChanged(float balance, float delta) => OnCheckingBalanceChanged?.Invoke(balance, delta);
         public static void RaiseInvestingBalanceChanged(float balance, float delta) => OnInvestingBalanceChanged?.Invoke(balance, delta);
@@ -570,6 +588,8 @@ namespace FortuneValley.Core
             OnRestartRequested = null;
             OnReturnToTitleRequested = null;
             OnBootFlowDecided = null;
+            OnTutorialStartRequested = null;
+            OnTutorialComplete = null;
 
             // Intent events
             OnPurchaseLotRequested = null;
