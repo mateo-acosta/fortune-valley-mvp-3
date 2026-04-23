@@ -57,10 +57,31 @@ namespace FortuneValley.Managers.Tutorial
 
             GamePlayerStateDTO state = _stateAccessor != null ? _stateAccessor.Current : null;
             string role = _apiClient != null ? _apiClient.GetRole() : null;
+            var prefs = new PlayerPrefsKeyValueStore();
 
-            if (IntroGate.ShouldRunIntro(state, role, new PlayerPrefsKeyValueStore()))
+            bool shouldRun = IntroGate.ShouldRunIntro(state, role, prefs);
+
+            string gameMode = state != null && !string.IsNullOrEmpty(state.game_mode) ? state.game_mode : "homebase";
+            int prefsFlag = prefs.GetInt(IntroTutorialController.PlayerPrefsKeyPrefix + gameMode, 0);
+
+            Debug.Log($"[SceneBootTutorialTrigger] fire decision: shouldRun={shouldRun} " +
+                      $"state={(state == null ? "null" : "present")} " +
+                      $"state.tutorial_completed={(state != null ? state.tutorial_completed.ToString() : "n/a")} " +
+                      $"role='{role}' " +
+                      $"prefsKey='{IntroTutorialController.PlayerPrefsKeyPrefix + gameMode}' " +
+                      $"prefsFlag={prefsFlag} " +
+                      $"(stateAccessor null? {_stateAccessor == null}, apiClient null? {_apiClient == null})");
+
+            if (shouldRun)
             {
+                Debug.Log("[SceneBootTutorialTrigger] Raising OnTutorialStartRequested.");
                 GameEvents.RaiseTutorialStartRequested();
+            }
+            else
+            {
+                Debug.Log("[SceneBootTutorialTrigger] Tutorial suppressed. " +
+                          "If you expected it to run, clear PlayerPrefs (Edit > Clear All PlayerPrefs) " +
+                          "or delete the key above.");
             }
         }
     }

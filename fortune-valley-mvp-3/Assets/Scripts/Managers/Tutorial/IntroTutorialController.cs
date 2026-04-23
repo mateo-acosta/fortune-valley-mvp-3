@@ -105,6 +105,13 @@ namespace FortuneValley.Managers.Tutorial
 
         public void HandleTutorialStartRequested()
         {
+            Debug.Log($"[IntroTutorialController] HandleTutorialStartRequested fired. " +
+                      $"active={_isActive} script={(_script == null ? "null" : _script.name)} " +
+                      $"stepCount={(_script == null ? 0 : _script.StepCount)} " +
+                      $"timeManager={(_timeManager == null ? "null" : "ok")} " +
+                      $"guidance={(_guidanceController == null ? "null" : "ok")} " +
+                      $"registry={(_targetRegistry == null ? "null" : "ok")}");
+
             if (_isActive) return;
             if (_machine == null) _machine = new TutorialSequenceMachine(_script);
 

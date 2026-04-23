@@ -16,6 +16,9 @@ namespace FortuneValley.City
         [Tooltip("The single player-ownable lot on this block. Purchasing or upgrading this lot drives block state.")]
         [SerializeField] private CityLotDefinition _ownedLot;
 
+        /// <summary>Lot definition this block owns. Null on ambient (non-interactive) blocks.</summary>
+        public CityLotDefinition OwnedLot => _ownedLot;
+
         [Header("Glow")]
         [SerializeField] private BlockEdgeGlow _edgeGlow;
 

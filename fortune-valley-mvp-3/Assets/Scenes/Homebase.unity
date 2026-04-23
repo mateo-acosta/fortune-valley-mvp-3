@@ -10660,7 +10660,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &215809231
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11030,6 +11030,16 @@ PrefabInstance:
 --- !u!4 &228607512 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6662529468882932433, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 228607511}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &228607513 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6546186855714332884, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 228607511}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &228607514 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2186961641943368085, guid: da4711f46987846dd87fec4785d3a497, type: 3}
   m_PrefabInstance: {fileID: 228607511}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &234735520
@@ -17897,6 +17907,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7325993003168747986, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
   m_PrefabInstance: {fileID: 342611954}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &342611958 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 342611954}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &342729993
 GameObject:
   m_ObjectHideFlags: 0
@@ -25300,6 +25321,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: af43cefbfadd74bdebeeee82a2731c16, type: 3}
   m_PrefabInstance: {fileID: 497269471}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &498804098 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1314131586856732049, guid: 2f15d30c3971b41a7b322d516fc33776, type: 3}
+  m_PrefabInstance: {fileID: 82756391}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &500792782
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37370,6 +37402,17 @@ MonoBehaviour:
   _rivalAI: {fileID: 2029218244}
   _valueText: {fileID: 744978852}
   _format: +${0:N0}/s
+--- !u!114 &746386276 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4861379983453834713, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 228607511}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &747758411
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -47450,6 +47493,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6662529468882932433, guid: da4711f46987846dd87fec4785d3a497, type: 3}
   m_PrefabInstance: {fileID: 970661607}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &970661611 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4861379983453834713, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 970661607}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &972907477
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -54826,6 +54880,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6662529468882932433, guid: da4711f46987846dd87fec4785d3a497, type: 3}
   m_PrefabInstance: {fileID: 1090170870}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1090170874 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4861379983453834713, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 1090170870}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &1095747250
 GameObject:
   m_ObjectHideFlags: 0
@@ -55808,7 +55873,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95a5d33bfd773471ba77bd2c1f84d573, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.Tutorial.TutorialTargetRegistry
-  _staticEntries: []
+  _staticEntries:
+  - kind: 3
+    target: {fileID: 2075326520757232485}
+  - kind: 4
+    target: {fileID: 228607514}
+  - kind: 5
+    target: {fileID: 2075326520719633107}
+  - kind: 1
+    target: {fileID: 228607513}
   _resolverBehaviours:
   - {fileID: 1113808616}
 --- !u!114 &1113808617
@@ -55824,7 +55897,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Tutorial.LotTutorialTargetResolver
   _cityManager: {fileID: 2029218248}
-  _lotVisuals: []
+  _blocks:
+  - {fileID: 746386276}
+  - {fileID: 1759003905}
+  - {fileID: 2055797997}
+  - {fileID: 1090170874}
+  - {fileID: 1236802644}
+  - {fileID: 1666806562}
+  - {fileID: 1614256740}
+  - {fileID: 1822739244}
+  - {fileID: 1222231771}
+  - {fileID: 498804098}
+  - {fileID: 1965477826}
+  - {fileID: 342611958}
+  - {fileID: 1792580908}
+  - {fileID: 1759418193}
+  - {fileID: 970661611}
+  - {fileID: 1545825854}
+  - {fileID: 1390210533}
+  - {fileID: 1263865817}
+  - {fileID: 1563149422}
 --- !u!4 &1113808618
 Transform:
   m_ObjectHideFlags: 0
@@ -60383,6 +60475,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0bad22992fd1449a3bfdccd5954343c7, type: 3}
   m_PrefabInstance: {fileID: 1221817346}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1222231771 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4861379983453834713, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 649743434}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &1224697186
 GameObject:
   m_ObjectHideFlags: 0
@@ -61504,6 +61607,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9e377d19037a74c41b33a75dc72398fa, type: 3}
   m_PrefabInstance: {fileID: 1235100041}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1236802644 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4861379983453834713, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 894044899}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &1238660162
 GameObject:
   m_ObjectHideFlags: 0
@@ -62834,6 +62948,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6dd6363d842fa4dc4bf9508d085f790b, type: 3}
   m_PrefabInstance: {fileID: 1263855010}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1263865817 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 331250694}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &1264516798
 GameObject:
   m_ObjectHideFlags: 0
@@ -67756,6 +67881,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: aa18187aad6234ecdb36f0f1c098fb64, type: 3}
   m_PrefabInstance: {fileID: 1389690953}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1390210533 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 122796035}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &1390977975
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74437,6 +74573,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7325993003168747986, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
   m_PrefabInstance: {fileID: 1545825850}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1545825854 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 1545825850}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &1546085956
 GameObject:
   m_ObjectHideFlags: 0
@@ -75956,6 +76103,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1562755364}
   m_CullTransparentMesh: 1
+--- !u!114 &1563149422 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 32284223}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &1564064518
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -78113,6 +78271,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae37633150b1a4a5697e22af1b069c6d, type: 3}
   m_PrefabInstance: {fileID: 1611380658}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1614256740 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1314131586856732049, guid: 2f15d30c3971b41a7b322d516fc33776, type: 3}
+  m_PrefabInstance: {fileID: 792502845}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &1614294801
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -80243,6 +80412,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a75076e82a3f54e50b40be95a8d087a4, type: 3}
   m_PrefabInstance: {fileID: 1665661513}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1666806562 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 1564064518}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &1666940105
 GameObject:
   m_ObjectHideFlags: 0
@@ -85393,6 +85573,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6662529468882932433, guid: da4711f46987846dd87fec4785d3a497, type: 3}
   m_PrefabInstance: {fileID: 1759003901}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1759003905 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4861379983453834713, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 1759003901}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &1759053961
 GameObject:
   m_ObjectHideFlags: 0
@@ -85425,6 +85616,17 @@ Transform:
   - {fileID: 1742719690}
   m_Father: {fileID: 299863960}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1759418193 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 1499798422}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &1759931914
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -87148,6 +87350,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1791276879}
   m_CullTransparentMesh: 0
+--- !u!114 &1792580908 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 1400774937}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &1796167972
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -88479,6 +88692,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 954098608948664985, guid: 2f15d30c3971b41a7b322d516fc33776, type: 3}
   m_PrefabInstance: {fileID: 1822739240}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1822739244 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1314131586856732049, guid: 2f15d30c3971b41a7b322d516fc33776, type: 3}
+  m_PrefabInstance: {fileID: 1822739240}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1001 &1823047347
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -95855,6 +96079,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6662529468882932433, guid: da4711f46987846dd87fec4785d3a497, type: 3}
   m_PrefabInstance: {fileID: 1965477822}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1965477826 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4861379983453834713, guid: da4711f46987846dd87fec4785d3a497, type: 3}
+  m_PrefabInstance: {fileID: 1965477822}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!114 &1965712675 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1635992219325010856, guid: 3a423596a74ec41f8af5272bfc4135f3, type: 3}
@@ -99178,6 +99413,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7325993003168747986, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
   m_PrefabInstance: {fileID: 2055797993}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2055797997 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8838947331215576794, guid: 69f8a290f370d40299ac1fa2d31980a9, type: 3}
+  m_PrefabInstance: {fileID: 2055797993}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cce9ca7ec1954a4dbb2347947d5e823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockController
 --- !u!1 &2060058117
 GameObject:
   m_ObjectHideFlags: 0
@@ -109194,23 +109440,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 128.83
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 94.415
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -43
       objectReference: {fileID: 0}
     - target: {fileID: 6766197391499400843, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_Name
@@ -109218,7 +109464,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9054731464049815244, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 201.83
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

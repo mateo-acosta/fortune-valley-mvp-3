@@ -97,11 +97,19 @@ namespace FortuneValley.UI.Tutorial
 
         private void HandleOverlayVisibilityChanged(bool visible)
         {
+            Debug.Log($"[TutorialOverlayUI] OnTutorialOverlayVisibilityChanged({visible}) received. " +
+                      $"canvasGroup={(_canvasGroup == null ? "null" : "ok")} " +
+                      $"dialogText={(_dialogText == null ? "null" : "ok")} " +
+                      $"portrait={(_portraitImage == null ? "null" : "ok")}");
             if (visible) Show();
             else Hide();
         }
 
-        private void HandleDialogChanged(string text, CharacterPose pose) => SetDialog(text, pose);
+        private void HandleDialogChanged(string text, CharacterPose pose)
+        {
+            Debug.Log($"[TutorialOverlayUI] OnTutorialDialogChanged received. pose={pose} textLen={(text == null ? 0 : text.Length)}");
+            SetDialog(text, pose);
+        }
 
         private void HandleSkipRevealed() => RevealSkipButton();
 
