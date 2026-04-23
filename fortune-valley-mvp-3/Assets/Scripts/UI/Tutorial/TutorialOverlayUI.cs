@@ -45,6 +45,12 @@ namespace FortuneValley.UI.Tutorial
         [SerializeField] private GameObject _skipButtonRoot;
         [SerializeField] private Button _skipButton;
 
+        [Header("Screen dim (optional)")]
+        [Tooltip("The full-screen darkening Image. Alpha fades to _dimAlphaWaitForX during WaitForX steps so the player can see the world target, and back to _dimAlphaDialog during Dialog steps.")]
+        [SerializeField] private Image _screenDimImage;
+        [SerializeField] private float _dimAlphaDialog = 0.7f;
+        [SerializeField] private float _dimAlphaWaitForX = 0.2f;
+
         private string _fullText;
         private float _revealedChars;
         private bool _revealComplete;
@@ -65,6 +71,7 @@ namespace FortuneValley.UI.Tutorial
             GameEvents.OnTutorialOverlayVisibilityChanged += HandleOverlayVisibilityChanged;
             GameEvents.OnTutorialDialogChanged += HandleDialogChanged;
             GameEvents.OnTutorialSkipRevealed += HandleSkipRevealed;
+            GameEvents.OnTutorialInputBlockChanged += HandleInputBlockChanged;
         }
 
         private void OnDisable()
@@ -72,6 +79,29 @@ namespace FortuneValley.UI.Tutorial
             GameEvents.OnTutorialOverlayVisibilityChanged -= HandleOverlayVisibilityChanged;
             GameEvents.OnTutorialDialogChanged -= HandleDialogChanged;
             GameEvents.OnTutorialSkipRevealed -= HandleSkipRevealed;
+            GameEvents.OnTutorialInputBlockChanged -= HandleInputBlockChanged;
+        }
+
+        /// <summary>
+        /// true for Dialog steps: ScreenDim fully opaque + button catches taps to advance.
+        /// false for WaitForX steps: ScreenDim lightens so the world target is visible,
+        /// ScreenDim no longer eats raycasts (clicks pass through to UI targets). The
+        /// world-target click path goes through BlockHoverController's mouse poll and
+        /// is unaffected either way.
+        /// </summary>
+        private void HandleInputBlockChanged(bool blocked)
+        {
+            if (_screenDimImage != null)
+            {
+                Color c = _screenDimImage.color;
+                c.a = blocked ? _dimAlphaDialog : _dimAlphaWaitForX;
+                _screenDimImage.color = c;
+                _screenDimImage.raycastTarget = blocked;
+            }
+            if (_advanceTapArea != null)
+            {
+                _advanceTapArea.interactable = blocked;
+            }
         }
 
         private void OnDestroy()

@@ -53,14 +53,40 @@ namespace FortuneValley.UI.Tutorial
 
         private void LateUpdate()
         {
-            if (!_isShowing || _target == null || _trackingCamera == null || _arrowRect == null) return;
+            if (!_isShowing || _target == null || _arrowRect == null) return;
 
-            Vector3 screen = _trackingCamera.WorldToScreenPoint(_target.position);
-            Vector2 baseScreenPos = (Vector2)screen + _screenOffset;
+            Vector2 baseScreenPos = ResolveScreenPos(_target) + _screenOffset;
 
             float phase = _bouncePeriod > 0f ? (Time.unscaledTime / _bouncePeriod) : 0f;
             float bounceY = Mathf.Sin(phase * Mathf.PI * 2f) * _bounceDistance;
             _arrowRect.position = new Vector3(baseScreenPos.x, baseScreenPos.y + bounceY, 0f);
+        }
+
+        /// <summary>
+        /// Returns the screen-space position of the target. Handles both
+        /// 3D world transforms (convert via the tracking Camera) and UI
+        /// RectTransforms (already in screen pixels for a Screen Space
+        /// Overlay canvas; converted via the camera for other canvas modes).
+        /// </summary>
+        private Vector2 ResolveScreenPos(Transform target)
+        {
+            var rt = target as RectTransform;
+            if (rt != null)
+            {
+                // UI element: its world position IS already screen-space on
+                // a Screen Space Overlay canvas. On Screen Space Camera /
+                // World Space canvases, rt.position is still the correct
+                // world position to convert.
+                var canvas = rt.GetComponentInParent<Canvas>();
+                if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+                {
+                    return rt.position;
+                }
+                if (_trackingCamera == null) return rt.position;
+                return _trackingCamera.WorldToScreenPoint(rt.position);
+            }
+            if (_trackingCamera == null) return Vector2.zero;
+            return _trackingCamera.WorldToScreenPoint(target.position);
         }
 
         public void Show(Transform target)
