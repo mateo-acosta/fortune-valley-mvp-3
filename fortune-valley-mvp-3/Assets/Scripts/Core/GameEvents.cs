@@ -313,6 +313,35 @@ namespace FortuneValley.Core
         public static event Action OnTutorialComplete;
 
         // ═══════════════════════════════════════════════════════════════
+        // TUTORIAL UI CONTROL (controller → UI)
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>Show or hide the tutorial overlay root.</summary>
+        public static event Action<bool> OnTutorialOverlayVisibilityChanged;
+
+        /// <summary>Dialog text + character pose for the current step.</summary>
+        public static event Action<string, CharacterPose> OnTutorialDialogChanged;
+
+        /// <summary>World-space target to highlight. null clears the highlight.</summary>
+        public static event Action<Transform> OnTutorialHighlightTarget;
+
+        /// <summary>Block (true) or unblock (false) UI input during tutorial beats.</summary>
+        public static event Action<bool> OnTutorialInputBlockChanged;
+
+        /// <summary>Reveal the Skip button after the first dialog scene completes.</summary>
+        public static event Action OnTutorialSkipRevealed;
+
+        // ═══════════════════════════════════════════════════════════════
+        // TUTORIAL INPUT (UI → controller)
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>Player tapped the dialog box's advance area.</summary>
+        public static event Action OnTutorialAdvanceRequested;
+
+        /// <summary>Player tapped the Skip Tutorial button.</summary>
+        public static event Action OnTutorialSkipRequested;
+
+        // ═══════════════════════════════════════════════════════════════
         // EVENT INVOKERS (called by systems to fire events)
         // ═══════════════════════════════════════════════════════════════
 
@@ -321,6 +350,13 @@ namespace FortuneValley.Core
         public static void RaiseBootFlowDecided(BootFlow flow) => OnBootFlowDecided?.Invoke(flow);
         public static void RaiseTutorialStartRequested() => OnTutorialStartRequested?.Invoke();
         public static void RaiseTutorialComplete() => OnTutorialComplete?.Invoke();
+        public static void RaiseTutorialOverlayVisibilityChanged(bool visible) => OnTutorialOverlayVisibilityChanged?.Invoke(visible);
+        public static void RaiseTutorialDialogChanged(string text, CharacterPose pose) => OnTutorialDialogChanged?.Invoke(text, pose);
+        public static void RaiseTutorialHighlightTarget(Transform target) => OnTutorialHighlightTarget?.Invoke(target);
+        public static void RaiseTutorialInputBlockChanged(bool blocked) => OnTutorialInputBlockChanged?.Invoke(blocked);
+        public static void RaiseTutorialSkipRevealed() => OnTutorialSkipRevealed?.Invoke();
+        public static void RaiseTutorialAdvanceRequested() => OnTutorialAdvanceRequested?.Invoke();
+        public static void RaiseTutorialSkipRequested() => OnTutorialSkipRequested?.Invoke();
         public static void RaiseCurrencyChanged(float newBalance, float delta) => OnCurrencyChanged?.Invoke(newBalance, delta);
         public static void RaiseCheckingBalanceChanged(float balance, float delta) => OnCheckingBalanceChanged?.Invoke(balance, delta);
         public static void RaiseInvestingBalanceChanged(float balance, float delta) => OnInvestingBalanceChanged?.Invoke(balance, delta);
@@ -590,6 +626,13 @@ namespace FortuneValley.Core
             OnBootFlowDecided = null;
             OnTutorialStartRequested = null;
             OnTutorialComplete = null;
+            OnTutorialOverlayVisibilityChanged = null;
+            OnTutorialDialogChanged = null;
+            OnTutorialHighlightTarget = null;
+            OnTutorialInputBlockChanged = null;
+            OnTutorialSkipRevealed = null;
+            OnTutorialAdvanceRequested = null;
+            OnTutorialSkipRequested = null;
 
             // Intent events
             OnPurchaseLotRequested = null;
