@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
 using FortuneValley.Core;
+using FortuneValley.Domain.Enums;
 
 namespace FortuneValley.City
 {
@@ -10,6 +11,14 @@ namespace FortuneValley.City
     /// the block's footprint. The footprint is derived from 4 corner anchors in
     /// world space, so it matches where the block visually sits regardless of
     /// the block GameObject's own transform position.
+    ///
+    /// Also handles left-click while hovered: if the block is player-owned
+    /// (queried via the inspector-wired CityManager + BlockController), raises
+    /// GameEvents.OnRestaurantSelected so existing listeners
+    /// (RestaurantUpgradePanel, the onboarding tutorial's WaitForRestaurantTap
+    /// step) can react. No Unity EventSystem / IPointerClickHandler is used
+    /// because blocks have no Collider; clicks come from Mouse.current polling
+    /// in the same Update loop that drives hover.
     /// </summary>
     public class BlockHoverController : MonoBehaviour
     {
@@ -25,6 +34,14 @@ namespace FortuneValley.City
 
         [Header("Camera Ref")]
         [SerializeField] private Camera _camera;
+
+        [Header("Click-to-select (optional, wire for player-owned lots)")]
+        [Tooltip("BlockController on this same block. Used to read the owned lot id.")]
+        [SerializeField] private BlockController _block;
+        [Tooltip("CityManager reference. Used to look up the current owner of this block's lot.")]
+        [SerializeField] private CityManager _cityManager;
+        [Tooltip("If true, left-clicking while hovered raises OnRestaurantSelected when the block is owned by the player.")]
+        [SerializeField] private bool _raiseRestaurantSelectedOnClick = true;
 
         [Header("Footprint Height")]
         [Tooltip("Height of the hover box above the corner anchors, in world units.")]
@@ -131,6 +148,25 @@ namespace FortuneValley.City
                 Debug.Log($"[BlockHover] Exit on {name}");
                 Hide();
             }
+
+            // Click-to-select for player-owned blocks. The block footprint is
+            // shared with the hover check above, so a click is "in bounds"
+            // whenever the user is currently hovering this block.
+            if (_raiseRestaurantSelectedOnClick && _isHovered
+                && mouse.leftButton.wasPressedThisFrame
+                && IsPlayerOwned())
+            {
+                Debug.Log($"[BlockHover] Click on {name} (player-owned) -> RaiseRestaurantSelected");
+                GameEvents.RaiseRestaurantSelected();
+            }
+        }
+
+        private bool IsPlayerOwned()
+        {
+            if (_block == null || _cityManager == null) return false;
+            var lot = _block.OwnedLot;
+            if (lot == null) return false;
+            return _cityManager.GetOwner(lot.LotId) == Owner.Player;
         }
 
         private void Show()
