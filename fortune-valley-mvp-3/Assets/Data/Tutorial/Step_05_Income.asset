@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Step_05_Income
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
-  _pose: 0
-  _dialogText: 
+  _pose: 1
+  _dialogText: Nice! Income is the foundation. But to grow we'll need to buy more
+    lots.
   _targetKind: 0
   _autoAdvanceSeconds: 0

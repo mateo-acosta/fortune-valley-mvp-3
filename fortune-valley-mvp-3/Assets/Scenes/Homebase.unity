@@ -10660,7 +10660,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &215809231
 RectTransform:
   m_ObjectHideFlags: 0
@@ -109358,6 +109358,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 215809231}
     m_Modifications:
+    - target: {fileID: 202023563147906285, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 551484566309084505, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2901498071898906965, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3405887859119015196, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5119966673176769029, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -109438,33 +109454,49 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5979034093030433868, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 128.83
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 94.415
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6154905220122107409, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -43
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6345655519403865061, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6766197391499400843, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_Name
       value: Scene1
       objectReference: {fileID: 0}
+    - target: {fileID: 6766197391499400843, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7758846317325600532, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9054731464049815244, guid: 622eca771a4ed4d52bdafc4fbc2793ec, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 201.83
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -122,6 +122,11 @@ namespace FortuneValley.Managers.Tutorial
             if (_timeManager != null) _timeManager.AcquirePause();
             if (_guidanceController != null) _guidanceController.SetSuppressed(true);
 
+            // Fire the existing OnBlockingPanelOpenChanged event so world-space
+            // hover responders (BlockHoverController, LotSelector, etc.) treat
+            // the tutorial like a modal popup and stop rendering hover canvases
+            // while the tutorial is running.
+            GameEvents.RaiseBlockingPanelOpenChanged(true);
             GameEvents.RaiseTutorialInputBlockChanged(true);
             GameEvents.RaiseTutorialOverlayVisibilityChanged(true);
 
@@ -224,6 +229,9 @@ namespace FortuneValley.Managers.Tutorial
 
             GameEvents.RaiseTutorialInputBlockChanged(false);
             GameEvents.RaiseTutorialOverlayVisibilityChanged(false);
+            // Balance the BlockingPanelOpenChanged(true) we fired at start so
+            // BlockHoverController's internal counter returns to zero.
+            GameEvents.RaiseBlockingPanelOpenChanged(false);
 
             if (_timeManager != null) _timeManager.ReleasePause();
             if (_guidanceController != null) _guidanceController.SetSuppressed(false);

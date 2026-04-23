@@ -33,8 +33,12 @@ namespace FortuneValley.UI.Notifications
 
         private void Awake()
         {
-            // Defensive: keep _slotOccupants sized to slot count if designer changed it.
-            if (_slotOccupants.Length != _slotPositions.Length)
+            // When _slotPositions is empty (0), the parent's LayoutGroup drives
+            // positioning and we do not use manual slots at all; that is not a
+            // misconfiguration. Only warn when positions are set AND the
+            // occupant array length disagrees.
+            if (_slotPositions != null && _slotPositions.Length > 0 &&
+                _slotOccupants.Length != _slotPositions.Length)
             {
                 Debug.LogWarning($"{nameof(BannerStackUI)}: slot occupant array length ({_slotOccupants.Length}) " +
                                  $"differs from slot positions length ({_slotPositions.Length}). Using positions length.");

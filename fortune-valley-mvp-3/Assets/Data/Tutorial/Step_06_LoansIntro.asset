@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Step_06_LoansIntro
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
-  _pose: 0
-  _dialogText: 
-  _targetKind: 0
+  _pose: 2
+  _dialogText: Lots cost money. Let's take out a loan. Open the Loans panel from
+    the navigation bar.
+  _targetKind: 3
   _autoAdvanceSeconds: 0

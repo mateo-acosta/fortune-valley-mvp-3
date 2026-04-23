@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdff44b400bc145d3b292b7c1a920d94, type: 3}
   m_Name: Step_07_TakeLoan
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
-  _kind: 0
+  _kind: 4
   _pose: 0
-  _dialogText: 
-  _targetKind: 0
+  _dialogText: Pick a small loan and confirm it.
+  _targetKind: 3
   _autoAdvanceSeconds: 0

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdff44b400bc145d3b292b7c1a920d94, type: 3}
   m_Name: Step_04_TapRestaurant
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
-  _kind: 0
+  _kind: 1
   _pose: 0
-  _dialogText: 
-  _targetKind: 0
+  _dialogText: Go ahead, tap your restaurant.
+  _targetKind: 1
   _autoAdvanceSeconds: 0

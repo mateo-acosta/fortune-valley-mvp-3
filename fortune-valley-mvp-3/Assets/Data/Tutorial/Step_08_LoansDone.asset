@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Step_08_LoansDone
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
-  _pose: 0
-  _dialogText: 
+  _pose: 1
+  _dialogText: Great! That cash now lives in your checking account. Use it to buy
+    a lot.
   _targetKind: 0
   _autoAdvanceSeconds: 0

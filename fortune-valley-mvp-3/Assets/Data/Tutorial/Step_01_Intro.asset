@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Step_01_Intro
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
-  _pose: 0
-  _dialogText: 
+  _pose: 1
+  _dialogText: Welcome to Fortune Valley! I'm your guide. Let me show you the ropes.
   _targetKind: 0
   _autoAdvanceSeconds: 0

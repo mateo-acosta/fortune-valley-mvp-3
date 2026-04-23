@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Step_02_Mission
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
-  _pose: 0
-  _dialogText: 
+  _pose: 2
+  _dialogText: 'Your mission: grow a restaurant chain across this city. Smart financial
+    decisions are how you win.'
   _targetKind: 0
   _autoAdvanceSeconds: 0
