@@ -53,6 +53,49 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Server-side reset of the player's state for a given game mode.
+        /// POSTs a fresh DTO with default balances and empty collections;
+        /// the Rails controller performs find_or_initialize_by on
+        /// (student_id, game_mode) and assign_attributes, so this overwrites
+        /// every persisted field in a single round trip. Used by the
+        /// Replay Tutorial flow: clicking Replay confirms and wipes
+        /// progress before the onboarding tutorial re-runs.
+        /// </summary>
+        public void WipePlayerState(string gameMode)
+        {
+            var fresh = BuildFreshState(gameMode);
+            SaveState(fresh);
+        }
+
+        private static GamePlayerStateDTO BuildFreshState(string gameMode)
+        {
+            return new GamePlayerStateDTO
+            {
+                game_mode = string.IsNullOrEmpty(gameMode) ? "homebase" : gameMode,
+                current_day = 0,
+                checking_balance = 0f,
+                credit_balance = 0f,
+                investment_balance = 0f,
+                credit_score = 650,
+                budget_variance_streak = 0,
+                tax_liability_ytd = 0f,
+                monthly_income = 0f,
+                lots_owned = new string[0],
+                rival_lots_owned = new string[0],
+                learning_levels_completed = new string[0],
+                investment_holdings = new InvestmentHoldingDTO[0],
+                active_loans = new ActiveLoanDTO[0],
+                insurance_policies = new ActiveInsurancePolicyDTO[0],
+                consecutive_insolvent_months = 0,
+                bankruptcy_flag = false,
+                restaurant_level = 1,
+                current_tick = 0,
+                cosmetic_variants = new CosmeticVariantChoice[0],
+                tutorial_completed = false
+            };
+        }
+
+        /// <summary>
         /// Enqueue a decision event for batched sending.
         /// </summary>
         public void EnqueueDecision(DecisionEventDTO decision)

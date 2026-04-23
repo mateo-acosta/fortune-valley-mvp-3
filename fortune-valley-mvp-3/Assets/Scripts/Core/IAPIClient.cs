@@ -11,6 +11,7 @@ namespace FortuneValley.Core
         bool CanPersist();
         string GetRole();
         void SaveState(GamePlayerStateDTO state);
+        void WipePlayerState(string gameMode);
         void EnqueueDecision(DecisionEventDTO decision);
         void FlushDecisions();
     }
