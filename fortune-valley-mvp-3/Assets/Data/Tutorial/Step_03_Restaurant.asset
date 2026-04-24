@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 2
-  _dialogText: This is your starter restaurant. It earns you money over time. Try
-    tapping it!
+  _dialogText: Your restaurant earns income automatically every few seconds. It
+    deposits into your checking account, growing your starting cash.
   _targetKind: 1
   _autoAdvanceSeconds: 0

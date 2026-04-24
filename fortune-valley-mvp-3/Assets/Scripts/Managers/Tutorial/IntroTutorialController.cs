@@ -43,6 +43,11 @@ namespace FortuneValley.Managers.Tutorial
         [SerializeField] private PlayerStateAccessor _playerStateAccessor;
         [SerializeField] private APIClient _apiClient;
 
+        [Tooltip("Camera used to project 3D world targets into screen space for the mask hole.")]
+        [SerializeField] private Camera _screenRectCamera;
+        [Tooltip("Fallback screen rect size (pixels) used when the target has no RectTransform and no Renderer/Collider bounds can be resolved.")]
+        [SerializeField] private Vector2 _fallbackTargetSize = new Vector2(160f, 160f);
+
         private IKeyValueStore _keyValueStore;
         private TutorialSequenceMachine _machine;
         private TutorialStepKind _activeWaitKind = TutorialStepKind.Dialog;
@@ -50,6 +55,10 @@ namespace FortuneValley.Managers.Tutorial
         private bool _isActive;
         private bool _skipRevealed;
         private bool _lastEndWasSkip;
+        // True when the current run came from ReplayTutorialService (settings
+        // menu). On the player's very first tutorial pass, the Skip button
+        // never appears -- they have to walk through the whole thing.
+        private bool _isReplayRun;
 
         public bool LastEndWasSkip => _lastEndWasSkip;
 
@@ -103,9 +112,9 @@ namespace FortuneValley.Managers.Tutorial
         // PUBLIC ENTRY POINTS
         // ═══════════════════════════════════════════════════════════════
 
-        public void HandleTutorialStartRequested()
+        public void HandleTutorialStartRequested(bool isReplay = false)
         {
-            Debug.Log($"[IntroTutorialController] HandleTutorialStartRequested fired. " +
+            Debug.Log($"[IntroTutorialController] HandleTutorialStartRequested fired. isReplay={isReplay} " +
                       $"active={_isActive} script={(_script == null ? "null" : _script.name)} " +
                       $"stepCount={(_script == null ? 0 : _script.StepCount)} " +
                       $"timeManager={(_timeManager == null ? "null" : "ok")} " +
@@ -116,6 +125,7 @@ namespace FortuneValley.Managers.Tutorial
             if (_machine == null) _machine = new TutorialSequenceMachine(_script);
 
             _isActive = true;
+            _isReplayRun = isReplay;
             _skipRevealed = false;
             _lastEndWasSkip = false;
 
@@ -173,11 +183,49 @@ namespace FortuneValley.Managers.Tutorial
                 return;
             }
 
+            if (step.ClosePanelsOnEnter) GameEvents.RaiseTutorialClosePanelsRequested();
+            GameEvents.RaiseTutorialWorldHoverAllowedChanged(step.AllowWorldHover);
+            GameEvents.RaiseTutorialArrowOffsetChanged(step.ArrowScreenOffset);
+
             GameEvents.RaiseTutorialDialogChanged(step.DialogText, step.Pose);
+            GameEvents.RaiseTutorialDialogVisibilityChanged(!step.HideDialog);
 
             if (step.Kind == TutorialStepKind.Dialog)
             {
+                // A Dialog with a target gets the arrow + donut + Next button
+                // (e.g. "here's the Investing tab"). Without a target it's the
+                // classic full-dim Dialog. The KeepFullDim flag forces full
+                // dim even when a target is set so the target stays dimmed
+                // (for steps where clicking the target should NOT advance).
+                if (step.TargetKind != TutorialTargetKind.None && _targetRegistry != null)
+                {
+                    Transform dialogTarget = _targetRegistry.GetTarget(step.TargetKind);
+                    if (dialogTarget != null)
+                    {
+                        GameEvents.RaiseTutorialHighlightTarget(dialogTarget);
+                        if (step.KeepFullDim)
+                        {
+                            GameEvents.RaiseTutorialDialogModeEntered();
+                        }
+                        else
+                        {
+                            Transform dialogMaskTarget = dialogTarget;
+                            if (step.MaskTargetKind != TutorialTargetKind.None)
+                            {
+                                var override_ = _targetRegistry.GetTarget(step.MaskTargetKind);
+                                if (override_ != null) dialogMaskTarget = override_;
+                            }
+                            GameEvents.RaiseTutorialDialogWithHighlightEntered(
+                                ExpandRect(ResolveScreenRect(dialogMaskTarget), step.MaskPaddingExtra));
+                        }
+                        _awaitingAdvanceTap = true;
+                        _activeWaitKind = TutorialStepKind.Dialog;
+                        return;
+                    }
+                }
+
                 GameEvents.RaiseTutorialHighlightTarget(null);
+                GameEvents.RaiseTutorialDialogModeEntered();
                 _awaitingAdvanceTap = true;
                 _activeWaitKind = TutorialStepKind.Dialog;
                 return;
@@ -186,11 +234,145 @@ namespace FortuneValley.Managers.Tutorial
             // WaitForX step: resolve the target and subscribe to the matching event.
             _awaitingAdvanceTap = false;
             Transform target = _targetRegistry != null ? _targetRegistry.GetTarget(step.TargetKind) : null;
+            // Mask hole defaults to the arrow target; in-panel steps override
+            // it to the panel root so the whole panel stays bright while the
+            // arrow points at one element inside.
+            Transform maskTarget = target;
+            if (step.MaskTargetKind != TutorialTargetKind.None && _targetRegistry != null)
+            {
+                var override_ = _targetRegistry.GetTarget(step.MaskTargetKind);
+                if (override_ != null) maskTarget = override_;
+            }
             Debug.Log($"[IntroTutorialController] WaitFor step entered. kind={step.Kind} " +
-                      $"targetKind={step.TargetKind} " +
-                      $"target={(target == null ? "null" : target.name + " at " + target.position)}");
+                      $"targetKind={step.TargetKind} maskTargetKind={step.MaskTargetKind} hideDialog={step.HideDialog} " +
+                      $"target={(target == null ? "null" : target.name + " at " + target.position)} " +
+                      $"maskTarget={(maskTarget == null ? "null" : maskTarget.name)}");
             GameEvents.RaiseTutorialHighlightTarget(target);
+            GameEvents.RaiseTutorialWaitModeEntered(ExpandRect(ResolveScreenRect(maskTarget), step.MaskPaddingExtra));
             SubscribeWaitEvent(step.Kind);
+        }
+
+        /// <summary>
+        /// Expand a screen-space rect by the per-step extra padding. extra.x
+        /// adds to the left and right; extra.y adds to top and bottom.
+        /// </summary>
+        private static Rect ExpandRect(Rect r, Vector2 extra)
+        {
+            if (extra == Vector2.zero) return r;
+            return Rect.MinMaxRect(r.xMin - extra.x, r.yMin - extra.y, r.xMax + extra.x, r.yMax + extra.y);
+        }
+
+        /// <summary>
+        /// Returns the target's screen-space Rect (pixels) so the mask
+        /// overlay can cut a donut hole around it. Handles both UI
+        /// RectTransforms and 3D world Renderers/Colliders. Falls back to
+        /// a small square centered on the screen if the target has no
+        /// usable bounds source.
+        /// </summary>
+        private Rect ResolveScreenRect(Transform target)
+        {
+            if (target == null) return ZeroCenteredFallback();
+
+            // Authored corner anchors take precedence -- they describe the
+            // true footprint (e.g. a block's lot edges) better than the
+            // parent transform or whichever renderer happens to live first
+            // in the child list.
+            var anchors = target.GetComponent<TutorialWorldBoundsAnchors>();
+            if (anchors != null && anchors.TryGetBounds(out var anchored))
+            {
+                return BoundsToScreenRect(anchored);
+            }
+
+            var rt = target as RectTransform;
+            if (rt != null)
+            {
+                return RectTransformToScreenRect(rt);
+            }
+
+            var renderer = target.GetComponentInChildren<Renderer>();
+            if (renderer != null)
+            {
+                return BoundsToScreenRect(renderer.bounds);
+            }
+
+            var collider = target.GetComponentInChildren<Collider>();
+            if (collider != null)
+            {
+                return BoundsToScreenRect(collider.bounds);
+            }
+
+            // No bounds source: project the pivot and pad by fallback size.
+            Camera cam = _screenRectCamera != null ? _screenRectCamera : Camera.main;
+            if (cam == null) return ZeroCenteredFallback();
+            Vector3 sp = cam.WorldToScreenPoint(target.position);
+            return new Rect(
+                sp.x - _fallbackTargetSize.x * 0.5f,
+                sp.y - _fallbackTargetSize.y * 0.5f,
+                _fallbackTargetSize.x,
+                _fallbackTargetSize.y);
+        }
+
+        private static Rect RectTransformToScreenRect(RectTransform rt)
+        {
+            // Screen Space Overlay canvas: world corners are already in screen pixels.
+            // Other canvas modes: convert via the canvas's render camera.
+            var canvas = rt.GetComponentInParent<Canvas>();
+            Camera cam = (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                ? canvas.worldCamera
+                : null;
+
+            var corners = new Vector3[4];
+            rt.GetWorldCorners(corners);
+
+            float minX = float.MaxValue, minY = float.MaxValue;
+            float maxX = float.MinValue, maxY = float.MinValue;
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 sp = cam != null
+                    ? (Vector2)cam.WorldToScreenPoint(corners[i])
+                    : (Vector2)corners[i];
+                if (sp.x < minX) minX = sp.x;
+                if (sp.x > maxX) maxX = sp.x;
+                if (sp.y < minY) minY = sp.y;
+                if (sp.y > maxY) maxY = sp.y;
+            }
+            return Rect.MinMaxRect(minX, minY, maxX, maxY);
+        }
+
+        private Rect BoundsToScreenRect(Bounds bounds)
+        {
+            Camera cam = _screenRectCamera != null ? _screenRectCamera : Camera.main;
+            if (cam == null) return ZeroCenteredFallback();
+
+            // Project all 8 corners of the world-space AABB; take the screen
+            // bounding box. Handles rotated/tilted cameras correctly.
+            var center = bounds.center;
+            var ext = bounds.extents;
+            float minX = float.MaxValue, minY = float.MaxValue;
+            float maxX = float.MinValue, maxY = float.MinValue;
+            for (int dx = -1; dx <= 1; dx += 2)
+            for (int dy = -1; dy <= 1; dy += 2)
+            for (int dz = -1; dz <= 1; dz += 2)
+            {
+                Vector3 wp = center + new Vector3(ext.x * dx, ext.y * dy, ext.z * dz);
+                Vector3 sp = cam.WorldToScreenPoint(wp);
+                if (sp.x < minX) minX = sp.x;
+                if (sp.x > maxX) maxX = sp.x;
+                if (sp.y < minY) minY = sp.y;
+                if (sp.y > maxY) maxY = sp.y;
+            }
+            return Rect.MinMaxRect(minX, minY, maxX, maxY);
+        }
+
+        private Rect ZeroCenteredFallback()
+        {
+            float w = Screen.width;
+            float h = Screen.height;
+            return new Rect(
+                w * 0.5f - _fallbackTargetSize.x * 0.5f,
+                h * 0.5f - _fallbackTargetSize.y * 0.5f,
+                _fallbackTargetSize.x,
+                _fallbackTargetSize.y);
         }
 
         private void AdvanceStep()
@@ -200,9 +382,10 @@ namespace FortuneValley.Managers.Tutorial
             if (_machine == null) { EndTutorial(); return; }
             _machine.Advance();
 
-            // After advancing OUT of step 0 for the first time, reveal the Skip button.
-            // Revealing happens once per run so re-entering dialog steps later does not toggle it off.
-            if (!_skipRevealed && _machine.CurrentIndex > 0)
+            // Skip button only appears on REPLAY runs. On the player's very
+            // first pass through the tutorial they have to walk through the
+            // whole thing -- it's how the learning hooks land.
+            if (_isReplayRun && !_skipRevealed && _machine.CurrentIndex > 0)
             {
                 _skipRevealed = true;
                 GameEvents.RaiseTutorialSkipRevealed();
@@ -235,6 +418,8 @@ namespace FortuneValley.Managers.Tutorial
             // Balance the BlockingPanelOpenChanged(true) we fired at start so
             // BlockHoverController's internal counter returns to zero.
             GameEvents.RaiseBlockingPanelOpenChanged(false);
+            // Reset the world-hover gate so it doesn't leak past tutorial end.
+            GameEvents.RaiseTutorialWorldHoverAllowedChanged(false);
 
             if (_timeManager != null) _timeManager.ReleasePause();
             if (_guidanceController != null) _guidanceController.SetSuppressed(false);
@@ -296,11 +481,13 @@ namespace FortuneValley.Managers.Tutorial
                     GameEvents.OnRestaurantUpgraded += HandleRestaurantUpgraded;
                     return;
                 case TutorialStepKind.WaitForLoanPanelOpened:
-                    // Panel-open event not yet wired. Behaves like a Dialog step:
-                    // the player taps to advance. This branch can be replaced
-                    // once UIManager.ShowPanel raises a typed OnPanelOpened event.
-                    _awaitingAdvanceTap = true;
-                    _activeWaitKind = TutorialStepKind.Dialog;
+                    GameEvents.OnPanelOpened += HandlePanelOpened;
+                    return;
+                case TutorialStepKind.WaitForLoanShopTabSelected:
+                    GameEvents.OnLoanShopTabSelected += HandleLoanShopTabSelected;
+                    return;
+                case TutorialStepKind.WaitForLotInfoOpened:
+                    GameEvents.OnLotInfoRequested += HandleLotInfoRequested;
                     return;
             }
         }
@@ -324,6 +511,15 @@ namespace FortuneValley.Managers.Tutorial
                 case TutorialStepKind.WaitForRestaurantUpgraded:
                     GameEvents.OnRestaurantUpgraded -= HandleRestaurantUpgraded;
                     break;
+                case TutorialStepKind.WaitForLoanPanelOpened:
+                    GameEvents.OnPanelOpened -= HandlePanelOpened;
+                    break;
+                case TutorialStepKind.WaitForLoanShopTabSelected:
+                    GameEvents.OnLoanShopTabSelected -= HandleLoanShopTabSelected;
+                    break;
+                case TutorialStepKind.WaitForLotInfoOpened:
+                    GameEvents.OnLotInfoRequested -= HandleLotInfoRequested;
+                    break;
             }
             _activeWaitKind = TutorialStepKind.Dialog;
         }
@@ -345,5 +541,19 @@ namespace FortuneValley.Managers.Tutorial
         }
 
         private void HandleRestaurantUpgraded(int newLevel) => AdvanceStep();
+
+        private void HandlePanelOpened(PanelType panelType)
+        {
+            // The only WaitForX step that listens on OnPanelOpened is
+            // WaitForLoanPanelOpened. If the player opens a different panel
+            // (Insurance, Portfolio, etc.), do nothing.
+            if (_activeWaitKind != TutorialStepKind.WaitForLoanPanelOpened) return;
+            if (panelType != PanelType.Loan) return;
+            AdvanceStep();
+        }
+
+        private void HandleLoanShopTabSelected() => AdvanceStep();
+
+        private void HandleLotInfoRequested(string lotId) => AdvanceStep();
     }
 }

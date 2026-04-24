@@ -49,7 +49,7 @@ namespace FortuneValley.Managers.Tutorial
                 if (state != null) state.tutorial_completed = false;
             }
 
-            GameEvents.RaiseTutorialStartRequested();
+            GameEvents.RaiseTutorialStartRequested(isReplay: true);
         }
 
         private string ResolveGameMode()

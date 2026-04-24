@@ -4,6 +4,7 @@
     "references": [
         "FortuneValley.Core",
         "FortuneValley.Domain",
+        "FortuneValley.Managers",
         "Unity.TextMeshPro",
         "Unity.InputSystem"
     ],

@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bdff44b400bc145d3b292b7c1a920d94, type: 3}
-  m_Name: Step_11_Upgrade
+  m_Name: Step_11e_Rival
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
-  _pose: 2
-  _dialogText: You can upgrade this same building to earn more money and get a
-    nicer look. Then buy more lots to add new restaurants and keep expanding
-    your city.
-  _targetKind: 0
+  _pose: 3
+  _dialogText: Watch out for your rival. They're buying lots too, and once they
+    grab one it's much more expensive to take back. Move fast on the lots you want.
+  _targetKind: 17
+  _arrowScreenOffset: {x: 20, y: 0}
   _autoAdvanceSeconds: 0

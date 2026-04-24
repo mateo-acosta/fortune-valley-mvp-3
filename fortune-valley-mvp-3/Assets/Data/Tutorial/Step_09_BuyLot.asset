@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 5
   _pose: 2
-  _dialogText: Look around the city for a 'For Sale' lot. Tap it and buy it.
-  _targetKind: 2
+  _dialogText: Click Buy to confirm the purchase.
+  _targetKind: 12
+  _maskTargetKind: 13
+  _hideDialog: 1
+  _maskPaddingExtra: {x: 0, y: 80}
   _autoAdvanceSeconds: 0

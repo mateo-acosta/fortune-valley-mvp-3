@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdff44b400bc145d3b292b7c1a920d94, type: 3}
   m_Name: Step_04_TapRestaurant
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
-  _kind: 1
+  _kind: 0
   _pose: 0
-  _dialogText: Go ahead, tap your restaurant.
+  _dialogText: Your restaurant is the heart of your business. It earns you a steady
+    income on its own, building the cash you'll use to buy lots and grow.
   _targetKind: 1
+  _keepFullDim: 1
   _autoAdvanceSeconds: 0

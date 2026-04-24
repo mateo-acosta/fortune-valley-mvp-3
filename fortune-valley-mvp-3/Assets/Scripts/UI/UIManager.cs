@@ -110,6 +110,7 @@ namespace FortuneValley.UI
             GameEvents.OnLotInfoRequested += HandleLotInfoRequested;
             GameEvents.OnLotInsuranceRequested += HandleLotInsuranceRequested;
             GameEvents.OnLotLoanExploreRequested += HandleLotLoanExploreRequested;
+            GameEvents.OnTutorialClosePanelsRequested += HandleTutorialClosePanelsRequested;
 
             HideAllPanels();
             HideAllPopups();
@@ -138,6 +139,13 @@ namespace FortuneValley.UI
             GameEvents.OnLotInfoRequested -= HandleLotInfoRequested;
             GameEvents.OnLotInsuranceRequested -= HandleLotInsuranceRequested;
             GameEvents.OnLotLoanExploreRequested -= HandleLotLoanExploreRequested;
+            GameEvents.OnTutorialClosePanelsRequested -= HandleTutorialClosePanelsRequested;
+        }
+
+        private void HandleTutorialClosePanelsRequested()
+        {
+            HideAllPopups();
+            HideCurrentPanel();
         }
 
         private void HandleLotInfoRequested(string lotId)
@@ -186,6 +194,7 @@ namespace FortuneValley.UI
             {
                 panel.Show();
                 _currentPanel = panel;
+                GameEvents.RaisePanelOpened(panelType);
             }
         }
 

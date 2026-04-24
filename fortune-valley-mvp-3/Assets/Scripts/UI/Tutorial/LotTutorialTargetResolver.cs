@@ -43,7 +43,13 @@ namespace FortuneValley.UI.Tutorial
                 if (lotDef == null) continue; // ambient block (no lot assignment)
                 if (_cityManager.GetOwner(lotDef.LotId) != Owner.None) continue;
 
-                target = block.transform;
+                // Prefer the world-space hover canvas above the block (a
+                // RectTransform with concrete world corners) over the bare
+                // block transform — the controller's screen-rect resolver
+                // projects RectTransform corners cleanly, while a block GO
+                // with no Renderer would fall back to a tiny center rect.
+                var canvas = block.GetComponentInChildren<Canvas>(true);
+                target = canvas != null ? canvas.transform : block.transform;
                 return true;
             }
             return false;

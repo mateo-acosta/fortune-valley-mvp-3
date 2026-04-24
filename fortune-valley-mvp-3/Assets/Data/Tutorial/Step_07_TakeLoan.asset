@@ -15,5 +15,7 @@ MonoBehaviour:
   _kind: 4
   _pose: 0
   _dialogText: Pick a small loan and confirm it.
-  _targetKind: 3
+  _targetKind: 6
+  _maskTargetKind: 10
+  _hideDialog: 1
   _autoAdvanceSeconds: 0

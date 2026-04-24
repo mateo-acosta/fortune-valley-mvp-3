@@ -215,6 +215,14 @@ namespace FortuneValley.Core
         /// </summary>
         public static event Action<bool> OnSetHUDVisible;
 
+        /// <summary>
+        /// Fired by UIManager.ShowPanel after a panel becomes visible. The
+        /// tutorial uses this so a "wait for player to open the loans panel"
+        /// step advances when the panel actually opens, not when the HUD
+        /// button is clicked.
+        /// </summary>
+        public static event Action<PanelType> OnPanelOpened;
+
         // ═══════════════════════════════════════════════════════════════
         // INTENT EVENTS (fired by UI, handled by game systems)
         // ═══════════════════════════════════════════════════════════════
@@ -298,12 +306,12 @@ namespace FortuneValley.Core
 
         /// <summary>
         /// Fired by GameFlowController when a FirstTimeTutorial flow has
-        /// been decided. The IntroTutorialController subscribes and begins
-        /// its scripted sequence. In sessions where the tutorial controller
-        /// is not present in the scene the flow falls back to the normal
-        /// carousel path so players are never left on a blank screen.
+        /// been decided, or by ReplayTutorialService when the player chose
+        /// "Replay tutorial" in settings. The bool payload distinguishes
+        /// the two cases: false = first-pass (Skip button never appears),
+        /// true = replay (Skip button revealed after step 1, as before).
         /// </summary>
-        public static event Action OnTutorialStartRequested;
+        public static event Action<bool> OnTutorialStartRequested;
 
         /// <summary>
         /// Fired by IntroTutorialController when its final step completes
@@ -325,11 +333,67 @@ namespace FortuneValley.Core
         /// <summary>World-space target to highlight. null clears the highlight.</summary>
         public static event Action<Transform> OnTutorialHighlightTarget;
 
+        /// <summary>
+        /// Per-step extra screen offset added to the arrow on top of
+        /// TutorialHighlight's global offset. Reset to zero each step.
+        /// </summary>
+        public static event Action<Vector2> OnTutorialArrowOffsetChanged;
+
         /// <summary>Block (true) or unblock (false) UI input during tutorial beats.</summary>
         public static event Action<bool> OnTutorialInputBlockChanged;
 
         /// <summary>Reveal the Skip button after the first dialog scene completes.</summary>
         public static event Action OnTutorialSkipRevealed;
+
+        /// <summary>
+        /// Fired when a Dialog step is entered. UI handlers switch the mask
+        /// overlay to full-screen dim and show the Next button.
+        /// </summary>
+        public static event Action OnTutorialDialogModeEntered;
+
+        /// <summary>
+        /// Fired when a WaitForX step is entered. Payload is the target's
+        /// screen-space Rect (pixels). UI handlers cut a donut hole around
+        /// the rect and hide the Next button so only the real game action
+        /// can advance the tutorial.
+        /// </summary>
+        public static event Action<Rect> OnTutorialWaitModeEntered;
+
+        /// <summary>
+        /// Fired when a Dialog step that ALSO points at a target is entered
+        /// (e.g. "here's the Investing tab" with arrow + donut hole on the
+        /// HUD button, but Next still advances). UI handlers cut the donut
+        /// AND keep the Next button visible.
+        /// </summary>
+        public static event Action<Rect> OnTutorialDialogWithHighlightEntered;
+
+        /// <summary>
+        /// Fired when the tutorial step wants the dialog frame + character
+        /// hidden (in-panel steps) or shown (everything else). Decoupled
+        /// from mode entry so each step can independently choose.
+        /// </summary>
+        public static event Action<bool> OnTutorialDialogVisibilityChanged;
+
+        /// <summary>
+        /// Fired by the loan panel's Shop-tab signaler when the player
+        /// switches to the Shop subpanel inside Credit &amp; Loans.
+        /// Tutorial step `WaitForLoanShopTabSelected` advances on this event.
+        /// </summary>
+        public static event Action OnLoanShopTabSelected;
+
+        /// <summary>
+        /// Tutorial-driven request that UIManager close any open panels and
+        /// popups, used when transitioning out of an in-panel step into a
+        /// world-space step.
+        /// </summary>
+        public static event Action OnTutorialClosePanelsRequested;
+
+        /// <summary>
+        /// Tutorial-driven gate for world-space hover UIs (BlockHoverController).
+        /// True allows the hover canvas to appear even while the tutorial
+        /// holds the modal-panel flag; false restores normal suppression.
+        /// </summary>
+        public static event Action<bool> OnTutorialWorldHoverAllowedChanged;
 
         // ═══════════════════════════════════════════════════════════════
         // TUTORIAL INPUT (UI → controller)
@@ -348,13 +412,21 @@ namespace FortuneValley.Core
         public static void RaiseTick(int tickNumber) => OnTick?.Invoke(tickNumber);
         public static void RaiseGameSpeedChanged(float speed) => OnGameSpeedChanged?.Invoke(speed);
         public static void RaiseBootFlowDecided(BootFlow flow) => OnBootFlowDecided?.Invoke(flow);
-        public static void RaiseTutorialStartRequested() => OnTutorialStartRequested?.Invoke();
+        public static void RaiseTutorialStartRequested(bool isReplay = false) => OnTutorialStartRequested?.Invoke(isReplay);
         public static void RaiseTutorialComplete() => OnTutorialComplete?.Invoke();
         public static void RaiseTutorialOverlayVisibilityChanged(bool visible) => OnTutorialOverlayVisibilityChanged?.Invoke(visible);
         public static void RaiseTutorialDialogChanged(string text, CharacterPose pose) => OnTutorialDialogChanged?.Invoke(text, pose);
         public static void RaiseTutorialHighlightTarget(Transform target) => OnTutorialHighlightTarget?.Invoke(target);
+        public static void RaiseTutorialArrowOffsetChanged(Vector2 offset) => OnTutorialArrowOffsetChanged?.Invoke(offset);
         public static void RaiseTutorialInputBlockChanged(bool blocked) => OnTutorialInputBlockChanged?.Invoke(blocked);
         public static void RaiseTutorialSkipRevealed() => OnTutorialSkipRevealed?.Invoke();
+        public static void RaiseTutorialDialogModeEntered() => OnTutorialDialogModeEntered?.Invoke();
+        public static void RaiseTutorialWaitModeEntered(Rect screenRect) => OnTutorialWaitModeEntered?.Invoke(screenRect);
+        public static void RaiseTutorialDialogWithHighlightEntered(Rect screenRect) => OnTutorialDialogWithHighlightEntered?.Invoke(screenRect);
+        public static void RaiseTutorialDialogVisibilityChanged(bool visible) => OnTutorialDialogVisibilityChanged?.Invoke(visible);
+        public static void RaiseLoanShopTabSelected() => OnLoanShopTabSelected?.Invoke();
+        public static void RaiseTutorialClosePanelsRequested() => OnTutorialClosePanelsRequested?.Invoke();
+        public static void RaiseTutorialWorldHoverAllowedChanged(bool allowed) => OnTutorialWorldHoverAllowedChanged?.Invoke(allowed);
         public static void RaiseTutorialAdvanceRequested() => OnTutorialAdvanceRequested?.Invoke();
         public static void RaiseTutorialSkipRequested() => OnTutorialSkipRequested?.Invoke();
         public static void RaiseCurrencyChanged(float newBalance, float delta) => OnCurrencyChanged?.Invoke(newBalance, delta);
@@ -387,6 +459,7 @@ namespace FortuneValley.Core
         public static void RaiseHideRulesCarousel() => OnHideRulesCarousel?.Invoke();
         public static void RaiseStartCountdown() => OnStartCountdown?.Invoke();
         public static void RaiseSetHUDVisible(bool visible) => OnSetHUDVisible?.Invoke(visible);
+        public static void RaisePanelOpened(PanelType panelType) => OnPanelOpened?.Invoke(panelType);
         public static void RaiseStartRequested() => OnStartRequested?.Invoke();
         public static void RaiseCarouselComplete() => OnCarouselComplete?.Invoke();
         public static void RaiseCountdownComplete() => OnCountdownComplete?.Invoke();
@@ -618,6 +691,7 @@ namespace FortuneValley.Core
             OnHideRulesCarousel = null;
             OnStartCountdown = null;
             OnSetHUDVisible = null;
+            OnPanelOpened = null;
             OnStartRequested = null;
             OnCarouselComplete = null;
             OnCountdownComplete = null;
@@ -629,8 +703,16 @@ namespace FortuneValley.Core
             OnTutorialOverlayVisibilityChanged = null;
             OnTutorialDialogChanged = null;
             OnTutorialHighlightTarget = null;
+            OnTutorialArrowOffsetChanged = null;
             OnTutorialInputBlockChanged = null;
             OnTutorialSkipRevealed = null;
+            OnTutorialDialogModeEntered = null;
+            OnTutorialWaitModeEntered = null;
+            OnTutorialDialogWithHighlightEntered = null;
+            OnTutorialDialogVisibilityChanged = null;
+            OnLoanShopTabSelected = null;
+            OnTutorialClosePanelsRequested = null;
+            OnTutorialWorldHoverAllowedChanged = null;
             OnTutorialAdvanceRequested = null;
             OnTutorialSkipRequested = null;
 

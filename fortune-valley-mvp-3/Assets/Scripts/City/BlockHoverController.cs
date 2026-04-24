@@ -58,6 +58,10 @@ namespace FortuneValley.City
         private Tween _currentTween;
         private Sequence _exitSequence;
         private static int s_openPanelCount;
+        // Tutorial steps that need the world-space hover canvas (e.g. the
+        // "find a For-Sale lot and buy it" step) flip this on so the hover
+        // appears even while the tutorial holds a modal-panel flag.
+        private static bool s_tutorialHoverAllowed;
 
         private void Awake()
         {
@@ -75,14 +79,18 @@ namespace FortuneValley.City
         private void OnEnable()
         {
             GameEvents.OnBlockingPanelOpenChanged += HandlePanelStateChanged;
+            GameEvents.OnTutorialWorldHoverAllowedChanged += HandleTutorialHoverAllowedChanged;
         }
 
         private void OnDisable()
         {
             GameEvents.OnBlockingPanelOpenChanged -= HandlePanelStateChanged;
+            GameEvents.OnTutorialWorldHoverAllowedChanged -= HandleTutorialHoverAllowedChanged;
             if (_currentTween != null) _currentTween.Kill();
             if (_exitSequence != null) _exitSequence.Kill();
         }
+
+        private void HandleTutorialHoverAllowedChanged(bool allowed) => s_tutorialHoverAllowed = allowed;
 
         private void HandlePanelStateChanged(bool open)
         {
@@ -146,8 +154,11 @@ namespace FortuneValley.City
                 GameEvents.RaiseRestaurantSelected();
             }
 
-            // Hover canvas is suppressed while any modal panel is open.
-            if (s_openPanelCount > 0)
+            // Hover canvas is suppressed while any modal panel is open, except
+            // when the tutorial explicitly allows hover (e.g. the "find a
+            // For-Sale lot" step needs the world canvas to appear so the
+            // player can click Buy).
+            if (s_openPanelCount > 0 && !s_tutorialHoverAllowed)
             {
                 if (_isHovered) { _isHovered = false; Hide(); }
                 return;

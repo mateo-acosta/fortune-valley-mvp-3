@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 3
-  _dialogText: A rundown building appeared on your new lot! That's Tier 1. Let's
-    upgrade it to Tier 2.
+  _dialogText: A rundown building appeared on your new lot. That's Tier 1.
   _targetKind: 0
   _autoAdvanceSeconds: 0

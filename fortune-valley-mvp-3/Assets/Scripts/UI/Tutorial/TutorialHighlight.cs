@@ -1,6 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 using FortuneValley.Core;
+using FortuneValley.Managers.Tutorial;
 
 namespace FortuneValley.UI.Tutorial
 {
@@ -26,6 +27,7 @@ namespace FortuneValley.UI.Tutorial
         private Transform _target;
         private Tween _fadeTween;
         private bool _isShowing;
+        private Vector2 _stepOffset;
 
         private void Awake()
         {
@@ -36,12 +38,16 @@ namespace FortuneValley.UI.Tutorial
         private void OnEnable()
         {
             GameEvents.OnTutorialHighlightTarget += HandleHighlightTarget;
+            GameEvents.OnTutorialArrowOffsetChanged += HandleArrowOffsetChanged;
         }
 
         private void OnDisable()
         {
             GameEvents.OnTutorialHighlightTarget -= HandleHighlightTarget;
+            GameEvents.OnTutorialArrowOffsetChanged -= HandleArrowOffsetChanged;
         }
+
+        private void HandleArrowOffsetChanged(Vector2 offset) => _stepOffset = offset;
 
         private void OnDestroy() => _fadeTween?.Kill();
 
@@ -55,7 +61,7 @@ namespace FortuneValley.UI.Tutorial
         {
             if (!_isShowing || _target == null || _arrowRect == null) return;
 
-            Vector2 baseScreenPos = ResolveScreenPos(_target) + _screenOffset;
+            Vector2 baseScreenPos = ResolveScreenPos(_target) + _screenOffset + _stepOffset;
 
             float phase = _bouncePeriod > 0f ? (Time.unscaledTime / _bouncePeriod) : 0f;
             float bounceY = Mathf.Sin(phase * Mathf.PI * 2f) * _bounceDistance;
@@ -85,6 +91,18 @@ namespace FortuneValley.UI.Tutorial
                 if (_trackingCamera == null) return rt.position;
                 return _trackingCamera.WorldToScreenPoint(rt.position);
             }
+
+            // World-space targets: prefer authored corner anchors so the arrow
+            // lands on the actual footprint center, not the parent transform
+            // (e.g. block GOs sit at world origin while their lot lives
+            // somewhere else entirely).
+            var anchors = target.GetComponent<TutorialWorldBoundsAnchors>();
+            if (anchors != null && anchors.TryGetBounds(out var bounds))
+            {
+                Camera cam = _trackingCamera != null ? _trackingCamera : Camera.main;
+                if (cam != null) return cam.WorldToScreenPoint(bounds.center);
+            }
+
             if (_trackingCamera == null) return Vector2.zero;
             return _trackingCamera.WorldToScreenPoint(target.position);
         }

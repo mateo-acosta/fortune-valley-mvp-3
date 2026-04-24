@@ -56,7 +56,7 @@ namespace FortuneValley.Tests
             _service.Initialize(apiClient: null, accessor: _stateAccessor, keyValueStore: _store);
 
             bool raised = false;
-            GameEvents.OnTutorialStartRequested += () => raised = true;
+            GameEvents.OnTutorialStartRequested += _ => raised = true;
 
             _service.RequestReplay();
 

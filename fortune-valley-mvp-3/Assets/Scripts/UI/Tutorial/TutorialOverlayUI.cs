@@ -36,20 +36,29 @@ namespace FortuneValley.UI.Tutorial
 
         [Header("Dialog")]
         [SerializeField] private TextMeshProUGUI _dialogText;
-        [SerializeField] private Button _advanceTapArea;
         [SerializeField] private GameObject _tapIndicator;
         [Tooltip("Characters per second revealed by the typewriter.")]
         [SerializeField] private float _charsPerSecond = 30f;
+
+        [Header("Next button")]
+        [Tooltip("The dedicated 'Next' button. Only way to advance Dialog steps.")]
+        [SerializeField] private Button _buttonNext;
+        [Tooltip("Root GameObject to hide during WaitForX steps so only the real game action can advance.")]
+        [SerializeField] private GameObject _buttonNextRoot;
 
         [Header("Skip")]
         [SerializeField] private GameObject _skipButtonRoot;
         [SerializeField] private Button _skipButton;
 
-        [Header("Screen dim (optional)")]
-        [Tooltip("The full-screen darkening Image. Alpha fades to _dimAlphaWaitForX during WaitForX steps so the player can see the world target, and back to _dimAlphaDialog during Dialog steps.")]
-        [SerializeField] private Image _screenDimImage;
-        [SerializeField] private float _dimAlphaDialog = 0.7f;
-        [SerializeField] private float _dimAlphaWaitForX = 0.2f;
+        [Header("Mask")]
+        [Tooltip("4-rect donut mask. Full dim for Dialog steps, hole-around-target for WaitForX steps.")]
+        [SerializeField] private MaskOverlay _maskOverlay;
+
+        [Header("Dialog visibility (in-panel steps hide both)")]
+        [Tooltip("Frame_Message + dialog text root. Hidden by OnTutorialDialogVisibilityChanged(false).")]
+        [SerializeField] private GameObject _frameMessageRoot;
+        [Tooltip("Character portrait root. Hidden alongside the dialog frame on in-panel steps.")]
+        [SerializeField] private GameObject _characterRoot;
 
         private string _fullText;
         private float _revealedChars;
@@ -60,7 +69,7 @@ namespace FortuneValley.UI.Tutorial
 
         private void Awake()
         {
-            if (_advanceTapArea != null) _advanceTapArea.onClick.AddListener(HandleAdvanceTap);
+            if (_buttonNext != null) _buttonNext.onClick.AddListener(HandleAdvanceTap);
             if (_skipButton != null) _skipButton.onClick.AddListener(HandleSkipTap);
             HideSkipButton();
             Hide();
@@ -71,7 +80,10 @@ namespace FortuneValley.UI.Tutorial
             GameEvents.OnTutorialOverlayVisibilityChanged += HandleOverlayVisibilityChanged;
             GameEvents.OnTutorialDialogChanged += HandleDialogChanged;
             GameEvents.OnTutorialSkipRevealed += HandleSkipRevealed;
-            GameEvents.OnTutorialInputBlockChanged += HandleInputBlockChanged;
+            GameEvents.OnTutorialDialogModeEntered += HandleDialogModeEntered;
+            GameEvents.OnTutorialWaitModeEntered += HandleWaitModeEntered;
+            GameEvents.OnTutorialDialogWithHighlightEntered += HandleDialogWithHighlightEntered;
+            GameEvents.OnTutorialDialogVisibilityChanged += HandleDialogVisibilityChanged;
         }
 
         private void OnDisable()
@@ -79,34 +91,51 @@ namespace FortuneValley.UI.Tutorial
             GameEvents.OnTutorialOverlayVisibilityChanged -= HandleOverlayVisibilityChanged;
             GameEvents.OnTutorialDialogChanged -= HandleDialogChanged;
             GameEvents.OnTutorialSkipRevealed -= HandleSkipRevealed;
-            GameEvents.OnTutorialInputBlockChanged -= HandleInputBlockChanged;
+            GameEvents.OnTutorialDialogModeEntered -= HandleDialogModeEntered;
+            GameEvents.OnTutorialWaitModeEntered -= HandleWaitModeEntered;
+            GameEvents.OnTutorialDialogWithHighlightEntered -= HandleDialogWithHighlightEntered;
+            GameEvents.OnTutorialDialogVisibilityChanged -= HandleDialogVisibilityChanged;
+        }
+
+        private void HandleDialogVisibilityChanged(bool visible)
+        {
+            if (_frameMessageRoot != null) _frameMessageRoot.SetActive(visible);
+            if (_characterRoot != null) _characterRoot.SetActive(visible);
         }
 
         /// <summary>
-        /// true for Dialog steps: ScreenDim fully opaque + button catches taps to advance.
-        /// false for WaitForX steps: ScreenDim lightens so the world target is visible,
-        /// ScreenDim no longer eats raycasts (clicks pass through to UI targets). The
-        /// world-target click path goes through BlockHoverController's mouse poll and
-        /// is unaffected either way.
+        /// Dialog step: full-screen dim, Next button visible. Only way forward is Button_Next.
         /// </summary>
-        private void HandleInputBlockChanged(bool blocked)
+        private void HandleDialogModeEntered()
         {
-            if (_screenDimImage != null)
-            {
-                Color c = _screenDimImage.color;
-                c.a = blocked ? _dimAlphaDialog : _dimAlphaWaitForX;
-                _screenDimImage.color = c;
-                _screenDimImage.raycastTarget = blocked;
-            }
-            if (_advanceTapArea != null)
-            {
-                _advanceTapArea.interactable = blocked;
-            }
+            if (_maskOverlay != null) _maskOverlay.ShowFullDim();
+            if (_buttonNextRoot != null) _buttonNextRoot.SetActive(true);
+        }
+
+        /// <summary>
+        /// WaitForX step: donut hole around target, Next button hidden so only
+        /// the real game action (tap restaurant, open panel, etc.) advances.
+        /// </summary>
+        private void HandleWaitModeEntered(Rect targetScreenRect)
+        {
+            if (_maskOverlay != null) _maskOverlay.ShowDonut(targetScreenRect);
+            if (_buttonNextRoot != null) _buttonNextRoot.SetActive(false);
+        }
+
+        /// <summary>
+        /// Dialog step that points at a target (e.g. "here's the Investing
+        /// tab"): donut hole around target AND Next button still visible so
+        /// the player can keep tapping through.
+        /// </summary>
+        private void HandleDialogWithHighlightEntered(Rect targetScreenRect)
+        {
+            if (_maskOverlay != null) _maskOverlay.ShowDonut(targetScreenRect);
+            if (_buttonNextRoot != null) _buttonNextRoot.SetActive(true);
         }
 
         private void OnDestroy()
         {
-            if (_advanceTapArea != null) _advanceTapArea.onClick.RemoveListener(HandleAdvanceTap);
+            if (_buttonNext != null) _buttonNext.onClick.RemoveListener(HandleAdvanceTap);
             if (_skipButton != null) _skipButton.onClick.RemoveListener(HandleSkipTap);
         }
 
@@ -166,6 +195,7 @@ namespace FortuneValley.UI.Tutorial
                 _canvasGroup.interactable = false;
             }
             if (_tapIndicator != null) _tapIndicator.SetActive(false);
+            if (_maskOverlay != null) _maskOverlay.Hide();
             HideSkipButton();
         }
 

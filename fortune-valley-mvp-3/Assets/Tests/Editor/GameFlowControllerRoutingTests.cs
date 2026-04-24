@@ -45,7 +45,7 @@ namespace FortuneValley.Tests
             bool requestedTutorial = false;
             bool showedCarousel = false;
             GameEvents.OnHideTitleScreen += () => hidTitle = true;
-            GameEvents.OnTutorialStartRequested += () => requestedTutorial = true;
+            GameEvents.OnTutorialStartRequested += _ => requestedTutorial = true;
             GameEvents.OnShowRulesCarousel += () => showedCarousel = true;
 
             GameEvents.RaiseBootFlowDecided(BootFlow.FirstTimeTutorial);
@@ -65,7 +65,7 @@ namespace FortuneValley.Tests
             GameEvents.OnHideTitleScreen += () => hidTitle = true;
             GameEvents.OnShowRulesCarousel += () => showedCarousel = true;
             GameEvents.OnStartCountdown += () => startedCountdown = true;
-            GameEvents.OnTutorialStartRequested += () => requestedTutorial = true;
+            GameEvents.OnTutorialStartRequested += _ => requestedTutorial = true;
 
             GameEvents.RaiseBootFlowDecided(BootFlow.NormalCarousel);
 
@@ -85,7 +85,7 @@ namespace FortuneValley.Tests
             GameEvents.OnHideTitleScreen += () => hidTitle = true;
             GameEvents.OnShowRulesCarousel += () => showedCarousel = true;
             GameEvents.OnStartCountdown += () => startedCountdown = true;
-            GameEvents.OnTutorialStartRequested += () => requestedTutorial = true;
+            GameEvents.OnTutorialStartRequested += _ => requestedTutorial = true;
 
             GameEvents.RaiseBootFlowDecided(BootFlow.SkipTutorial);
 

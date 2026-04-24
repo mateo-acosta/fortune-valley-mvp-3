@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdff44b400bc145d3b292b7c1a920d94, type: 3}
   m_Name: Step_06_LoansIntro
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
-  _kind: 0
+  _kind: 3
   _pose: 2
   _dialogText: Lots cost money. Let's take out a loan. Open the Loans panel from
     the navigation bar.
