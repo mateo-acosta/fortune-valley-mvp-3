@@ -10,7 +10,7 @@ namespace FortuneValley.Core
     /// DESIGN NOTE: Tick-based simulation (not real-time) makes compound interest
     /// moments explicit and easier for students to observe.
     /// </summary>
-    public class TimeManager : MonoBehaviour, ITimeService
+    public class TimeManager : MonoBehaviour, ITimeService, ITickClock
     {
         // ═══════════════════════════════════════════════════════════════
         // CONFIGURATION (easily tweakable for gameplay testing)

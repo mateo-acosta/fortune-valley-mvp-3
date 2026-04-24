@@ -32,6 +32,9 @@ namespace FortuneValley.Managers
         [SerializeField] private LoanSystem _loanSystem;
         [SerializeField] private InsuranceSystem _insuranceSystem;
 
+        [Header("Tap-to-Collect")]
+        [SerializeField] private PendingIncomeService _pendingIncome;
+
         // State builder for persistence (pure C#, no MonoBehaviour)
         private GameStateDTOBuilder _stateDTOBuilder;
 
@@ -220,7 +223,8 @@ namespace FortuneValley.Managers
         {
             _stateDTOBuilder = new GameStateDTOBuilder(
                 _timeManager, _currencyManager, _cityManager,
-                _restaurantSystem, _creditCardSystem, _loanSystem, _insuranceSystem);
+                _restaurantSystem, _creditCardSystem, _loanSystem, _insuranceSystem,
+                _pendingIncome);
 
             GameEvents.RaiseStateBuildFuncProvided(_stateDTOBuilder.Build);
         }

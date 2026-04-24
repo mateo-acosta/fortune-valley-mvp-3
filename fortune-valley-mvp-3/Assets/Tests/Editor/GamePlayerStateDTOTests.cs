@@ -54,7 +54,25 @@ namespace FortuneValley.Tests
                         deductible = 100f,
                         start_day = 5
                     }
-                }
+                },
+                pending_incomes = new[]
+                {
+                    new PendingIncomeEntryDTO
+                    {
+                        building_id = "restaurant",
+                        daily_payout = 100f,
+                        ticks_remaining = 7,
+                        is_ready = false
+                    },
+                    new PendingIncomeEntryDTO
+                    {
+                        building_id = "lot_A",
+                        daily_payout = 50f,
+                        ticks_remaining = 0,
+                        is_ready = true
+                    }
+                },
+                schema_version = 1
             };
 
             string json = JsonUtility.ToJson(original);
@@ -94,6 +112,41 @@ namespace FortuneValley.Tests
             Assert.AreEqual("lot_1", restored.insurance_policies[0].lot_id);
             Assert.AreEqual("GeneralProtection", restored.insurance_policies[0].policy_type);
             Assert.AreEqual(25f, restored.insurance_policies[0].monthly_premium, 0.01f);
+
+            // Pending income DTO
+            Assert.AreEqual(2, restored.pending_incomes.Length);
+            Assert.AreEqual("restaurant", restored.pending_incomes[0].building_id);
+            Assert.AreEqual(100f, restored.pending_incomes[0].daily_payout, 0.01f);
+            Assert.AreEqual(7, restored.pending_incomes[0].ticks_remaining);
+            Assert.IsFalse(restored.pending_incomes[0].is_ready);
+            Assert.AreEqual("lot_A", restored.pending_incomes[1].building_id);
+            Assert.AreEqual(50f, restored.pending_incomes[1].daily_payout, 0.01f);
+            Assert.AreEqual(0, restored.pending_incomes[1].ticks_remaining);
+            Assert.IsTrue(restored.pending_incomes[1].is_ready);
+
+            // Schema version
+            Assert.AreEqual(1, restored.schema_version);
+        }
+
+        [Test]
+        public void LegacyJson_WithoutSchemaField_DeserializesToZero()
+        {
+            // Unity JsonUtility drops unknown keys and fills missing keys with
+            // type defaults. A pre-change JSON (no schema_version) must parse
+            // to schema_version == 0 so the service takes the migration path.
+            string legacyJson =
+                "{\"game_mode\":\"homebase\",\"current_day\":1," +
+                "\"pending_incomes\":[{\"building_id\":\"lot_A\",\"accumulated\":42.0,\"ready_amount\":0.0,\"full_day_amount\":100.0,\"is_ready\":false}]}";
+
+            var restored = JsonUtility.FromJson<GamePlayerStateDTO>(legacyJson);
+
+            Assert.AreEqual(0, restored.schema_version);
+            Assert.IsNotNull(restored.pending_incomes);
+            Assert.AreEqual(1, restored.pending_incomes.Length);
+            Assert.AreEqual("lot_A", restored.pending_incomes[0].building_id);
+            // Legacy numeric fields are dropped on deserialize; new fields are zero.
+            Assert.AreEqual(0f, restored.pending_incomes[0].daily_payout);
+            Assert.AreEqual(0, restored.pending_incomes[0].ticks_remaining);
         }
 
         [Test]

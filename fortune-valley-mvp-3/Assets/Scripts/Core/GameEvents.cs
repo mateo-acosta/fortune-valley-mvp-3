@@ -653,6 +653,64 @@ namespace FortuneValley.Core
         public static void RaiseQuestionSessionEnded() => OnQuestionSessionEnded?.Invoke();
 
         // ═══════════════════════════════════════════════════════════════
+        // TAP-TO-COLLECT INCOME EVENTS
+        // ═══════════════════════════════════════════════════════════════
+        // Scale assumption: <=8 player-owned buildings. At larger counts the
+        // per-subscriber id-match cost on OnCoinStateChanged becomes worth
+        // optimizing (e.g. per-id subscription dictionary).
+
+        // Fired whenever a per-building coin state changes (day locked, tick
+        // drained, ready-flipped, collected, ownership changed).
+        // Parameters:
+        //   buildingId:  the lot or "restaurant" bucket id
+        //   dailyPayout: the amount that will be deposited on collect; fixed
+        //                for the duration of the current day cycle
+        //   progress01:  drain progress in [0,1]. 1 = just locked (overlay
+        //                full), 0 = ready (overlay drained, coin revealed)
+        //   isReady:     true iff the coin is tappable right now
+        public static event Action<string, float, float, bool> OnCoinStateChanged;
+        public static void RaiseCoinStateChanged(string buildingId, float dailyPayout, float progress01, bool isReady)
+            => OnCoinStateChanged?.Invoke(buildingId, dailyPayout, progress01, isReady);
+
+        // UI -> service request for a re-emit of the current coin state.
+        // Raised by BuildingCollectButton in OnEnable so the button seeds
+        // correctly even if it enables after the last state-change event fired
+        // (scene load, prefab instantiation, hydrate). Expect a burst of
+        // queries + responses during scene load (one per coin-reading UI);
+        // negligible at POC bucket counts.
+        public static event Action<string> OnIncomePendingQuery;
+        public static void RaiseIncomePendingQuery(string buildingId) => OnIncomePendingQuery?.Invoke(buildingId);
+
+        // Raised by BlockHoverController when the mouse enters or exits a
+        // block's footprint. Lets per-lot UI (e.g. BuildingCollectButton)
+        // decide its own visibility without being gated by the hover canvas.
+        // Parameters: lotId (null when no BlockController is wired), hovered.
+        public static event Action<string, bool> OnBlockHoverChanged;
+        public static void RaiseBlockHoverChanged(string lotId, bool hovered)
+            => OnBlockHoverChanged?.Invoke(lotId, hovered);
+
+        // UI intent: player tapped collect on a building. Also fired internally
+        // by PendingIncomeService on ownership loss with CollectReason.OwnershipLost.
+        public static event Action<string, CollectReason> OnIncomeCollectRequested;
+        public static void RaiseIncomeCollectRequested(string buildingId, CollectReason reason)
+            => OnIncomeCollectRequested?.Invoke(buildingId, reason);
+
+        // Confirmation: an amount was successfully deposited for a building.
+        public static event Action<string, float> OnIncomeCollected;
+        public static void RaiseIncomeCollected(string buildingId, float amount)
+            => OnIncomeCollected?.Invoke(buildingId, amount);
+
+        // Raised by CityManager when a lot's owner changes. Replaces the need
+        // to diff against a cached prev-owner inside each subscriber.
+        public static event Action<string, Owner, Owner> OnLotOwnershipChanged;
+        public static void RaiseLotOwnershipChanged(string lotId, Owner previousOwner, Owner newOwner)
+            => OnLotOwnershipChanged?.Invoke(lotId, previousOwner, newOwner);
+
+        // Generic save-request intent. AutoSaveController subscribes and debounces.
+        public static event Action OnSaveRequested;
+        public static void RaiseSaveRequested() => OnSaveRequested?.Invoke();
+
+        // ═══════════════════════════════════════════════════════════════
         // CLEANUP (call when exiting play mode or restarting)
         // ═══════════════════════════════════════════════════════════════
 
@@ -784,6 +842,15 @@ namespace FortuneValley.Core
             OnQuestionAnswered = null;
             OnQuestionRewardGranted = null;
             OnQuestionSessionEnded = null;
+
+            // Tap-to-collect income
+            OnCoinStateChanged = null;
+            OnIncomePendingQuery = null;
+            OnBlockHoverChanged = null;
+            OnIncomeCollectRequested = null;
+            OnIncomeCollected = null;
+            OnLotOwnershipChanged = null;
+            OnSaveRequested = null;
         }
     }
 }

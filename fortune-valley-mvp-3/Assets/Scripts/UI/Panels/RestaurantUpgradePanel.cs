@@ -26,11 +26,14 @@ namespace FortuneValley.UI.Panels
         [Tooltip("Currency manager -- used to check affordability (read-only)")]
         [SerializeField] private CurrencyManager _currencyManager;
 
+        [Tooltip("Time manager -- used to convert per-tick income into per-day for display.")]
+        [SerializeField] private TimeManager _timeManager;
+
         [Header("Current Tier Display")]
         [Tooltip("Shows the current tier name, e.g. 'Bistro'")]
         [SerializeField] private TextMeshProUGUI _tierNameText;
 
-        [Tooltip("Shows income per tick, e.g. 'Income: $25/tick'")]
+        [Tooltip("Shows income per day, e.g. 'Income: $250/day'")]
         [SerializeField] private TextMeshProUGUI _incomeText;
 
         [Tooltip("Tier image -- swap sprite per tier to give visual feedback")]
@@ -131,7 +134,10 @@ namespace FortuneValley.UI.Panels
                 _tierNameText.text = _restaurantSystem.TierDisplayName;
 
             if (_incomeText != null)
-                _incomeText.text = $"Income: ${_restaurantSystem.IncomePerTick:F0}/tick";
+            {
+                int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
+                _incomeText.text = $"Income: ${_restaurantSystem.IncomePerTick * ticksPerDay:N0}/day";
+            }
 
             // Tier image (tier index is level - 1)
             if (_tierImage != null && _tierSprites != null && _tierSprites.Length > 0)

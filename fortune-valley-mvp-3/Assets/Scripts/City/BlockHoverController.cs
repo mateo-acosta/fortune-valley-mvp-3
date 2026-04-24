@@ -52,6 +52,13 @@ namespace FortuneValley.City
         [SerializeField] private float _fadeOutDuration = 0.2f;
         [SerializeField] private float _exitGrace = 0.1f;
 
+        // Unity culls a Canvas when its same-object CanvasGroup alpha reaches
+        // exactly 0, which also silences descendants that use
+        // ignoreParentGroups. Keep the "hidden" alpha just above 0 so the
+        // persistent coin (its own CanvasGroup ignores the parent) still
+        // renders when this hover canvas is "off".
+        private const float HiddenAlpha = 0.001f;
+
         private Bounds _bounds;
         private bool _boundsReady;
         private bool _isHovered;
@@ -67,11 +74,15 @@ namespace FortuneValley.City
         {
             if (_canvasGroup != null)
             {
-                _canvasGroup.alpha = 0f;
+                _canvasGroup.alpha = HiddenAlpha;
                 _canvasGroup.blocksRaycasts = false;
                 _canvasGroup.interactable = false;
             }
-            if (_canvasRoot != null) _canvasRoot.SetActive(false);
+            // Keep the canvas root active: descendants (e.g. the persistent
+            // coin group) drive their own visibility via ignoreParentGroups
+            // CanvasGroups and must not be deactivated by the hover gate.
+            // Explicitly ensure active in case a previous scene save left it off.
+            if (_canvasRoot != null) _canvasRoot.SetActive(true);
 
             BuildFootprintBounds();
         }
@@ -193,10 +204,11 @@ namespace FortuneValley.City
             if (_exitSequence != null) _exitSequence.Kill();
             if (_currentTween != null) _currentTween.Kill();
 
-            _canvasRoot.SetActive(true);
             _canvasGroup.blocksRaycasts = true;
             _canvasGroup.interactable = true;
             _currentTween = FadeCanvasGroup(1f, _fadeInDuration);
+
+            GameEvents.RaiseBlockHoverChanged(GetHoverLotId(), true);
         }
 
         private void Hide()
@@ -208,8 +220,15 @@ namespace FortuneValley.City
 
             _exitSequence = DOTween.Sequence();
             _exitSequence.AppendInterval(_exitGrace);
-            _exitSequence.Append(FadeCanvasGroup(0f, _fadeOutDuration));
+            _exitSequence.Append(FadeCanvasGroup(HiddenAlpha, _fadeOutDuration));
             _exitSequence.OnComplete(FinalizeHide);
+
+            GameEvents.RaiseBlockHoverChanged(GetHoverLotId(), false);
+        }
+
+        private string GetHoverLotId()
+        {
+            return _block != null && _block.OwnedLot != null ? _block.OwnedLot.LotId : null;
         }
 
         private Tween FadeCanvasGroup(float targetAlpha, float duration)
@@ -225,7 +244,8 @@ namespace FortuneValley.City
                 _canvasGroup.blocksRaycasts = false;
                 _canvasGroup.interactable = false;
             }
-            if (_canvasRoot != null) _canvasRoot.SetActive(false);
+            // Do not SetActive(false) the root: the persistent coin group
+            // lives under it and controls its own visibility independently.
         }
     }
 }

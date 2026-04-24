@@ -231,5 +231,63 @@ namespace FortuneValley.Tests
             Assert.AreEqual(Owner.Player, _city.GetOwner("starter_rival"));
             Assert.AreEqual(before - 1500f, _currency.CheckingBalance, 0.01f);
         }
+
+        [Test]
+        public void EnumeratePlayerLotIncomes_YieldsOnlyPlayerLots()
+        {
+            var lots = new List<(string id, float income)>();
+            foreach (var pair in _city.EnumeratePlayerLotIncomes()) lots.Add(pair);
+
+            Assert.AreEqual(1, lots.Count);
+            Assert.AreEqual("starter_player", lots[0].id);
+            // T2 multiplier is 1x on _incomeBonus = 5f.
+            Assert.AreEqual(5f, lots[0].income, 0.01f);
+        }
+
+        [Test]
+        public void EnumeratePlayerLotIncomes_RespectsTierMultiplier()
+        {
+            GameEvents.RaiseLotUpgradeRequested("starter_player"); // T2 -> T3
+
+            var lots = new List<(string id, float income)>();
+            foreach (var pair in _city.EnumeratePlayerLotIncomes()) lots.Add(pair);
+
+            Assert.AreEqual(1, lots.Count);
+            // T3 multiplier = 2x on _incomeBonus = 5f.
+            Assert.AreEqual(10f, lots[0].income, 0.01f);
+        }
+
+        [Test]
+        public void OnLotOwnershipChanged_FiresOnSeedStarterLots()
+        {
+            var events = new List<(string id, Owner prev, Owner next)>();
+            GameEvents.OnLotOwnershipChanged += (id, p, n) => events.Add((id, p, n));
+
+            // HandleGameStart re-seeds; we already invoked it in SetUp, so drive it again here.
+            InvokePrivate(_city, "HandleGameStart");
+
+            bool sawPlayerStarter = false, sawRivalStarter = false;
+            foreach (var e in events)
+            {
+                if (e.id == "starter_player" && e.next == Owner.Player) sawPlayerStarter = true;
+                if (e.id == "starter_rival" && e.next == Owner.Rival) sawRivalStarter = true;
+            }
+            Assert.IsTrue(sawPlayerStarter);
+            Assert.IsTrue(sawRivalStarter);
+        }
+
+        [Test]
+        public void OnLotOwnershipChanged_FiresOnPurchase_WithCorrectPrevOwner()
+        {
+            string observedId = null;
+            Owner observedPrev = Owner.None, observedNext = Owner.None;
+            GameEvents.OnLotOwnershipChanged += (id, p, n) => { observedId = id; observedPrev = p; observedNext = n; };
+
+            GameEvents.RaisePurchaseLotRequested("unowned_1", 0);
+
+            Assert.AreEqual("unowned_1", observedId);
+            Assert.AreEqual(Owner.None, observedPrev);
+            Assert.AreEqual(Owner.Player, observedNext);
+        }
     }
 }

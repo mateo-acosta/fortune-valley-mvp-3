@@ -14,7 +14,7 @@ namespace FortuneValley.Core
     /// Owning lots provides visual progress and income bonuses.
     /// The race to own lots creates urgency for financial optimization.
     /// </summary>
-    public class CityManager : MonoBehaviour, ICityService
+    public class CityManager : MonoBehaviour, ICityService, ILotRegistry
     {
         // ═══════════════════════════════════════════════════════════════
         // CONFIGURATION
@@ -96,7 +96,14 @@ namespace FortuneValley.Core
         public int AvailableLotCount => TotalLots - PlayerLotCount - RivalLotCount;
 
         /// <summary>
+        /// LotId of the player's starter lot (the main restaurant). Null if
+        /// no starter lot is configured.
+        /// </summary>
+        public string PlayerStarterLotId => _playerStarterLot != null ? _playerStarterLot.LotId : null;
+
+        /// <summary>
         /// Total income bonus from player-owned lots per tick.
+        /// Sibling: keep in sync with <see cref="EnumeratePlayerLotIncomes"/>.
         /// </summary>
         public float PlayerLotIncomeBonus
         {
@@ -111,6 +118,23 @@ namespace FortuneValley.Core
                     }
                 }
                 return total;
+            }
+        }
+
+        /// <summary>
+        /// Enumerates (lotId, incomePerTick) for each player-owned lot.
+        /// Used by the tick hot path so PendingIncomeService can route per-lot
+        /// income into the correct bucket.
+        /// Sibling: keep in sync with <see cref="PlayerLotIncomeBonus"/>.
+        /// </summary>
+        public IEnumerable<(string lotId, float income)> EnumeratePlayerLotIncomes()
+        {
+            foreach (var lot in _allLots)
+            {
+                if (GetOwner(lot.LotId) == Owner.Player)
+                {
+                    yield return (lot.LotId, lot.GetIncomeAtTier(GetTier(lot.LotId)));
+                }
             }
         }
 
@@ -188,6 +212,7 @@ namespace FortuneValley.Core
                 _lotTier[_playerStarterLot.LotId] = _tierOnStart;
                 GameEvents.RaiseLotPurchased(_playerStarterLot.LotId, Owner.Player);
                 GameEvents.RaiseLotTierChanged(_playerStarterLot.LotId, _tierOnStart);
+                GameEvents.RaiseLotOwnershipChanged(_playerStarterLot.LotId, Owner.None, Owner.Player);
             }
 
             if (_rivalStarterLot != null)
@@ -196,6 +221,7 @@ namespace FortuneValley.Core
                 _lotTier[_rivalStarterLot.LotId] = _tierOnStart;
                 GameEvents.RaiseLotPurchased(_rivalStarterLot.LotId, Owner.Rival);
                 GameEvents.RaiseLotTierChanged(_rivalStarterLot.LotId, _tierOnStart);
+                GameEvents.RaiseLotOwnershipChanged(_rivalStarterLot.LotId, Owner.None, Owner.Rival);
             }
         }
 
@@ -227,6 +253,24 @@ namespace FortuneValley.Core
         public CityLotDefinition GetLot(string lotId)
         {
             return _allLots.Find(lot => lot.LotId == lotId);
+        }
+
+        /// <summary>
+        /// ILotRegistry: true when a lot with this id exists in the city.
+        /// </summary>
+        public bool LotExists(string lotId)
+        {
+            return GetLot(lotId) != null;
+        }
+
+        /// <summary>
+        /// ILotRegistry: per-tick income for the given lot at the given tier.
+        /// Returns 0 if the lot is unknown so callers do not need a null check.
+        /// </summary>
+        public float GetIncomeAtTier(string lotId, int tier)
+        {
+            var lot = GetLot(lotId);
+            return lot != null ? lot.GetIncomeAtTier(tier) : 0f;
         }
 
         /// <summary>
@@ -439,6 +483,10 @@ namespace FortuneValley.Core
 
         private void ResetOwnership()
         {
+            // Capture prior state so we can notify listeners of Player/Rival -> None
+            // transitions (e.g. PendingIncomeService removing orphan buckets on restart).
+            var priorOwners = new Dictionary<string, Owner>(_lotOwnership);
+
             _lotOwnership.Clear();
             _purchaseTick.Clear();
             _lotTier.Clear();
@@ -446,11 +494,16 @@ namespace FortuneValley.Core
             foreach (var lot in _allLots)
             {
                 _lotOwnership[lot.LotId] = Owner.None;
+                if (priorOwners.TryGetValue(lot.LotId, out Owner prev) && prev != Owner.None)
+                {
+                    GameEvents.RaiseLotOwnershipChanged(lot.LotId, prev, Owner.None);
+                }
             }
         }
 
         private void SetOwner(string lotId, Owner owner, int tick)
         {
+            Owner prevOwner = GetOwner(lotId);
             _lotOwnership[lotId] = owner;
             _purchaseTick[lotId] = tick;
 
@@ -462,6 +515,7 @@ namespace FortuneValley.Core
             }
 
             GameEvents.RaiseLotPurchased(lotId, owner);
+            GameEvents.RaiseLotOwnershipChanged(lotId, prevOwner, owner);
 
             // Check for game end
             var winner = CheckWinCondition();

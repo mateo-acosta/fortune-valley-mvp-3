@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Lot_Bakery
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.CityLotDefinition
   _lotId: Lot_Bakery
-  _displayName: Bakery
-  _description: "A warm bakery location downtown \u2014 good returns with moderate investment."
+  _displayName: Main Restaurant
+  _description: Your flagship restaurant. It anchors your chain and generates baseline daily income.
   _baseCost: 1200
   _incomeBonus: 5
   _gridPosition: {x: 0, y: 0}

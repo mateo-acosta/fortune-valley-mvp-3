@@ -38,6 +38,16 @@ namespace FortuneValley.Domain.Entities
         // Populated by GameStateDTOBuilder from CityManager once the block system is wired.
         public CosmeticVariantChoice[] cosmetic_variants;
 
+        // Per-building pending income buckets (restaurant + each player-owned lot).
+        // Written by PendingIncomeService.Snapshot; consumed by Hydrate on load.
+        // Null on legacy saves; Hydrate treats null as empty.
+        public PendingIncomeEntryDTO[] pending_incomes;
+
+        // Persistence schema version. 0 = legacy tick-accumulation model
+        // (pre-daily-locked-coin-rebuild). Hydrate paths branch on this.
+        // New saves write 1+.
+        public int schema_version;
+
         // Set true when the player has finished (or skipped) the onboarding tutorial.
         // Server-side default is false; missing field on response defaults to false on deserialize.
         public bool tutorial_completed;

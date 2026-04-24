@@ -16,6 +16,12 @@ namespace FortuneValley.UI.World
         [Header("Lot Binding")]
         [SerializeField] private CityLotDefinition _lot;
 
+        [Header("Tap-to-Collect")]
+        [SerializeField] private BuildingCollectButton _collectButton;
+        [SerializeField] private Transform _collectAnchor;
+        [SerializeField] private IncomeCollectionController _collectionController;
+        [SerializeField] private TimeManager _timeManager;
+
         [Header("Click")]
         [SerializeField] private Button _clickButton;
         [SerializeField] private TextMeshProUGUI _buttonLabel;
@@ -30,7 +36,7 @@ namespace FortuneValley.UI.World
         [SerializeField] private string _forSaleLabel = "For Sale";
         [SerializeField] private string _tierFormat = "Tier {0}";
         [SerializeField] private string _rivalTierFormat = "Rival Tier {0}";
-        [SerializeField] private string _incomeFormat = "+${0:N0}/sec";
+        [SerializeField] private string _incomeFormat = "+${0:N0}/day";
         [SerializeField] private string _buyButtonLabel = "Buy";
         [SerializeField] private string _manageButtonLabel = "Manage";
 
@@ -48,6 +54,17 @@ namespace FortuneValley.UI.World
         private void Awake()
         {
             if (_clickButton != null) _clickButton.onClick.AddListener(HandleClicked);
+
+            if (_collectButton != null && _lot != null)
+            {
+                _collectButton.SetBuildingId(_lot.LotId);
+            }
+
+            if (_collectionController != null && _lot != null)
+            {
+                Transform anchor = _collectAnchor != null ? _collectAnchor : transform;
+                _collectionController.RegisterAnchor(_lot.LotId, anchor);
+            }
         }
 
         private void OnEnable()
@@ -68,6 +85,11 @@ namespace FortuneValley.UI.World
         private void OnDestroy()
         {
             if (_clickButton != null) _clickButton.onClick.RemoveListener(HandleClicked);
+
+            if (_collectionController != null && _lot != null)
+            {
+                _collectionController.UnregisterAnchor(_lot.LotId);
+            }
         }
 
         private void HandleClicked()
@@ -123,8 +145,9 @@ namespace FortuneValley.UI.World
 
             if (_incomeText != null)
             {
-                float income = _lot.GetIncomeAtTier(displayTier);
-                _incomeText.text = string.Format(_incomeFormat, income);
+                float incomePerTick = _lot.GetIncomeAtTier(displayTier);
+                int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
+                _incomeText.text = string.Format(_incomeFormat, incomePerTick * ticksPerDay);
             }
 
             if (_ownerIndicator != null)

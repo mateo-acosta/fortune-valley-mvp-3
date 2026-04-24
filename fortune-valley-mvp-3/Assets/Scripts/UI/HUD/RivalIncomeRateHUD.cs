@@ -13,10 +13,11 @@ namespace FortuneValley.UI.HUD
     {
         [Header("Dependencies")]
         [SerializeField] private RivalAI _rivalAI;
+        [SerializeField] private TimeManager _timeManager;
 
         [Header("Display")]
         [SerializeField] private TextMeshProUGUI _valueText;
-        [SerializeField] private string _format = "+${0:N0}/s";
+        [SerializeField] private string _format = "+${0:N0}/day";
 
         private void OnEnable()
         {
@@ -43,8 +44,9 @@ namespace FortuneValley.UI.HUD
         private void Refresh()
         {
             if (_valueText == null) return;
-            float rate = _rivalAI != null ? _rivalAI.TotalIncomePerTick : 0f;
-            _valueText.text = string.Format(_format, rate);
+            float ratePerTick = _rivalAI != null ? _rivalAI.TotalIncomePerTick : 0f;
+            int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
+            _valueText.text = string.Format(_format, ratePerTick * ticksPerDay);
         }
     }
 }

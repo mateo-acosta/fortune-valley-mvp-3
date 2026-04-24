@@ -99,5 +99,41 @@ namespace FortuneValley.Tests
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             onDisable.Invoke(_system, null);
         }
+
+        [Test]
+        public void OnTick_NoLongerMutatesPendingBuckets()
+        {
+            // Post-redesign: RestaurantSystem does not subscribe to OnTick.
+            // PendingIncomeService owns the daily-locked coin cycle. A tick
+            // here must not touch any pending-income state; balances, totals,
+            // and external state all stay put.
+            float balanceBefore = _currency.CheckingBalance;
+            float earnedBefore = _system.TotalEarned;
+
+            GameEvents.RaiseTick(1);
+
+            Assert.AreEqual(balanceBefore, _currency.CheckingBalance);
+            Assert.AreEqual(earnedBefore, _system.TotalEarned);
+        }
+
+        [Test]
+        public void OnIncomeCollected_IncrementsTotalEarned()
+        {
+            // Re-subscribe OnEnable after SetUp cleared events.
+            var onEnable = typeof(RestaurantSystem).GetMethod("OnEnable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnable.Invoke(_system, null);
+
+            float before = _system.TotalEarned;
+            GameEvents.RaiseIncomeCollected("lot_A", 77f);
+            Assert.AreEqual(before + 77f, _system.TotalEarned, 0.01f);
+
+            GameEvents.RaiseIncomeCollected("restaurant", 23f);
+            Assert.AreEqual(before + 100f, _system.TotalEarned, 0.01f);
+
+            var onDisable = typeof(RestaurantSystem).GetMethod("OnDisable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onDisable.Invoke(_system, null);
+        }
     }
 }

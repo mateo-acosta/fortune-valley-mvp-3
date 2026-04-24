@@ -13,19 +13,42 @@ namespace FortuneValley.Core
         [SerializeField] private APIClient _apiClient;
         [SerializeField] private int _saveIntervalTicks = 10;
 
+        [Tooltip("Debounce window for OnSaveRequested. Rapid collects collapse into one save.")]
+        [SerializeField] private float _saveDebounceSeconds = 0.5f;
+
         private int _ticksSinceLastSave;
         private System.Func<GamePlayerStateDTO> _buildStateFunc;
+
+        // When >= 0, indicates a pending debounced save scheduled for that
+        // unscaledTime. -1 means no pending request.
+        private float _pendingSaveAt = -1f;
 
         private void OnEnable()
         {
             GameEvents.OnTick += HandleTick;
             GameEvents.OnStateBuildFuncProvided += HandleBuildFuncProvided;
+            GameEvents.OnSaveRequested += HandleSaveRequested;
         }
 
         private void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnStateBuildFuncProvided -= HandleBuildFuncProvided;
+            GameEvents.OnSaveRequested -= HandleSaveRequested;
+        }
+
+        private void Update()
+        {
+            if (_pendingSaveAt < 0f) return;
+            if (Time.unscaledTime < _pendingSaveAt) return;
+
+            _pendingSaveAt = -1f;
+            PerformSave();
+        }
+
+        private void HandleSaveRequested()
+        {
+            _pendingSaveAt = Time.unscaledTime + _saveDebounceSeconds;
         }
 
         private void HandleBuildFuncProvided(System.Func<GamePlayerStateDTO> buildFunc)
@@ -45,10 +68,12 @@ namespace FortuneValley.Core
 
         /// <summary>
         /// Invoked by GameSessionController during teardown. Performs a final
-        /// save before decisions flush and the session closes.
+        /// save before decisions flush and the session closes. Flushes any
+        /// pending debounced save first so we never lose the last request.
         /// </summary>
         public void FlushFinalSave()
         {
+            _pendingSaveAt = -1f;
             PerformSave();
         }
 

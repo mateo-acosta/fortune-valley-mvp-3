@@ -17,6 +17,7 @@ namespace FortuneValley.Core
         private readonly CreditCardSystem _creditCardSystem;
         private readonly LoanSystem _loanSystem;
         private readonly InsuranceSystem _insuranceSystem;
+        private readonly PendingIncomeService _pendingIncome;
 
         public GameStateDTOBuilder(
             TimeManager timeManager,
@@ -25,7 +26,8 @@ namespace FortuneValley.Core
             RestaurantSystem restaurantSystem,
             CreditCardSystem creditCardSystem,
             LoanSystem loanSystem,
-            InsuranceSystem insuranceSystem)
+            InsuranceSystem insuranceSystem,
+            PendingIncomeService pendingIncome)
         {
             _timeManager = timeManager;
             _currencyManager = currencyManager;
@@ -34,6 +36,7 @@ namespace FortuneValley.Core
             _creditCardSystem = creditCardSystem;
             _loanSystem = loanSystem;
             _insuranceSystem = insuranceSystem;
+            _pendingIncome = pendingIncome;
         }
 
         /// <summary>
@@ -57,6 +60,11 @@ namespace FortuneValley.Core
             BuildLotOwnership(dto);
             BuildActiveLoans(dto);
             BuildInsurancePolicies(dto);
+
+            if (_pendingIncome != null)
+            {
+                _pendingIncome.Snapshot(dto);
+            }
 
             return dto;
         }
