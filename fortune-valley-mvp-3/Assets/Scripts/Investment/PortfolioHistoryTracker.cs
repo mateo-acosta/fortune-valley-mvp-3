@@ -24,10 +24,13 @@ namespace FortuneValley.Core
         // History data
         private List<float> _totalWealthHistory = new List<float>();
         private List<float> _netGainHistory = new List<float>();
+        // Portfolio market value only — used by the Home subpanel single-line graph.
+        private List<float> _portfolioValueHistory = new List<float>();
 
         // Public accessors for graph rendering
         public IReadOnlyList<float> TotalWealthHistory => _totalWealthHistory;
         public IReadOnlyList<float> NetGainHistory => _netGainHistory;
+        public IReadOnlyList<float> PortfolioValueHistory => _portfolioValueHistory;
         public int DataPointCount => _totalWealthHistory.Count;
 
         private void OnEnable()
@@ -49,7 +52,8 @@ namespace FortuneValley.Core
 
         private void FindDependencies()
         {
-            if (_currencyManager == null) Debug.LogError("[PortfolioHistoryTracker] _currencyManager not wired in Inspector.");
+            // _currencyManager is optional — only needed for the legacy total-wealth/net-gain
+            // histories. The Home subpanel's portfolio-value graph requires only _investmentSystem.
             if (_investmentSystem == null) Debug.LogError("[PortfolioHistoryTracker] _investmentSystem not wired in Inspector.");
         }
 
@@ -57,6 +61,7 @@ namespace FortuneValley.Core
         {
             _totalWealthHistory.Clear();
             _netGainHistory.Clear();
+            _portfolioValueHistory.Clear();
             // Take initial snapshot
             TakeSnapshot();
         }
@@ -71,22 +76,22 @@ namespace FortuneValley.Core
 
         private void TakeSnapshot()
         {
-            if (_currencyManager == null || _investmentSystem == null)
-                return;
+            if (_investmentSystem == null) return;
 
-            // Total wealth = cash + portfolio value
-            float totalWealth = _currencyManager.TotalLiquidBalance + _investmentSystem.TotalPortfolioValue;
-            float netGain = _investmentSystem.LifetimeTotalGain;
+            float portfolioValue = _investmentSystem.TotalPortfolioValue;
+            _portfolioValueHistory.Add(portfolioValue);
 
-            _totalWealthHistory.Add(totalWealth);
-            _netGainHistory.Add(netGain);
-
-            // Cap at max data points
-            while (_totalWealthHistory.Count > _maxDataPoints)
+            // Legacy series — only recorded when _currencyManager is wired.
+            if (_currencyManager != null)
             {
-                _totalWealthHistory.RemoveAt(0);
-                _netGainHistory.RemoveAt(0);
+                _totalWealthHistory.Add(_currencyManager.TotalLiquidBalance + portfolioValue);
+                _netGainHistory.Add(_investmentSystem.LifetimeTotalGain);
             }
+
+            // Cap each series at max data points independently.
+            while (_portfolioValueHistory.Count > _maxDataPoints) _portfolioValueHistory.RemoveAt(0);
+            while (_totalWealthHistory.Count > _maxDataPoints) _totalWealthHistory.RemoveAt(0);
+            while (_netGainHistory.Count > _maxDataPoints) _netGainHistory.RemoveAt(0);
         }
     }
 }

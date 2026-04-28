@@ -70,6 +70,16 @@ namespace FortuneValley.UI.Components
         public void SetLabelFont(TMP_FontAsset font) { _labelFont = font; }
 
         /// <summary>
+        /// Override the primary line color. Used by the Home subpanel to render
+        /// the portfolio-value line in green instead of the default red.
+        /// </summary>
+        public void SetLineColor(Color color)
+        {
+            _lineColor = color;
+            SetVerticesDirty();
+        }
+
+        /// <summary>
         /// Single-series overload — used by the Invest tab stock graph.
         /// Delegates to the dual-series overload with no secondary data.
         /// </summary>

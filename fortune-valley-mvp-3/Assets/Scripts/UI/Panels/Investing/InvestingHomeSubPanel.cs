@@ -126,11 +126,11 @@ namespace FortuneValley.UI.Panels.Investing
         {
             if (_historyTracker == null || _overviewGraph == null) return;
 
-            FillWindowCached(_historyTracker.TotalWealthHistory, _wealthWindow);
-            FillWindowCached(_historyTracker.NetGainHistory, _gainWindow);
+            // Single-line graph: portfolio market value over time.
+            FillWindowCached(_historyTracker.PortfolioValueHistory, _wealthWindow);
 
             int startDay = _currentDayTick - (_wealthWindow.Count - 1);
-            _overviewGraph.SetData(_wealthWindow, _gainWindow, startDay);
+            _overviewGraph.SetData(_wealthWindow, startDay);
         }
 
         // ===============================================================
@@ -156,6 +156,7 @@ namespace FortuneValley.UI.Panels.Investing
 
             _overviewGraph = go.AddComponent<LineGraphGraphic>();
             _overviewGraph.SetLabelFont(_labelFont);
+            _overviewGraph.SetLineColor(_gainColor);
             _graphCreated = true;
         }
 

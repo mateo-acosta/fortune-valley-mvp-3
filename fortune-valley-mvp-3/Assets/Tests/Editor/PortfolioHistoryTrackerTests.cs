@@ -93,6 +93,22 @@ namespace FortuneValley.Tests
                 "Snapshot must equal Balance + TotalPortfolioValue");
         }
 
+        [Test]
+        public void PortfolioValueHistory_Snapshot_EqualsTotalPortfolioValue()
+        {
+            // Cash should NOT be reflected in PortfolioValueHistory.
+            // No active investments → TotalPortfolioValue = 0 → snapshot = 0.
+            SetField(_currency, "_checkingBalance", 500f);
+
+            InvokeGameStart();
+
+            float lastSnapshot = _tracker.PortfolioValueHistory[_tracker.PortfolioValueHistory.Count - 1];
+            float expected = _investment.TotalPortfolioValue;
+
+            Assert.AreEqual(expected, lastSnapshot, 0.01f,
+                "PortfolioValueHistory snapshot must equal InvestmentSystem.TotalPortfolioValue (cash excluded)");
+        }
+
         // ═══════════════════════════════════════════════════════════════
         // HELPERS — invoke private handler methods directly to avoid
         // coupling to the global event chain
