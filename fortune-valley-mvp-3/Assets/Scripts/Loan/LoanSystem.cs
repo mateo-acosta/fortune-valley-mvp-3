@@ -95,6 +95,8 @@ namespace FortuneValley.Core
                 return;
             }
 
+            float prevBalance = TotalOutstandingPrincipal;
+
             // POC flow: no down payment. Full principal = lot price. Loan proceeds deposit
             // into checking; the lot itself is not auto-purchased (player must click Buy again).
             ActiveLoan loan = _portfolio.Originate(
@@ -118,6 +120,9 @@ namespace FortuneValley.Core
             }
 
             GameEvents.RaiseLoanOriginated(loan);
+
+            float newBalance = TotalOutstandingPrincipal;
+            GameEvents.RaiseLoanBalanceChanged(newBalance, newBalance - prevBalance);
         }
 
         // ===============================================================
@@ -132,10 +137,16 @@ namespace FortuneValley.Core
         {
             if (_portfolio == null || _currencyManager == null) return;
 
+            float prevBalance = TotalOutstandingPrincipal;
+
             _portfolio.ProcessMonthlyPayments(
                 _currencyManager.TrySpendChecking,
                 HandlePaymentMade,
                 HandlePaymentMissed);
+
+            float newBalance = TotalOutstandingPrincipal;
+            if (newBalance != prevBalance)
+                GameEvents.RaiseLoanBalanceChanged(newBalance, newBalance - prevBalance);
         }
 
         private void HandlePaymentMade(ActiveLoan loan, float amountPaid)

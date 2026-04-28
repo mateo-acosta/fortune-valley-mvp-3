@@ -25,6 +25,9 @@ namespace FortuneValley.Managers
         private readonly QuestionSession _session = new QuestionSession();
         private QuestionSessionPhase _phase = QuestionSessionPhase.Idle;
         private float _timer;
+        private bool _hasRewardOverride;
+        private float _overrideBaseReward;
+        private float _overrideStreakMultiplier;
 
         public bool IsSessionActive => _phase != QuestionSessionPhase.Idle;
         public int CurrentStreak => _session.Streak;
@@ -40,6 +43,7 @@ namespace FortuneValley.Managers
             GameEvents.OnQuestionSessionEnded += HandleSessionEndedSignal;
             GameEvents.OnQuestionStartRequested += StartSession;
             GameEvents.OnQuestionAnswerSubmitted += SubmitAnswer;
+            GameEvents.OnQuestionRewardConfigOverrideRequested += HandleRewardConfigOverride;
         }
 
         private void OnDisable()
@@ -47,6 +51,14 @@ namespace FortuneValley.Managers
             GameEvents.OnQuestionSessionEnded -= HandleSessionEndedSignal;
             GameEvents.OnQuestionStartRequested -= StartSession;
             GameEvents.OnQuestionAnswerSubmitted -= SubmitAnswer;
+            GameEvents.OnQuestionRewardConfigOverrideRequested -= HandleRewardConfigOverride;
+        }
+
+        private void HandleRewardConfigOverride(float baseReward, float streakMultiplier)
+        {
+            _hasRewardOverride = true;
+            _overrideBaseReward = baseReward;
+            _overrideStreakMultiplier = streakMultiplier;
         }
 
         private void HandleSessionEndedSignal()
@@ -160,10 +172,12 @@ namespace FortuneValley.Managers
         {
             // Streak is now 1-based: after 1st correct answer, Streak == 1. First reward uses index 0.
             int streakIndex = _session.Streak - 1;
+            float baseReward = _hasRewardOverride ? _overrideBaseReward : _config.BaseReward;
+            float streakMultiplier = _hasRewardOverride ? _overrideStreakMultiplier : _config.StreakMultiplier;
             int reward = StreakRewardCalculator.RewardForStreak(
                 streakIndex,
-                _config.BaseReward,
-                _config.StreakMultiplier,
+                baseReward,
+                streakMultiplier,
                 _config.RewardRoundingStep);
 
             if (reward > 0 && _currencyManager != null)

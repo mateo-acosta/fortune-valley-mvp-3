@@ -44,6 +44,14 @@ namespace FortuneValley.UI.Popups
         [SerializeField] private string _streakFormat = "Streak: {0}";
         [SerializeField] private string _rewardFormat = "+${0:N0}";
 
+        [Header("Reward Override")]
+        [Tooltip("When enabled, the values below override the QuestionConfig reward tunables for sessions started from this popup.")]
+        [SerializeField] private bool _overrideRewardConfig = false;
+        [Tooltip("Starting amount earned for the first correct answer in a streak.")]
+        [SerializeField] private float _baseReward = 25f;
+        [Tooltip("Per-streak multiplier applied to the base reward (e.g. 1.15 = +15% per streak step).")]
+        [SerializeField] private float _streakMultiplier = 1.15f;
+
         private int _lastWholeSecond = -1;
         private bool _inputLocked;
 
@@ -71,6 +79,10 @@ namespace FortuneValley.UI.Popups
             if (_titleText != null) _titleText.text = _titleFormat;
             UpdateStreakText(0);
             _inputLocked = false;
+            if (_overrideRewardConfig)
+            {
+                GameEvents.RaiseQuestionRewardConfigOverrideRequested(_baseReward, _streakMultiplier);
+            }
             GameEvents.RaiseQuestionStartRequested();
         }
 

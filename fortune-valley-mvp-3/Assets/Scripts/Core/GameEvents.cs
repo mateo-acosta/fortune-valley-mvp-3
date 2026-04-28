@@ -551,6 +551,9 @@ namespace FortuneValley.Core
         public static event Action<ActiveLoan> OnLoanPaidOff;                       // loan fully repaid
         public static void RaiseLoanPaidOff(ActiveLoan loan) => OnLoanPaidOff?.Invoke(loan);
 
+        public static event Action<float, float> OnLoanBalanceChanged;              // total outstanding principal, delta
+        public static void RaiseLoanBalanceChanged(float total, float delta) => OnLoanBalanceChanged?.Invoke(total, delta);
+
         // Monthly payment cycle events
         public static event Action<int> OnMonthlyPaymentDayStarted;    // dayNumber
         public static void RaiseMonthlyPaymentDayStarted(int dayNumber) => OnMonthlyPaymentDayStarted?.Invoke(dayNumber);
@@ -621,6 +624,11 @@ namespace FortuneValley.Core
         // UI intent: start or restart a session.
         public static event Action OnQuestionStartRequested;
         public static void RaiseQuestionStartRequested() => OnQuestionStartRequested?.Invoke();
+
+        // UI intent: override reward tunables for the next session. baseReward, streakMultiplier.
+        public static event Action<float, float> OnQuestionRewardConfigOverrideRequested;
+        public static void RaiseQuestionRewardConfigOverrideRequested(float baseReward, float streakMultiplier)
+            => OnQuestionRewardConfigOverrideRequested?.Invoke(baseReward, streakMultiplier);
 
         // UI intent: player chose an answer. chosenIndex -1 denotes timeout (fired by manager, not UI).
         public static event Action<int> OnQuestionAnswerSubmitted;
@@ -835,6 +843,7 @@ namespace FortuneValley.Core
 
             // QuestionMaster
             OnQuestionStartRequested = null;
+            OnQuestionRewardConfigOverrideRequested = null;
             OnQuestionAnswerSubmitted = null;
             OnQuestionSessionStarted = null;
             OnQuestionPresented = null;

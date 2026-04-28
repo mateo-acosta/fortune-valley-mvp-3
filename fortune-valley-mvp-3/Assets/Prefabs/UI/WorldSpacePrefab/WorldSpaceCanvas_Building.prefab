@@ -982,7 +982,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &3487248799191638839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1020,6 +1020,7 @@ MonoBehaviour:
   _rivalT2: {fileID: -8098169881513260187, guid: ff03c0b1070074f7b9b1362aab7daa5e, type: 3}
   _rivalT3: {fileID: -8098169881513260187, guid: 84f65ea7929304c17b1f4571bc59c29e, type: 3}
   _forSaleSign: {fileID: 0}
+  _vacantLotMesh: {fileID: 0}
 --- !u!114 &7470296889991149456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1033,6 +1034,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.World.LotWorldCanvas
   _lot: {fileID: 0}
+  _collectButton: {fileID: 0}
+  _collectAnchor: {fileID: 0}
+  _collectionController: {fileID: 0}
+  _timeManager: {fileID: 0}
   _clickButton: {fileID: 7022567585478958244}
   _buttonLabel: {fileID: 2029540655163892228}
   _titleText: {fileID: 5067164435138122713}

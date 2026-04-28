@@ -6,10 +6,18 @@ using FortuneValley.Domain.Notifications;
 namespace FortuneValley.UI.Notifications
 {
     /// <summary>
-    /// Visualizes the live banner stack with manual slot positioning (no
-    /// VerticalLayoutGroup, which would thrash under DOTween animations on
-    /// WebGL). Slot 0 is the topmost; surviving banners slide up when an
-    /// earlier slot dismisses.
+    /// Visualizes the live banner stack. Two layout modes:
+    ///
+    /// 1. Manual slot mode: <c>_slotPositions</c> is non-empty. Each entry is a
+    ///    pre-positioned anchored position; banners slide between slots and
+    ///    surviving occupants compact forward when an earlier slot dismisses.
+    ///    Use this when there is no LayoutGroup on the parent.
+    ///
+    /// 2. LayoutGroup mode: <c>_slotPositions</c> is empty. The parent
+    ///    Transform owns positioning (typically a VerticalLayoutGroup);
+    ///    banners are spawned without slot assignment up to
+    ///    <c>_layoutGroupMaxConcurrent</c> visible at a time. <see cref="BannerView"/>
+    ///    detects the parent LayoutGroup in Awake and runs fade-only animation.
     ///
     /// This component is a pure visualizer. Cooldown, suppression, and queue
     /// eviction live in <see cref="Managers.Notifications.GuidanceController"/>;
@@ -23,26 +31,31 @@ namespace FortuneValley.UI.Notifications
         [SerializeField] private BannerView _bannerPrefab;
         [SerializeField] private RectTransform _bannerParent;
 
-        [Header("Slots")]
+        [Header("Manual slot mode")]
         [Tooltip("Pre-positioned anchored positions for visible banners (top to bottom). " +
-                 "Length determines how many banners can be visible at once.")]
-        [SerializeField] private Vector2[] _slotPositions = new Vector2[3];
+                 "Leave empty to use LayoutGroup mode (parent owns positioning).")]
+        [SerializeField] private Vector2[] _slotPositions = new Vector2[0];
+
+        [Header("LayoutGroup mode")]
+        [Tooltip("Max concurrent banners when the parent has a LayoutGroup. " +
+                 "Ignored when _slotPositions is non-empty.")]
+        [SerializeField] private int _layoutGroupMaxConcurrent = 3;
+
+        [Header("Display")]
+        [Tooltip("Seconds each banner stays visible before auto-dismissing. " +
+                 "Applies to every severity. Set to 0 to use the per-severity " +
+                 "durationSeconds authored on BannerSeverityPalette instead.")]
+        [SerializeField, Min(0f)] private float _displayDurationOverride = 4f;
 
         private readonly List<BannerView> _pool = new List<BannerView>();
-        private readonly BannerView[] _slotOccupants = new BannerView[3];
+        private BannerView[] _slotOccupants;
+        private int _layoutGroupVisibleCount;
+
+        private bool UsesManualSlots => _slotPositions != null && _slotPositions.Length > 0;
 
         private void Awake()
         {
-            // When _slotPositions is empty (0), the parent's LayoutGroup drives
-            // positioning and we do not use manual slots at all; that is not a
-            // misconfiguration. Only warn when positions are set AND the
-            // occupant array length disagrees.
-            if (_slotPositions != null && _slotPositions.Length > 0 &&
-                _slotOccupants.Length != _slotPositions.Length)
-            {
-                Debug.LogWarning($"{nameof(BannerStackUI)}: slot occupant array length ({_slotOccupants.Length}) " +
-                                 $"differs from slot positions length ({_slotPositions.Length}). Using positions length.");
-            }
+            _slotOccupants = UsesManualSlots ? new BannerView[_slotPositions.Length] : null;
         }
 
         private void OnEnable()
@@ -61,8 +74,9 @@ namespace FortuneValley.UI.Notifications
         {
             get
             {
+                if (!UsesManualSlots) return _layoutGroupVisibleCount;
                 int count = 0;
-                for (int i = 0; i < SlotCount; i++)
+                for (int i = 0; i < _slotOccupants.Length; i++)
                 {
                     if (_slotOccupants[i] != null) count++;
                 }
@@ -70,44 +84,56 @@ namespace FortuneValley.UI.Notifications
             }
         }
 
-        public int SlotCount => Mathf.Min(_slotOccupants.Length, _slotPositions.Length);
+        public int Capacity => UsesManualSlots ? _slotPositions.Length : _layoutGroupMaxConcurrent;
 
         private void HandleRequest(GuidanceBannerRequest request)
         {
-            int slot = FirstFreeSlot();
-            if (slot < 0)
-            {
-                // Step 5 keeps this simple: when all visible slots are full, the
-                // request is dropped here. Step 7 (GuidanceController) takes over
-                // queuing so this branch becomes unreachable in production.
-                return;
-            }
-
-            var view = TakeFromPool();
-            _slotOccupants[slot] = view;
-            view.SetSlotPosition(_slotPositions[slot]);
-
             if (!_palette.TryGet(request.Severity, out var entry))
             {
                 Debug.LogError($"{nameof(BannerStackUI)}: missing severity entry for {request.Severity}");
                 return;
             }
+
+            if (_displayDurationOverride > 0f) entry.durationSeconds = _displayDurationOverride;
+
+            BannerView view;
+            if (UsesManualSlots)
+            {
+                int slot = FirstFreeSlot();
+                if (slot < 0) return;
+                view = TakeFromPool();
+                _slotOccupants[slot] = view;
+                view.SetSlotPosition(_slotPositions[slot]);
+            }
+            else
+            {
+                if (_layoutGroupVisibleCount >= _layoutGroupMaxConcurrent) return;
+                view = TakeFromPool();
+                _layoutGroupVisibleCount++;
+            }
+
             view.Show(request, entry, iconOverride: null);
         }
 
         private void HandleViewDismissed(BannerView view, GuidanceBannerRequest _)
         {
-            int slot = SlotOf(view);
-            if (slot >= 0) _slotOccupants[slot] = null;
-            ReturnToPool(view);
-            CompactSlots();
+            if (UsesManualSlots)
+            {
+                int slot = SlotOf(view);
+                if (slot >= 0) _slotOccupants[slot] = null;
+                CompactSlots();
+            }
+            else
+            {
+                _layoutGroupVisibleCount = Mathf.Max(0, _layoutGroupVisibleCount - 1);
+            }
         }
 
         private void CompactSlots()
         {
             // Slide later occupants forward so visible ordering stays top-aligned.
             int writeIndex = 0;
-            for (int readIndex = 0; readIndex < SlotCount; readIndex++)
+            for (int readIndex = 0; readIndex < _slotOccupants.Length; readIndex++)
             {
                 var occupant = _slotOccupants[readIndex];
                 if (occupant == null) continue;
@@ -123,7 +149,7 @@ namespace FortuneValley.UI.Notifications
 
         private int FirstFreeSlot()
         {
-            for (int i = 0; i < SlotCount; i++)
+            for (int i = 0; i < _slotOccupants.Length; i++)
             {
                 if (_slotOccupants[i] == null) return i;
             }
@@ -132,7 +158,7 @@ namespace FortuneValley.UI.Notifications
 
         private int SlotOf(BannerView view)
         {
-            for (int i = 0; i < SlotCount; i++)
+            for (int i = 0; i < _slotOccupants.Length; i++)
             {
                 if (_slotOccupants[i] == view) return i;
             }
@@ -152,11 +178,6 @@ namespace FortuneValley.UI.Notifications
             view.OnDismissed += HandleViewDismissed;
             _pool.Add(view);
             return view;
-        }
-
-        private void ReturnToPool(BannerView view)
-        {
-            // Pool entries stay in _pool; deactivation is handled by BannerView itself.
         }
     }
 }
