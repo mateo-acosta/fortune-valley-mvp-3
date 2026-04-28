@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6555b626eec6847919ae96bab0de9a1e, type: 3}
   m_Name: QuestionConfig
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.QuestionConfig
-  _baseReward: 25
-  _streakMultiplier: 1.15
+  _baseReward: 50
+  _streakMultiplier: 1.2
   _rewardRoundingStep: 5
   _questionTimeSeconds: 15
   _overlayDurationSeconds: 2
