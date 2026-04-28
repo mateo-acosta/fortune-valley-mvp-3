@@ -11192,7 +11192,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &215809231
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12344,6 +12344,9 @@ MonoBehaviour:
   _titleFormat: Question Master
   _streakFormat: 'Streak: {0}'
   _rewardFormat: +${0:N0}
+  _overrideRewardConfig: 0
+  _baseReward: 25
+  _streakMultiplier: 1.15
 --- !u!1001 &242744058
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38668,7 +38671,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +$35/s
+  m_text: +$35/day
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5f58c05479cb14f588efcdfcbdab347c, type: 2}
   m_sharedMaterial: {fileID: 7423409246693961632, guid: 5f58c05479cb14f588efcdfcbdab347c, type: 2}
@@ -101895,10 +101898,34 @@ MonoBehaviour:
   _currencyManager: {fileID: 2029218249}
   _timeManager: {fileID: 2029218250}
   _availableInvestments:
-  - {fileID: 11400000, guid: 940eeb2d26b3848d3a3ab0d92fe05271, type: 2}
-  - {fileID: 11400000, guid: 161fa7a35395e40aa901092687270ce7, type: 2}
+  - {fileID: 11400000, guid: 0c287991d90a89e5dfae144f3e994a0b, type: 2}
+  - {fileID: 11400000, guid: 817bd0b5582d9567822229ce250fd36f, type: 2}
   - {fileID: 11400000, guid: 30f948ffe431c4e769a0a544bf8dc4fc, type: 2}
+  - {fileID: 11400000, guid: 5dc7b445680b8b2c05d1d6a510669792, type: 2}
+  - {fileID: 11400000, guid: 37e2f771e355eb86474789f12e969a31, type: 2}
+  - {fileID: 11400000, guid: d97d9e35ee8f7525c4dbb30ac766a614, type: 2}
+  - {fileID: 11400000, guid: 34d516b94078bffda83989f4fcb82d60, type: 2}
+  - {fileID: 11400000, guid: c652e4359f13b8c76ec8603e52fe11bb, type: 2}
+  - {fileID: 11400000, guid: a56aae291a6fcdef55d14d0df999ecb7, type: 2}
+  - {fileID: 11400000, guid: f7700dd00120a6cb9638921a5ab2c88d, type: 2}
+  - {fileID: 11400000, guid: 161fa7a35395e40aa901092687270ce7, type: 2}
+  - {fileID: 11400000, guid: 55355710a1227815b8412c5cc59f33f5, type: 2}
+  - {fileID: 11400000, guid: b31da6a59a30bced3308ed46bfc44671, type: 2}
+  - {fileID: 11400000, guid: a1b0c210edf17c6a163b03093002f654, type: 2}
   - {fileID: 11400000, guid: 6dfa1e4a24df949d9aa81954b1a690d7, type: 2}
+  - {fileID: 11400000, guid: 44fee1c3c10ee9798665453bf515c970, type: 2}
+  - {fileID: 11400000, guid: 26c9d18b26dc86e98b556d2193f43e61, type: 2}
+  - {fileID: 11400000, guid: b1b2bd38224ecaff1acee12859e0bccb, type: 2}
+  - {fileID: 11400000, guid: 7a447b31f195d450205307e65ecbb60f, type: 2}
+  - {fileID: 11400000, guid: af5c3479b7a212009424b0669794f96c, type: 2}
+  - {fileID: 11400000, guid: c4807de7047be42d44bd6025306148df, type: 2}
+  - {fileID: 11400000, guid: dee7417867794194b24bae51a86a724b, type: 2}
+  - {fileID: 11400000, guid: f18b23d2e90c264895df54586f661d2a, type: 2}
+  - {fileID: 11400000, guid: 940eeb2d26b3848d3a3ab0d92fe05271, type: 2}
+  - {fileID: 11400000, guid: 380c76bc3da0d501e6fabed189ba89dc, type: 2}
+  - {fileID: 11400000, guid: 50321b0b24654307258e6e74f311c1cf, type: 2}
+  - {fileID: 11400000, guid: 7450b46900056f5994737e1fe5beffec, type: 2}
+  - {fileID: 11400000, guid: 3858ae108332d1c7abf50e3556f94ee7, type: 2}
   _logCompounding: 1
 --- !u!114 &2029218246
 MonoBehaviour:
@@ -105641,6 +105668,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.Panels.Investing.InvestingTradeSubPanel
   _investmentSystem: {fileID: 2029218245}
   _stockHistory: {fileID: 2029218251}
+  _currencyManager: {fileID: 2029218249}
   _exploreSubPanel: {fileID: 2018782606}
   _labelFont: {fileID: 11400000, guid: 5f58c05479cb14f588efcdfcbdab347c, type: 2}
   _graphPlaceholder: {fileID: 823869068}
@@ -108585,7 +108613,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +$25/s
+  m_text: +$25/day
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5f58c05479cb14f588efcdfcbdab347c, type: 2}
   m_sharedMaterial: {fileID: 7423409246693961632, guid: 5f58c05479cb14f588efcdfcbdab347c, type: 2}

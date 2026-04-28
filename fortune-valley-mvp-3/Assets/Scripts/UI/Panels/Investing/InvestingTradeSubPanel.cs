@@ -29,6 +29,7 @@ namespace FortuneValley.UI.Panels.Investing
         [Header("Dependencies")]
         [SerializeField] private InvestmentSystem _investmentSystem;
         [SerializeField] private StockPriceHistoryStore _stockHistory;
+        [SerializeField] private CurrencyManager _currencyManager;
 
         [Header("Selection Source")]
         [Tooltip("The Explore sub-panel. Selection is read on enable (for Explore->Trade flow).")]
@@ -108,6 +109,12 @@ namespace FortuneValley.UI.Panels.Investing
                 _sellButton.onClick.AddListener(OnSellClicked);
 
             EnsureGraph();
+
+            // Seed cached balance from CurrencyManager. OnCheckingBalanceChanged
+            // only fires on game start or transactions, so a panel opened later
+            // would miss the initial value and leave the Buy button disabled.
+            if (_currencyManager != null)
+                _cachedCheckingBalance = _currencyManager.CheckingBalance;
 
             // Read selection from Explore tab (for Explore->Trade flow)
             if (_exploreSubPanel != null && _exploreSubPanel.SelectedDefinition != null)
