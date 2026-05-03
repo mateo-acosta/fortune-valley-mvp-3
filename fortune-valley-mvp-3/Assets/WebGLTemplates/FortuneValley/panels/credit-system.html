@@ -1,0 +1,1284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Credit System — Fortune Valley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Fortune Valley — Credit System panel
+   Single self-contained file. Warm cream paper chrome that
+   sits on top of the live game world. Matches the warm-paper
+   palette established in Investing System v2; accent shifts
+   from coral (Investing) to sky (Credit).
+   ============================================================ */
+
+:root {
+  /* Surfaces — clean white paper, matching the original Investing System.
+     Cool blue-tinged neutrals; navy ink. */
+  --paper:        #FFFFFF;
+  --paper-2:      #F4F6FB;
+  --paper-3:      #E8ECF6;
+  --paper-4:      #DBE1F0;
+
+  --ink-900:      #0E1530;
+  --ink-800:      #16204A;
+  --ink-700:      #1F2C5C;
+  --ink-500:      #3A4D8E;
+
+  --fg-1:         #0E1530;
+  --fg-2:         #3A4D8E;
+  --fg-3:         #6B78A8;
+  --fg-4:         #9AA3C2;
+
+  /* Brand */
+  --coral:        #FF7A8A;
+  --sky:          #4FB8E8;     /* Credit accent */
+  --sky-soft:     #DDF1FB;
+  --sky-ink:      #0B5076;
+  --cash:         #4CC38A;
+  --coin:         #F2B53B;
+  --tan:          #C99A5C;
+
+  /* Semantic */
+  --gain:         #1FA85E;
+  --gain-soft:    #DCF3E6;
+  --loss:         #E83A50;
+  --loss-soft:    #FCE0E4;
+  --warn:         #D49414;
+  --warn-soft:    #FAEAC4;
+
+  /* Radii */
+  --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* Shadows — cool navy on white */
+  --sh-1:  0 1px 2px rgba(14,21,48,0.06), 0 2px 6px rgba(14,21,48,0.08);
+  --sh-2:  0 4px 12px rgba(14,21,48,0.10), 0 12px 28px rgba(14,21,48,0.12);
+  --sh-3:  0 12px 28px rgba(14,21,48,0.18), 0 28px 60px rgba(14,21,48,0.22);
+
+  /* Borders */
+  --bd:    1px solid rgba(14,21,48,0.08);
+  --bd-2:  1px solid rgba(14,21,48,0.14);
+
+  --ease:  cubic-bezier(0.2, 0.8, 0.2, 1);
+  --d-fast: 120ms;
+  --d-base: 200ms;
+
+  --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: var(--font);
+  color: var(--fg-1);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ----------------------------------------------------------
+   World — sky + ground backdrop. Stand-in for the live Unity scene.
+   ---------------------------------------------------------- */
+.world {
+  position: fixed; inset: 0;
+  background: linear-gradient(180deg, #9DD7F2 0%, #BFE7F5 36%, #C9EBA4 56%, #7FC93C 100%);
+  overflow: hidden;
+}
+.world .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: 0.92; box-shadow: 0 6px 0 rgba(14,21,48,0.04); }
+.world .sun { position: absolute; width: 96px; height: 96px; border-radius: 999px; background: radial-gradient(circle at 35% 30%, #FFE6A8, #F2B53B); box-shadow: 0 0 80px rgba(242,181,59,0.45); }
+.world .road { position: absolute; left: 0; right: 0; bottom: 22%; height: 64px; background: #3A4D8E; box-shadow: inset 0 4px 0 rgba(0,0,0,0.16); }
+.world .road::after { content:''; position:absolute; left:0; right:0; top:30px; height:4px; background-image: repeating-linear-gradient(90deg,#fff 0,#fff 28px,transparent 28px,transparent 52px); }
+.world .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(180deg,#7FC93C,#5BA826); }
+.world .building { position: absolute; border-radius: 14px 14px 4px 4px; border: 2px solid rgba(14,21,48,0.12); box-shadow: inset 0 -8px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(14,21,48,0.18); }
+
+/* ----------------------------------------------------------
+   World chrome — Day badge + balance pills + dock
+   ---------------------------------------------------------- */
+.topbar { position: fixed; top: 18px; left: 18px; right: 18px; display: flex; align-items: center; gap: 12px; z-index: 20; }
+.day-badge {
+  background: var(--ink-900); color: #fff;
+  border-radius: var(--r-pill); padding: 8px 18px 8px 8px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--sh-2); border: 1px solid rgba(255,255,255,0.06);
+}
+.day-badge .coin { width: 32px; height: 32px; border-radius: 32px; background: var(--coin); color: #5C3F00; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; }
+.day-badge .label { font-weight: 800; letter-spacing: 0.3px; font-size: 14px; }
+
+.balance-pill { background: #fff; border-radius: var(--r-pill); padding: 4px 16px 4px 4px; display: flex; align-items: center; gap: 10px; box-shadow: var(--sh-1); border: var(--bd); }
+.balance-pill .swatch { width: 38px; height: 38px; border-radius: 38px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: #fff; }
+.balance-pill .swatch.cash    { background: var(--cash); }
+.balance-pill .swatch.invest  { background: var(--coral); }
+.balance-pill .swatch.credit  { background: var(--sky); }
+.balance-pill .meta { line-height: 1.05; }
+.balance-pill .meta .k { font-size: 10px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; }
+.balance-pill .meta .v { font-weight: 900; font-size: 16px; color: var(--fg-1); font-variant-numeric: tabular-nums; }
+
+.spacer { flex: 1; }
+
+.dock { position: fixed; top: 110px; right: 18px; display: flex; flex-direction: column; gap: 10px; z-index: 20; }
+.dock button {
+  width: 56px; height: 56px; border-radius: 16px;
+  border: var(--bd); background: #fff; color: var(--fg-2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  cursor: pointer; box-shadow: var(--sh-1);
+  transition: transform var(--d-fast) var(--ease);
+  font-family: var(--font);
+}
+.dock button:hover { transform: translateY(-2px); }
+.dock button.active {
+  background: var(--sky); color: #fff;
+  box-shadow: 0 6px 18px rgba(79,184,232,0.40);
+}
+.dock button .ic { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+.dock button .nm { font-size: 9px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* ----------------------------------------------------------
+   Scrim + panel modal
+   ---------------------------------------------------------- */
+.scrim {
+  position: fixed; inset: 0; background: rgba(8,12,30,0.45);
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 30;
+}
+.panel {
+  width: min(1180px, calc(100vw - 110px));
+  height: min(720px, calc(100vh - 56px));
+  background: var(--paper);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-3);
+  border: var(--bd);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.panel-header {
+  height: 64px; flex: none;
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 14px 0 22px;
+  border-bottom: var(--bd);
+  background: linear-gradient(180deg, var(--paper), var(--paper-2));
+}
+.panel-header .crest {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--sky); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.panel-header .titles .kicker { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; }
+.panel-header .titles .title { font-size: 20px; font-weight: 900; letter-spacing: -0.01em; }
+.panel-header .close {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--paper-2); border: var(--bd);
+  color: var(--fg-2); cursor: pointer; font-size: 16px; font-weight: 900;
+  transition: background var(--d-fast) var(--ease);
+}
+.panel-header .close:hover { background: var(--paper-3); }
+
+/* Body */
+.panel-body { flex: 1; display: flex; min-height: 0; }
+.sidebar { width: 200px; flex: none; background: var(--paper-2); border-right: var(--bd); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; }
+.sidebar .label { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; padding: 0 12px 8px; }
+.sidebar button {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border-radius: 10px;
+  background: transparent; border: 1px solid transparent;
+  color: var(--fg-2); cursor: pointer; text-align: left;
+  font-family: var(--font); font-weight: 700; font-size: 14px;
+  transition: all var(--d-fast) var(--ease);
+  position: relative;
+}
+.sidebar button:hover { background: rgba(79,184,232,0.10); color: var(--fg-1); }
+.sidebar button.active {
+  background: var(--sky-soft);
+  border-color: rgba(79,184,232,0.35);
+  color: var(--sky-ink); font-weight: 800;
+}
+.sidebar button.active::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; border-radius: 3px; background: var(--sky);
+}
+.sidebar button .ic { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; color: currentColor; opacity: 0.85; }
+
+.content { flex: 1; overflow: auto; padding: 22px 26px; min-width: 0; }
+.content::-webkit-scrollbar { width: 10px; }
+.content::-webkit-scrollbar-thumb { background: var(--paper-4); border-radius: 10px; }
+
+/* ----------------------------------------------------------
+   Shared content primitives
+   ---------------------------------------------------------- */
+.row { display: flex; gap: 12px; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.grow { flex: 1; min-width: 0; }
+
+.card {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  padding: 16px;
+}
+.card.tinted { background: var(--paper-2); }
+
+.kicker { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; white-space: nowrap; }
+
+.num { font-variant-numeric: tabular-nums; font-weight: 800; }
+.gain { color: var(--gain); }
+.loss { color: var(--loss); }
+
+/* Pill chip (filter row) */
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.chip {
+  padding: 7px 14px; border-radius: 999px;
+  background: var(--paper-2); border: var(--bd);
+  color: var(--fg-2); font-weight: 800; font-size: 13px;
+  cursor: pointer; transition: all var(--d-fast) var(--ease);
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.chip:hover { background: var(--paper-3); }
+.chip.active { background: var(--ink-900); color: #fff; border-color: var(--ink-900); }
+.chip-label { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; margin-right: 8px; }
+
+/* Health badge (credit score / utilization) */
+.health-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 800;
+  white-space: nowrap;
+}
+.health-badge.good   { background: var(--gain-soft); color: var(--gain); }
+.health-badge.fair   { background: var(--warn-soft); color: var(--warn); }
+.health-badge.poor   { background: var(--loss-soft); color: var(--loss); }
+.health-badge .dot   { width: 8px; height: 8px; border-radius: 8px; background: currentColor; }
+
+/* Buttons */
+.btn {
+  font-family: var(--font); font-weight: 800;
+  border: none; cursor: pointer; border-radius: 12px;
+  padding: 11px 18px; font-size: 14px;
+  transition: transform var(--d-fast) var(--ease), background var(--d-fast) var(--ease);
+}
+.btn:active:not(:disabled) { transform: translateY(2px); }
+.btn-primary { background: var(--sky); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #38A9DC; }
+.btn-ghost { background: var(--paper-2); color: var(--fg-1); border: var(--bd); }
+.btn-ghost:hover { background: var(--paper-3); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.4); }
+.btn-lg { padding: 13px 22px; font-size: 15px; border-radius: 14px; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--paper); border: var(--bd); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--fg-2); transition: all var(--d-fast) var(--ease);
+}
+.icon-btn:hover:not(:disabled) { background: var(--paper-3); color: var(--fg-1); }
+.icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Empty state */
+.empty {
+  background: var(--paper-2); border: 1px dashed var(--paper-4);
+  border-radius: var(--r-md); padding: 36px 24px;
+  text-align: center; color: var(--fg-2);
+}
+.empty .h { font-weight: 800; font-size: 15px; color: var(--fg-1); }
+.empty .p { font-size: 13px; margin-top: 6px; max-width: 360px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+
+/* Tabs */
+.tab { display: none; }
+.tab.active { display: block; animation: tabIn 200ms var(--ease) both; }
+@keyframes tabIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ============================================================
+   HOME — summary tiles + active loans list
+   ============================================================ */
+
+.home-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.summary-group {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  padding: 14px 16px 16px;
+  box-shadow: var(--sh-1);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.summary-group .group-head {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: var(--bd);
+}
+.summary-group .group-head .ic {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; flex: none;
+}
+.summary-group .group-head .ic.loans  { background: var(--tan); }
+.summary-group .group-head .ic.card   { background: var(--sky); }
+.summary-group .group-head .h {
+  font-size: 14px; font-weight: 900; letter-spacing: -0.005em;
+}
+.summary-group .group-head .sub {
+  font-size: 11px; font-weight: 700; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.summary-stats .cell {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 4px 0;
+}
+.summary-stats .cell.full { grid-column: 1 / -1; }
+.summary-stats .cell .k {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.summary-stats .cell .v {
+  font-weight: 900; font-size: 22px; letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums; line-height: 1.05;
+  color: var(--fg-1);
+}
+.summary-stats .cell .v.score {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.summary-stats .cell .badges {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px;
+}
+
+/* Utilization bar */
+.util-bar {
+  margin-top: 6px;
+  height: 8px; border-radius: 8px;
+  background: var(--paper-3);
+  overflow: hidden;
+  position: relative;
+}
+.util-bar > span {
+  display: block; height: 100%;
+  border-radius: 8px;
+  transition: width var(--d-base) var(--ease);
+}
+.util-bar.good > span { background: var(--gain); }
+.util-bar.fair > span { background: var(--warn); }
+.util-bar.poor > span { background: var(--loss); }
+.util-bar .threshold {
+  position: absolute; top: -2px; bottom: -2px;
+  width: 2px; background: rgba(60,40,15,0.25);
+  border-radius: 2px;
+}
+
+/* Active loans list */
+.loans-section .head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.loans-section .head .kicker { margin-bottom: 0; }
+.loans-list { display: flex; flex-direction: column; gap: 10px; }
+.loan-row {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.6fr;
+  gap: 16px;
+  align-items: center;
+  box-shadow: var(--sh-1);
+}
+.loan-row .name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.loan-row .name .ic {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--sky-soft); color: var(--sky-ink);
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.loan-row .name .nm { font-weight: 900; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loan-row .name .sub { font-size: 12px; color: var(--fg-3); font-weight: 700; }
+
+.loan-row .stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.loan-row .stat .k { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; }
+.loan-row .stat .v { font-weight: 900; font-size: 16px; font-variant-numeric: tabular-nums; }
+
+.loan-row .progress { display: flex; flex-direction: column; gap: 6px; }
+.loan-row .progress .top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 12px; color: var(--fg-2); font-weight: 700;
+}
+.loan-row .progress .top .pct { font-weight: 900; font-size: 13px; color: var(--fg-1); font-variant-numeric: tabular-nums; }
+.progress-track {
+  height: 8px; border-radius: 8px;
+  background: var(--paper-3);
+  overflow: hidden;
+}
+.progress-track > span {
+  display: block; height: 100%;
+  background: var(--sky);
+  border-radius: 8px;
+  transition: width var(--d-base) var(--ease);
+}
+
+/* ============================================================
+   EXPLORE — lot dropdown + carousel + stats table
+   ============================================================ */
+
+.lot-select-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.lot-select-row .label {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.lot-select {
+  flex: 1;
+  font-family: var(--font); font-weight: 800; font-size: 14px;
+  padding: 11px 38px 11px 14px;
+  border-radius: 12px;
+  background: var(--paper) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235C4A33' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 12px center;
+  border: var(--bd-2); color: var(--fg-1);
+  -webkit-appearance: none; appearance: none;
+  cursor: pointer;
+  max-width: 380px;
+}
+.lot-select:focus { outline: 2px solid rgba(79,184,232,0.45); outline-offset: 1px; }
+
+.explore-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 16px;
+}
+
+.carousel-card {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  min-height: 360px;
+}
+.carousel-head {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.carousel-head .pos { font-size: 12px; font-weight: 800; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+
+.carousel-illus {
+  flex: 1;
+  background: linear-gradient(180deg, var(--sky-soft), #ECF6FC);
+  border: var(--bd);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.carousel-illus .term-badge {
+  position: absolute; top: 12px; left: 14px;
+  background: rgba(255,255,255,0.92);
+  color: var(--sky-ink);
+  font-size: 11px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 999px;
+  border: var(--bd);
+}
+
+.carousel-name {
+  text-align: center;
+  font-size: 22px; font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--fg-1);
+}
+.carousel-tagline {
+  text-align: center;
+  font-size: 13px; color: var(--fg-2);
+  font-weight: 700; line-height: 1.4;
+}
+
+.carousel-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 4px;
+}
+.carousel-controls .dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.carousel-controls .dots span {
+  width: 8px; height: 8px; border-radius: 8px;
+  background: var(--paper-4);
+  transition: background var(--d-fast) var(--ease);
+}
+.carousel-controls .dots span.active { background: var(--sky); }
+
+/* Stats panel */
+.stats-card {
+  background: var(--paper-2);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.stats-card .lot-summary {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 12px; border-bottom: var(--bd);
+}
+.stats-card .lot-summary .nm {
+  font-weight: 900; font-size: 16px;
+  min-width: 0; flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.stats-card .lot-summary .price {
+  font-weight: 900; font-size: 16px; font-variant-numeric: tabular-nums; color: var(--fg-2);
+  flex: none; white-space: nowrap;
+}
+
+.stats-table {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.stats-table .field {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.stats-table .field .k {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.stats-table .field .v {
+  font-weight: 900; font-size: 18px; font-variant-numeric: tabular-nums;
+  color: var(--fg-1);
+}
+.stats-table .field.featured {
+  grid-column: 1 / -1;
+  background: var(--sky-soft);
+  border-color: rgba(79,184,232,0.35);
+}
+.stats-table .field.featured .v { font-size: 28px; color: var(--sky-ink); }
+
+.qualify {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px; font-weight: 800;
+}
+.qualify.ok    { background: var(--gain-soft); color: var(--gain); }
+.qualify.fail  { background: var(--loss-soft); color: var(--loss); }
+.qualify .ic { width: 22px; height: 22px; flex: none; display: flex; align-items: center; justify-content: center; }
+
+.apply-row { display: flex; gap: 10px; }
+.apply-row .btn { flex: 1; }
+
+/* ============================================================
+   HISTORY — chronological list
+   ============================================================ */
+
+.history-controls {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+}
+.range-pills { display: flex; gap: 6px; }
+
+.history-list {
+  display: flex; flex-direction: column;
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.history-row {
+  display: grid;
+  grid-template-columns: 110px 40px 1fr 140px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: var(--bd);
+}
+.history-row:last-child { border-bottom: none; }
+.history-row:hover { background: var(--paper-2); }
+.history-row .date { font-size: 12px; color: var(--fg-3); font-weight: 800; line-height: 1.25; }
+.history-row .date .yr { display: block; font-size: 11px; color: var(--fg-4); font-weight: 700; }
+.history-row .ic-wrap {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.history-row .ic-wrap.outflow  { background: var(--loss-soft); color: var(--loss); }
+.history-row .ic-wrap.inflow   { background: var(--gain-soft); color: var(--gain); }
+.history-row .ic-wrap.neutral  { background: var(--paper-3);   color: var(--fg-2); }
+.history-row .ic-wrap.warn     { background: var(--warn-soft); color: var(--warn); }
+
+.history-row .body { min-width: 0; }
+.history-row .body .label {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px;
+}
+.history-row .body .desc { font-weight: 800; font-size: 14px; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-row .body .sub { font-size: 12px; color: var(--fg-3); font-weight: 700; margin-top: 2px; }
+
+.history-row .amount {
+  text-align: right; font-variant-numeric: tabular-nums;
+  font-weight: 900; font-size: 16px;
+  white-space: nowrap;
+}
+.history-row .amount.outflow  { color: var(--loss); }
+.history-row .amount.inflow   { color: var(--gain); }
+.history-row .amount.neutral  { color: var(--fg-3); }
+
+</style>
+</head>
+<body>
+
+<!-- Game world backdrop -->
+<div class="world" aria-hidden="true">
+  <div class="cloud" style="top:64px;left:14%;width:130px;height:40px"></div>
+  <div class="cloud" style="top:120px;left:34%;width:90px;height:28px"></div>
+  <div class="cloud" style="top:88px;left:60%;width:150px;height:44px"></div>
+  <div class="sun" style="top:62px;right:16%"></div>
+  <div class="building" style="left:6%; top:46%; width:130px; height:200px; background:#FF7A8A"></div>
+  <div class="building" style="left:22%; top:40%; width:150px; height:240px; background:#F2B53B"></div>
+  <div class="building" style="left:42%; top:42%; width:170px; height:220px; background:#6FCBE0"></div>
+  <div class="building" style="left:62%; top:39%; width:140px; height:240px; background:#B57AF0"></div>
+  <div class="building" style="left:80%; top:44%; width:130px; height:210px; background:#7FC93C"></div>
+  <div class="road"></div>
+  <div class="ground"></div>
+</div>
+
+<!-- World chrome (top bar + dock) -->
+<div class="topbar">
+  <div class="day-badge"><div class="coin">4</div><div class="label">Day 4</div></div>
+  <div class="spacer"></div>
+  <div class="balance-pill"><div class="swatch cash">$</div>
+    <div class="meta"><div class="k">Checking</div><div class="v">$3,200</div></div></div>
+  <div class="balance-pill"><div class="swatch invest">↗</div>
+    <div class="meta"><div class="k">Investing</div><div class="v">$2,450</div></div></div>
+  <div class="balance-pill"><div class="swatch credit">≡</div>
+    <div class="meta"><div class="k">Credit</div><div class="v" id="hud-cc">$1,240</div></div></div>
+</div>
+
+<div class="dock">
+  <button title="Investing"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M4 17 L9 12 L13 14 L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 6 L20 6 L20 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="nm">Invest</div></button>
+  <button class="active" title="Credit"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><rect x="3" y="6" width="18" height="13" rx="2.5" stroke="currentColor" stroke-width="2.2"/><path d="M3 10 H21" stroke="currentColor" stroke-width="2.2"/></svg></div><div class="nm">Credit</div></button>
+  <button title="Insurance"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M12 3 L20 6 V12 C20 16.5 16.5 20 12 21 C7.5 20 4 16.5 4 12 V6 Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></div><div class="nm">Cover</div></button>
+  <button title="Budgeting"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2.2"/><path d="M12 3.5 V12 L18 15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div><div class="nm">Budget</div></button>
+  <button title="Taxes"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M5 4 H19 V20 L16 18 L13 20 L10 18 L7 20 L5 18 Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></div><div class="nm">Taxes</div></button>
+</div>
+
+<!-- Panel modal -->
+<div class="scrim">
+  <div class="panel" role="dialog" aria-label="Credit System">
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="crest">
+        <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><rect x="3" y="6" width="18" height="13" rx="2.5" stroke="currentColor" stroke-width="2.2"/><path d="M3 10 H21" stroke="currentColor" stroke-width="2.2"/><path d="M7 16 H10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="titles">
+        <div class="kicker">Panel</div>
+        <div class="title">Credit</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="close" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="panel-body">
+      <nav class="sidebar" role="tablist">
+        <div class="label">Sections</div>
+        <button class="tab-btn active" data-tab="home" role="tab">
+          <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 12 L12 4 L20 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11 V20 H18 V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Home
+        </button>
+        <button class="tab-btn" data-tab="explore" role="tab">
+          <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><path d="M15 9 L13 14 L9 16 L11 11 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+          Explore
+        </button>
+        <button class="tab-btn" data-tab="history" role="tab">
+          <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 7 V12 L15.5 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+          History
+        </button>
+      </nav>
+
+      <main class="content">
+
+        <!-- ============= HOME ============= -->
+        <section class="tab active" data-tab="home">
+          <div class="home-summary">
+            <!-- Loans group -->
+            <div class="summary-group" id="loans-group">
+              <div class="group-head">
+                <div class="ic loans"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M3 10 L12 3 L21 10 V20 H3 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 20 V13 H15 V20" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div>
+                  <div class="h">Loans</div>
+                  <div class="sub">Real estate financing</div>
+                </div>
+              </div>
+              <div class="summary-stats">
+                <div class="cell">
+                  <div class="k">Total Debt</div>
+                  <div class="v" id="home-total-debt">$0.00</div>
+                </div>
+                <div class="cell">
+                  <div class="k">Monthly Payment</div>
+                  <div class="v" id="home-monthly">$0.00</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Credit card group -->
+            <div class="summary-group" id="cc-group">
+              <div class="group-head">
+                <div class="ic card"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="3" y="6" width="18" height="13" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M3 10 H21" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div>
+                  <div class="h">Credit Card</div>
+                  <div class="sub">Spending &amp; revolving credit</div>
+                </div>
+              </div>
+              <div class="summary-stats">
+                <div class="cell">
+                  <div class="k">Credit Score</div>
+                  <div class="v score" id="home-score-wrap">
+                    <span id="home-score">680</span>
+                    <span class="health-badge fair" id="home-score-badge"><span class="dot"></span><span id="home-score-label">Fair</span></span>
+                  </div>
+                </div>
+                <div class="cell">
+                  <div class="k">Utilization</div>
+                  <div class="v" id="home-util">25%</div>
+                  <div class="util-bar fair" id="home-util-bar"><span style="width:25%"></span><span class="threshold" style="left:30%"></span><span class="threshold" style="left:50%"></span></div>
+                </div>
+                <div class="cell">
+                  <div class="k">CC Balance</div>
+                  <div class="v" id="home-cc-balance">$1,240.00</div>
+                </div>
+                <div class="cell">
+                  <div class="k">Available Credit</div>
+                  <div class="v" id="home-cc-avail">$3,760.00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active loans -->
+          <div class="loans-section">
+            <div class="head">
+              <div class="kicker">Active Loans <span id="loans-count" style="color:var(--fg-2);font-weight:900">(0)</span></div>
+            </div>
+            <div class="loans-list" id="loans-list"></div>
+            <div class="empty" id="loans-empty" style="display:none">
+              <div class="h">You have no active loans.</div>
+              <div class="p">Visit <strong>Explore</strong> to finance a property.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============= EXPLORE ============= -->
+        <section class="tab" data-tab="explore">
+          <div class="lot-select-row" id="lot-select-row">
+            <span class="label">Lot</span>
+            <select class="lot-select" id="lot-select"></select>
+          </div>
+
+          <div class="explore-grid" id="explore-grid">
+            <!-- Carousel -->
+            <div class="carousel-card" id="carousel-card">
+              <div class="carousel-head">
+                <div class="kicker" style="margin-bottom:0">Loan product</div>
+                <div class="pos" id="carousel-pos">1 / 3</div>
+              </div>
+              <div class="carousel-illus" id="carousel-illus">
+                <span class="term-badge" id="carousel-term">30 yr</span>
+                <!-- key icon -->
+                <svg viewBox="0 0 200 140" width="160" height="120" aria-hidden="true">
+                  <g fill="none" stroke="#0B5076" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="60" cy="70" r="26" />
+                    <path d="M82 70 L172 70" />
+                    <path d="M150 70 L150 90" />
+                    <path d="M134 70 L134 84" />
+                  </g>
+                  <circle cx="60" cy="70" r="9" fill="#FBF7EE" stroke="#0B5076" stroke-width="4"/>
+                </svg>
+              </div>
+              <div>
+                <div class="carousel-name" id="carousel-name">30-Year Standard</div>
+                <div class="carousel-tagline" id="carousel-tag">Lower monthly payment, longer term</div>
+              </div>
+              <div class="carousel-controls">
+                <button class="icon-btn" id="carousel-prev" aria-label="Previous loan">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg>
+                </button>
+                <div class="dots" id="carousel-dots"></div>
+                <button class="icon-btn" id="carousel-next" aria-label="Next loan">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-card" id="stats-card">
+              <div class="lot-summary">
+                <div class="nm" id="stats-lot-name">Bistro Lot</div>
+                <div class="price" id="stats-lot-price">$124,000</div>
+              </div>
+              <div class="stats-table">
+                <div class="field"><div class="k">APR</div><div class="v" id="stats-apr">5.2%</div></div>
+                <div class="field"><div class="k">Min Credit Score</div><div class="v" id="stats-min-score">650+</div></div>
+                <div class="field"><div class="k">Down Payment</div><div class="v" id="stats-down">$24,800</div></div>
+                <div class="field"><div class="k">Term</div><div class="v" id="stats-term">30 yr</div></div>
+                <div class="field featured"><div class="k">Monthly Payment</div><div class="v" id="stats-monthly">$540</div></div>
+                <div class="field"><div class="k">Total Loan</div><div class="v" id="stats-total">$99,200</div></div>
+                <div class="field"><div class="k">Total Cost</div><div class="v" id="stats-cost">$194,400</div></div>
+              </div>
+              <div id="qualify-row"></div>
+              <div class="apply-row">
+                <button class="btn btn-primary btn-lg" id="apply-btn" style="flex:1">Apply Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty" id="explore-empty-lots" style="display:none;margin-top:14px">
+            <div class="h">No lots available.</div>
+            <div class="p">All lots in Fortune Valley are owned right now. Check back later.</div>
+          </div>
+          <div class="empty" id="explore-empty-loans" style="display:none;margin-top:14px">
+            <div class="h">No qualifying loans for this lot.</div>
+            <div class="p">Improve your credit score or pick a less expensive lot to find a loan you qualify for.</div>
+          </div>
+        </section>
+
+        <!-- ============= HISTORY ============= -->
+        <section class="tab" data-tab="history">
+          <div class="history-controls">
+            <div class="kicker" style="margin-bottom:0">Recent activity</div>
+            <div class="range-pills" id="range-pills"></div>
+          </div>
+          <div class="history-list" id="history-list"></div>
+          <div class="empty" id="history-empty" style="display:none">
+            <div class="h">No credit activity yet.</div>
+            <div class="p">Loans, statements, and payments will appear here as soon as you take action.</div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   MOCK STATE
+   ============================================================ */
+const mockState = {
+  creditScore: 680,
+  creditScoreLabel: "Fair",
+  ccBalance: 1240.00,
+  ccLimit: 5000.00,
+  ccAvailable: 3760.00,
+  ccUtilization: 0.25,
+  totalDebt: 48200.00,
+  monthlyDebtPayment: 640.00,
+  cashOnHand: 32000.00,
+  activeLoans: [
+    { id: "loan-1", lotName: "Bistro Lot",  balance: 24800, originalPrincipal: 28000, monthlyPayment: 320, monthsPaid: 14, termMonths: 60 },
+    { id: "loan-2", lotName: "Corner Lot",  balance: 23400, originalPrincipal: 25000, monthlyPayment: 320, monthsPaid:  8, termMonths: 60 },
+  ],
+  availableLots: [
+    { id: "bistro", name: "Bistro Lot", price: 124000 },
+    { id: "cafe",   name: "Cafe Lot",   price:  98000 },
+    { id: "corner", name: "Corner Lot", price: 156000 },
+  ],
+  loanProducts: [
+    { id: "30y-standard",   name: "30-Year Standard",  apr: 5.2, termMonths: 360, downPaymentPercent: 0.20, minCreditScore: 650, image: null,
+      tagline: "Lower monthly payment, longer term" },
+    { id: "15y-fast",       name: "15-Year Fast Pay",  apr: 4.4, termMonths: 180, downPaymentPercent: 0.20, minCreditScore: 700, image: null,
+      tagline: "Pay it off twice as fast" },
+    { id: "10y-aggressive", name: "10-Year Aggressive",apr: 3.9, termMonths: 120, downPaymentPercent: 0.25, minCreditScore: 720, image: null,
+      tagline: "Lowest rate, biggest down payment" },
+  ],
+  history: [
+    { id: 1, date: "Year 2, Mar 12", type: "loan-payment",     description: "Bistro Lot loan",         amount:   -320, sublabel: "14 of 60" },
+    { id: 2, date: "Year 2, Mar 01", type: "cc-statement",     description: "Statement closed",        amount:  -1420, sublabel: null },
+    { id: 3, date: "Year 2, Feb 28", type: "cc-payment",       description: "Paid in full",            amount:  -1380, sublabel: null },
+    { id: 4, date: "Year 2, Feb 12", type: "score-change",     description: "Credit score updated",    amount:      0, sublabel: "+15 to 680" },
+    { id: 5, date: "Year 2, Jan 14", type: "loan-originated",  description: "Bistro Lot financed",     amount: -28000, sublabel: "30-Year Standard" },
+  ],
+};
+
+/* ============================================================
+   ACTION INTENTS — placeholders for the Unity bridge
+   ============================================================ */
+function loanPurchaseRequested(loanConfigId, lotId, lotPrice) {
+  console.log("[intent] loanPurchaseRequested", { loanConfigId, lotId, lotPrice });
+}
+function historyFilterChanged(range) {
+  console.log("[intent] historyFilterChanged", { range });
+}
+
+/* ============================================================
+   APP STATE
+   ============================================================ */
+const ui = {
+  activeTab: "home",
+  selectedLotId: mockState.availableLots[0]?.id || null,
+  carouselIndex: 0,
+  historyRange: "all",
+};
+
+/* ============================================================
+   UTIL
+   ============================================================ */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+function fmtMoney(n, frac=2) {
+  if (n == null || isNaN(n)) return "$---";
+  const sign = n < 0 ? "−" : "";
+  const abs = Math.abs(n);
+  return sign + "$" + abs.toLocaleString("en-US", { minimumFractionDigits: frac, maximumFractionDigits: frac });
+}
+function fmtMoneyShort(n) { return fmtMoney(n, 0); }
+function fmtSignedMoney(n, frac=2) {
+  if (n === 0) return "$0";
+  return (n > 0 ? "+" : "−") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: frac, maximumFractionDigits: frac });
+}
+function fmtPctInt(n) { return Math.round(n*100) + "%"; }
+
+function scoreBucket(score) {
+  if (score >= 750) return { label: "Excellent", cls: "good" };
+  if (score >= 700) return { label: "Good",      cls: "good" };
+  if (score >= 650) return { label: "Fair",      cls: "fair" };
+  return                  { label: "Poor",       cls: "poor" };
+}
+function utilBucket(u) {
+  if (u < 0.30) return "good";
+  if (u <= 0.50) return "fair";
+  return "poor";
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+function bindTabs() {
+  $$(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+}
+function switchTab(name) {
+  ui.activeTab = name;
+  $$(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  $$(".content > .tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+  if (name === "home")    renderHome();
+  if (name === "explore") renderExplore();
+  if (name === "history") renderHistory();
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function renderHome() {
+  $("#home-total-debt").textContent = fmtMoney(mockState.totalDebt);
+  $("#home-monthly").textContent    = fmtMoney(mockState.monthlyDebtPayment);
+
+  // Credit score + bucket
+  const sb = scoreBucket(mockState.creditScore);
+  $("#home-score").textContent = mockState.creditScore;
+  $("#home-score-label").textContent = sb.label;
+  $("#home-score-badge").className = "health-badge " + sb.cls;
+
+  // CC group
+  $("#home-cc-balance").textContent = fmtMoney(mockState.ccBalance);
+  $("#home-cc-avail").textContent   = fmtMoney(mockState.ccAvailable);
+
+  const utilCls = utilBucket(mockState.ccUtilization);
+  $("#home-util").textContent = fmtPctInt(mockState.ccUtilization);
+  const utilBar = $("#home-util-bar");
+  utilBar.className = "util-bar " + utilCls;
+  utilBar.firstElementChild.style.width = (mockState.ccUtilization*100).toFixed(0) + "%";
+
+  // Active loans
+  const list = $("#loans-list");
+  $("#loans-count").textContent = `(${mockState.activeLoans.length})`;
+  if (!mockState.activeLoans.length) {
+    list.innerHTML = "";
+    $("#loans-empty").style.display = "block";
+    return;
+  }
+  $("#loans-empty").style.display = "none";
+
+  list.innerHTML = mockState.activeLoans.map(l => {
+    const paidPrincipal = l.originalPrincipal - l.balance;
+    const pct = Math.max(0, Math.min(100, (paidPrincipal / l.originalPrincipal) * 100));
+    return `
+      <div class="loan-row" data-id="${l.id}">
+        <div class="name">
+          <div class="ic">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M9 20 V13 H15 V20"/></svg>
+          </div>
+          <div style="min-width:0">
+            <div class="nm">${l.lotName}</div>
+            <div class="sub">${l.monthsPaid} of ${l.termMonths} months paid</div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="k">Outstanding</div>
+          <div class="v">${fmtMoneyShort(l.balance)}</div>
+        </div>
+        <div class="stat">
+          <div class="k">Monthly</div>
+          <div class="v">${fmtMoneyShort(l.monthlyPayment)}<span style="font-size:12px;font-weight:700;color:var(--fg-3)"> /mo</span></div>
+        </div>
+        <div class="progress">
+          <div class="top"><span>Paid off</span><span class="pct">${pct.toFixed(0)}%</span></div>
+          <div class="progress-track"><span style="width:${pct}%"></span></div>
+          <div class="top" style="font-size:11px"><span>${fmtMoneyShort(paidPrincipal)} of ${fmtMoneyShort(l.originalPrincipal)}</span><span></span></div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* ============================================================
+   EXPLORE
+   ============================================================ */
+function buildLotSelect() {
+  const sel = $("#lot-select");
+  sel.innerHTML = mockState.availableLots.map(l => `
+    <option value="${l.id}">${l.name} — ${fmtMoneyShort(l.price)}</option>
+  `).join("");
+  sel.value = ui.selectedLotId;
+  sel.addEventListener("change", () => {
+    ui.selectedLotId = sel.value;
+    ui.carouselIndex = 0;
+    renderExplore();
+  });
+}
+
+function getQualifyingProducts(lot) {
+  return mockState.loanProducts.filter(p => mockState.creditScore >= p.minCreditScore);
+}
+
+function evalQualify(product, lot) {
+  // Always pre-filter by min score? Per brief Apply Now is enabled only if eligible.
+  // But the carousel cycles through *qualifying* loans, so the only failure modes
+  // in-frame are debt-to-income or down-payment cash. Compute them.
+  const reasons = [];
+  if (mockState.creditScore < product.minCreditScore) {
+    reasons.push("Credit score too low");
+  }
+  const downPayment = lot.price * product.downPaymentPercent;
+  if (downPayment > mockState.cashOnHand) {
+    reasons.push("Insufficient cash for down payment");
+  }
+  const totalLoan = lot.price - downPayment;
+  const monthly = monthlyPayment(totalLoan, product.apr/100/12, product.termMonths);
+  const totalMonthly = mockState.monthlyDebtPayment + monthly;
+  // Mock DTI heuristic — assume player monthly income ~ $4500
+  const monthlyIncome = 4500;
+  if (totalMonthly / monthlyIncome > 0.45) {
+    reasons.push("Debt-to-income too high");
+  }
+  return { ok: reasons.length === 0, reasons };
+}
+
+function monthlyPayment(principal, monthlyRate, n) {
+  if (monthlyRate <= 0) return principal / n;
+  return principal * (monthlyRate * Math.pow(1+monthlyRate, n)) / (Math.pow(1+monthlyRate, n) - 1);
+}
+
+function renderExplore() {
+  const lots = mockState.availableLots;
+  const grid = $("#explore-grid");
+  const emptyLots = $("#explore-empty-lots");
+  const emptyLoans = $("#explore-empty-loans");
+  const lotRow = $("#lot-select-row");
+  emptyLots.style.display = "none";
+  emptyLoans.style.display = "none";
+
+  if (!lots.length) {
+    grid.style.display = "none";
+    lotRow.style.display = "none";
+    emptyLots.style.display = "block";
+    return;
+  }
+  lotRow.style.display = "";
+  buildLotSelect();
+
+  const lot = lots.find(l => l.id === ui.selectedLotId) || lots[0];
+  const qualifying = getQualifyingProducts(lot);
+
+  if (!qualifying.length) {
+    grid.style.display = "none";
+    emptyLoans.style.display = "block";
+    return;
+  }
+  grid.style.display = "";
+
+  if (ui.carouselIndex >= qualifying.length) ui.carouselIndex = 0;
+  const product = qualifying[ui.carouselIndex];
+
+  // Carousel
+  $("#carousel-pos").textContent  = `${ui.carouselIndex+1} / ${qualifying.length}`;
+  $("#carousel-name").textContent = product.name;
+  $("#carousel-tag").textContent  = product.tagline;
+  $("#carousel-term").textContent = (product.termMonths/12) + " yr";
+
+  // Dots
+  $("#carousel-dots").innerHTML = qualifying.map((_,i) =>
+    `<span class="${i===ui.carouselIndex?'active':''}"></span>`).join("");
+
+  // Hide arrows if only one product
+  const single = qualifying.length === 1;
+  $("#carousel-prev").disabled = single;
+  $("#carousel-next").disabled = single;
+  $("#carousel-prev").style.visibility = single ? "hidden" : "";
+  $("#carousel-next").style.visibility = single ? "hidden" : "";
+
+  // Stats table
+  const downPayment = Math.round(lot.price * product.downPaymentPercent);
+  const totalLoan = lot.price - downPayment;
+  const monthly = Math.round(monthlyPayment(totalLoan, product.apr/100/12, product.termMonths));
+  const totalCost = downPayment + monthly * product.termMonths;
+
+  $("#stats-lot-name").textContent  = lot.name;
+  $("#stats-lot-price").textContent = fmtMoneyShort(lot.price);
+  $("#stats-apr").textContent       = product.apr.toFixed(1) + "%";
+  $("#stats-min-score").textContent = product.minCreditScore + "+";
+  $("#stats-down").textContent      = fmtMoneyShort(downPayment) + " (" + Math.round(product.downPaymentPercent*100) + "%)";
+  $("#stats-term").textContent      = (product.termMonths/12) + " yr";
+  $("#stats-monthly").textContent   = fmtMoneyShort(monthly) + "/mo";
+  $("#stats-total").textContent     = fmtMoneyShort(totalLoan);
+  $("#stats-cost").textContent      = fmtMoneyShort(totalCost);
+
+  // Qualify
+  const q = evalQualify(product, lot);
+  const qrow = $("#qualify-row");
+  if (q.ok) {
+    qrow.innerHTML = `
+      <div class="qualify ok">
+        <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg></span>
+        <span>You qualify for this loan.</span>
+      </div>`;
+  } else {
+    qrow.innerHTML = `
+      <div class="qualify fail">
+        <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8 V13"/><path d="M12 16 V16.01"/></svg></span>
+        <span>${q.reasons[0]}</span>
+      </div>`;
+  }
+
+  // Apply button
+  const apply = $("#apply-btn");
+  apply.disabled = !q.ok;
+  apply.onclick = () => {
+    if (apply.disabled) return;
+    loanPurchaseRequested(product.id, lot.id, lot.price);
+    apply.textContent = "Applied — sent to lender";
+    setTimeout(() => apply.textContent = "Apply Now", 1400);
+  };
+}
+
+function bindCarousel() {
+  $("#carousel-prev").addEventListener("click", () => {
+    const lot = mockState.availableLots.find(l => l.id === ui.selectedLotId);
+    const qualifying = getQualifyingProducts(lot);
+    if (!qualifying.length) return;
+    ui.carouselIndex = (ui.carouselIndex - 1 + qualifying.length) % qualifying.length;
+    renderExplore();
+  });
+  $("#carousel-next").addEventListener("click", () => {
+    const lot = mockState.availableLots.find(l => l.id === ui.selectedLotId);
+    const qualifying = getQualifyingProducts(lot);
+    if (!qualifying.length) return;
+    ui.carouselIndex = (ui.carouselIndex + 1) % qualifying.length;
+    renderExplore();
+  });
+}
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+const HISTORY_TYPES = {
+  "loan-payment":     { label: "Loan Payment",     dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M9 20 V13 H15 V20"/></svg>' },
+  "loan-originated":  { label: "Loan Originated",  dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M12 13 V18"/><path d="M9.5 15.5 L12 13 L14.5 15.5"/></svg>' },
+  "cc-statement":     { label: "CC Statement",     dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10 H21"/></svg>' },
+  "cc-payment":       { label: "CC Payment",       dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>' },
+  "missed-payment":   { label: "Missed Payment",   dir: "warn",    icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L21 19 H3 Z"/><path d="M12 10 V14"/><path d="M12 17 V17.01"/></svg>' },
+  "score-change":     { label: "Score Change",     dir: "neutral", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17 L9 12 L13 14 L20 6"/><path d="M14 6 L20 6 L20 12"/></svg>' },
+};
+
+const RANGES = [
+  { id: "30",  label: "30 days" },
+  { id: "90",  label: "90 days" },
+  { id: "all", label: "All time" },
+];
+
+function buildRangePills() {
+  $("#range-pills").innerHTML = RANGES.map(r =>
+    `<button class="chip ${r.id===ui.historyRange?'active':''}" data-range="${r.id}">${r.label}</button>`).join("");
+  $$("#range-pills .chip").forEach(b => b.addEventListener("click", () => {
+    ui.historyRange = b.dataset.range;
+    historyFilterChanged(ui.historyRange);
+    renderHistory();
+  }));
+}
+
+function renderHistory() {
+  buildRangePills();
+  // Mock state has only fixed dates; for the prototype we do not actually filter.
+  // (Real wire-up would parse Year/Month/Day from in-game time.)
+  const items = mockState.history;
+
+  const list = $("#history-list");
+  if (!items.length) {
+    list.innerHTML = "";
+    list.style.display = "none";
+    $("#history-empty").style.display = "block";
+    return;
+  }
+  list.style.display = "";
+  $("#history-empty").style.display = "none";
+
+  list.innerHTML = items.map(h => {
+    const meta = HISTORY_TYPES[h.type] || { label: h.type, dir: "neutral", icon: "" };
+    const dir = h.amount === 0 ? meta.dir : (h.amount > 0 ? "inflow" : "outflow");
+    const amountStr = h.amount === 0 ? (meta.dir === "warn" ? "—" : "—") : fmtSignedMoney(h.amount, 2);
+    // Date split: "Year 2, Mar 12" → "Mar 12" / "Year 2"
+    const m = h.date.match(/^(Year \d+),\s*(.+)$/);
+    const day = m ? m[2] : h.date;
+    const yr  = m ? m[1] : "";
+    return `
+      <div class="history-row">
+        <div class="date">${day}<span class="yr">${yr}</span></div>
+        <div class="ic-wrap ${dir}">${meta.icon}</div>
+        <div class="body">
+          <div class="label">${meta.label}</div>
+          <div class="desc">${h.description}</div>
+          ${h.sublabel ? `<div class="sub">${h.sublabel}</div>` : ``}
+        </div>
+        <div class="amount ${dir}">${amountStr}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot() {
+  bindTabs();
+  bindCarousel();
+  $(".panel-header .close").addEventListener("click", () => {
+    console.log("[intent] close");
+  });
+  renderHome();
+}
+document.addEventListener("DOMContentLoaded", boot);
+</script>
+</body>
+</html>

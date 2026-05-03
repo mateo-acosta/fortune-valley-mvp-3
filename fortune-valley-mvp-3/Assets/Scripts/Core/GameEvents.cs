@@ -223,6 +223,13 @@ namespace FortuneValley.Core
         /// </summary>
         public static event Action<PanelType> OnPanelOpened;
 
+        /// <summary>
+        /// Fired by WebPanel bridges when the HTML close button is clicked.
+        /// UIManager subscribes and calls HideCurrentPanel. Avoids a
+        /// Managers->UI layer dependency.
+        /// </summary>
+        public static event Action<PanelType> OnHidePanelRequested;
+
         // ═══════════════════════════════════════════════════════════════
         // INTENT EVENTS (fired by UI, handled by game systems)
         // ═══════════════════════════════════════════════════════════════
@@ -460,6 +467,7 @@ namespace FortuneValley.Core
         public static void RaiseStartCountdown() => OnStartCountdown?.Invoke();
         public static void RaiseSetHUDVisible(bool visible) => OnSetHUDVisible?.Invoke(visible);
         public static void RaisePanelOpened(PanelType panelType) => OnPanelOpened?.Invoke(panelType);
+        public static void RaiseHidePanelRequested(PanelType panelType) => OnHidePanelRequested?.Invoke(panelType);
         public static void RaiseStartRequested() => OnStartRequested?.Invoke();
         public static void RaiseCarouselComplete() => OnCarouselComplete?.Invoke();
         public static void RaiseCountdownComplete() => OnCountdownComplete?.Invoke();
@@ -758,6 +766,7 @@ namespace FortuneValley.Core
             OnStartCountdown = null;
             OnSetHUDVisible = null;
             OnPanelOpened = null;
+            OnHidePanelRequested = null;
             OnStartRequested = null;
             OnCarouselComplete = null;
             OnCountdownComplete = null;

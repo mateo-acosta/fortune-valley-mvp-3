@@ -14,5 +14,9 @@ namespace FortuneValley.Core
         public void LogDecision(string json) => JSBridge.LogDecision(json);
         public void StartSession(string gameMode) => JSBridge.StartSession(gameMode);
         public void EndSession(string sessionId) => JSBridge.EndSession(sessionId);
+        public void ShowPanel(string panelId) => JSBridge.ShowPanel(panelId);
+        public void HidePanel(string panelId) => JSBridge.HidePanel(panelId);
+        public void UpdatePanel(string panelId, string json) => JSBridge.UpdatePanel(panelId, json);
+        public void ShowError(string panelId, string message) => JSBridge.ShowError(panelId, message);
     }
 }

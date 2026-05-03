@@ -130,6 +130,13 @@ namespace FortuneValley.Tests
                 EndSessionCalls.Add(sessionId);
                 CallOrder.Add("EndSession");
             }
+
+            // Web panel surface — not exercised by these tests; stubbed only
+            // to satisfy the IJSBridge contract.
+            public void ShowPanel(string panelId) { CallOrder.Add("ShowPanel"); }
+            public void HidePanel(string panelId) { CallOrder.Add("HidePanel"); }
+            public void UpdatePanel(string panelId, string json) { CallOrder.Add("UpdatePanel"); }
+            public void ShowError(string panelId, string message) { CallOrder.Add("ShowError"); }
         }
 
         private static void SetField(object target, string fieldName, object value)

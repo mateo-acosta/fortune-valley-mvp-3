@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Fortune Valley</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { overflow: hidden; }
+
+    #unity-container {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #unity-canvas {
+      background: #231F20;
+      width: 100%; height: 100%;
+      display: block;
+    }
+
+    /* Loading bar */
+    #unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none; }
+    #unity-loading-bar.show { display: block; }
+    #unity-progress-bar-empty { width: 240px; height: 18px; background: #333; border-radius: 9px; overflow: hidden; }
+    #unity-progress-bar-full { width: 0%; height: 100%; background: #ffb74d; transition: width 0.2s; }
+    #unity-loading-label { color: #eee; font-size: 13px; margin-top: 8px; text-align: center; }
+
+    /* Web panel overlay layer.
+       pointer-events: none on the wrapper so reads pass through to Unity.
+       Each iframe re-enables pointer-events when shown so its own UI is interactive. */
+    #fv-overlays {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .fv-iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0;
+      background: transparent;
+      display: none;
+      pointer-events: auto;
+    }
+    .fv-iframe.visible { display: block; }
+
+    /* Toast for FVBridge_ShowError (Issue 7A). One toast per panel id; replaced if a new error arrives. */
+    .fv-toast {
+      position: absolute;
+      right: 24px; bottom: 24px;
+      max-width: 320px;
+      background: #b3261e;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      font-size: 13px; line-height: 1.4;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .fv-toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="unity-loading-bar" class="show">
+      <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
+      <div id="unity-loading-label">Loading Fortune Valley...</div>
+    </div>
+  </div>
+
+  <!--
+    Web panel overlay layer. Iframes are pre-loaded at boot (Issue 15A:
+    pre-load both iframes hidden so panel-open is instant). Each iframe
+    contains a full standalone HTML panel; CSS is isolated naturally.
+  -->
+  <div id="fv-overlays">
+    <iframe id="fv-investing" class="fv-iframe" src="panels/investing-system.html" title="Investing"></iframe>
+    <iframe id="fv-credit"    class="fv-iframe" src="panels/credit-system.html"    title="Credit"></iframe>
+  </div>
+
+  <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+  <script>
+    // ===============================================================
+    // FV HOST MODULE
+    // Bridge surface called from C# via FVBridge.jslib (FVBridge_ShowPanel,
+    // FVBridge_HidePanel, FVBridge_UpdatePanel, FVBridge_ShowError) and from
+    // iframe panels via parent.FV.* (iframeReady, requestIntent).
+    //
+    // All panel-related state lives here so iframes can be reloaded without
+    // losing the cold-start queue. Auth / save state on window.FV is owned
+    // by the Rails embed when present; we never overwrite it.
+    // ===============================================================
+    window.FV = window.FV || {};
+
+    // Issue 4A: Scene GameObject names for unityInstance.SendMessage.
+    // Must stay in sync with the ObjectName const on the C# bridges.
+    var BRIDGE_OBJECTS = {
+      investing: "InvestingWebBridge",
+      credit:    "CreditWebBridge"
+    };
+
+    var iframes = {
+      investing: document.getElementById("fv-investing"),
+      credit:    document.getElementById("fv-credit")
+    };
+
+    // Issue 2A: cold-start queue. If C# pushes an update before the
+    // target iframe has defined its FV.<id>.update, hold the latest
+    // payload here and replay when the iframe signals iframeReady.
+    var iframeReady = { investing: false, credit: false };
+    var pendingPushes = { investing: null, credit: null };
+
+    function dispatchUpdate(panelId, payload) {
+      var iframe = iframes[panelId];
+      if (!iframe) return;
+      var fv = iframe.contentWindow && iframe.contentWindow.FV;
+      if (fv && fv[panelId] && typeof fv[panelId].update === "function") {
+        try { fv[panelId].update(payload); } catch (e) { console.error("[FV] update threw", e); }
+      } else {
+        // Iframe not ready yet — keep the latest payload for replay.
+        pendingPushes[panelId] = payload;
+      }
+    }
+
+    window.FV.iframeReady = function(panelId) {
+      iframeReady[panelId] = true;
+      var pending = pendingPushes[panelId];
+      if (pending != null) {
+        pendingPushes[panelId] = null;
+        dispatchUpdate(panelId, pending);
+      }
+    };
+
+    window.FV.showPanel = function(panelId) {
+      var iframe = iframes[panelId];
+      if (iframe) iframe.classList.add("visible");
+    };
+
+    window.FV.hidePanel = function(panelId) {
+      var iframe = iframes[panelId];
+      if (iframe) iframe.classList.remove("visible");
+    };
+
+    window.FV.updatePanel = function(panelId, json) {
+      var payload;
+      try { payload = JSON.parse(json); }
+      catch (e) { console.error("[FV] updatePanel: bad JSON for " + panelId, e); return; }
+
+      if (iframeReady[panelId]) {
+        dispatchUpdate(panelId, payload);
+      } else {
+        // Iframe still loading — buffer until iframeReady fires.
+        pendingPushes[panelId] = payload;
+      }
+    };
+
+    // ---- Toast (Issue 7A) ----
+    var activeToasts = {}; // panelId -> { el, timer }
+    window.FV.showError = function(panelId, message) {
+      var existing = activeToasts[panelId];
+      if (existing) {
+        clearTimeout(existing.timer);
+        if (existing.el && existing.el.parentNode) existing.el.parentNode.removeChild(existing.el);
+      }
+      var el = document.createElement("div");
+      el.className = "fv-toast";
+      el.textContent = message;
+      document.body.appendChild(el);
+      // Force reflow so the transition fires.
+      void el.offsetWidth;
+      el.classList.add("show");
+      var timer = setTimeout(function() {
+        el.classList.remove("show");
+        setTimeout(function() {
+          if (el.parentNode) el.parentNode.removeChild(el);
+          if (activeToasts[panelId] && activeToasts[panelId].el === el) delete activeToasts[panelId];
+        }, 250);
+      }, 4000);
+      activeToasts[panelId] = { el: el, timer: timer };
+    };
+
+    // ---- Intents from iframes back to Unity ----
+    // Iframes call parent.FV.requestIntent(panelId, intentName, payload).
+    // Mapped to unityInstance.SendMessage(<bridge GameObject>, "Request<IntentName>", json).
+    window.FV.requestIntent = function(panelId, intentName, payload) {
+      var target = BRIDGE_OBJECTS[panelId];
+      if (!target) { console.warn("[FV] requestIntent: unknown panel", panelId); return; }
+      if (!window.unityInstance) { console.warn("[FV] requestIntent: unityInstance not yet available"); return; }
+      var method = "Request" + intentName.charAt(0).toUpperCase() + intentName.slice(1);
+      var json;
+      try { json = (typeof payload === "string") ? payload : JSON.stringify(payload || {}); }
+      catch (e) { console.error("[FV] requestIntent: payload not serializable", e); return; }
+      try { window.unityInstance.SendMessage(target, method, json); }
+      catch (e) { console.error("[FV] requestIntent: SendMessage failed", e); }
+    };
+
+    // ===============================================================
+    // UNITY BOOT
+    // ===============================================================
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingBar = document.querySelector("#unity-loading-bar");
+    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+
+    var config = {
+      dataUrl: "Build/{{{ DATA_FILENAME }}}",
+      frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+      codeUrl: "Build/{{{ CODE_FILENAME }}}",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "{{{ COMPANY_NAME }}}",
+      productName: "{{{ PRODUCT_NAME }}}",
+      productVersion: "{{{ PRODUCT_VERSION }}}",
+      showBanner: function() {}
+    };
+
+    createUnityInstance(canvas, config, function(progress) {
+      progressBarFull.style.width = (100 * progress) + "%";
+    }).then(function(instance) {
+      window.unityInstance = instance;
+      loadingBar.classList.remove("show");
+    }).catch(function(message) {
+      console.error("[Unity] boot failed", message);
+    });
+  </script>
+</body>
+</html>

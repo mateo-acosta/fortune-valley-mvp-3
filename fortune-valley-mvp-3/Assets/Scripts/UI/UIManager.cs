@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using FortuneValley.Domain.Enums;
 using FortuneValley.Core;
+using FortuneValley.Managers.WebPanels;
 using FortuneValley.UI.Popups;
 using FortuneValley.UI.Panels;
 
@@ -32,6 +33,10 @@ namespace FortuneValley.UI
 
         [Tooltip("Loan management panel (read-only)")]
         [SerializeField] private LoanPanel _loanPanel;
+
+        [Header("Web Panel Bridges")]
+        [Tooltip("HTML investing panel bridge. When wired, ShowPanel(Portfolio) routes here instead of activating _portfolioPanel.")]
+        [SerializeField] private InvestingWebBridge _investingWebBridge;
 
         [Header("Popup References")]
         [Tooltip("Lot purchase confirmation popup")]
@@ -81,6 +86,10 @@ namespace FortuneValley.UI
         private UIPanel _currentPanel;
         private Stack<UIPopup> _popupStack = new Stack<UIPopup>();
 
+        // Tracks which web bridge (if any) is currently visible. UGUI panels
+        // use _currentPanel; bridges live outside the UIPanel hierarchy.
+        private WebPanelBridgeBase _currentWebBridge;
+
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
         // ═══════════════════════════════════════════════════════════════
@@ -111,6 +120,7 @@ namespace FortuneValley.UI
             GameEvents.OnLotInsuranceRequested += HandleLotInsuranceRequested;
             GameEvents.OnLotLoanExploreRequested += HandleLotLoanExploreRequested;
             GameEvents.OnTutorialClosePanelsRequested += HandleTutorialClosePanelsRequested;
+            GameEvents.OnHidePanelRequested += HandleHidePanelRequested;
 
             HideAllPanels();
             HideAllPopups();
@@ -140,6 +150,7 @@ namespace FortuneValley.UI
             GameEvents.OnLotInsuranceRequested -= HandleLotInsuranceRequested;
             GameEvents.OnLotLoanExploreRequested -= HandleLotLoanExploreRequested;
             GameEvents.OnTutorialClosePanelsRequested -= HandleTutorialClosePanelsRequested;
+            GameEvents.OnHidePanelRequested -= HandleHidePanelRequested;
         }
 
         private void HandleTutorialClosePanelsRequested()
@@ -179,14 +190,22 @@ namespace FortuneValley.UI
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Show a specific panel by type.
+        /// Show a specific panel by type. Web-bridge-backed types (currently
+        /// PanelType.Portfolio) route through the HTML overlay instead of
+        /// activating the legacy UGUI panel when a bridge is wired.
         /// </summary>
         public void ShowPanel(PanelType panelType)
         {
-            // Hide current panel first
-            if (_currentPanel != null)
+            // Hide whatever's currently visible (UGUI panel OR web bridge).
+            HideCurrentVisible();
+
+            WebPanelBridgeBase bridge = GetWebBridge(panelType);
+            if (bridge != null)
             {
-                _currentPanel.Hide();
+                bridge.Show();
+                _currentWebBridge = bridge;
+                GameEvents.RaisePanelOpened(panelType);
+                return;
             }
 
             UIPanel panel = GetPanel(panelType);
@@ -199,15 +218,11 @@ namespace FortuneValley.UI
         }
 
         /// <summary>
-        /// Hide the currently open panel.
+        /// Hide the currently open panel (UGUI or web bridge).
         /// </summary>
         public void HideCurrentPanel()
         {
-            if (_currentPanel != null)
-            {
-                _currentPanel.Hide();
-                _currentPanel = null;
-            }
+            HideCurrentVisible();
         }
 
         /// <summary>
@@ -215,21 +230,56 @@ namespace FortuneValley.UI
         /// </summary>
         public void TogglePanel(PanelType panelType)
         {
+            WebPanelBridgeBase bridge = GetWebBridge(panelType);
+            if (bridge != null)
+            {
+                if (_currentWebBridge == bridge) HideCurrentPanel();
+                else ShowPanel(panelType);
+                return;
+            }
+
             UIPanel panel = GetPanel(panelType);
             if (panel == null) return;
 
-            if (_currentPanel == panel)
+            if (_currentPanel == panel) HideCurrentPanel();
+            else ShowPanel(panelType);
+        }
+
+        private void HideCurrentVisible()
+        {
+            if (_currentWebBridge != null)
             {
-                HideCurrentPanel();
+                _currentWebBridge.Hide();
+                _currentWebBridge = null;
             }
-            else
+            if (_currentPanel != null)
             {
-                ShowPanel(panelType);
+                _currentPanel.Hide();
+                _currentPanel = null;
             }
         }
 
+        private WebPanelBridgeBase GetWebBridge(PanelType type)
+        {
+            // Only Portfolio is bridge-backed in v1. Loan follows in Phase 6.
+            return type switch
+            {
+                PanelType.Portfolio => _investingWebBridge,
+                _ => null
+            };
+        }
+
+        private void HandleHidePanelRequested(PanelType panelType)
+        {
+            // Fired by web bridges when their HTML close button is clicked.
+            // We don't need to filter by panelType here because only one
+            // panel is visible at a time, but the filter keeps the contract
+            // explicit for future multi-panel scenarios.
+            HideCurrentPanel();
+        }
+
         /// <summary>
-        /// Hide all panels.
+        /// Hide all panels (both UGUI and web bridge).
         /// </summary>
         public void HideAllPanels()
         {
@@ -238,7 +288,9 @@ namespace FortuneValley.UI
             if (_restaurantPanel != null) _restaurantPanel.Hide();
             if (_insurancePanel != null) _insurancePanel.Hide();
             if (_loanPanel != null) _loanPanel.Hide();
+            if (_investingWebBridge != null) _investingWebBridge.Hide();
             _currentPanel = null;
+            _currentWebBridge = null;
         }
 
         private UIPanel GetPanel(PanelType type)
@@ -407,9 +459,9 @@ namespace FortuneValley.UI
         public bool IsPopupOpen => _popupStack.Count > 0;
 
         /// <summary>
-        /// Check if any panel is currently open.
+        /// Check if any panel is currently open (UGUI or web bridge).
         /// </summary>
-        public bool IsPanelOpen => _currentPanel != null;
+        public bool IsPanelOpen => _currentPanel != null || _currentWebBridge != null;
 
         /// <summary>
         /// Get the lot purchase popup for configuration.

@@ -14,5 +14,11 @@ namespace FortuneValley.Core
         void LogDecision(string json);
         void StartSession(string gameMode);
         void EndSession(string sessionId);
+
+        // Web panel overlay surface (HTML iframe panels above the Unity canvas).
+        void ShowPanel(string panelId);
+        void HidePanel(string panelId);
+        void UpdatePanel(string panelId, string json);
+        void ShowError(string panelId, string message);
     }
 }

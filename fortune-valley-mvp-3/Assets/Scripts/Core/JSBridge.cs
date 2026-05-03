@@ -31,6 +31,18 @@ namespace FortuneValley.Core
 
         [DllImport("__Internal")]
         private static extern void FVBridge_EndSession(string sessionId);
+
+        [DllImport("__Internal")]
+        private static extern void FVBridge_ShowPanel(string panelId);
+
+        [DllImport("__Internal")]
+        private static extern void FVBridge_HidePanel(string panelId);
+
+        [DllImport("__Internal")]
+        private static extern void FVBridge_UpdatePanel(string panelId, string json);
+
+        [DllImport("__Internal")]
+        private static extern void FVBridge_ShowError(string panelId, string message);
 #endif
 
         public static string GetCsrfToken()
@@ -93,6 +105,42 @@ namespace FortuneValley.Core
             FVBridge_EndSession(sessionId);
 #else
             Debug.Log($"[JSBridge] EndSession (editor): {sessionId}");
+#endif
+        }
+
+        public static void ShowPanel(string panelId)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            FVBridge_ShowPanel(panelId);
+#else
+            Debug.Log($"[JSBridge] ShowPanel (editor): {panelId}");
+#endif
+        }
+
+        public static void HidePanel(string panelId)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            FVBridge_HidePanel(panelId);
+#else
+            Debug.Log($"[JSBridge] HidePanel (editor): {panelId}");
+#endif
+        }
+
+        public static void UpdatePanel(string panelId, string json)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            FVBridge_UpdatePanel(panelId, json);
+#else
+            Debug.Log($"[JSBridge] UpdatePanel (editor) {panelId}: {json}");
+#endif
+        }
+
+        public static void ShowError(string panelId, string message)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            FVBridge_ShowError(panelId, message);
+#else
+            Debug.Log($"[JSBridge] ShowError (editor) {panelId}: {message}");
 #endif
         }
     }

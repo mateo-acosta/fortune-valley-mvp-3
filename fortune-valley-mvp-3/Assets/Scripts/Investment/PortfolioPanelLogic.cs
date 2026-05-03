@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using FortuneValley.Domain.Enums;
-using FortuneValley.Core;
 
-namespace FortuneValley.UI
+namespace FortuneValley.Core
 {
     /// <summary>
     /// Pure-logic helpers for PortfolioPanel.
