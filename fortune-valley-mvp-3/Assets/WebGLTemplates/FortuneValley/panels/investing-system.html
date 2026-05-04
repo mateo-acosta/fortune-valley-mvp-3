@@ -6,6 +6,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="info/info-modal.css">
+<script type="module" src="info/info-modal.js"></script>
 <style>
 /* ============================================================
    Fortune Valley — Investing System panel
@@ -92,15 +94,23 @@ html, body {
 }
 
 /* ----------------------------------------------------------
-   World — sky + ground backdrop. Stands in for the live
-   Unity scene under the panel.
+   Embedded-mode dim backdrop. The panels were authored as a
+   self-contained standalone page with a fake Unity world
+   (.world), a top HUD (.topbar with Day badge + balance pills),
+   and a side dock (.dock). When embedded as an iframe over the
+   live game, all three conflict with the real game UI.
+   - .world becomes a translucent dim so the actual Unity
+     scene shows through, lightly darkened for panel focus.
+   - .topbar and .dock are hidden entirely. Only the panel
+     itself should render outside the live game canvas.
    ---------------------------------------------------------- */
 .world {
   position: fixed; inset: 0;
-  background:
-    linear-gradient(180deg, #9DD7F2 0%, #BFE7F5 36%, #C9EBA4 56%, #7FC93C 100%);
+  background: rgba(0, 0, 0, 0.35);
   overflow: hidden;
 }
+.world > * { display: none; }
+.topbar, .dock { display: none !important; }
 .world .cloud {
   position: absolute; background: #fff; border-radius: 999px; opacity: 0.92;
   box-shadow: 0 6px 0 rgba(14,21,48,0.04);
@@ -659,22 +669,22 @@ html, body {
         <section class="tab active" data-tab="home">
           <div class="home-stats">
             <div class="card stat">
-              <div class="kicker">Balance</div>
+              <div class="kicker">Balance <button type="button" class="fv-info-btn" data-info-key="card:investing_balance" aria-label="About the Balance card">i</button> <button type="button" class="fv-info-btn" data-info-key="investing_balance" aria-label="About Investing Balance">i</button></div>
               <div class="v" id="home-balance">$2,450</div>
               <div class="s">Cash inside Investing</div>
             </div>
             <div class="card stat">
-              <div class="kicker">Invested</div>
+              <div class="kicker">Invested <button type="button" class="fv-info-btn" data-info-key="card:invested_total" aria-label="About the Invested card">i</button> <button type="button" class="fv-info-btn" data-info-key="invested_total" aria-label="About Invested total">i</button></div>
               <div class="v" id="home-invested">$5,820</div>
               <div class="s">Across all holdings</div>
             </div>
             <div class="card stat">
-              <div class="kicker">Total Gain</div>
+              <div class="kicker">Total Gain <button type="button" class="fv-info-btn" data-info-key="card:total_gain" aria-label="About the Total Gain card">i</button> <button type="button" class="fv-info-btn" data-info-key="total_gain" aria-label="About Total Gain">i</button></div>
               <div class="v" id="home-gain">+$420</div>
               <div class="s" id="home-gain-sub">+7.8% lifetime</div>
             </div>
             <div class="card stat">
-              <div class="kicker">Risk</div>
+              <div class="kicker">Risk <button type="button" class="fv-info-btn" data-info-key="card:risk_profile" aria-label="About the Risk card">i</button> <button type="button" class="fv-info-btn" data-info-key="risk" aria-label="About Risk Level">i</button></div>
               <div class="v" id="home-risk-v">Medium</div>
               <div class="s"><span class="risk-badge medium" id="home-risk-badge"><span class="dots"><span></span><span></span><span></span></span>Medium risk</span></div>
             </div>
@@ -684,7 +694,7 @@ html, body {
             <div class="card graph-card">
               <div class="head">
                 <div>
-                  <div class="kicker">Portfolio value · last 30 days</div>
+                  <div class="kicker">Portfolio value · last 30 days <button type="button" class="fv-info-btn" data-info-key="card:portfolio_value_history" aria-label="About the Portfolio value graph">i</button></div>
                   <div class="v" id="home-current">$5,820</div>
                 </div>
                 <div class="risk-badge low" id="home-trend"><span class="dots"><span></span><span></span><span></span></span><span id="home-trend-text">Up 7.8%</span></div>
@@ -693,7 +703,7 @@ html, body {
             </div>
 
             <div class="card">
-              <div class="kicker">Current holdings</div>
+              <div class="kicker">Current holdings <button type="button" class="fv-info-btn" data-info-key="card:current_holdings" aria-label="About Current holdings">i</button></div>
               <div class="holdings-summary" id="home-holdings"></div>
             </div>
           </div>
@@ -703,11 +713,11 @@ html, body {
         <section class="tab" data-tab="portfolio">
           <div class="portfolio-filters">
             <div class="chip-row">
-              <span class="chip-label">Category</span>
+              <span class="chip-label">Category <button type="button" class="fv-info-btn" data-info-key="category" aria-label="About investment Category">i</button></span>
               <div class="chip-row" id="pf-cat" data-filter="category"></div>
             </div>
             <div class="chip-row">
-              <span class="chip-label">Industry</span>
+              <span class="chip-label">Industry <button type="button" class="fv-info-btn" data-info-key="industry" aria-label="About Industry">i</button></span>
               <div class="chip-row" id="pf-ind" data-filter="industry"></div>
             </div>
           </div>
@@ -736,11 +746,11 @@ html, body {
         <section class="tab" data-tab="explore">
           <div class="portfolio-filters">
             <div class="chip-row">
-              <span class="chip-label">Category</span>
+              <span class="chip-label">Category <button type="button" class="fv-info-btn" data-info-key="category" aria-label="About investment Category">i</button></span>
               <div class="chip-row" id="ex-cat" data-filter="category"></div>
             </div>
             <div class="chip-row">
-              <span class="chip-label">Industry</span>
+              <span class="chip-label">Industry <button type="button" class="fv-info-btn" data-info-key="industry" aria-label="About Industry">i</button></span>
               <div class="chip-row" id="ex-ind" data-filter="industry"></div>
             </div>
           </div>
@@ -1127,21 +1137,21 @@ function renderPortfolioDetail(h) {
         <div style="display:flex;align-items:center;gap:10px">
           <div class="av" style="width:44px;height:44px;border-radius:12px;background:${avatarColor(h.id)};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex:none">${initial(h.name)}</div>
           <div style="flex:1;min-width:0">
-            <div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.name}</div>
+            <div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.name} <button type="button" class="fv-info-btn" data-info-key="card:holding_detail" aria-label="About this holding detail">i</button></div>
             <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap"><span class="cat-pill ${h.category.toLowerCase()}">${CATEGORY_LABELS[h.category]||h.category}</span><span style="font-size:12px;color:var(--fg-3);font-weight:700">${INDUSTRY_LABELS[h.industry]||h.industry}</span></div>
           </div>
         </div>
       </div>
       <div class="meta-row">
-        <div class="price">${fmtMoney(h.currentPrice,false,2)}</div>
-        <div class="change ${colorClass(change)}">${fmtPct(change)}</div>
-        <div><span class="risk-badge ${h.risk.toLowerCase()}"><span class="dots"><span></span><span></span><span></span></span>${h.risk} risk</span></div>
+        <div class="price">${fmtMoney(h.currentPrice,false,2)} <button type="button" class="fv-info-btn" data-info-key="price" aria-label="About Price">i</button></div>
+        <div class="change ${colorClass(change)}">${fmtPct(change)} <button type="button" class="fv-info-btn" data-info-key="change_percent" aria-label="About Change percent">i</button></div>
+        <div><span class="risk-badge ${h.risk.toLowerCase()}"><span class="dots"><span></span><span></span><span></span></span>${h.risk} risk</span> <button type="button" class="fv-info-btn" data-info-key="risk" aria-label="About Risk Level">i</button></div>
       </div>
       <div class="detail-fields">
-        <div class="field"><div class="k">Shares Owned</div><div class="v">${h.shares}</div></div>
-        <div class="field"><div class="k">Avg Cost</div><div class="v">${fmtMoney(h.avgCost,false,2)}</div></div>
-        <div class="field"><div class="k">Current Value</div><div class="v">${fmtMoney(h.currentValue,false,0)}</div></div>
-        <div class="field"><div class="k">Total Gain</div><div class="v ${colorClass(h.totalGain)}">${fmtMoney(h.totalGain,true,0)}</div></div>
+        <div class="field"><div class="k">Shares Owned <button type="button" class="fv-info-btn" data-info-key="shares_owned" aria-label="About Shares Owned">i</button></div><div class="v">${h.shares}</div></div>
+        <div class="field"><div class="k">Avg Cost <button type="button" class="fv-info-btn" data-info-key="avg_cost" aria-label="About Average Cost">i</button></div><div class="v">${fmtMoney(h.avgCost,false,2)}</div></div>
+        <div class="field"><div class="k">Current Value <button type="button" class="fv-info-btn" data-info-key="current_value" aria-label="About Current Value">i</button></div><div class="v">${fmtMoney(h.currentValue,false,0)}</div></div>
+        <div class="field"><div class="k">Total Gain <button type="button" class="fv-info-btn" data-info-key="total_gain" aria-label="About Total Gain">i</button></div><div class="v ${colorClass(h.totalGain)}">${fmtMoney(h.totalGain,true,0)}</div></div>
       </div>
       <svg class="graph-svg" id="pf-detail-graph" viewBox="0 0 600 160" preserveAspectRatio="none"></svg>
       <div class="desc">Tap <strong>Trade this</strong> to buy or sell ${h.name} shares.</div>
@@ -1173,7 +1183,7 @@ function renderExplore() {
         <span class="cat-pill ${a.category.toLowerCase()}">${CATEGORY_LABELS[a.category]||a.category}</span>
       </div>
       <div class="body">
-        <div class="name">${a.name}</div>
+        <div class="name">${a.name} <button type="button" class="fv-info-btn" data-info-key="card:investment" aria-label="About this investment card">i</button></div>
         <div class="price-row">
           <div class="price">${fmtMoney(a.currentPrice,false,2)}</div>
           <div class="change ${colorClass(a.changePercent)}">${fmtPct(a.changePercent)}</div>
@@ -1233,12 +1243,12 @@ function renderTradeDetail(def) {
     return `
       <div class="trade-detail placeholder">
         <div class="kicker">No selection</div>
-        <div class="name">Select an investment</div>
+        <div class="name">Select an investment <button type="button" class="fv-info-btn" data-info-key="card:trade_panel" aria-label="About the Trade panel">i</button></div>
         <div class="detail-fields" style="width:100%;margin-top:12px">
-          <div class="field"><div class="k">Price</div><div class="v">$ ---</div></div>
-          <div class="field"><div class="k">Change</div><div class="v">---%</div></div>
-          <div class="field"><div class="k">Shares Owned</div><div class="v">---</div></div>
-          <div class="field"><div class="k">Avg Cost</div><div class="v">$ ---</div></div>
+          <div class="field"><div class="k">Price <button type="button" class="fv-info-btn" data-info-key="price" aria-label="About Price">i</button></div><div class="v">$ ---</div></div>
+          <div class="field"><div class="k">Change <button type="button" class="fv-info-btn" data-info-key="change_percent" aria-label="About Change percent">i</button></div><div class="v">---%</div></div>
+          <div class="field"><div class="k">Shares Owned <button type="button" class="fv-info-btn" data-info-key="shares_owned" aria-label="About Shares Owned">i</button></div><div class="v">---</div></div>
+          <div class="field"><div class="k">Avg Cost <button type="button" class="fv-info-btn" data-info-key="avg_cost" aria-label="About Average Cost">i</button></div><div class="v">$ ---</div></div>
         </div>
         <div class="desc" style="text-align:center;margin-top:10px">Pick an asset from the <strong>Explore</strong> tab or your <strong>Portfolio</strong>.</div>
       </div>`;
@@ -1256,20 +1266,21 @@ function renderTradeDetail(def) {
       <div style="display:flex;align-items:center;gap:12px">
         <div class="av" style="width:48px;height:48px;border-radius:13px;background:${avatarColor(def.id)};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex:none">${initial(def.name)}</div>
         <div style="flex:1;min-width:0">
-          <div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${def.name}</div>
+          <div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${def.name} <button type="button" class="fv-info-btn" data-info-key="card:trade_panel" aria-label="About the Trade panel">i</button></div>
           <div style="display:flex;gap:6px;margin-top:4px;align-items:center;flex-wrap:wrap">
             <span class="cat-pill ${def.category.toLowerCase()}">${CATEGORY_LABELS[def.category]||def.category}</span>
             <span style="font-size:12px;color:var(--fg-3);font-weight:700">${INDUSTRY_LABELS[def.industry]||def.industry}</span>
             <span class="risk-badge ${def.risk.toLowerCase()}"><span class="dots"><span></span><span></span><span></span></span>${def.risk} risk</span>
+            <button type="button" class="fv-info-btn" data-info-key="risk" aria-label="About Risk Level">i</button>
           </div>
         </div>
       </div>
 
       <div class="detail-fields">
-        <div class="field"><div class="k">Price</div><div class="v">${fmtMoney(def.currentPrice,false,2)}</div></div>
-        <div class="field"><div class="k">Change</div><div class="v ${colorClass(def.changePercent)}">${fmtPct(def.changePercent)}</div></div>
-        <div class="field"><div class="k">Shares Owned</div><div class="v">${sharesOwned}</div></div>
-        <div class="field"><div class="k">Avg Cost</div><div class="v">${avgCost!=null ? fmtMoney(avgCost,false,2) : "$---"}</div></div>
+        <div class="field"><div class="k">Price <button type="button" class="fv-info-btn" data-info-key="price" aria-label="About Price">i</button></div><div class="v">${fmtMoney(def.currentPrice,false,2)}</div></div>
+        <div class="field"><div class="k">Change <button type="button" class="fv-info-btn" data-info-key="change_percent" aria-label="About Change percent">i</button></div><div class="v ${colorClass(def.changePercent)}">${fmtPct(def.changePercent)}</div></div>
+        <div class="field"><div class="k">Shares Owned <button type="button" class="fv-info-btn" data-info-key="shares_owned" aria-label="About Shares Owned">i</button></div><div class="v">${sharesOwned}</div></div>
+        <div class="field"><div class="k">Avg Cost <button type="button" class="fv-info-btn" data-info-key="avg_cost" aria-label="About Average Cost">i</button></div><div class="v">${avgCost!=null ? fmtMoney(avgCost,false,2) : "$---"}</div></div>
       </div>
 
       <div class="desc">${desc}</div>

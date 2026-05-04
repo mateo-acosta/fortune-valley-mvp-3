@@ -6,6 +6,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="info/info-modal.css">
+<script type="module" src="info/info-modal.js"></script>
 <style>
 /* ============================================================
    Fortune Valley — Credit System panel
@@ -80,13 +82,23 @@ html, body {
 }
 
 /* ----------------------------------------------------------
-   World — sky + ground backdrop. Stand-in for the live Unity scene.
+   Embedded-mode dim backdrop. The panels were authored as a
+   self-contained standalone page with a fake Unity world
+   (.world), a top HUD (.topbar with Day badge + balance pills),
+   and a side dock (.dock). When embedded as an iframe over the
+   live game, all three conflict with the real game UI.
+   - .world becomes a translucent dim so the actual Unity
+     scene shows through, lightly darkened for panel focus.
+   - .topbar and .dock are hidden entirely. Only the panel
+     itself should render outside the live game canvas.
    ---------------------------------------------------------- */
 .world {
   position: fixed; inset: 0;
-  background: linear-gradient(180deg, #9DD7F2 0%, #BFE7F5 36%, #C9EBA4 56%, #7FC93C 100%);
+  background: rgba(0, 0, 0, 0.35);
   overflow: hidden;
 }
+.world > * { display: none; }
+.topbar, .dock { display: none !important; }
 .world .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: 0.92; box-shadow: 0 6px 0 rgba(14,21,48,0.04); }
 .world .sun { position: absolute; width: 96px; height: 96px; border-radius: 999px; background: radial-gradient(circle at 35% 30%, #FFE6A8, #F2B53B); box-shadow: 0 0 80px rgba(242,181,59,0.45); }
 .world .road { position: absolute; left: 0; right: 0; bottom: 22%; height: 64px; background: #3A4D8E; box-shadow: inset 0 4px 0 rgba(0,0,0,0.16); }
@@ -717,17 +729,17 @@ html, body {
               <div class="group-head">
                 <div class="ic loans"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M3 10 L12 3 L21 10 V20 H3 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 20 V13 H15 V20" stroke="currentColor" stroke-width="2"/></svg></div>
                 <div>
-                  <div class="h">Loans</div>
+                  <div class="h">Loans <button type="button" class="fv-info-btn" data-info-key="card:loans_summary" aria-label="About the Loans card">i</button></div>
                   <div class="sub">Real estate financing</div>
                 </div>
               </div>
               <div class="summary-stats">
                 <div class="cell">
-                  <div class="k">Total Debt</div>
+                  <div class="k">Total Debt <button type="button" class="fv-info-btn" data-info-key="total_debt" aria-label="About Total Debt">i</button></div>
                   <div class="v" id="home-total-debt">$0.00</div>
                 </div>
                 <div class="cell">
-                  <div class="k">Monthly Payment</div>
+                  <div class="k">Monthly Payment <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About Monthly Payment">i</button></div>
                   <div class="v" id="home-monthly">$0.00</div>
                 </div>
               </div>
@@ -738,29 +750,29 @@ html, body {
               <div class="group-head">
                 <div class="ic card"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="3" y="6" width="18" height="13" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M3 10 H21" stroke="currentColor" stroke-width="2"/></svg></div>
                 <div>
-                  <div class="h">Credit Card</div>
+                  <div class="h">Credit Card <button type="button" class="fv-info-btn" data-info-key="card:credit_card_summary" aria-label="About the Credit Card card">i</button></div>
                   <div class="sub">Spending &amp; revolving credit</div>
                 </div>
               </div>
               <div class="summary-stats">
                 <div class="cell">
-                  <div class="k">Credit Score</div>
+                  <div class="k">Credit Score <button type="button" class="fv-info-btn" data-info-key="credit_score" aria-label="About Credit Score">i</button></div>
                   <div class="v score" id="home-score-wrap">
                     <span id="home-score">680</span>
                     <span class="health-badge fair" id="home-score-badge"><span class="dot"></span><span id="home-score-label">Fair</span></span>
                   </div>
                 </div>
                 <div class="cell">
-                  <div class="k">Utilization</div>
+                  <div class="k">Utilization <button type="button" class="fv-info-btn" data-info-key="credit_utilization" aria-label="About Credit Utilization">i</button></div>
                   <div class="v" id="home-util">25%</div>
                   <div class="util-bar fair" id="home-util-bar"><span style="width:25%"></span><span class="threshold" style="left:30%"></span><span class="threshold" style="left:50%"></span></div>
                 </div>
                 <div class="cell">
-                  <div class="k">CC Balance</div>
+                  <div class="k">CC Balance <button type="button" class="fv-info-btn" data-info-key="cc_balance" aria-label="About CC Balance">i</button></div>
                   <div class="v" id="home-cc-balance">$1,240.00</div>
                 </div>
                 <div class="cell">
-                  <div class="k">Available Credit</div>
+                  <div class="k">Available Credit <button type="button" class="fv-info-btn" data-info-key="available_credit" aria-label="About Available Credit">i</button></div>
                   <div class="v" id="home-cc-avail">$3,760.00</div>
                 </div>
               </div>
@@ -770,7 +782,7 @@ html, body {
           <!-- Active loans -->
           <div class="loans-section">
             <div class="head">
-              <div class="kicker">Active Loans <span id="loans-count" style="color:var(--fg-2);font-weight:900">(0)</span></div>
+              <div class="kicker">Active Loans <button type="button" class="fv-info-btn" data-info-key="card:active_loan_row" aria-label="About active loans">i</button> <span id="loans-count" style="color:var(--fg-2);font-weight:900">(0)</span></div>
             </div>
             <div class="loans-list" id="loans-list"></div>
             <div class="empty" id="loans-empty" style="display:none">
@@ -791,7 +803,7 @@ html, body {
             <!-- Carousel -->
             <div class="carousel-card" id="carousel-card">
               <div class="carousel-head">
-                <div class="kicker" style="margin-bottom:0">Loan product</div>
+                <div class="kicker" style="margin-bottom:0">Loan product <button type="button" class="fv-info-btn" data-info-key="card:loan_product" aria-label="About loan products">i</button></div>
                 <div class="pos" id="carousel-pos">1 / 3</div>
               </div>
               <div class="carousel-illus" id="carousel-illus">
@@ -825,17 +837,17 @@ html, body {
             <!-- Stats -->
             <div class="stats-card" id="stats-card">
               <div class="lot-summary">
-                <div class="nm" id="stats-lot-name">Bistro Lot</div>
+                <div class="nm" id="stats-lot-name">Bistro Lot <button type="button" class="fv-info-btn" data-info-key="card:loan_offer" aria-label="About this loan offer">i</button></div>
                 <div class="price" id="stats-lot-price">$124,000</div>
               </div>
               <div class="stats-table">
-                <div class="field"><div class="k">APR</div><div class="v" id="stats-apr">5.2%</div></div>
-                <div class="field"><div class="k">Min Credit Score</div><div class="v" id="stats-min-score">650+</div></div>
-                <div class="field"><div class="k">Down Payment</div><div class="v" id="stats-down">$24,800</div></div>
-                <div class="field"><div class="k">Term</div><div class="v" id="stats-term">30 yr</div></div>
-                <div class="field featured"><div class="k">Monthly Payment</div><div class="v" id="stats-monthly">$540</div></div>
-                <div class="field"><div class="k">Total Loan</div><div class="v" id="stats-total">$99,200</div></div>
-                <div class="field"><div class="k">Total Cost</div><div class="v" id="stats-cost">$194,400</div></div>
+                <div class="field"><div class="k">APR <button type="button" class="fv-info-btn" data-info-key="apr" aria-label="About APR">i</button></div><div class="v" id="stats-apr">5.2%</div></div>
+                <div class="field"><div class="k">Min Credit Score <button type="button" class="fv-info-btn" data-info-key="min_credit_score" aria-label="About Min Credit Score">i</button></div><div class="v" id="stats-min-score">650+</div></div>
+                <div class="field"><div class="k">Down Payment <button type="button" class="fv-info-btn" data-info-key="down_payment" aria-label="About Down Payment">i</button></div><div class="v" id="stats-down">$24,800</div></div>
+                <div class="field"><div class="k">Term <button type="button" class="fv-info-btn" data-info-key="loan_term" aria-label="About Term">i</button></div><div class="v" id="stats-term">30 yr</div></div>
+                <div class="field featured"><div class="k">Monthly Payment <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About Monthly Payment">i</button></div><div class="v" id="stats-monthly">$540</div></div>
+                <div class="field"><div class="k">Total Loan <button type="button" class="fv-info-btn" data-info-key="total_loan" aria-label="About Total Loan">i</button></div><div class="v" id="stats-total">$99,200</div></div>
+                <div class="field"><div class="k">Total Cost <button type="button" class="fv-info-btn" data-info-key="total_cost" aria-label="About Total Cost">i</button></div><div class="v" id="stats-cost">$194,400</div></div>
               </div>
               <div id="qualify-row"></div>
               <div class="apply-row">
@@ -857,7 +869,7 @@ html, body {
         <!-- ============= HISTORY ============= -->
         <section class="tab" data-tab="history">
           <div class="history-controls">
-            <div class="kicker" style="margin-bottom:0">Recent activity</div>
+            <div class="kicker" style="margin-bottom:0">Recent activity <button type="button" class="fv-info-btn" data-info-key="history_legend" aria-label="About recent activity">i</button></div>
             <div class="range-pills" id="range-pills"></div>
           </div>
           <div class="history-list" id="history-list"></div>
@@ -913,13 +925,23 @@ const mockState = {
 };
 
 /* ============================================================
-   ACTION INTENTS — placeholders for the Unity bridge
+   ACTION INTENTS — forward to Unity via the host's requestIntent
+   dispatcher. Falls back to console log when running standalone.
+   The C# CreditWebBridge will eventually expose RequestApplyForLoan
+   that parses { loanConfigId, lotId, price } and fires the
+   matching GameEvents intent.
    ============================================================ */
-function loanPurchaseRequested(loanConfigId, lotId, lotPrice) {
-  console.log("[intent] loanPurchaseRequested", { loanConfigId, lotId, lotPrice });
+function loanPurchaseRequested(loanConfigId, lotId, price) {
+  if (window.parent && window.parent.FV && typeof window.parent.FV.requestIntent === "function") {
+    window.parent.FV.requestIntent("credit", "applyForLoan", { loanConfigId: loanConfigId, lotId: lotId, price: price });
+  } else {
+    console.log("[intent] loanPurchaseRequested (standalone)", { loanConfigId, lotId, price });
+  }
 }
 function historyFilterChanged(range) {
-  console.log("[intent] historyFilterChanged", { range });
+  // History range is purely a view-side filter on already-loaded data,
+  // so no round-trip to Unity is needed.
+  console.log("[ui] historyFilterChanged", { range });
 }
 
 /* ============================================================
@@ -1026,15 +1048,15 @@ function renderHome() {
           </div>
         </div>
         <div class="stat">
-          <div class="k">Outstanding</div>
+          <div class="k">Outstanding <button type="button" class="fv-info-btn" data-info-key="loan_principal_remaining" aria-label="About Outstanding loan balance">i</button></div>
           <div class="v">${fmtMoneyShort(l.balance)}</div>
         </div>
         <div class="stat">
-          <div class="k">Monthly</div>
+          <div class="k">Monthly <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About Monthly Payment">i</button></div>
           <div class="v">${fmtMoneyShort(l.monthlyPayment)}<span style="font-size:12px;font-weight:700;color:var(--fg-3)"> /mo</span></div>
         </div>
         <div class="progress">
-          <div class="top"><span>Paid off</span><span class="pct">${pct.toFixed(0)}%</span></div>
+          <div class="top"><span>Paid off <button type="button" class="fv-info-btn" data-info-key="loan_paid_off" aria-label="About Paid off">i</button></span><span class="pct">${pct.toFixed(0)}%</span></div>
           <div class="progress-track"><span style="width:${pct}%"></span></div>
           <div class="top" style="font-size:11px"><span>${fmtMoneyShort(paidPrincipal)} of ${fmtMoneyShort(l.originalPrincipal)}</span><span></span></div>
         </div>
@@ -1165,10 +1187,23 @@ function renderExplore() {
         <span>You qualify for this loan.</span>
       </div>`;
   } else {
+    // Map each qualify failure reason to the term that explains it,
+    // so the student can tap the (i) for a definition without leaving
+    // the panel.
+    const REASON_INFO_KEYS = {
+      "Credit score too low": "credit_score",
+      "Insufficient cash for down payment": "down_payment",
+      "Debt-to-income too high": "debt_to_income",
+    };
+    const reason = q.reasons[0];
+    const infoKey = REASON_INFO_KEYS[reason];
+    const infoBtn = infoKey
+      ? `<button type="button" class="fv-info-btn" data-info-key="${infoKey}" aria-label="About ${reason}">i</button>`
+      : "";
     qrow.innerHTML = `
       <div class="qualify fail">
         <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8 V13"/><path d="M12 16 V16.01"/></svg></span>
-        <span>${q.reasons[0]}</span>
+        <span>${reason} ${infoBtn}</span>
       </div>`;
   }
 
@@ -1268,15 +1303,75 @@ function renderHistory() {
 }
 
 /* ============================================================
-   BOOT
+   BOOT + BRIDGE NAMESPACE
    ============================================================ */
 function boot() {
   bindTabs();
   bindCarousel();
+
+  // Close button — fire an intent through the host. The host SendMessage's
+  // the C# CreditWebBridge which raises GameEvents.OnHidePanelRequested.
   $(".panel-header .close").addEventListener("click", () => {
-    console.log("[intent] close");
+    if (window.parent && window.parent.FV && typeof window.parent.FV.requestIntent === "function") {
+      window.parent.FV.requestIntent("credit", "close", {});
+    } else {
+      console.log("[ui] close panel (standalone)");
+    }
   });
+
   renderHome();
+
+  // Expose a stable namespaced API to the parent (the WebGL host).
+  // The C# bridge calls window.FV.updatePanel("credit", json) which the
+  // host dispatches to FV.credit.update(payload).
+  window.FV = window.FV || {};
+  window.FV.credit = {
+    update(payload) {
+      // Overwrite mockState fields with live values from Unity, then
+      // re-render the currently-active tab. Other tabs read mockState
+      // when the user switches to them.
+      if (!payload) return;
+
+      // Home-tab scalars
+      if (typeof payload.creditScore === "number")        mockState.creditScore        = payload.creditScore;
+      if (typeof payload.creditScoreLabel === "string")   mockState.creditScoreLabel   = payload.creditScoreLabel;
+      if (typeof payload.ccBalance === "number")          mockState.ccBalance          = payload.ccBalance;
+      if (typeof payload.ccLimit === "number")            mockState.ccLimit            = payload.ccLimit;
+      if (typeof payload.ccAvailable === "number")        mockState.ccAvailable        = payload.ccAvailable;
+      if (typeof payload.ccUtilization === "number")      mockState.ccUtilization      = payload.ccUtilization;
+      if (typeof payload.totalDebt === "number")          mockState.totalDebt          = payload.totalDebt;
+      if (typeof payload.monthlyDebtPayment === "number") mockState.monthlyDebtPayment = payload.monthlyDebtPayment;
+      if (typeof payload.cashOnHand === "number")         mockState.cashOnHand         = payload.cashOnHand;
+
+      // Lists
+      if (Array.isArray(payload.activeLoans))   mockState.activeLoans = payload.activeLoans;
+      if (Array.isArray(payload.loanProducts))  mockState.loanProducts = payload.loanProducts;
+      if (Array.isArray(payload.history))       mockState.history = payload.history;
+      if (Array.isArray(payload.availableLots)) {
+        mockState.availableLots = payload.availableLots;
+        if (ui.selectedLotId && !mockState.availableLots.find(l => l.id === ui.selectedLotId)) {
+          ui.selectedLotId = mockState.availableLots[0] ? mockState.availableLots[0].id : null;
+        }
+      }
+
+      switch (ui.activeTab) {
+        case "home":    renderHome();    break;
+        case "explore": renderExplore(); break;
+        case "history": renderHistory(); break;
+      }
+    },
+    showError(message) {
+      // Host renders the toast; this hook is reserved for panel-local
+      // error handling if we ever need it.
+      console.warn("[FV.credit.showError]", message);
+    }
+  };
+
+  // Tell the host we're ready. The host's cold-start queue replays any
+  // updatePanel("credit", ...) calls that arrived before this point.
+  if (window.parent && window.parent.FV && typeof window.parent.FV.iframeReady === "function") {
+    window.parent.FV.iframeReady("credit");
+  }
 }
 document.addEventListener("DOMContentLoaded", boot);
 </script>
