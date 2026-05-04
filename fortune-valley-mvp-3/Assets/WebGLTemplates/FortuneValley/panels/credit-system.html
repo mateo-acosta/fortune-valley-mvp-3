@@ -1213,8 +1213,16 @@ function renderExplore() {
   apply.onclick = () => {
     if (apply.disabled) return;
     loanPurchaseRequested(product.id, lot.id, lot.price);
-    apply.textContent = "Applied — sent to lender";
-    setTimeout(() => apply.textContent = "Apply Now", 1400);
+    // Directional copy: tell the student exactly what to do next in the
+    // game world rather than just confirming the request was sent.
+    apply.textContent = `Approved. Go buy ${lot.name}.`;
+    setTimeout(() => {
+      apply.textContent = "Apply Now";
+      // Auto-close so the student is shoved back into the world to act.
+      if (window.parent && window.parent.FV && typeof window.parent.FV.requestIntent === "function") {
+        window.parent.FV.requestIntent("credit", "close", {});
+      }
+    }, 2800);
   };
 }
 
