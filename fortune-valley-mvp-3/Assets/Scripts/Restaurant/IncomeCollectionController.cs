@@ -4,16 +4,16 @@ using UnityEngine;
 namespace FortuneValley.Core
 {
     /// <summary>
-    /// Handles the single deposit path for tap-to-collect income.
-    /// Subscribes to OnIncomeCollectRequested (from button taps and from
-    /// ownership-lost events), calls TryCollect on PendingIncomeService,
-    /// deposits to CurrencyManager, and raises feedback + save events.
+    /// Handles the single deposit path for income collection. Subscribes to
+    /// OnIncomeCollectRequested (now fired by DailyIncomeAccumulator on day-end
+    /// and on ownership loss), calls TryCollect on the accumulator, deposits
+    /// to CurrencyManager, and raises feedback + save events.
     /// </summary>
     public class IncomeCollectionController : MonoBehaviour
     {
         [Header("Dependencies")]
         [SerializeField] private CurrencyManager _currencyManager;
-        [SerializeField] private PendingIncomeService _pendingIncome;
+        [SerializeField] private DailyIncomeAccumulator _pendingIncome;
 
         private readonly Dictionary<string, Transform> _anchors = new Dictionary<string, Transform>();
         private readonly HashSet<string> _warnedMissingAnchor = new HashSet<string>();
@@ -65,7 +65,7 @@ namespace FortuneValley.Core
             {
                 return $"LostLot:{buildingId}";
             }
-            if (buildingId == PendingIncomeService.RestaurantBuildingId)
+            if (buildingId == DailyIncomeAccumulator.RestaurantBuildingId)
             {
                 return "Restaurant";
             }

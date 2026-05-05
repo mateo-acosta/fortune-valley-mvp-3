@@ -4,5 +4,6 @@ namespace FortuneValley.Core
     {
         PlayerTap,
         OwnershipLost,
+        DayEnd,
     }
 }

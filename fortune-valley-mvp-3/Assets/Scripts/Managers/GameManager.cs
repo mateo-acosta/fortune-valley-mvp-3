@@ -32,8 +32,8 @@ namespace FortuneValley.Managers
         [SerializeField] private LoanSystem _loanSystem;
         [SerializeField] private InsuranceSystem _insuranceSystem;
 
-        [Header("Tap-to-Collect")]
-        [SerializeField] private PendingIncomeService _pendingIncome;
+        [Header("Income")]
+        [SerializeField] private DailyIncomeAccumulator _pendingIncome;
 
         // State builder for persistence (pure C#, no MonoBehaviour)
         private GameStateDTOBuilder _stateDTOBuilder;

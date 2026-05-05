@@ -39,7 +39,7 @@ namespace FortuneValley.Domain.Entities
         public CosmeticVariantChoice[] cosmetic_variants;
 
         // Per-building pending income buckets (restaurant + each player-owned lot).
-        // Written by PendingIncomeService.Snapshot; consumed by Hydrate on load.
+        // Written by DailyIncomeAccumulator.Snapshot; consumed by Hydrate on load.
         // Null on legacy saves; Hydrate treats null as empty.
         public PendingIncomeEntryDTO[] pending_incomes;
 

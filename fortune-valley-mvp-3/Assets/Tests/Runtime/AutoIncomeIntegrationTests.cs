@@ -9,12 +9,13 @@ using FortuneValley.Domain.Enums;
 namespace FortuneValley.Tests
 {
     /// <summary>
-    /// End-to-end scenarios for the daily-locked coin model. Real MonoBehaviour
-    /// wiring (TimeManager, CityManager, RestaurantSystem, PendingIncomeService,
-    /// IncomeCollectionController) so each test mirrors production flow.
+    /// End-to-end scenarios for the automatic end-of-day deposit model. Real
+    /// MonoBehaviour wiring (TimeManager, CityManager, RestaurantSystem,
+    /// DailyIncomeAccumulator, IncomeCollectionController) so each test mirrors
+    /// production flow.
     /// </summary>
     [TestFixture]
-    public class TapToCollectIntegrationTests
+    public class AutoIncomeIntegrationTests
     {
         private const int TicksPerDay = 10;
 
@@ -24,7 +25,7 @@ namespace FortuneValley.Tests
         private RestaurantConfig _config;
         private RestaurantSystem _restaurant;
         private CityManager _city;
-        private PendingIncomeService _pending;
+        private DailyIncomeAccumulator _pending;
         private IncomeCollectionController _controller;
         private CityLotDefinition _playerStarter;
         private CityLotDefinition _rivalStarter;
@@ -61,7 +62,7 @@ namespace FortuneValley.Tests
             SetField(_city, "_tierOnStart", 2);
             SetField(_city, "_currency", _currency);
 
-            _pending = _go.AddComponent<PendingIncomeService>();
+            _pending = _go.AddComponent<DailyIncomeAccumulator>();
             SetField(_pending, "_cityManager", _city);
             SetField(_pending, "_timeManager", _time);
 
@@ -102,238 +103,205 @@ namespace FortuneValley.Tests
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 1: full day cycle — lock -> drain -> ready -> collect
+        // Scenario 1: full day cycle accumulate -> day-end deposit
         // ═══════════════════════════════════════════════════════════════
         [Test]
-        public void FullDayCycle_LocksThenDrainsThenReadyThenCollects()
+        public void FullDayCycle_AccumulatesAndDepositsOnDayEnd()
         {
-            var starter = _pending.Buckets["starter_player"];
-            // starter lot folds the restaurant base: (5 + 10) * 10 = 150
-            Assert.AreEqual(150f, starter.DailyPayout, 0.01f);
-            Assert.AreEqual(TicksPerDay, starter.TicksRemaining);
-            Assert.IsFalse(starter.IsReady);
-
-            for (int i = 1; i <= TicksPerDay; i++) GameEvents.RaiseTick(i);
-
-            starter = _pending.Buckets["starter_player"];
-            Assert.IsTrue(starter.IsReady);
-            Assert.AreEqual(0, starter.TicksRemaining);
-
             float before = _currency.CheckingBalance;
-            GameEvents.RaiseIncomeCollectRequested("starter_player", CollectReason.PlayerTap);
-            Assert.AreEqual(before + 150f, _currency.CheckingBalance, 0.01f);
-
-            // Collect should relock tomorrow's day automatically.
-            starter = _pending.Buckets["starter_player"];
-            Assert.IsFalse(starter.IsReady);
-            Assert.AreEqual(150f, starter.DailyPayout, 0.01f);
-            Assert.AreEqual(TicksPerDay, starter.TicksRemaining);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // Scenario 2: production cap — ready bucket stops advancing
-        // ═══════════════════════════════════════════════════════════════
-        [Test]
-        public void ProductionCap_NoProductionWhileReady()
-        {
             for (int i = 1; i <= TicksPerDay; i++) GameEvents.RaiseTick(i);
-            Assert.IsTrue(_pending.Buckets["starter_player"].IsReady);
 
-            // Three more days' worth of ticks.
-            for (int i = TicksPerDay + 1; i <= TicksPerDay * 4; i++) GameEvents.RaiseTick(i);
+            // Starter lot folds restaurant base: (5 + 10) per tick * 10 ticks = 150.
+            Assert.AreEqual(150f, _pending.Accumulators["starter_player"].DailyPayout, 0.01f);
 
-            Assert.IsTrue(_pending.Buckets["starter_player"].IsReady);
-            Assert.AreEqual(0, _pending.Buckets["starter_player"].TicksRemaining);
-            Assert.AreEqual(150f, _pending.Buckets["starter_player"].DailyPayout, 0.01f);
+            GameEvents.RaiseDayEnd(1);
+
+            Assert.AreEqual(before + 150f, _currency.CheckingBalance, 0.01f);
+            Assert.AreEqual(0f, _pending.Accumulators["starter_player"].DailyPayout);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 3: mid-day restaurant upgrade — today unchanged, tomorrow reflects
+        // Scenario 2: mid-day restaurant upgrade pro-rates
         // ═══════════════════════════════════════════════════════════════
         [Test]
-        public void MidDayRestaurantUpgrade_TodaysCoinStaysAtOldRate_TomorrowMatchesNew()
+        public void MidDayRestaurantUpgrade_ProRates()
         {
-            Assert.AreEqual(150f, _pending.Buckets["starter_player"].DailyPayout, 0.01f);
-
             for (int i = 1; i <= 3; i++) GameEvents.RaiseTick(i);
-            Assert.IsTrue(_restaurant.TryUpgrade(), "Expected restaurant upgrade to succeed.");
-            // Today's coin still locked at pre-upgrade rate.
-            Assert.AreEqual(150f, _pending.Buckets["starter_player"].DailyPayout, 0.01f);
+            float prePayout = _pending.Accumulators["starter_player"].DailyPayout;
+            // 3 ticks * 15 (folded rate) = 45
+            Assert.AreEqual(45f, prePayout, 0.01f);
+
+            Assert.IsTrue(_restaurant.TryUpgrade());
 
             for (int i = 4; i <= TicksPerDay; i++) GameEvents.RaiseTick(i);
-            GameEvents.RaiseIncomeCollectRequested("starter_player", CollectReason.PlayerTap);
-
-            // After collect, tomorrow locks at new rate: (5 + 20) * 10 = 250.
-            Assert.AreEqual(250f, _pending.Buckets["starter_player"].DailyPayout, 0.01f);
+            // 3 old ticks @ 15 + 7 new ticks @ (5 + 20) = 45 + 175 = 220
+            Assert.AreEqual(220f, _pending.Accumulators["starter_player"].DailyPayout, 0.01f);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 4: mid-day lot tier upgrade — today unchanged, tomorrow reflects
+        // Scenario 3: mid-day lot tier upgrade pro-rates
         // ═══════════════════════════════════════════════════════════════
         [Test]
-        public void MidDayLotTierUpgrade_TodaysCoinStaysAtOldRate_TomorrowMatchesNew()
+        public void MidDayLotTierUpgrade_ProRates()
         {
-            // Buy an extra lot (T1 after purchase). Rate at T1: 8 * 0.5 = 4/tick -> 40/day.
             Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
-            Assert.AreEqual(40f, _pending.Buckets["lot_extra"].DailyPayout, 0.01f);
-
-            // Mid-day: upgrade to T2. New rate = 8/tick -> 80/day.
+            // T1 fresh: 8 * 0.5 = 4/tick
             for (int i = 1; i <= 4; i++) GameEvents.RaiseTick(i);
+            Assert.AreEqual(16f, _pending.Accumulators["lot_extra"].DailyPayout, 0.01f);
+
             Assert.IsTrue(_city.TryUpgradeLot("lot_extra"));
-            Assert.AreEqual(40f, _pending.Buckets["lot_extra"].DailyPayout, 0.01f);
-
+            // T2: 8/tick
             for (int i = 5; i <= TicksPerDay; i++) GameEvents.RaiseTick(i);
-            GameEvents.RaiseIncomeCollectRequested("lot_extra", CollectReason.PlayerTap);
 
-            Assert.AreEqual(80f, _pending.Buckets["lot_extra"].DailyPayout, 0.01f);
+            // 4 ticks @ 4 + 6 ticks @ 8 = 16 + 48 = 64
+            Assert.AreEqual(64f, _pending.Accumulators["lot_extra"].DailyPayout, 0.01f);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 5: save/reload preserves mid-drain state
+        // Scenario 4: save/reload preserves accumulated DailyPayout
         // ═══════════════════════════════════════════════════════════════
         [Test]
-        public void SaveMidDrain_ReloadPreservesTicksRemainingAndDailyPayout()
+        public void SaveMidDay_ReloadPreservesAccumulation()
         {
             for (int i = 1; i <= 4; i++) GameEvents.RaiseTick(i);
-
-            var dto = new GamePlayerStateDTO();
-            _pending.Snapshot(dto);
-
-            // Simulate fresh load: hydrate from the captured dto.
-            _pending.Hydrate(dto);
-
-            var starter = _pending.Buckets["starter_player"];
-            Assert.AreEqual(150f, starter.DailyPayout, 0.01f);
-            Assert.AreEqual(TicksPerDay - 4, starter.TicksRemaining);
-            Assert.IsFalse(starter.IsReady);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // Scenario 6: save/reload preserves ready coin
-        // ═══════════════════════════════════════════════════════════════
-        [Test]
-        public void SaveReady_ReloadPreservesReadyCoin()
-        {
-            for (int i = 1; i <= TicksPerDay; i++) GameEvents.RaiseTick(i);
-            Assert.IsTrue(_pending.Buckets["starter_player"].IsReady);
+            float beforeSave = _pending.Accumulators["starter_player"].DailyPayout;
+            Assert.AreEqual(60f, beforeSave, 0.01f);
 
             var dto = new GamePlayerStateDTO();
             _pending.Snapshot(dto);
             _pending.Hydrate(dto);
 
-            Assert.IsTrue(_pending.Buckets["starter_player"].IsReady);
-            Assert.AreEqual(150f, _pending.Buckets["starter_player"].DailyPayout, 0.01f);
+            Assert.AreEqual(beforeSave, _pending.Accumulators["starter_player"].DailyPayout, 0.01f);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 7: rival takeover mid-drain forfeits
+        // Scenario 5: rival takeover with no accumulation forfeits cleanly
         // ═══════════════════════════════════════════════════════════════
         [Test]
-        public void RivalTakeoverMidDrain_ForfeitsNoPayout()
+        public void RivalTakeover_WithZeroAccumulation_NoPayoutNoCrash()
         {
             Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
-            for (int i = 1; i <= 3; i++) GameEvents.RaiseTick(i);
             float before = _currency.CheckingBalance;
 
             SimulateOwnershipLoss("lot_extra");
 
             Assert.AreEqual(before, _currency.CheckingBalance,
-                "Mid-drain ownership loss forfeits the pending coin.");
-            Assert.IsFalse(_pending.Buckets.ContainsKey("lot_extra"));
+                "Zero-accumulation lot should produce no payout on ownership loss.");
+            Assert.IsFalse(_pending.Accumulators.ContainsKey("lot_extra"));
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 8: rival takeover while ready pays out
+        // Scenario 6: rival takeover after accumulation pays the running total
         // ═══════════════════════════════════════════════════════════════
         [Test]
-        public void RivalTakeoverWhileReady_PaysOutViaOwnershipLostPath()
+        public void RivalTakeover_WithAccumulation_PaysOutViaOwnershipLostPath()
         {
             Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
-            for (int i = 1; i <= TicksPerDay; i++) GameEvents.RaiseTick(i);
-            Assert.IsTrue(_pending.Buckets["lot_extra"].IsReady);
-
+            for (int i = 1; i <= 5; i++) GameEvents.RaiseTick(i);
             float before = _currency.CheckingBalance;
+
             SimulateOwnershipLoss("lot_extra");
 
-            Assert.Greater(_currency.CheckingBalance, before,
-                "Ready coin must pay out before the bucket is removed.");
-            Assert.IsFalse(_pending.Buckets.ContainsKey("lot_extra"));
+            // 5 ticks @ 4/tick (T1 fresh) = 20
+            Assert.AreEqual(before + 20f, _currency.CheckingBalance, 0.01f);
+            Assert.IsFalse(_pending.Accumulators.ContainsKey("lot_extra"));
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 9: starter lot owned -> no restaurant bucket
+        // Scenario 7: starter lot owned -> no restaurant bucket
         // ═══════════════════════════════════════════════════════════════
         [Test]
         public void StarterLotOwned_RestaurantBucketAbsent()
         {
-            Assert.IsTrue(_pending.Buckets.ContainsKey("starter_player"));
-            Assert.IsFalse(_pending.Buckets.ContainsKey(PendingIncomeService.RestaurantBuildingId),
-                "While the starter is player-owned, it folds restaurant base income.");
+            Assert.IsTrue(_pending.Accumulators.ContainsKey("starter_player"));
+            Assert.IsFalse(_pending.Accumulators.ContainsKey(DailyIncomeAccumulator.RestaurantBuildingId));
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 10: starter lost -> restaurant bucket spawns
+        // Scenario 8: starter lost -> restaurant bucket spawns
         // ═══════════════════════════════════════════════════════════════
         [Test]
-        public void StarterLotLostToRival_RestaurantBucketCreated_ResumesOwnBase()
+        public void StarterLotLostToRival_RestaurantBucketCreated()
         {
             SimulateOwnershipLoss("starter_player");
 
-            Assert.IsFalse(_pending.Buckets.ContainsKey("starter_player"));
-            Assert.IsTrue(_pending.Buckets.ContainsKey(PendingIncomeService.RestaurantBuildingId),
-                "When starter leaves player ownership, the restaurant bucket takes over.");
-            // Restaurant-only payout = 10/tick * 10 ticks = 100.
-            Assert.AreEqual(100f, _pending.Buckets[PendingIncomeService.RestaurantBuildingId].DailyPayout, 0.01f);
+            Assert.IsFalse(_pending.Accumulators.ContainsKey("starter_player"));
+            Assert.IsTrue(_pending.Accumulators.ContainsKey(DailyIncomeAccumulator.RestaurantBuildingId));
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Scenario 11: legacy save migration
+        // Scenario 9: buying a new lot creates a fresh accumulator at zero
         // ═══════════════════════════════════════════════════════════════
         [Test]
-        public void LegacySaveMigration_AllBucketsReset()
+        public void PlayerBuysNewLot_FreshAccumulatorStartsAtZero()
         {
-            // Build a legacy-shaped DTO: no schema_version, zeroed new fields.
-            var legacy = new GamePlayerStateDTO
-            {
-                schema_version = 0,
-                pending_incomes = new[]
-                {
-                    new PendingIncomeEntryDTO { building_id = "starter_player" }
-                }
-            };
-            _pending.Hydrate(legacy);
-
-            var starter = _pending.Buckets["starter_player"];
-            Assert.AreEqual(150f, starter.DailyPayout, 0.01f);
-            Assert.AreEqual(TicksPerDay, starter.TicksRemaining);
-            Assert.IsFalse(starter.IsReady);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // Scenario 12: buying a new lot creates a fresh draining bucket
-        // ═══════════════════════════════════════════════════════════════
-        [Test]
-        public void PlayerBuysNewLot_FreshBucketStartsDraining_NotPreReady()
-        {
-            Assert.IsFalse(_pending.Buckets.ContainsKey("lot_extra"));
+            Assert.IsFalse(_pending.Accumulators.ContainsKey("lot_extra"));
             Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
 
-            var bucket = _pending.Buckets["lot_extra"];
-            Assert.AreEqual(40f, bucket.DailyPayout, 0.01f); // T1: 8 * 0.5 * 10
-            Assert.AreEqual(TicksPerDay, bucket.TicksRemaining);
-            Assert.IsFalse(bucket.IsReady, "Fresh bucket must drain from full, not arrive pre-ready.");
+            var bucket = _pending.Accumulators["lot_extra"];
+            Assert.AreEqual(0f, bucket.DailyPayout,
+                "Fresh accumulator starts at zero; income builds per-tick from this point.");
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // Scenario 10: legacy save migration deposits carried payout +
+        // fresh accumulation on first day-end (decision 5A + 11C)
+        // ═══════════════════════════════════════════════════════════════
+        [Test]
+        public void LegacySaveMigration_FirstDayEnd_DepositsCarriedPayoutPlusFreshAccumulation()
+        {
+            // Force a non-zero pending balance into the existing starter bucket.
+            var dto = new GamePlayerStateDTO
+            {
+                schema_version = 1,
+                pending_incomes = new[]
+                {
+                    new PendingIncomeEntryDTO { building_id = "starter_player", daily_payout = 1000f }
+                }
+            };
+            _pending.Hydrate(dto);
+
+            for (int i = 1; i <= 5; i++) GameEvents.RaiseTick(i);
+            // 5 ticks @ 15 (folded) = 75
+            float expected = 1000f + 75f;
+
+            float before = _currency.CheckingBalance;
+            GameEvents.RaiseDayEnd(1);
+
+            Assert.AreEqual(before + expected, _currency.CheckingBalance, 0.01f,
+                "Legacy carry plus partial-day fresh accumulation should deposit together at first day-end.");
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // Scenario 11: day-end with multiple buckets fires exactly one
+        // OnSaveRequested after AutoSaveController debounce (decision 12A).
+        //
+        // Note: we count the raw producer-side OnSaveRequested events; the
+        // AutoSaveController consumer debounces these into one persistence
+        // call. The contract here is that day-end raises N events that
+        // collapse into one save downstream.
+        // ═══════════════════════════════════════════════════════════════
+        [Test]
+        public void DayEnd_WithMultipleBuckets_RaisesOneSavePerCollect()
+        {
+            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
+            for (int i = 1; i <= TicksPerDay; i++) GameEvents.RaiseTick(i);
+
+            int saveRequests = 0;
+            GameEvents.OnSaveRequested += () => saveRequests++;
+
+            GameEvents.RaiseDayEnd(1);
+
+            // Two buckets with non-zero payout; controller raises save per
+            // deposit. AutoSaveController (not exercised here) debounces.
+            Assert.AreEqual(2, saveRequests,
+                "Producer side fires one save per deposit; consumer-side debounce handled by AutoSaveController.");
         }
 
         // ═══════════════════════════════════════════════════════════════
         // Helpers
         // ═══════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Simulates a rival/None takeover of a player-owned lot. CityManager's
-        /// RivalPurchaseLot rejects on owned lots, so tests drive the state
-        /// change directly: mutate the ownership dictionary via reflection
-        /// and raise OnLotOwnershipChanged so the service can react.
-        /// </summary>
         private void SimulateOwnershipLoss(string lotId)
         {
             var ownership = (Dictionary<string, Owner>)typeof(CityManager)

@@ -11,12 +11,10 @@ using FortuneValley.UI.World;
 namespace FortuneValley.Tests
 {
     /// <summary>
-    /// Coin button lifecycle + subscription-race regression coverage.
-    ///
-    /// Subscription race: BuildingCollectButton must seed its visual state
-    /// correctly even when it enables AFTER the PendingIncomeService has
-    /// already emitted its last OnCoinStateChanged event. The button raises
-    /// OnIncomePendingQuery on OnEnable and the service re-emits.
+    /// Coverage for the non-interactive flash-indicator BuildingCollectButton.
+    /// The button no longer participates in collection (taps are removed); it
+    /// flashes when its building's income lands at day-end and reveals on
+    /// hover for a static "+$X/day" rate readout.
     /// </summary>
     [TestFixture]
     public class BuildingCollectButtonTests
@@ -24,24 +22,25 @@ namespace FortuneValley.Tests
         private const string BuildingId = "lot_test";
 
         private GameObject _serviceGO;
-        private PendingIncomeService _service;
+        private DailyIncomeAccumulator _service;
 
         private GameObject _canvasGO;
         private GameObject _buttonGO;
         private BuildingCollectButton _button;
         private Image _fillImage;
+        private Image _coinTintImage;
         private Button _uiButton;
         private TextMeshProUGUI _label;
+        private CanvasGroup _visibilityGroup;
 
         [SetUp]
         public void SetUp()
         {
             GameEvents.ClearAllSubscriptions();
 
-            _serviceGO = new GameObject("PendingService");
-            _service = _serviceGO.AddComponent<PendingIncomeService>();
-            // Inject directly into _buckets; stub out LotRegistry/TickClock.
-            InjectBucketsScratchpad();
+            _serviceGO = new GameObject("Accumulator");
+            _service = _serviceGO.AddComponent<DailyIncomeAccumulator>();
+            _service.Initialize(new TestLotRegistryLocal(), new TestTickClockLocal { TicksPerDay = 10 });
 
             _canvasGO = new GameObject("Canvas");
             _canvasGO.AddComponent<Canvas>();
@@ -58,103 +57,131 @@ namespace FortuneValley.Tests
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // Subscription-race: service already has state when button enables
+        // Non-interactive contract
         // ═══════════════════════════════════════════════════════════════
 
         [Test]
-        public void EnableAfterServiceState_InDrain_SeedsFromQuery()
+        public void Button_NeverInteractable_OnAwake()
         {
-            SeedBucket(BuildingId, dailyPayout: 80f, ticksRemaining: 4, ticksPerDay: 10, isReady: false);
+            CreateButton();
+            Assert.IsFalse(_uiButton.interactable);
+        }
+
+        [Test]
+        public void Awake_DisablesFillImage_AtRuntime()
+        {
+            CreateButton();
+            Assert.IsFalse(_fillImage.gameObject.activeSelf,
+                "Fill image is hidden at runtime (no pending pot in the new model).");
+        }
+
+        [Test]
+        public void OnEnable_StartsHidden_WithCanvasGroupAlphaZero()
+        {
+            CreateButton();
+            Assert.AreEqual(0f, _visibilityGroup.alpha);
+            Assert.IsFalse(_visibilityGroup.blocksRaycasts);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // Hover-driven visibility
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void Hover_OnMatchingId_RevealsCanvasGroup()
+        {
+            CreateButton();
+            GameEvents.RaiseBlockHoverChanged(BuildingId, true);
+            Assert.AreEqual(1f, _visibilityGroup.alpha);
+        }
+
+        [Test]
+        public void Hover_OnOtherId_DoesNotReveal()
+        {
+            CreateButton();
+            GameEvents.RaiseBlockHoverChanged("someone_else", true);
+            Assert.AreEqual(0f, _visibilityGroup.alpha);
+        }
+
+        [Test]
+        public void HoverEnd_HidesCanvasGroup()
+        {
+            CreateButton();
+            GameEvents.RaiseBlockHoverChanged(BuildingId, true);
+            GameEvents.RaiseBlockHoverChanged(BuildingId, false);
+            Assert.AreEqual(0f, _visibilityGroup.alpha);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // Label format switching: rate (hover/state) vs deposit (flash)
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void CoinStateChanged_UpdatesLabel_ToRateFormat()
+        {
             CreateButton();
 
-            // Expected: progress01 = 4/10 = 0.4
-            Assert.AreEqual(0.4f, _fillImage.fillAmount, 0.001f);
+            GameEvents.RaiseCoinStateChanged(BuildingId, 80f, 0f, false);
+
             Assert.AreEqual("+$80/day", _label.text);
-            Assert.IsFalse(_uiButton.interactable);
-        }
-
-        [Test]
-        public void EnableAfterServiceState_Ready_SeedsPulsingAndInteractable()
-        {
-            SeedBucket(BuildingId, dailyPayout: 100f, ticksRemaining: 0, ticksPerDay: 10, isReady: true);
-            CreateButton();
-
-            Assert.AreEqual(0f, _fillImage.fillAmount, 0.001f);
-            Assert.AreEqual("+$100/day", _label.text);
-            Assert.IsTrue(_uiButton.interactable);
-        }
-
-        [Test]
-        public void EnableWithNoBucket_StaysNonInteractable()
-        {
-            // Button enabled with no service state; must remain non-interactable.
-            CreateButton();
-
-            Assert.IsFalse(_uiButton.interactable);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // Runtime event handling
-        // ═══════════════════════════════════════════════════════════════
-
-        [Test]
-        public void OnClick_DisablesButtonAndRaisesCollectRequest()
-        {
-            SeedBucket(BuildingId, 50f, 0, 10, isReady: true);
-            CreateButton();
-
-            string observedId = null;
-            CollectReason observedReason = CollectReason.OwnershipLost;
-            GameEvents.OnIncomeCollectRequested += (id, r) => { observedId = id; observedReason = r; };
-
-            InvokePrivate(_button, "HandleClicked");
-
-            Assert.AreEqual(BuildingId, observedId);
-            Assert.AreEqual(CollectReason.PlayerTap, observedReason);
-            Assert.IsFalse(_uiButton.interactable);
-        }
-
-        [Test]
-        public void CoinStateChanged_ReadyFlip_EnablesButtonAndUpdatesFill()
-        {
-            SeedBucket(BuildingId, 50f, 5, 10, isReady: false);
-            CreateButton();
-
-            Assert.IsFalse(_uiButton.interactable);
-
-            GameEvents.RaiseCoinStateChanged(BuildingId, 50f, 0f, true);
-
-            Assert.AreEqual(0f, _fillImage.fillAmount, 0.001f);
-            Assert.IsTrue(_uiButton.interactable);
-        }
-
-        [Test]
-        public void CoinStateChanged_DirtyCheckSkipsLabelRebuildForSameRoundedAmount()
-        {
-            SeedBucket(BuildingId, 12f, 10, 10, isReady: false);
-            CreateButton();
-
-            string firstLabel = _label.text;
-            _label.text = "DIRTY";
-
-            // Same rounded (Mathf.FloorToInt(12.4f) == 12 == previous).
-            GameEvents.RaiseCoinStateChanged(BuildingId, 12.4f, 1f, false);
-
-            Assert.AreEqual("DIRTY", _label.text,
-                "Dirty-check should skip label update when the floored integer is unchanged.");
         }
 
         [Test]
         public void CoinStateChanged_ForDifferentId_IsIgnored()
         {
-            SeedBucket(BuildingId, 50f, 10, 10, isReady: false);
             CreateButton();
-            float baselineFill = _fillImage.fillAmount;
+            string baseline = _label.text;
 
-            GameEvents.RaiseCoinStateChanged("someone_else", 0f, 0f, true);
+            GameEvents.RaiseCoinStateChanged("someone_else", 999f, 0f, true);
 
-            Assert.AreEqual(baselineFill, _fillImage.fillAmount);
-            Assert.IsFalse(_uiButton.interactable);
+            Assert.AreEqual(baseline, _label.text);
+        }
+
+        [Test]
+        public void IncomeCollected_ForMatchingId_UpdatesLabelToDepositFormat()
+        {
+            CreateButton();
+            GameEvents.RaiseCoinStateChanged(BuildingId, 100f, 0f, false); // sets baseline rate label
+
+            GameEvents.RaiseIncomeCollected(BuildingId, 75f);
+
+            // Flash label is "+$75" (no /day suffix). Format runs synchronously
+            // before the DOTween sequence's onComplete restores the rate label.
+            Assert.AreEqual("+$75", _label.text);
+        }
+
+        [Test]
+        public void IncomeCollected_ForOtherId_DoesNotUpdateLabel()
+        {
+            CreateButton();
+            GameEvents.RaiseCoinStateChanged(BuildingId, 100f, 0f, false);
+            string baseline = _label.text;
+
+            GameEvents.RaiseIncomeCollected("someone_else", 75f);
+
+            Assert.AreEqual(baseline, _label.text);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // Flash mid-state suppresses label flicker (decision 8A)
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void CoinStateChanged_DuringFlash_DoesNotOverwriteFlashLabel()
+        {
+            CreateButton();
+            GameEvents.RaiseCoinStateChanged(BuildingId, 100f, 0f, false);
+
+            // Trigger a flash; label is now "+$50".
+            GameEvents.RaiseIncomeCollected(BuildingId, 50f);
+            Assert.AreEqual("+$50", _label.text);
+
+            // A rate-state event arriving mid-flash must not overwrite the
+            // deposit label.
+            GameEvents.RaiseCoinStateChanged(BuildingId, 200f, 0f, false);
+
+            Assert.AreEqual("+$50", _label.text,
+                "_isFlashing guard prevents the rate label from clobbering the flash deposit label.");
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -172,7 +199,12 @@ namespace FortuneValley.Tests
             _fillImage.type = Image.Type.Filled;
             _fillImage.fillMethod = Image.FillMethod.Radial360;
 
+            var tintGO = new GameObject("Tint", typeof(RectTransform));
+            tintGO.transform.SetParent(_buttonGO.transform);
+            _coinTintImage = tintGO.AddComponent<Image>();
+
             _uiButton = _buttonGO.AddComponent<Button>();
+            _visibilityGroup = _buttonGO.AddComponent<CanvasGroup>();
 
             var labelGO = new GameObject("Label", typeof(RectTransform));
             labelGO.transform.SetParent(_buttonGO.transform);
@@ -180,34 +212,14 @@ namespace FortuneValley.Tests
 
             _button = _buttonGO.AddComponent<BuildingCollectButton>();
             SetField(_button, "_fillImage", _fillImage);
+            SetField(_button, "_coinTintImage", _coinTintImage);
             SetField(_button, "_button", _uiButton);
             SetField(_button, "_amountLabel", _label);
+            SetField(_button, "_visibilityGroup", _visibilityGroup);
             SetField(_button, "_buildingId", BuildingId);
 
             InvokePrivate(_button, "Awake");
             InvokePrivate(_button, "OnEnable");
-        }
-
-        private void InjectBucketsScratchpad()
-        {
-            // Inject minimal stubs so HandleQuery's progress calc has a
-            // TicksPerDay denominator. Tests seed buckets directly via
-            // reflection rather than going through the service's public API
-            // (which depends on a real CityManager).
-            _service.Initialize(new TestLotRegistryLocal(), new TestTickClockLocal { TicksPerDay = 10 });
-        }
-
-        private void SeedBucket(string id, float dailyPayout, int ticksRemaining, int ticksPerDay, bool isReady)
-        {
-            var bucketsField = typeof(PendingIncomeService).GetField("_buckets",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            var buckets = (Dictionary<string, PendingBucket>)bucketsField.GetValue(_service);
-            buckets[id] = new PendingBucket
-            {
-                DailyPayout = dailyPayout,
-                TicksRemaining = ticksRemaining,
-                IsReady = isReady,
-            };
         }
 
         private static void InvokePrivate(object target, string methodName)

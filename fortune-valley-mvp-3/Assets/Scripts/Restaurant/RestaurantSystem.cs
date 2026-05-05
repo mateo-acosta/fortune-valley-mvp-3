@@ -10,7 +10,7 @@ namespace FortuneValley.Core
     /// Students should understand: "I can always rely on my restaurant,
     /// but it won't make me rich fast. Is there a better use for my money?"
     ///
-    /// Income no longer accumulates tick-by-tick here. PendingIncomeService
+    /// Income no longer accumulates tick-by-tick here. DailyIncomeAccumulator
     /// owns the daily-locked coin cycle; this module only exposes the
     /// per-tick rate, handles upgrades, and tracks TotalEarned by summing
     /// OnIncomeCollected deposits.
@@ -57,7 +57,7 @@ namespace FortuneValley.Core
 
         /// <summary>
         /// Income generated per tick at the current level. Consumed by
-        /// PendingIncomeService.ComputeDayRate to lock a day's payout.
+        /// DailyIncomeAccumulator.ComputeDayRate to lock a day's payout.
         /// </summary>
         public float IncomePerTick => _config.GetIncomeForLevel(_currentLevel);
 

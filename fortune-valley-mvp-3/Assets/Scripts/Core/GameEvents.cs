@@ -706,7 +706,7 @@ namespace FortuneValley.Core
             => OnBlockHoverChanged?.Invoke(lotId, hovered);
 
         // UI intent: player tapped collect on a building. Also fired internally
-        // by PendingIncomeService on ownership loss with CollectReason.OwnershipLost.
+        // by DailyIncomeAccumulator on ownership loss with CollectReason.OwnershipLost.
         public static event Action<string, CollectReason> OnIncomeCollectRequested;
         public static void RaiseIncomeCollectRequested(string buildingId, CollectReason reason)
             => OnIncomeCollectRequested?.Invoke(buildingId, reason);
@@ -715,6 +715,13 @@ namespace FortuneValley.Core
         public static event Action<string, float> OnIncomeCollected;
         public static void RaiseIncomeCollected(string buildingId, float amount)
             => OnIncomeCollected?.Invoke(buildingId, amount);
+
+        // Aggregate daily-income rate across all player-owned income buildings.
+        // Raised by DailyIncomeAccumulator (coalesced once per frame in LateUpdate)
+        // whenever the rounded total changes. DailyIncomeHud subscribes.
+        public static event Action<float> OnTotalDailyIncomeChanged;
+        public static void RaiseTotalDailyIncomeChanged(float total)
+            => OnTotalDailyIncomeChanged?.Invoke(total);
 
         // Raised by CityManager when a lot's owner changes. Replaces the need
         // to diff against a cached prev-owner inside each subscriber.
@@ -869,6 +876,7 @@ namespace FortuneValley.Core
             OnIncomeCollected = null;
             OnLotOwnershipChanged = null;
             OnSaveRequested = null;
+            OnTotalDailyIncomeChanged = null;
         }
     }
 }

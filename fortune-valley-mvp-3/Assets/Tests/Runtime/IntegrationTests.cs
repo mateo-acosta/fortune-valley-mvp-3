@@ -21,7 +21,7 @@ namespace FortuneValley.Tests
         private RestaurantSystem _restaurantSystem;
         private InvestmentSystem _investmentSystem;
         private CityManager _cityManager;
-        private PendingIncomeService _pendingIncome;
+        private DailyIncomeAccumulator _pendingIncome;
         private IncomeCollectionController _collectionController;
 
         private RestaurantConfig _restaurantConfig;
@@ -43,7 +43,7 @@ namespace FortuneValley.Tests
             _restaurantSystem = _gameObject.AddComponent<RestaurantSystem>();
             _investmentSystem = _gameObject.AddComponent<InvestmentSystem>();
             _cityManager = _gameObject.AddComponent<CityManager>();
-            _pendingIncome = _gameObject.AddComponent<PendingIncomeService>();
+            _pendingIncome = _gameObject.AddComponent<DailyIncomeAccumulator>();
             _collectionController = _gameObject.AddComponent<IncomeCollectionController>();
 
             // Wire dependencies
@@ -77,7 +77,7 @@ namespace FortuneValley.Tests
             int ticks = _timeManager.TicksPerDay;
             for (int i = 1; i <= ticks; i++) GameEvents.RaiseTick(i);
             GameEvents.RaiseDayEnd(1);
-            GameEvents.RaiseIncomeCollectRequested(PendingIncomeService.RestaurantBuildingId, CollectReason.PlayerTap);
+            GameEvents.RaiseIncomeCollectRequested(DailyIncomeAccumulator.RestaurantBuildingId, CollectReason.PlayerTap);
         }
 
         [TearDown]
@@ -243,7 +243,7 @@ namespace FortuneValley.Tests
                     GameEvents.RaiseTick(tick);
                 }
                 GameEvents.RaiseDayEnd(d + 1);
-                GameEvents.RaiseIncomeCollectRequested(PendingIncomeService.RestaurantBuildingId, CollectReason.PlayerTap);
+                GameEvents.RaiseIncomeCollectRequested(DailyIncomeAccumulator.RestaurantBuildingId, CollectReason.PlayerTap);
             }
 
             // Withdraw investment (payout goes directly to checking)

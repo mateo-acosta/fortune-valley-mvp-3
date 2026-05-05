@@ -17,7 +17,7 @@ namespace FortuneValley.Core
         private readonly CreditCardSystem _creditCardSystem;
         private readonly LoanSystem _loanSystem;
         private readonly InsuranceSystem _insuranceSystem;
-        private readonly PendingIncomeService _pendingIncome;
+        private readonly DailyIncomeAccumulator _pendingIncome;
 
         public GameStateDTOBuilder(
             TimeManager timeManager,
@@ -27,7 +27,7 @@ namespace FortuneValley.Core
             CreditCardSystem creditCardSystem,
             LoanSystem loanSystem,
             InsuranceSystem insuranceSystem,
-            PendingIncomeService pendingIncome)
+            DailyIncomeAccumulator pendingIncome)
         {
             _timeManager = timeManager;
             _currencyManager = currencyManager;

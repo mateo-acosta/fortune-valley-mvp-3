@@ -7,18 +7,19 @@ using FortuneValley.Domain.Enums;
 namespace FortuneValley.Tests
 {
     /// <summary>
-    /// End-to-end save migration from the pre-change schema (no
-    /// schema_version field, legacy accumulated/ready_amount/full_day_amount
-    /// fields on PendingIncomeEntryDTO) to the new daily-locked schema.
-    ///
-    /// Validates JsonUtility's drop-unknown-keys behavior and the hydrate
-    /// migration path (StartNewDay relock for every restored bucket).
+    /// End-to-end save migration coverage. The new automatic-deposit model
+    /// preserves the existing pending_incomes DTO contract so legacy saves
+    /// hydrate without code changes:
+    /// - schema_version 0 (pre-pending-incomes): buckets reset to zero and
+    ///   start fresh per-tick accumulation.
+    /// - schema_version 1+ with non-zero daily_payout: carry-over preserved
+    ///   and deposited alongside fresh accumulation on first day-end.
     /// </summary>
     [TestFixture]
     public class SaveMigrationTests
     {
         private GameObject _rootGO;
-        private PendingIncomeService _service;
+        private DailyIncomeAccumulator _service;
         private FakeLotRegistry _lots;
         private FakeTickClock _clock;
 
@@ -27,7 +28,7 @@ namespace FortuneValley.Tests
         {
             GameEvents.ClearAllSubscriptions();
             _rootGO = new GameObject("MigrationTestRoot");
-            _service = _rootGO.AddComponent<PendingIncomeService>();
+            _service = _rootGO.AddComponent<DailyIncomeAccumulator>();
             _lots = new FakeLotRegistry();
             _clock = new FakeTickClock { TicksPerDay = 10 };
             _service.Initialize(_lots, _clock);
@@ -41,15 +42,12 @@ namespace FortuneValley.Tests
         }
 
         [Test]
-        public void LegacyJson_Hydrate_RelocksEveryBucketToFreshDay()
+        public void LegacyJson_Hydrate_ResetsBucketsToZero()
         {
             _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
             _lots.RegisterLot("lot_B", Owner.Player, 1, 8f);
 
-            // Literal pre-change JSON. Notable:
-            // - No schema_version field (JsonUtility fills it with 0).
-            // - Legacy fields accumulated/ready_amount/full_day_amount
-            //   (unknown to the new DTO; JsonUtility silently drops them).
+            // Pre-change JSON shape. JsonUtility drops unknown fields silently.
             string legacyJson =
                 "{" +
                 "\"game_mode\":\"homebase\"," +
@@ -61,52 +59,64 @@ namespace FortuneValley.Tests
                 "}";
 
             var dto = JsonUtility.FromJson<GamePlayerStateDTO>(legacyJson);
-
-            // Sanity: legacy parse produces zero-valued new fields and schema 0.
-            Assert.AreEqual(0, dto.schema_version, "Legacy JSON has no schema_version; must default to 0.");
-            Assert.AreEqual(0f, dto.pending_incomes[0].daily_payout);
-            Assert.AreEqual(0, dto.pending_incomes[0].ticks_remaining);
-            Assert.IsFalse(dto.pending_incomes[0].is_ready);
+            Assert.AreEqual(0, dto.schema_version);
 
             _service.Hydrate(dto);
 
-            // Every restored bucket must be relocked to a fresh full day.
-            var a = _service.Buckets["lot_A"];
-            Assert.AreEqual(50f, a.DailyPayout, "Migration must relock via StartNewDay using current rates.");
-            Assert.AreEqual(10, a.TicksRemaining);
+            // Legacy schema buckets reset to zero; fresh accumulation begins
+            // on subsequent ticks.
+            var a = _service.Accumulators["lot_A"];
+            Assert.AreEqual(0f, a.DailyPayout);
             Assert.IsFalse(a.IsReady);
+            Assert.IsTrue(a.RateDirty);
 
-            var b = _service.Buckets["lot_B"];
-            Assert.AreEqual(80f, b.DailyPayout);
-            Assert.AreEqual(10, b.TicksRemaining);
-            Assert.IsFalse(b.IsReady, "Legacy is_ready=true is discarded; migration forfeits in-progress coins.");
+            var b = _service.Accumulators["lot_B"];
+            Assert.AreEqual(0f, b.DailyPayout);
+            Assert.IsFalse(b.IsReady,
+                "Legacy is_ready=true is discarded; migration forfeits in-progress coins for schema 0.");
         }
 
         [Test]
-        public void Snapshot_AfterMigration_PersistsNewSchema()
+        public void CurrentSchemaWithCarriedDailyPayout_Hydrate_PreservesPayout()
         {
             _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
 
-            // Start from legacy state.
-            var legacy = new GamePlayerStateDTO
+            var dto = new GamePlayerStateDTO
             {
-                schema_version = 0,
+                schema_version = 1,
                 pending_incomes = new[]
                 {
-                    new PendingIncomeEntryDTO { building_id = "lot_A" }
+                    new PendingIncomeEntryDTO { building_id = "lot_A", daily_payout = 250f }
                 }
             };
-            _service.Hydrate(legacy);
+            _service.Hydrate(dto);
+
+            // Non-legacy: carried payout preserved exactly so the next day-end
+            // can deposit it alongside any fresh accumulation.
+            Assert.AreEqual(250f, _service.Accumulators["lot_A"].DailyPayout, 0.001f);
+            Assert.IsTrue(_service.Accumulators["lot_A"].RateDirty);
+        }
+
+        [Test]
+        public void Snapshot_AfterAccumulation_PersistsCurrentSchema()
+        {
+            _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
+            _service.EnsureBucket("lot_A");
+
+            // Use reflection to invoke OnEnable so OnTick subscription is live.
+            var onEnable = typeof(DailyIncomeAccumulator).GetMethod("OnEnable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnable.Invoke(_service, null);
+
+            for (int i = 0; i < 4; i++) GameEvents.RaiseTick(i + 1);
 
             var fresh = new GamePlayerStateDTO();
             _service.Snapshot(fresh);
 
-            Assert.AreEqual(1, fresh.schema_version, "Snapshot must bump schema_version to 1.");
+            Assert.AreEqual(1, fresh.schema_version);
             Assert.AreEqual(1, fresh.pending_incomes.Length);
             Assert.AreEqual("lot_A", fresh.pending_incomes[0].building_id);
-            Assert.AreEqual(50f, fresh.pending_incomes[0].daily_payout);
-            Assert.AreEqual(10, fresh.pending_incomes[0].ticks_remaining);
-            Assert.IsFalse(fresh.pending_incomes[0].is_ready);
+            Assert.AreEqual(20f, fresh.pending_incomes[0].daily_payout, 0.001f);
         }
     }
 }

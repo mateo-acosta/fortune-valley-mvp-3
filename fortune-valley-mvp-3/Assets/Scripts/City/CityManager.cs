@@ -123,7 +123,7 @@ namespace FortuneValley.Core
 
         /// <summary>
         /// Enumerates (lotId, incomePerTick) for each player-owned lot.
-        /// Used by the tick hot path so PendingIncomeService can route per-lot
+        /// Used by the tick hot path so DailyIncomeAccumulator can route per-lot
         /// income into the correct bucket.
         /// Sibling: keep in sync with <see cref="PlayerLotIncomeBonus"/>.
         /// </summary>
@@ -484,7 +484,7 @@ namespace FortuneValley.Core
         private void ResetOwnership()
         {
             // Capture prior state so we can notify listeners of Player/Rival -> None
-            // transitions (e.g. PendingIncomeService removing orphan buckets on restart).
+            // transitions (e.g. DailyIncomeAccumulator removing orphan buckets on restart).
             var priorOwners = new Dictionary<string, Owner>(_lotOwnership);
 
             _lotOwnership.Clear();

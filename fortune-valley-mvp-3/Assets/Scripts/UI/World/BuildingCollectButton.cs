@@ -1,7 +1,7 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using DG.Tweening;
 using FortuneValley.Core;
 using FortuneValley.Domain.Enums;
 
@@ -9,14 +9,10 @@ namespace FortuneValley.UI.World
 {
     /// <summary>
     /// World-space coin button that sits above an income-producing building.
-    /// Displays the locked DailyPayout amount (constant for the day), a radial
-    /// drain overlay that shrinks with each tick, pulses when ready, and
-    /// deposits the locked amount on tap via OnIncomeCollectRequested.
-    ///
-    /// Subscription-race safety: on OnEnable the button raises
-    /// OnIncomePendingQuery so PendingIncomeService re-emits the current
-    /// coin state for this building. That seeds the visual even when this
-    /// component enables after the last OnCoinStateChanged fired.
+    /// Non-interactive indicator under the automatic end-of-day deposit model:
+    /// hidden by default, briefly fades in for a punch + color flash when its
+    /// building's income lands at day-end, then fades back out. Hover reveals
+    /// a static "+$X/day" rate readout for any owned building.
     /// </summary>
     public class BuildingCollectButton : MonoBehaviour
     {
@@ -27,28 +23,34 @@ namespace FortuneValley.UI.World
 
         [Header("Visual")]
         [SerializeField] private Image _fillImage;
+        [SerializeField] private Image _coinTintImage;
         [SerializeField] private Button _button;
         [SerializeField] private TextMeshProUGUI _amountLabel;
         [SerializeField] private string _amountFormat = "+${0:N0}/day";
+        [SerializeField] private string _flashAmountFormat = "+${0:N0}";
 
         [Header("Preview")]
         [Tooltip("Tier used when computing the potential rate shown on unowned lots.")]
         [SerializeField] private int _previewTier = 1;
 
-        [Header("Pulse")]
-        [SerializeField] private float _pulseScale = 1.1f;
-        [SerializeField] private float _pulseDuration = 0.4f;
+        [Header("Flash")]
+        [SerializeField] private float _flashScale = 1.2f;
+        [SerializeField] private float _flashDuration = 0.35f;
+        [SerializeField] private float _fadeInDuration = 0.1f;
+        [SerializeField] private float _holdDuration = 0.3f;
+        [SerializeField] private float _fadeOutDuration = 0.4f;
+        [SerializeField] private Color _flashColor = new Color(1f, 0.95f, 0.3f, 1f);
 
-        [Header("Persistent Visibility")]
-        [Tooltip("Optional. When set, the coin shows whenever the bucket is ready OR the player is hovering this lot, independent of the building's hover canvas. Leave null to inherit visibility from an ancestor (pre-split behavior).")]
+        [Header("Visibility")]
+        [Tooltip("CanvasGroup controlling alpha. Hidden by default; revealed on hover or briefly during the day-end flash.")]
         [SerializeField] private CanvasGroup _visibilityGroup;
 
-        private Tween _pulseTween;
         private Vector3 _baseScale;
-        private int _lastDisplayedAmount = int.MinValue;
-        private bool _lastReady;
-        private bool _subscribed;
+        private float _lastKnownDailyRate;
         private bool _isHovered;
+        private bool _isFlashing;
+        private bool _subscribed;
+        private CoinFlashSequencer _flashSequencer;
 
         public string BuildingId => _buildingId;
 
@@ -63,8 +65,11 @@ namespace FortuneValley.UI.World
             _baseScale = transform.localScale;
             if (_button != null)
             {
-                _button.onClick.AddListener(HandleClicked);
                 _button.interactable = false;
+            }
+            if (_fillImage != null && _fillImage.gameObject.activeSelf)
+            {
+                _fillImage.gameObject.SetActive(false);
             }
         }
 
@@ -73,7 +78,28 @@ namespace FortuneValley.UI.World
             GameEvents.OnCoinStateChanged += HandleCoinStateChanged;
             GameEvents.OnLotOwnershipChanged += HandleLotOwnershipChanged;
             GameEvents.OnBlockHoverChanged += HandleBlockHoverChanged;
+            GameEvents.OnIncomeCollected += HandleIncomeCollected;
             _subscribed = true;
+
+            if (_visibilityGroup != null)
+            {
+                _visibilityGroup.alpha = 0f;
+                _visibilityGroup.blocksRaycasts = false;
+                _visibilityGroup.interactable = false;
+            }
+
+            _flashSequencer = new CoinFlashSequencer(
+                transform,
+                _baseScale,
+                _visibilityGroup,
+                _coinTintImage,
+                _flashColor,
+                _flashScale,
+                _flashDuration,
+                _fadeInDuration,
+                _holdDuration,
+                _fadeOutDuration);
+
             ApplyVisibility();
             RequestStateSeed();
         }
@@ -83,80 +109,76 @@ namespace FortuneValley.UI.World
             GameEvents.OnCoinStateChanged -= HandleCoinStateChanged;
             GameEvents.OnLotOwnershipChanged -= HandleLotOwnershipChanged;
             GameEvents.OnBlockHoverChanged -= HandleBlockHoverChanged;
+            GameEvents.OnIncomeCollected -= HandleIncomeCollected;
             _subscribed = false;
             _isHovered = false;
+            _isFlashing = false;
 
+            if (_flashSequencer != null) _flashSequencer.Kill();
             transform.DOKill();
+            if (_visibilityGroup != null) _visibilityGroup.DOKill();
+            if (_coinTintImage != null) _coinTintImage.DOKill();
             transform.localScale = _baseScale;
-            _pulseTween = null;
-            _lastReady = false;
-        }
-
-        private void HandleClicked()
-        {
-            if (string.IsNullOrEmpty(_buildingId)) return;
-            if (_button != null) _button.interactable = false;
-            GameEvents.RaiseIncomeCollectRequested(_buildingId, CollectReason.PlayerTap);
         }
 
         private void HandleCoinStateChanged(string id, float dailyPayout, float progress01, bool isReady)
         {
             if (id != _buildingId) return;
 
-            if (_fillImage != null)
-            {
-                _fillImage.fillAmount = Mathf.Clamp01(progress01);
-            }
+            _lastKnownDailyRate = dailyPayout;
+            if (_isFlashing) return;
 
             if (_amountLabel != null)
             {
-                int rounded = Mathf.FloorToInt(dailyPayout);
-                if (rounded != _lastDisplayedAmount)
-                {
-                    _amountLabel.text = string.Format(_amountFormat, rounded);
-                    _lastDisplayedAmount = rounded;
-                }
+                _amountLabel.text = CoinLabelFormatter.FormatRate(dailyPayout, _amountFormat);
+            }
+        }
+
+        private void HandleIncomeCollected(string buildingId, float amount)
+        {
+            if (buildingId != _buildingId) return;
+            if (!isActiveAndEnabled) return;
+
+            if (_amountLabel != null)
+            {
+                _amountLabel.text = CoinLabelFormatter.FormatDeposit(amount, _flashAmountFormat);
             }
 
-            if (isReady != _lastReady)
-            {
-                if (isReady) StartPulse();
-                else StopPulse();
-                if (_button != null) _button.interactable = isReady;
-                _lastReady = isReady;
-                ApplyVisibility();
-            }
+            _isFlashing = true;
+            _flashSequencer.Play(
+                stayVisibleAfter: () => _isHovered,
+                onComplete: () => _isFlashing = false);
         }
 
         private void HandleBlockHoverChanged(string lotId, bool hovered)
         {
             if (lotId != _buildingId) return;
             _isHovered = hovered;
+            if (hovered && !_isFlashing && _amountLabel != null)
+            {
+                _amountLabel.text = CoinLabelFormatter.FormatRate(_lastKnownDailyRate, _amountFormat);
+            }
             ApplyVisibility();
         }
 
         /// <summary>
-        /// Drives _visibilityGroup alpha from (isReady || isHovered) for
-        /// player-owned lots, (isHovered) for rival/unowned teaser. No-op
-        /// when _visibilityGroup isn't wired (pre-split prefabs inherit
-        /// visibility from the hover-gated ancestor canvas).
+        /// Player-owned/restaurant: visible while hovered. Unowned/rival: visible
+        /// while hovered (teaser). Flash sequence overrides alpha temporarily via
+        /// its own tween; on flash end the sequencer respects current hover state.
         /// </summary>
         private void ApplyVisibility()
         {
             if (_visibilityGroup == null) return;
+            if (_isFlashing) return;
 
-            bool ownedOrRestaurant = _buildingId == PendingIncomeService.RestaurantBuildingId
-                || (_cityManager != null && _cityManager.GetOwner(_buildingId) == Owner.Player);
-
-            bool visible = ownedOrRestaurant ? (_lastReady || _isHovered) : _isHovered;
-            _visibilityGroup.alpha = visible ? 1f : 0f;
-            _visibilityGroup.blocksRaycasts = visible && _lastReady;
-            _visibilityGroup.interactable = visible && _lastReady;
+            _visibilityGroup.alpha = _isHovered ? 1f : 0f;
+            _visibilityGroup.blocksRaycasts = false;
+            _visibilityGroup.interactable = false;
         }
 
         private void HandleLotOwnershipChanged(string lotId, Owner previousOwner, Owner newOwner)
         {
-            if (_buildingId == PendingIncomeService.RestaurantBuildingId) return;
+            if (_buildingId == DailyIncomeAccumulator.RestaurantBuildingId) return;
             if (lotId != _buildingId) return;
 
             if (newOwner != Owner.Player)
@@ -174,10 +196,10 @@ namespace FortuneValley.UI.World
         {
             if (string.IsNullOrEmpty(_buildingId)) return;
 
-            // Player-owned: ask the service to re-emit the coin state.
+            // Player-owned: ask the accumulator to re-emit the coin state.
             // Unowned or rival: fall back to the potential-rate teaser.
             if (_cityManager != null
-                && _buildingId != PendingIncomeService.RestaurantBuildingId
+                && _buildingId != DailyIncomeAccumulator.RestaurantBuildingId
                 && _cityManager.GetOwner(_buildingId) != Owner.Player)
             {
                 ShowPotentialRate();
@@ -188,43 +210,18 @@ namespace FortuneValley.UI.World
         }
 
         /// <summary>
-        /// Unowned/rival lots show a fully-shaded coin + the daily rate the
-        /// player would unlock by buying. No state in the service to query.
+        /// Unowned/rival lots show the daily rate the player would unlock by
+        /// buying. No state in the accumulator to query.
         /// </summary>
         private void ShowPotentialRate()
         {
-            if (_fillImage != null) _fillImage.fillAmount = 1f;
-            if (_button != null) _button.interactable = false;
-            StopPulse();
-            _lastReady = false;
-
             if (_amountLabel == null || _cityManager == null || _timeManager == null) return;
             var lot = _cityManager.GetLot(_buildingId);
             if (lot == null) return;
 
             int potential = Mathf.FloorToInt(lot.GetIncomeAtTier(_previewTier) * _timeManager.TicksPerDay);
-            if (potential == _lastDisplayedAmount) return;
-
+            _lastKnownDailyRate = potential;
             _amountLabel.text = string.Format(_amountFormat, potential);
-            _lastDisplayedAmount = potential;
-        }
-
-        private void StartPulse()
-        {
-            StopPulse();
-            _pulseTween = transform.DOScale(_baseScale * _pulseScale, _pulseDuration)
-                .SetLoops(-1, LoopType.Yoyo)
-                .SetEase(Ease.InOutSine);
-        }
-
-        private void StopPulse()
-        {
-            if (_pulseTween != null)
-            {
-                _pulseTween.Kill();
-                _pulseTween = null;
-            }
-            transform.localScale = _baseScale;
         }
     }
 }

@@ -101,10 +101,10 @@ namespace FortuneValley.Tests
         }
 
         [Test]
-        public void OnTick_NoLongerMutatesPendingBuckets()
+        public void OnTick_NoLongerMutatesIncomeAccumulators()
         {
             // Post-redesign: RestaurantSystem does not subscribe to OnTick.
-            // PendingIncomeService owns the daily-locked coin cycle. A tick
+            // DailyIncomeAccumulator owns the daily-locked coin cycle. A tick
             // here must not touch any pending-income state; balances, totals,
             // and external state all stay put.
             float balanceBefore = _currency.CheckingBalance;

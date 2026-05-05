@@ -13,7 +13,7 @@ namespace FortuneValley.Tests
         private GameObject _rootGO;
         private IncomeCollectionController _controller;
         private CurrencyManager _currency;
-        private PendingIncomeService _pending;
+        private DailyIncomeAccumulator _pending;
         private FakeLotRegistry _lots;
         private FakeTickClock _clock;
 
@@ -27,7 +27,7 @@ namespace FortuneValley.Tests
             SetField(_currency, "_startingCheckingBalance", 1000f);
             _currency.ResetBalance();
 
-            _pending = _rootGO.AddComponent<PendingIncomeService>();
+            _pending = _rootGO.AddComponent<DailyIncomeAccumulator>();
             _lots = new FakeLotRegistry();
             _clock = new FakeTickClock { TicksPerDay = 10 };
             _pending.Initialize(_lots, _clock);
@@ -53,25 +53,32 @@ namespace FortuneValley.Tests
             GameEvents.ClearAllSubscriptions();
         }
 
-        private void DrainFullDay(string buildingId)
+        private void AccumulateAndCloseDay(string buildingId)
         {
             for (int i = 0; i < _clock.TicksPerDay; i++) GameEvents.RaiseTick(i + 1);
+            // OnDayEnd flips IsReady true so IncomeCollectionController.TryCollect
+            // can deposit. We bypass GameEvents.RaiseDayEnd here to avoid
+            // double-deposit: the test invokes HandleCollectRequested directly.
+            var accField = typeof(DailyIncomeAccumulator).GetField("_accumulators",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            var accs = (System.Collections.Generic.Dictionary<string, IncomeAccumulator>)accField.GetValue(_pending);
+            if (accs.TryGetValue(buildingId, out var a)) a.IsReady = true;
         }
 
         [Test]
         public void HandleCollect_PlayerTap_Deposits_RaisesFeedbackEvents()
         {
             // Restaurant bucket: ShouldHaveBucket true because starter lot is not set.
-            _pending.EnsureBucket(PendingIncomeService.RestaurantBuildingId);
+            _pending.EnsureBucket(DailyIncomeAccumulator.RestaurantBuildingId);
             // Force DailyPayout by reflection since ComputeDayRate needs RestaurantSystem.
-            SetBucketState(PendingIncomeService.RestaurantBuildingId, dailyPayout: 100f, ticksRemaining: 0, isReady: true);
+            SetBucketState(DailyIncomeAccumulator.RestaurantBuildingId, dailyPayout: 100f, ticksRemaining: 0, isReady: true);
 
             bool incomeEvt = false, collectedEvt = false, saveEvt = false;
             GameEvents.OnIncomeGeneratedWithPosition += (_, __) => incomeEvt = true;
             GameEvents.OnIncomeCollected += (_, __) => collectedEvt = true;
             GameEvents.OnSaveRequested += () => saveEvt = true;
 
-            InvokeHandler("HandleCollectRequested", PendingIncomeService.RestaurantBuildingId, CollectReason.PlayerTap);
+            InvokeHandler("HandleCollectRequested", DailyIncomeAccumulator.RestaurantBuildingId, CollectReason.PlayerTap);
 
             Assert.AreEqual(1100f, _currency.CheckingBalance);
             Assert.IsTrue(incomeEvt);
@@ -84,7 +91,7 @@ namespace FortuneValley.Tests
         {
             _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
             _pending.EnsureBucket("lot_A");
-            DrainFullDay("lot_A");
+            AccumulateAndCloseDay("lot_A");
 
             float totalCollected = 0f;
             GameEvents.OnIncomeCollected += (_, amt) => totalCollected = amt;
@@ -117,7 +124,7 @@ namespace FortuneValley.Tests
         {
             _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
             _pending.EnsureBucket("lot_A");
-            DrainFullDay("lot_A");
+            AccumulateAndCloseDay("lot_A");
 
             LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("Missing anchor for 'lot_A'"));
 
@@ -135,7 +142,7 @@ namespace FortuneValley.Tests
         {
             _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
             _pending.EnsureBucket("lot_A");
-            DrainFullDay("lot_A");
+            AccumulateAndCloseDay("lot_A");
 
             var anchorGO = new GameObject("Anchor");
             anchorGO.transform.position = new Vector3(10f, 5f, 0f);
@@ -152,11 +159,31 @@ namespace FortuneValley.Tests
         }
 
         [Test]
+        public void HandleCollect_DayEnd_DepositsAndFiresFeedbackEvents()
+        {
+            _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
+            _pending.EnsureBucket("lot_A");
+            for (int i = 0; i < _clock.TicksPerDay; i++) GameEvents.RaiseTick(i + 1);
+
+            float deposited = 0f;
+            bool feedbackFired = false;
+            GameEvents.OnIncomeCollected += (_, amt) => deposited = amt;
+            GameEvents.OnIncomeGeneratedWithPosition += (_, _) => feedbackFired = true;
+
+            // OnDayEnd fires the standard pipeline.
+            GameEvents.RaiseDayEnd(1);
+
+            Assert.AreEqual(50f, deposited);
+            Assert.AreEqual(1050f, _currency.CheckingBalance);
+            Assert.IsTrue(feedbackFired);
+        }
+
+        [Test]
         public void HandleCollect_OwnershipLost_WhileReady_PaysFinalCoin()
         {
             _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
             _pending.EnsureBucket("lot_A");
-            DrainFullDay("lot_A"); // bucket is now ready with DailyPayout = 50
+            AccumulateAndCloseDay("lot_A"); // bucket is now ready with DailyPayout = 50
 
             bool collected = false;
             GameEvents.OnIncomeCollected += (id, amt) => { collected = id == "lot_A" && amt == 50f; };
@@ -168,10 +195,10 @@ namespace FortuneValley.Tests
 
         private void SetBucketState(string id, float dailyPayout, int ticksRemaining, bool isReady)
         {
-            var bucketsField = typeof(PendingIncomeService).GetField("_buckets",
+            var bucketsField = typeof(DailyIncomeAccumulator).GetField("_accumulators",
                 BindingFlags.NonPublic | BindingFlags.Instance);
-            var buckets = (System.Collections.Generic.Dictionary<string, PendingBucket>)bucketsField.GetValue(_pending);
-            buckets[id] = new PendingBucket
+            var buckets = (System.Collections.Generic.Dictionary<string, IncomeAccumulator>)bucketsField.GetValue(_pending);
+            buckets[id] = new IncomeAccumulator
             {
                 DailyPayout = dailyPayout,
                 TicksRemaining = ticksRemaining,

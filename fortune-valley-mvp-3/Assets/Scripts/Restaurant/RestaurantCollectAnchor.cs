@@ -4,9 +4,9 @@ namespace FortuneValley.Core
 {
     /// <summary>
     /// Registers the rooftop transform used to spawn the restaurant's
-    /// floating "+$X" feedback when the player taps the collect coin.
+    /// floating "+$X" feedback when the day-end auto-deposit fires.
     /// The BuildingCollectButton above the restaurant is configured with
-    /// its _buildingId set to PendingIncomeService.RestaurantBuildingId.
+    /// its _buildingId set to DailyIncomeAccumulator.RestaurantBuildingId.
     /// </summary>
     public class RestaurantCollectAnchor : MonoBehaviour
     {
@@ -17,13 +17,13 @@ namespace FortuneValley.Core
         {
             if (_collectionController == null) return;
             Transform anchor = _spawnAnchor != null ? _spawnAnchor : transform;
-            _collectionController.RegisterAnchor(PendingIncomeService.RestaurantBuildingId, anchor);
+            _collectionController.RegisterAnchor(DailyIncomeAccumulator.RestaurantBuildingId, anchor);
         }
 
         private void OnDestroy()
         {
             if (_collectionController == null) return;
-            _collectionController.UnregisterAnchor(PendingIncomeService.RestaurantBuildingId);
+            _collectionController.UnregisterAnchor(DailyIncomeAccumulator.RestaurantBuildingId);
         }
     }
 }
