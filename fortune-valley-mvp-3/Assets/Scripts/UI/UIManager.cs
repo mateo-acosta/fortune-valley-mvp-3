@@ -38,6 +38,12 @@ namespace FortuneValley.UI
         [Tooltip("HTML investing panel bridge. When wired, ShowPanel(Portfolio) routes here instead of activating _portfolioPanel.")]
         [SerializeField] private InvestingWebBridge _investingWebBridge;
 
+        [Tooltip("HTML credit panel bridge. When wired, ShowPanel(Loan) routes here instead of activating _loanPanel.")]
+        [SerializeField] private CreditWebBridge _creditWebBridge;
+
+        [Tooltip("HTML QuestionMaster panel bridge. When wired, ShowPanel(QuestionMaster) routes here.")]
+        [SerializeField] private QuestionMasterWebBridge _questionMasterWebBridge;
+
         [Header("Popup References")]
         [Tooltip("Lot purchase confirmation popup")]
         [SerializeField] private UIPopup _lotPurchasePopup;
@@ -168,6 +174,10 @@ namespace FortuneValley.UI
 
         private void HandleLotInsuranceRequested(string lotId)
         {
+            // POC: insurance disabled. Suppress panel open even if some prior
+            // wiring still raises the event.
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             // Pre-filter hook: open the panel. Sub-panels can subscribe to OnLotInsuranceRequested
             // separately to apply a lot-specific filter. HUD-button entry stays unchanged.
             ShowPanel(PanelType.Insurance);
@@ -261,10 +271,11 @@ namespace FortuneValley.UI
 
         private WebPanelBridgeBase GetWebBridge(PanelType type)
         {
-            // Only Portfolio is bridge-backed in v1. Loan follows in Phase 6.
             return type switch
             {
                 PanelType.Portfolio => _investingWebBridge,
+                PanelType.Loan => _creditWebBridge,
+                PanelType.QuestionMaster => _questionMasterWebBridge,
                 _ => null
             };
         }
@@ -289,6 +300,8 @@ namespace FortuneValley.UI
             if (_insurancePanel != null) _insurancePanel.Hide();
             if (_loanPanel != null) _loanPanel.Hide();
             if (_investingWebBridge != null) _investingWebBridge.Hide();
+            if (_creditWebBridge != null) _creditWebBridge.Hide();
+            if (_questionMasterWebBridge != null) _questionMasterWebBridge.Hide();
             _currentPanel = null;
             _currentWebBridge = null;
         }

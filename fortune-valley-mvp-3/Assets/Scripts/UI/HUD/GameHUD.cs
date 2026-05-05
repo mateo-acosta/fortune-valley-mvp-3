@@ -46,7 +46,16 @@ namespace FortuneValley.UI.HUD
 
             if (_insuranceTabButton != null)
             {
-                _insuranceTabButton.onClick.AddListener(OnInsuranceTabClicked);
+                // POC: insurance disabled. Force the tab hidden in code so a
+                // reverted scene/prefab edit can't re-expose it.
+                if (!FeatureFlags.InsuranceEnabled)
+                {
+                    _insuranceTabButton.gameObject.SetActive(false);
+                }
+                else
+                {
+                    _insuranceTabButton.onClick.AddListener(OnInsuranceTabClicked);
+                }
             }
 
             if (_creditTabButton != null)
@@ -77,7 +86,10 @@ namespace FortuneValley.UI.HUD
 
         private void OnQuestionMasterClicked()
         {
-            _uiManager.ShowPopup(PopupType.Questions);
+            // Route through the web-bridge panel pathway (matches Investing/Credit).
+            // UIManager.GetWebBridge falls through to null when the bridge isn't wired,
+            // so a missing bridge just opens nothing -- no crash, no legacy popup.
+            _uiManager.TogglePanel(PanelType.QuestionMaster);
         }
     }
 }

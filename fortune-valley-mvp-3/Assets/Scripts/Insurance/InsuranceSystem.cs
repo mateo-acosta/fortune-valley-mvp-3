@@ -61,6 +61,10 @@ namespace FortuneValley.Core
 
         private void OnEnable()
         {
+            // POC: insurance system disabled. Skip all subscriptions so the
+            // system never reacts to purchase/cancel/accident events.
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnPurchaseInsuranceRequested += HandlePurchaseRequested;
             GameEvents.OnCancelInsuranceRequested += HandleCancelRequested;
@@ -69,6 +73,8 @@ namespace FortuneValley.Core
 
         private void OnDisable()
         {
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnPurchaseInsuranceRequested -= HandlePurchaseRequested;
             GameEvents.OnCancelInsuranceRequested -= HandleCancelRequested;

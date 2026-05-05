@@ -9,8 +9,11 @@ namespace FortuneValley.Tests
 {
     /// <summary>
     /// Tests for InsuranceSystem event handling and accident resolution.
+    /// Skipped while FeatureFlags.InsuranceEnabled is false (POC scope).
+    /// Remove the [Ignore] attribute when flipping the flag back on.
     /// </summary>
     [TestFixture]
+    [Ignore("Insurance disabled for POC. Re-enable FeatureFlags.InsuranceEnabled and remove this Ignore to run.")]
     public class InsuranceSystemTests
     {
         private GameObject _rootGO;

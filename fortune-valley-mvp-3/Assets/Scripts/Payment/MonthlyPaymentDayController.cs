@@ -174,8 +174,10 @@ namespace FortuneValley.Core
                     Debug.Log($"[MonthlyPaymentDayController] DTI: {dti:P1} (debt: ${totalDebt:F2}, income: ${monthlyIncome:F2})");
             }
 
-            // Step 5: charge insurance premiums to credit card
-            if (_insuranceSystem != null)
+            // Step 5: charge insurance premiums to credit card.
+            // POC: insurance disabled means no premium charges; flag is the
+            // controlling intent, null check is leftover defensive cruft.
+            if (FeatureFlags.InsuranceEnabled && _insuranceSystem != null)
                 _insuranceSystem.ChargePremiums();
 
             // Step 6: resume time and signal cycle complete

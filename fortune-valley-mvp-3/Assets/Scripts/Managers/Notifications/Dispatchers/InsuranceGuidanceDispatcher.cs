@@ -29,12 +29,17 @@ namespace FortuneValley.Managers.Notifications.Dispatchers
 
         private void OnEnable()
         {
+            // POC: insurance disabled, so accident banners never surface.
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             GameEvents.OnAccidentOccurred += HandleAccidentOccurred;
             GameEvents.OnAccidentResolved += HandleAccidentResolved;
         }
 
         private void OnDisable()
         {
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             GameEvents.OnAccidentOccurred -= HandleAccidentOccurred;
             GameEvents.OnAccidentResolved -= HandleAccidentResolved;
         }

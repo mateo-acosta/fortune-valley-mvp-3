@@ -44,11 +44,17 @@ namespace FortuneValley.UI.Popups
 
         private void OnEnable()
         {
+            // POC: insurance disabled, so accidents never resolve and this
+            // popup never auto-opens.
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             GameEvents.OnAccidentResolved += HandleAccidentResolved;
         }
 
         private void OnDisable()
         {
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             GameEvents.OnAccidentResolved -= HandleAccidentResolved;
         }
 

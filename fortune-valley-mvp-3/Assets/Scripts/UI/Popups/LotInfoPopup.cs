@@ -276,7 +276,9 @@ namespace FortuneValley.UI.Popups
             SetActive(_buyButton, _currentOwner != Owner.Player);
             bool canUpgrade = playerOwned && _currentTier < 3;
             SetActive(_upgradeButton, canUpgrade);
-            SetActive(_insuranceButton, playerOwned);
+            // POC: insurance disabled, so the button stays hidden even on
+            // player-owned lots. Flip FeatureFlags.InsuranceEnabled to bring it back.
+            SetActive(_insuranceButton, playerOwned && FeatureFlags.InsuranceEnabled);
 
             if (_buyButtonText != null)
             {
@@ -377,6 +379,9 @@ namespace FortuneValley.UI.Popups
 
         private void HandleInsuranceClicked()
         {
+            // POC: insurance disabled. Source-guard the event raise so even a
+            // stray click on a re-shown button can't open the panel.
+            if (!FeatureFlags.InsuranceEnabled) return;
             if (_currentLot == null) return;
             GameEvents.RaiseLotInsuranceRequested(_currentLot.LotId);
             HandleCloseClicked();

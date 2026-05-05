@@ -39,12 +39,17 @@ namespace FortuneValley.Core
 
         private void OnEnable()
         {
+            // POC: insurance disabled means no accident rolling either.
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnDayEnd += HandleDayEnd;
         }
 
         private void OnDisable()
         {
+            if (!FeatureFlags.InsuranceEnabled) return;
+
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnDayEnd -= HandleDayEnd;
         }
