@@ -80,8 +80,9 @@
     contains a full standalone HTML panel; CSS is isolated naturally.
   -->
   <div id="fv-overlays">
-    <iframe id="fv-investing" class="fv-iframe" src="panels/investing-system.html" title="Investing"></iframe>
-    <iframe id="fv-credit"    class="fv-iframe" src="panels/credit-system.html"    title="Credit"></iframe>
+    <iframe id="fv-investing"       class="fv-iframe" src="panels/investing-system.html" title="Investing"></iframe>
+    <iframe id="fv-credit"          class="fv-iframe" src="panels/credit-system.html"    title="Credit"></iframe>
+    <iframe id="fv-question-master" class="fv-iframe" src="panels/QuestionMaster.html"   title="QuestionMaster"></iframe>
   </div>
 
   <script src="Build/{{{ LOADER_FILENAME }}}"></script>
@@ -101,20 +102,22 @@
     // Issue 4A: Scene GameObject names for unityInstance.SendMessage.
     // Must stay in sync with the ObjectName const on the C# bridges.
     var BRIDGE_OBJECTS = {
-      investing: "InvestingWebBridge",
-      credit:    "CreditWebBridge"
+      investing:      "InvestingWebBridge",
+      credit:         "CreditWebBridge",
+      questionMaster: "QuestionMasterWebBridge"
     };
 
     var iframes = {
-      investing: document.getElementById("fv-investing"),
-      credit:    document.getElementById("fv-credit")
+      investing:      document.getElementById("fv-investing"),
+      credit:         document.getElementById("fv-credit"),
+      questionMaster: document.getElementById("fv-question-master")
     };
 
     // Issue 2A: cold-start queue. If C# pushes an update before the
     // target iframe has defined its FV.<id>.update, hold the latest
     // payload here and replay when the iframe signals iframeReady.
-    var iframeReady = { investing: false, credit: false };
-    var pendingPushes = { investing: null, credit: null };
+    var iframeReady = { investing: false, credit: false, questionMaster: false };
+    var pendingPushes = { investing: null, credit: null, questionMaster: null };
 
     function dispatchUpdate(panelId, payload) {
       var iframe = iframes[panelId];

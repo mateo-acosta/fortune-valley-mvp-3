@@ -9,6 +9,7 @@ namespace FortuneValley.Domain.Enums
         Lots,
         Restaurant,
         Insurance,
-        Loan
+        Loan,
+        QuestionMaster
     }
 }
