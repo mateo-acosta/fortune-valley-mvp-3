@@ -20,6 +20,10 @@ namespace FortuneValley.Core
         [Tooltip("Display name (e.g., 'Standard 12-Month')")]
         [SerializeField] private string _displayName;
 
+        [Tooltip("Short marketing tagline shown under the loan name (e.g., 'Lower monthly payment, longer term')")]
+        [TextArea(1, 2)]
+        [SerializeField] private string _tagline;
+
         [Header("Terms")]
         [Tooltip("Annual percentage rate (e.g., 0.08 for 8%)")]
         [SerializeField] private float _apr = 0.08f;
@@ -47,6 +51,7 @@ namespace FortuneValley.Core
         // Read-only accessors
         public string LoanId => _loanId;
         public string DisplayName => _displayName;
+        public string Tagline => _tagline;
         public Sprite LoanImage => _loanImage;
         public float APR => _apr;
         public int TermMonths => _termMonths;

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.LoanConfig
   _loanId: loan_premium
   _displayName: Premium Loan
+  _tagline: Lowest rate for excellent credit
   _apr: 0.04
   _termMonths: 24
   _downPaymentPercent: 0.1
