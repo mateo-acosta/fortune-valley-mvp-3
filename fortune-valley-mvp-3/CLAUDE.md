@@ -22,7 +22,7 @@ Player Role: Restaurant chain owner expanding into a small city
 Core Tension: Spend money now vs invest to grow money over time
 
 Progression Model:
-- The city is a fixed grid of 7 interactive building lots plus ambient scenery (roads, park, background buildings).
+- The city is a fixed grid of 19 interactive building lots plus ambient scenery (roads, park, background buildings). The rival is soft-capped at 12 lots so the player always has at least 7 expandable or owned.
 - The player starts with one Tier 2 restaurant on one lot (their established starter location). A rival AI starts with one Tier 2 restaurant on another lot. The remaining lots start empty.
 - Empty lots are purchase signals only. A "For Sale" sign marks them. There is no elaborate empty-lot visual.
 - When the player purchases an empty lot, it spawns a **Tier 1 dilapidated restaurant** on that lot (a rundown version of the same silhouette as T2). The player then upgrades it through the three tiers: **Tier 1 = dilapidated, Tier 2 = finished/normal, Tier 3 = thriving/standout**.
@@ -33,11 +33,14 @@ Soft Pressure (NOT a hard win/lose):
 - Lots are finite. If the player does not buy a lot, the rival can, and it is locked to the rival from then on. This creates opportunity cost without a hard ending.
 - Monthly obligations (loan payments, credit card statements, insurance premiums) create cash-flow pressure.
 
-Hard Lose Condition:
-- Bankruptcy is the only hard lose state. Five consecutive insolvent months triggers a reset with a permanent bankruptcy flag, per the financial systems design.
+Hard End Condition:
+- The life ends at retirement (age 65, ~80-100 minutes of play). At retirement the player sees a scorecard of which Life Goals were realized vs missed.
 
-No Hard Win Condition:
-- The game does not end in a win. The player keeps expanding indefinitely. Success is measured by sustained chain growth, tier progression, and financial health relative to the rival, not by a terminal screen.
+Soft Bankruptcy (mid-life reset, NOT a hard lose):
+- Five consecutive insolvent billing cycles triggers a soft reset. Balances, all non-starter lots, active loans, insurance policies, investments, pending income, and credit score (back to 650) are wiped. The starter lot stays owned but is forced to T1 dilapidated. Age, selected Life Goals (and any already-realized states), and the bankruptcy_flag (now permanently true for this life) all persist. The rival keeps everything. The life clock keeps ticking toward retirement.
+
+Win Condition:
+- The Life Goals system frames the win. Players pick exactly three Life Goals (one per tier: Starter / Mid / Ambitious) during the intro tutorial. Each goal is a Total Net Worth threshold ($100k / $500k / $2M defaults). Goals realize automatically when net worth crosses the threshold and stay realized (sticky) even if net worth later drops. The retirement scorecard shows X/3 realized.
 
 Explicitly Out of Scope for POC:
 - No decay during play. Buildings do not degrade over time. A Tier 2 restaurant does not revert to Tier 1. The player must actively upgrade, but never has to "maintain" against decay.

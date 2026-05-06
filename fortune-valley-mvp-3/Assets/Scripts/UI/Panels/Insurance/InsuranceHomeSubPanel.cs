@@ -140,7 +140,7 @@ namespace FortuneValley.UI.Panels.Insurance
             if (_activeCountText != null)
                 _activeCountText.text = $"Active Policies: {activeCount}";
             if (_totalPremiumText != null)
-                _totalPremiumText.text = $"Monthly Premiums: ${totalMonthlyPremium:N2}";
+                _totalPremiumText.text = $"Annual Premiums: ${totalMonthlyPremium:N2}";
 
             // Rebuild card grid
             ClearCards();
