@@ -3,7 +3,7 @@ using UnityEngine;
 namespace FortuneValley.Core
 {
     /// <summary>
-    /// Orchestrates the monthly payment day sequence.
+    /// Orchestrates the billing-cycle payment day sequence.
     /// Runs every billing cycle (default: day 30, 60, 90...).
     ///
     /// Sequence:
@@ -14,9 +14,17 @@ namespace FortuneValley.Core
     ///   Step 5 - Charge insurance premiums to credit card
     ///   Step 6 - Fire cycle-complete event, resume time
     ///
-    /// LEARNING DESIGN: The monthly cycle makes financial obligations
-    /// concrete. Students must manage cash flow across loans, credit card
-    /// bills, and insurance premiums -- the same decisions adults face.
+    /// LIFE GOALS REVISION: With the locked tuning of 1 in-game year =
+    /// 1 billing cycle = 30 days, this controller fires once per year of
+    /// the player's life (40 times across a full life). User-facing strings
+    /// say "Annual Statement"; the class name is preserved as
+    /// MonthlyPaymentDayController to keep scene wiring + tests stable
+    /// (Issue 4 / 4A in the review). Treat the class as a billing-cycle
+    /// orchestrator regardless of what the surface label says.
+    ///
+    /// LEARNING DESIGN: The cycle makes financial obligations concrete.
+    /// Students must manage cash flow across loans, credit card bills, and
+    /// insurance premiums -- the same decisions adults face.
     /// </summary>
     public class MonthlyPaymentDayController : MonoBehaviour
     {

@@ -734,6 +734,83 @@ namespace FortuneValley.Core
         public static void RaiseSaveRequested() => OnSaveRequested?.Invoke();
 
         // ═══════════════════════════════════════════════════════════════
+        // LIFE GOALS / NET WORTH / LIFESPAN
+        // ═══════════════════════════════════════════════════════════════
+
+        // Fired by GoalSelectionPanelController when the player confirms their
+        // 3 picks during the intro tutorial. Tutorial advances on receipt.
+        public static event Action<LifeGoalSelection> OnLifeGoalsSelected;
+        public static void RaiseLifeGoalsSelected(LifeGoalSelection selection)
+            => OnLifeGoalsSelected?.Invoke(selection);
+
+        // Fired by IntroTutorialController to show/hide the GoalSelectionPanel
+        // when entering/leaving the WaitForLifeGoalsSelected step. Managers
+        // layer cannot reference the UI panel directly, so toggling goes
+        // through an event the panel subscribes to.
+        public static event Action<bool> OnGoalSelectionPanelRequested;
+        public static void RaiseGoalSelectionPanelRequested(bool visible)
+            => OnGoalSelectionPanelRequested?.Invoke(visible);
+
+        // Fired by NetWorthService at most once per tick when either Total NW
+        // or Liquid NW changes. Parameters: totalNetWorth, liquidNetWorth.
+        public static event Action<float, float> OnNetWorthChanged;
+        public static void RaiseNetWorthChanged(float totalNetWorth, float liquidNetWorth)
+            => OnNetWorthChanged?.Invoke(totalNetWorth, liquidNetWorth);
+
+        // Fired by GoalProgressTracker when a goal threshold is crossed.
+        // Sticky -- realized goals stay realized even if NW drops.
+        public static event Action<LifeGoalEntry> OnGoalRealized;
+        public static void RaiseGoalRealized(LifeGoalEntry entry)
+            => OnGoalRealized?.Invoke(entry);
+
+        // Drives the HUD progress slider toward the next-cheapest unrealized goal.
+        // Parameters: currentNetWorth, prevRealizedThreshold (lower bound),
+        // nextThreshold (upper bound). When all goals realized, this stops firing.
+        public static event Action<float, float, float> OnGoalProgressChanged;
+        public static void RaiseGoalProgressChanged(float currentNetWorth, float prevThreshold, float nextThreshold)
+            => OnGoalProgressChanged?.Invoke(currentNetWorth, prevThreshold, nextThreshold);
+
+        // Fired by LifespanController on each in-game year boundary. Parameter: new age.
+        public static event Action<int> OnYearEnd;
+        public static void RaiseYearEnd(int age)
+            => OnYearEnd?.Invoke(age);
+
+        // Fired exactly once when the player reaches retirement age (65).
+        // RetirementEvaluator subscribes and triggers the goal scorecard end-game.
+        public static event Action OnRetirementReached;
+        public static void RaiseRetirementReached()
+            => OnRetirementReached?.Invoke();
+
+        // Fired by RetirementEvaluator once the realized/missed split is computed.
+        // GameEndPanel subscribes to render the scorecard.
+        public static event Action<GoalScorecard> OnGoalsEvaluated;
+        public static void RaiseGoalsEvaluated(GoalScorecard scorecard)
+            => OnGoalsEvaluated?.Invoke(scorecard);
+
+        // ═══════════════════════════════════════════════════════════════
+        // BANKRUPTCY (soft reset)
+        // ═══════════════════════════════════════════════════════════════
+
+        // Fired by InsolvencyMonitor when the 5-cycle threshold is reached.
+        // BankruptcyResetService subscribes and orchestrates the soft reset.
+        public static event Action OnBankruptcyTriggered;
+        public static void RaiseBankruptcyTriggered()
+            => OnBankruptcyTriggered?.Invoke();
+
+        // Fired by BankruptcyResetService after all IBankruptcyResettable systems
+        // have been reset. UI (BankruptcyPopup), AutoSaveController, HUD listen.
+        public static event Action OnSoftBankruptcyReset;
+        public static void RaiseSoftBankruptcyReset()
+            => OnSoftBankruptcyReset?.Invoke();
+
+        // Fired by CityManager.BatchResetPlayerLots so subscribers can update
+        // visuals in one pass instead of receiving N per-lot events. Carries
+        // the lot ids that were just released back to "for sale" empty state.
+        public static event Action<string[]> OnLotsBatchReset;
+        public static void RaiseLotsBatchReset(string[] lotIds)
+            => OnLotsBatchReset?.Invoke(lotIds);
+
+        // ═══════════════════════════════════════════════════════════════
         // CLEANUP (call when exiting play mode or restarting)
         // ═══════════════════════════════════════════════════════════════
 
@@ -877,6 +954,21 @@ namespace FortuneValley.Core
             OnLotOwnershipChanged = null;
             OnSaveRequested = null;
             OnTotalDailyIncomeChanged = null;
+
+            // Life Goals / Net Worth / Lifespan
+            OnLifeGoalsSelected = null;
+            OnGoalSelectionPanelRequested = null;
+            OnNetWorthChanged = null;
+            OnGoalRealized = null;
+            OnGoalProgressChanged = null;
+            OnYearEnd = null;
+            OnRetirementReached = null;
+            OnGoalsEvaluated = null;
+
+            // Bankruptcy
+            OnBankruptcyTriggered = null;
+            OnSoftBankruptcyReset = null;
+            OnLotsBatchReset = null;
         }
     }
 }

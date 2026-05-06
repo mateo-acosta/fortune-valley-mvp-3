@@ -1,5 +1,6 @@
 using UnityEngine;
 using FortuneValley.Domain.Entities;
+using FortuneValley.Domain.Enums;
 
 namespace FortuneValley.Core
 {
@@ -7,6 +8,13 @@ namespace FortuneValley.Core
     /// Periodically saves game state to the server via APIClient.
     /// Teardown on game end and tab close is orchestrated by GameSessionController,
     /// which calls FlushFinalSave() directly so ordering is deterministic.
+    ///
+    /// Life Goals revision: also forces an immediate save on three life-event
+    /// boundaries so the HTML status panel does not show stale state to the
+    /// student after a meaningful change:
+    ///   - OnGoalRealized       (badge flips grey -&gt; colored)
+    ///   - OnSoftBankruptcyReset (state wipe; flag flips on)
+    ///   - OnGameEnd             (retirement scorecard ready)
     /// </summary>
     public class AutoSaveController : MonoBehaviour
     {
@@ -28,6 +36,9 @@ namespace FortuneValley.Core
             GameEvents.OnTick += HandleTick;
             GameEvents.OnStateBuildFuncProvided += HandleBuildFuncProvided;
             GameEvents.OnSaveRequested += HandleSaveRequested;
+            GameEvents.OnGoalRealized += HandleGoalRealized;
+            GameEvents.OnSoftBankruptcyReset += HandleSoftBankruptcyReset;
+            GameEvents.OnGameEnd += HandleGameEnd;
         }
 
         private void OnDisable()
@@ -35,7 +46,14 @@ namespace FortuneValley.Core
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnStateBuildFuncProvided -= HandleBuildFuncProvided;
             GameEvents.OnSaveRequested -= HandleSaveRequested;
+            GameEvents.OnGoalRealized -= HandleGoalRealized;
+            GameEvents.OnSoftBankruptcyReset -= HandleSoftBankruptcyReset;
+            GameEvents.OnGameEnd -= HandleGameEnd;
         }
+
+        private void HandleGoalRealized(LifeGoalEntry entry) => PerformSave();
+        private void HandleSoftBankruptcyReset() => PerformSave();
+        private void HandleGameEnd(Owner winner) => PerformSave();
 
         private void Update()
         {

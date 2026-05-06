@@ -17,14 +17,17 @@ namespace FortuneValley.Core
         // ═══════════════════════════════════════════════════════════════
 
         [Header("Time Settings")]
-        [Tooltip("Seconds between ticks at 1x speed. Lower = faster game.")]
-        [SerializeField] private float _secondsPerTick = 1f;
+        [Tooltip("Seconds between ticks at 1x speed. Lower = faster game. " +
+                 "Default 0.4s tunes a full 40-year life (1200 days at " +
+                 "LifespanConstants.DaysPerYear=30) to ~80 minutes real time.")]
+        [SerializeField] private float _secondsPerTick = 0.4f;
 
         [Tooltip("Available speed multipliers (e.g., pause=0, normal=1, fast=2)")]
         [SerializeField] private float[] _speedOptions = { 0f, 1f, 2f, 4f };
 
         [Header("Day Cycle")]
-        [Tooltip("Number of ticks that make up one in-game day")]
+        [Tooltip("Number of ticks that make up one in-game day. " +
+                 "10 ticks * 0.4s = 4 sec/day, 30 days/year, 40 years = 4800s = 80min.")]
         [SerializeField] private int _ticksPerDay = 10;
 
         [Header("Debug")]

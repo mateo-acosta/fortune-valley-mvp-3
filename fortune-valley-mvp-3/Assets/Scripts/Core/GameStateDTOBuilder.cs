@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FortuneValley.Domain;
 using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Enums;
 
@@ -18,6 +19,7 @@ namespace FortuneValley.Core
         private readonly LoanSystem _loanSystem;
         private readonly InsuranceSystem _insuranceSystem;
         private readonly DailyIncomeAccumulator _pendingIncome;
+        private readonly LifeGoalSelectionService _lifeGoalSelection;
 
         public GameStateDTOBuilder(
             TimeManager timeManager,
@@ -27,7 +29,8 @@ namespace FortuneValley.Core
             CreditCardSystem creditCardSystem,
             LoanSystem loanSystem,
             InsuranceSystem insuranceSystem,
-            DailyIncomeAccumulator pendingIncome)
+            DailyIncomeAccumulator pendingIncome,
+            LifeGoalSelectionService lifeGoalSelection = null)
         {
             _timeManager = timeManager;
             _currencyManager = currencyManager;
@@ -37,6 +40,7 @@ namespace FortuneValley.Core
             _loanSystem = loanSystem;
             _insuranceSystem = insuranceSystem;
             _pendingIncome = pendingIncome;
+            _lifeGoalSelection = lifeGoalSelection;
         }
 
         /// <summary>
@@ -54,7 +58,11 @@ namespace FortuneValley.Core
                 credit_balance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f,
                 credit_score = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0,
                 restaurant_level = _restaurantSystem != null ? _restaurantSystem.CurrentLevel : 1,
-                monthly_income = ComputeMonthlyIncome()
+                monthly_income = ComputeMonthlyIncome(),
+                current_age = LifespanConstants.AgeFromDay(_timeManager != null ? _timeManager.CurrentDay : 0),
+                liquid_net_worth = ComputeLiquidNetWorth(),
+                total_net_worth = ComputeLiquidNetWorth(),
+                selected_goals = _lifeGoalSelection != null ? _lifeGoalSelection.BuildDtoEntries() : null
             };
 
             BuildLotOwnership(dto);
@@ -67,6 +75,31 @@ namespace FortuneValley.Core
             }
 
             return dto;
+        }
+
+        // Liquid Net Worth = Checking + Investing - CC debt - outstanding loan principal.
+        // Conservative formula matches the Life Goals design spec.
+        // Total Net Worth currently equals Liquid until lot acquisitionCost +
+        // restaurant tier upgrade ledger are wired (Steps 3 + 14 of the plan).
+        private float ComputeLiquidNetWorth()
+        {
+            float liquid = 0f;
+            if (_currencyManager != null)
+            {
+                liquid += _currencyManager.CheckingBalance + _currencyManager.InvestingBalance;
+            }
+            if (_creditCardSystem != null)
+            {
+                liquid -= _creditCardSystem.CurrentBalance;
+            }
+            liquid -= ComputeOutstandingLoanPrincipal();
+            return liquid;
+        }
+
+        private float ComputeOutstandingLoanPrincipal()
+        {
+            if (_loanSystem == null || _loanSystem.Portfolio == null) return 0f;
+            return _loanSystem.Portfolio.GetTotalOutstandingPrincipal();
         }
 
         // Same formula as MonthlyPaymentDayController so dashboard DTI/liquidity

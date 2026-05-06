@@ -51,5 +51,22 @@ namespace FortuneValley.Domain.Entities
         // Set true when the player has finished (or skipped) the onboarding tutorial.
         // Server-side default is false; missing field on response defaults to false on deserialize.
         public bool tutorial_completed;
+
+        // Life Goals: the player's three locked-in picks (one per tier).
+        // Empty / null on legacy saves -- triggers fresh-tutorial flow on load.
+        public LifeGoalEntry[] selected_goals;
+
+        // Player age in years (25 at game start, 65 at retirement).
+        // Derived from current_day; persisted so the HTML status panel can
+        // render it without recomputing.
+        public int current_age;
+
+        // Total Net Worth: liquid + business asset values (lot acquisitionCost
+        // + paid tier upgrade costs). Conservative formula. Persisted by
+        // GameStateDTOBuilder for the HTML status panel.
+        public float total_net_worth;
+
+        // Liquid Net Worth: checking + investing - credit card debt - outstanding loan principal.
+        public float liquid_net_worth;
     }
 }
