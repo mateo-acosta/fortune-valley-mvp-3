@@ -52,6 +52,16 @@ namespace FortuneValley.Core
         private Dictionary<string, int> _purchaseTick = new Dictionary<string, int>();
         private Dictionary<string, int> _lotTier = new Dictionary<string, int>();
 
+        // Actual amount the player paid to acquire each lot. Includes the
+        // 3x rival markup when the player bought from the rival. Feeds the
+        // conservative TotalNetWorth formula (Sum acquisitionCost over owned).
+        // Cleared on full game reset; entries removed on lot release.
+        private Dictionary<string, float> _acquisitionCost = new Dictionary<string, float>();
+
+        // Soft cap on rival lot ownership so the player is always guaranteed
+        // at least (TotalLots - MAX_RIVAL_LOTS) lots available or owned.
+        public const int MAX_RIVAL_LOTS = 12;
+
         // Interface seam -- production mirrors _currencyManager; tests can inject a substitute via reflection.
         private ICurrencyService _currency;
 
@@ -321,9 +331,81 @@ namespace FortuneValley.Core
 
             // Purchase successful. Tier resets to T1 regardless of prior state.
             _lotTier[lotId] = _tierOnFreshPurchase;
+            // Record the actual paid amount (3x markup when buying from rival)
+            // for the conservative Total Net Worth formula.
+            _acquisitionCost[lotId] = cost;
             SetOwner(lotId, Owner.Player, currentTick);
             GameEvents.RaiseLotTierChanged(lotId, _tierOnFreshPurchase);
             return true;
+        }
+
+        /// <summary>
+        /// Sum of actual paid amounts across all currently player-owned lots.
+        /// Excludes lots returned to "for sale" (entries are cleared on release).
+        /// Includes the starter lot once it has been seeded.
+        /// Feeds NetWorthService Total Net Worth.
+        /// </summary>
+        public float OwnedLotsAcquisitionTotal
+        {
+            get
+            {
+                float total = 0f;
+                foreach (var kv in _acquisitionCost)
+                {
+                    if (GetOwner(kv.Key) == Owner.Player)
+                    {
+                        total += kv.Value;
+                    }
+                }
+                return total;
+            }
+        }
+
+        /// <summary>
+        /// True when the rival has reached MAX_RIVAL_LOTS and may not buy more.
+        /// RivalAI checks this before each purchase decision.
+        /// </summary>
+        public bool RivalAtSoftCap => RivalLotCount >= MAX_RIVAL_LOTS;
+
+        /// <summary>
+        /// Bankruptcy soft-reset hook. Releases every player-owned non-starter
+        /// lot back to "for sale" and forces the starter lot down to T1
+        /// dilapidated. Per-lot OnLotOwnershipChanged events are suppressed and
+        /// replaced with a single OnLotsBatchReset(string[] lotIds) so subscribers
+        /// (UI, AI, persistence) handle the wipe in one pass without frame stutter.
+        /// </summary>
+        public void BatchResetPlayerLots()
+        {
+            if (_allLots == null) return;
+
+            string starterId = PlayerStarterLotId;
+            var releasedIds = new List<string>();
+
+            foreach (var lot in _allLots)
+            {
+                string lotId = lot.LotId;
+                if (GetOwner(lotId) != Owner.Player) continue;
+
+                if (lotId == starterId)
+                {
+                    // Starter stays owned but is forced to T1 dilapidated.
+                    _lotTier[lotId] = _tierOnFreshPurchase;
+                    GameEvents.RaiseLotTierChanged(lotId, _tierOnFreshPurchase);
+                }
+                else
+                {
+                    _lotOwnership[lotId] = Owner.None;
+                    _lotTier.Remove(lotId);
+                    _purchaseTick.Remove(lotId);
+                    _acquisitionCost.Remove(lotId);
+                    releasedIds.Add(lotId);
+                }
+            }
+
+            if (releasedIds.Count > 0)
+            {
+                GameEvents.RaiseLotsBatchReset(releasedIds.ToArray());
+            }
         }
 
         /// <summary>
@@ -398,6 +480,8 @@ namespace FortuneValley.Core
         /// <summary>
         /// Purchase a lot for the rival (no currency check - rival has own economy).
         /// Rival-purchased lots start at T1 like the player's fresh purchases.
+        /// Enforces MAX_RIVAL_LOTS soft cap so the player is always guaranteed
+        /// at least (TotalLots - MAX_RIVAL_LOTS) lots available or owned.
         /// </summary>
         /// <returns>True if purchase succeeded</returns>
         public bool RivalPurchaseLot(string lotId, int currentTick)
@@ -408,44 +492,16 @@ namespace FortuneValley.Core
                 return false;
             }
 
+            // Soft cap: rival cannot exceed MAX_RIVAL_LOTS even if RivalAI requests it.
+            if (RivalAtSoftCap)
+            {
+                return false;
+            }
+
             _lotTier[lotId] = _tierOnFreshPurchase;
             SetOwner(lotId, Owner.Rival, currentTick);
             GameEvents.RaiseLotTierChanged(lotId, _tierOnFreshPurchase);
             return true;
-        }
-
-        /// <summary>
-        /// Check if the game has ended.
-        /// </summary>
-        /// <returns>Winner if game ended, or null</returns>
-        public Owner? CheckWinCondition()
-        {
-            // Win: Player owns all lots
-            if (PlayerLotCount == TotalLots)
-            {
-                return Owner.Player;
-            }
-
-            // Lose: Rival owns all lots
-            if (RivalLotCount == TotalLots)
-            {
-                return Owner.Rival;
-            }
-
-            // Alternative lose: No lots left and rival has more
-            if (AvailableLotCount == 0 && RivalLotCount > PlayerLotCount)
-            {
-                return Owner.Rival;
-            }
-
-            // Alternative win: No lots left and player has more
-            if (AvailableLotCount == 0 && PlayerLotCount > RivalLotCount)
-            {
-                return Owner.Player;
-            }
-
-            // Game continues
-            return null;
         }
 
         /// <summary>
@@ -490,6 +546,7 @@ namespace FortuneValley.Core
             _lotOwnership.Clear();
             _purchaseTick.Clear();
             _lotTier.Clear();
+            _acquisitionCost.Clear();
 
             foreach (var lot in _allLots)
             {
@@ -517,12 +574,9 @@ namespace FortuneValley.Core
             GameEvents.RaiseLotPurchased(lotId, owner);
             GameEvents.RaiseLotOwnershipChanged(lotId, prevOwner, owner);
 
-            // Check for game end
-            var winner = CheckWinCondition();
-            if (winner.HasValue)
-            {
-                GameEvents.RaiseGameEnd(winner.Value);
-            }
+            // Win/lose-by-lot-count logic removed in the Life Goals revision.
+            // The hard end is now retirement (age 65) via LifespanController +
+            // RetirementEvaluator. Bankruptcy is a soft mid-life reset.
         }
 
         private int CountLotsOwnedBy(Owner owner)

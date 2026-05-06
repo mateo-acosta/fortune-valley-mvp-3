@@ -161,54 +161,11 @@ namespace FortuneValley.Tests
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // WIN CONDITION TESTS
+        // WIN-CONDITION TESTS REMOVED IN LIFE GOALS REVISION
+        // The CheckWinCondition method was deleted; the hard end is now
+        // retirement (age 65) via LifespanController + RetirementEvaluator.
+        // Bankruptcy is a soft mid-life reset.
         // ═══════════════════════════════════════════════════════════════
-
-        [Test]
-        public void CheckWinCondition_PlayerOwnsAll_PlayerWins()
-        {
-            _cityManager.TryPurchaseLot("lot_0", 0);
-            _cityManager.TryPurchaseLot("lot_1", 1);
-            _cityManager.TryPurchaseLot("lot_2", 2);
-
-            var winner = _cityManager.CheckWinCondition();
-
-            Assert.AreEqual(Owner.Player, winner);
-        }
-
-        [Test]
-        public void CheckWinCondition_RivalOwnsAll_RivalWins()
-        {
-            _cityManager.RivalPurchaseLot("lot_0", 0);
-            _cityManager.RivalPurchaseLot("lot_1", 1);
-            _cityManager.RivalPurchaseLot("lot_2", 2);
-
-            var winner = _cityManager.CheckWinCondition();
-
-            Assert.AreEqual(Owner.Rival, winner);
-        }
-
-        [Test]
-        public void CheckWinCondition_GameInProgress_ReturnsNull()
-        {
-            _cityManager.TryPurchaseLot("lot_0", 0);
-
-            var winner = _cityManager.CheckWinCondition();
-
-            Assert.IsNull(winner);
-        }
-
-        [Test]
-        public void CheckWinCondition_AllLotsTaken_MostWins()
-        {
-            _cityManager.TryPurchaseLot("lot_0", 0);
-            _cityManager.TryPurchaseLot("lot_1", 1);
-            _cityManager.RivalPurchaseLot("lot_2", 2);
-
-            var winner = _cityManager.CheckWinCondition();
-
-            Assert.AreEqual(Owner.Player, winner); // Player has 2, rival has 1
-        }
 
         // ═══════════════════════════════════════════════════════════════
         // EVENT TESTS

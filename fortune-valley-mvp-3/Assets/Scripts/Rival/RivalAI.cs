@@ -235,6 +235,19 @@ namespace FortuneValley.Core
             _lastPurchaseTick = tickNumber;
             _targetedLotId = null;
 
+            // Soft cap (Life Goals revision): once the rival owns
+            // CityManager.MAX_RIVAL_LOTS, skip purchase attempts so the
+            // rival does not waste money trying to buy lots CityManager
+            // would now refuse.
+            if (_cityManager != null && _cityManager.RivalAtSoftCap)
+            {
+                if (_logBehavior)
+                {
+                    Debug.Log("[RivalAI] At MAX_RIVAL_LOTS soft cap; skipping purchase.");
+                }
+                return;
+            }
+
             // Find a lot we can afford
             string lotToBuy = PickAffordableLot();
 
