@@ -15,6 +15,7 @@ namespace FortuneValley.Domain.Tutorial
         WaitForLotPurchased,
         WaitForRestaurantUpgraded,
         WaitForLoanShopTabSelected,
-        WaitForLotInfoOpened
+        WaitForLotInfoOpened,
+        WaitForLifeGoalsSelected
     }
 }

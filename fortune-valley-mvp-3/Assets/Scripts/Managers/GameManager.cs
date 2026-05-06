@@ -10,6 +10,12 @@ namespace FortuneValley.Managers
     ///
     /// DESIGN NOTE: This is intentionally thin. It coordinates, not controls.
     /// Each system manages itself; GameManager just starts/stops things.
+    ///
+    /// Life Goals revision: also constructs and owns the Life Goals services
+    /// (NetWorthService, LifeGoalSelectionService, GoalProgressTracker,
+    /// LifespanController, RetirementEvaluator, InsolvencyMonitor,
+    /// BankruptcyResetService) since they are pure-C# (no MonoBehaviour
+    /// wiring needed). The IBankruptcyResettable registry is built here too.
     /// </summary>
     public class GameManager : MonoBehaviour
     {
@@ -37,6 +43,16 @@ namespace FortuneValley.Managers
 
         // State builder for persistence (pure C#, no MonoBehaviour)
         private GameStateDTOBuilder _stateDTOBuilder;
+
+        // Life Goals services (pure C#, owned for the lifetime of GameManager).
+        private LifeGoalSelectionService _lifeGoalSelection;
+        private NetWorthService _netWorthService;
+        private GoalProgressTracker _goalProgressTracker;
+        private LifespanController _lifespanController;
+        private RetirementEvaluator _retirementEvaluator;
+        private InsolvencyMonitor _insolvencyMonitor;
+        private BankruptcyResetService _bankruptcyResetService;
+        private bool _retirementGameEnd; // distinguishes retirement vs bankruptcy hard-end
 
         [Header("Auto Start")]
         [Tooltip("Automatically start the game on scene load")]
@@ -73,6 +89,7 @@ namespace FortuneValley.Managers
         private void Awake()
         {
             ValidateReferences();
+            ConstructLifeGoalsServices();
         }
 
         private void Start()
@@ -86,11 +103,20 @@ namespace FortuneValley.Managers
         private void OnEnable()
         {
             GameEvents.OnGameEnd += HandleGameEnd;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+            GameEvents.OnRetirementReached += HandleRetirementReached;
         }
 
         private void OnDisable()
         {
             GameEvents.OnGameEnd -= HandleGameEnd;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+            GameEvents.OnRetirementReached -= HandleRetirementReached;
+        }
+
+        private void OnDestroy()
+        {
+            DisposeLifeGoalsServices();
         }
 
         // ===============================================================
@@ -224,9 +250,127 @@ namespace FortuneValley.Managers
             _stateDTOBuilder = new GameStateDTOBuilder(
                 _timeManager, _currencyManager, _cityManager,
                 _restaurantSystem, _creditCardSystem, _loanSystem, _insuranceSystem,
-                _pendingIncome);
+                _pendingIncome,
+                _lifeGoalSelection);
 
             GameEvents.RaiseStateBuildFuncProvided(_stateDTOBuilder.Build);
+        }
+
+        // ===============================================================
+        // LIFE GOALS SERVICES
+        // ===============================================================
+
+        private void ConstructLifeGoalsServices()
+        {
+            // 1. Selection service. Subscribes to OnLifeGoalsSelected.
+            _lifeGoalSelection = new LifeGoalSelectionService();
+
+            // 2. Bankruptcy reset orchestrator. Constructed before NetWorthService
+            //    so its BankruptcyFlag accessor is available to RetirementEvaluator.
+            _bankruptcyResetService = new BankruptcyResetService();
+            RegisterBankruptcyResettables();
+            if (_cityManager != null)
+            {
+                _bankruptcyResetService.SetBatchLotResetAction(_cityManager.BatchResetPlayerLots);
+            }
+
+            // 3. NetWorthService. Composes Liquid + Business contributions from
+            //    the wired financial systems via Func delegates.
+            _netWorthService = new NetWorthService(
+                liquidNetWorth: ComputeLiquidNetWorth,
+                businessAssetValue: ComputeBusinessAssetValue);
+
+            // 4. Goal progress tracker. Subscribes to OnNetWorthChanged.
+            _goalProgressTracker = new GoalProgressTracker(
+                _lifeGoalSelection,
+                () => _timeManager != null ? _timeManager.CurrentDay : 0);
+
+            // 5. Lifespan controller. Subscribes to OnDayEnd.
+            _lifespanController = new LifespanController();
+
+            // 6. Retirement evaluator. Subscribes to OnRetirementReached.
+            _retirementEvaluator = new RetirementEvaluator(
+                _lifeGoalSelection,
+                () => _bankruptcyResetService != null && _bankruptcyResetService.BankruptcyFlag);
+
+            // 7. Insolvency monitor. Subscribes to OnMonthlyPaymentCycleComplete.
+            _insolvencyMonitor = new InsolvencyMonitor(
+                checking: () => _currencyManager != null ? _currencyManager.CheckingBalance : 0f,
+                investing: () => _currencyManager != null ? _currencyManager.InvestingBalance : 0f,
+                creditCardDebt: () => _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f,
+                loanPrincipal: () => (_loanSystem != null && _loanSystem.Portfolio != null)
+                    ? _loanSystem.Portfolio.GetTotalOutstandingPrincipal()
+                    : 0f);
+        }
+
+        private void RegisterBankruptcyResettables()
+        {
+            if (_bankruptcyResetService == null) return;
+
+            if (_currencyManager != null) _bankruptcyResetService.Register(_currencyManager);
+            if (_creditCardSystem != null) _bankruptcyResetService.Register(_creditCardSystem);
+            if (_loanSystem != null) _bankruptcyResetService.Register(_loanSystem);
+            if (_investmentSystem != null) _bankruptcyResetService.Register(_investmentSystem);
+            if (_insuranceSystem != null) _bankruptcyResetService.Register(_insuranceSystem);
+            if (_pendingIncome != null) _bankruptcyResetService.Register(_pendingIncome);
+        }
+
+        private float ComputeLiquidNetWorth()
+        {
+            float liquid = 0f;
+            if (_currencyManager != null)
+            {
+                liquid += _currencyManager.CheckingBalance + _currencyManager.InvestingBalance;
+            }
+            if (_creditCardSystem != null) liquid -= _creditCardSystem.CurrentBalance;
+            if (_loanSystem != null && _loanSystem.Portfolio != null)
+            {
+                liquid -= _loanSystem.Portfolio.GetTotalOutstandingPrincipal();
+            }
+            return liquid;
+        }
+
+        private float ComputeBusinessAssetValue()
+        {
+            // Sum of actual paid amounts for all player-owned lots.
+            // Tier-upgrade investment value is not yet ledgered (that lives in a
+            // future change to RestaurantSystem); contributes 0 here for now.
+            return _cityManager != null ? _cityManager.OwnedLotsAcquisitionTotal : 0f;
+        }
+
+        private void DisposeLifeGoalsServices()
+        {
+            _lifeGoalSelection?.Dispose();
+            _netWorthService?.Dispose();
+            _goalProgressTracker?.Dispose();
+            _lifespanController?.Dispose();
+            _retirementEvaluator?.Dispose();
+            _insolvencyMonitor?.Dispose();
+            _bankruptcyResetService?.Dispose();
+
+            _lifeGoalSelection = null;
+            _netWorthService = null;
+            _goalProgressTracker = null;
+            _lifespanController = null;
+            _retirementEvaluator = null;
+            _insolvencyMonitor = null;
+            _bankruptcyResetService = null;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            if (dto == null) return;
+            if (_lifeGoalSelection != null) _lifeGoalSelection.HydrateFromDto(dto.selected_goals);
+            if (_bankruptcyResetService != null) _bankruptcyResetService.HydrateFlag(dto.bankruptcy_flag);
+        }
+
+        private void HandleRetirementReached()
+        {
+            // Retirement is a hard end. Mark it so HandleGameEnd can produce
+            // a scorecard-aware GameSummary, then fire the existing game-end
+            // pipeline so existing UI/persistence paths keep working.
+            _retirementGameEnd = true;
+            GameEvents.RaiseGameEnd(Owner.Player);
         }
 
         // ===============================================================
@@ -270,6 +414,15 @@ namespace FortuneValley.Managers
                 sellHistory = new System.Collections.Generic.List<SellTransactionRecord>(_investmentSystem.SellHistory);
             int daysPlayed = _timeManager != null ? _timeManager.CurrentTick : 0;
 
+            // Build scorecard if this game-end is a retirement (or any time
+            // the evaluator has selection state available). Returns a struct
+            // with empty arrays when no selection -- safe for non-retirement paths.
+            GoalScorecard scorecard = null;
+            if (_retirementGameEnd && _retirementEvaluator != null)
+            {
+                scorecard = _retirementEvaluator.BuildScorecard();
+            }
+
             return GameSummaryBuilder.Build(
                 isPlayerWin,
                 daysPlayed,
@@ -278,7 +431,8 @@ namespace FortuneValley.Managers
                 _investmentSystem,
                 _restaurantSystem,
                 lotPurchases,
-                sellHistory);
+                sellHistory,
+                scorecard);
         }
 
         private System.Collections.Generic.List<LotPurchaseRecord> BuildLotPurchaseRecords()

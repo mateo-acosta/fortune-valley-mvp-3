@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: IntroScript_Default
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.IntroScriptSO
   _steps:
+  - {fileID: 11400000, guid: 2a148bf3c80974970ac9fde81abfb00f, type: 2}
+  - {fileID: 11400000, guid: 1c0dd29ee39a74180823ff4a8b2a6b1e, type: 2}
   - {fileID: 11400000, guid: 5d2d1e04d244d46d39819174b5c6021b, type: 2}
   - {fileID: 11400000, guid: 09ff3887b6f254d99a3f9f473ac26a55, type: 2}
   - {fileID: 11400000, guid: 3550ef63f9497448b87529eb8d9f15bd, type: 2}

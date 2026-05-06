@@ -489,6 +489,12 @@ namespace FortuneValley.Managers.Tutorial
                 case TutorialStepKind.WaitForLotInfoOpened:
                     GameEvents.OnLotInfoRequested += HandleLotInfoRequested;
                     return;
+                case TutorialStepKind.WaitForLifeGoalsSelected:
+                    GameEvents.OnLifeGoalsSelected += HandleLifeGoalsSelected;
+                    // Surface the panel via event so this Managers-layer controller
+                    // does not reference UI directly.
+                    GameEvents.RaiseGoalSelectionPanelRequested(true);
+                    return;
             }
         }
 
@@ -519,6 +525,10 @@ namespace FortuneValley.Managers.Tutorial
                     break;
                 case TutorialStepKind.WaitForLotInfoOpened:
                     GameEvents.OnLotInfoRequested -= HandleLotInfoRequested;
+                    break;
+                case TutorialStepKind.WaitForLifeGoalsSelected:
+                    GameEvents.OnLifeGoalsSelected -= HandleLifeGoalsSelected;
+                    GameEvents.RaiseGoalSelectionPanelRequested(false);
                     break;
             }
             _activeWaitKind = TutorialStepKind.Dialog;
@@ -555,5 +565,7 @@ namespace FortuneValley.Managers.Tutorial
         private void HandleLoanShopTabSelected() => AdvanceStep();
 
         private void HandleLotInfoRequested(string lotId) => AdvanceStep();
+
+        private void HandleLifeGoalsSelected(FortuneValley.Domain.Entities.LifeGoalSelection selection) => AdvanceStep();
     }
 }
