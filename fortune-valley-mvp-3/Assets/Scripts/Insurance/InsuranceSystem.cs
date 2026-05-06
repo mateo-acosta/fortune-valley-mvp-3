@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using FortuneValley.Domain.Entities;
@@ -73,6 +74,12 @@ namespace FortuneValley.Core
             GameEvents.OnPurchaseInsuranceRequested += HandlePurchaseRequested;
             GameEvents.OnCancelInsuranceRequested += HandleCancelRequested;
             GameEvents.OnAccidentOccurred += HandleAccidentOccurred;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
         }
 
         private void OnDisable()
@@ -82,7 +89,14 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnPurchaseInsuranceRequested -= HandlePurchaseRequested;
             GameEvents.OnCancelInsuranceRequested -= HandleCancelRequested;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
             GameEvents.OnAccidentOccurred -= HandleAccidentOccurred;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(InsuranceSystem)}] hydrate failed: {e}"); }
         }
 
         private void HandleGameStart()
@@ -99,20 +113,22 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Rebuild insurance policies from saved state. Looks up config
-        /// by policy_id to recover coveragePercent and coveredAccidentIds
+        /// Rebuild insurance policies from a saved DTO. Looks up config by
+        /// policy_id to recover coveragePercent and coveredAccidentIds
         /// (not stored in the DTO).
         /// ADVISORY: contains a loop, but runs once at restore.
+        /// Public so EditMode tests can call directly without raising the event.
         /// </summary>
-        public void ApplyState(ActiveInsurancePolicyDTO[] policies)
+        public void Hydrate(GamePlayerStateDTO state)
         {
+            if (state == null) return;
             if (_portfolio == null) _portfolio = new InsurancePortfolio();
             _portfolio.Clear();
-            if (policies == null) return;
+            if (state.insurance_policies == null) return;
 
-            for (int i = 0; i < policies.Length; i++)
+            for (int i = 0; i < state.insurance_policies.Length; i++)
             {
-                var dto = policies[i];
+                var dto = state.insurance_policies[i];
                 if (dto == null) continue;
 
                 InsurancePolicyConfig config = InsurancePortfolio.FindPolicyConfig(

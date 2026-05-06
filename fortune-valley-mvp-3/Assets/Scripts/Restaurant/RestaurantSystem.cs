@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Interfaces;
 
 namespace FortuneValley.Core
@@ -96,6 +98,12 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnUpgradeRestaurantRequested += HandleUpgradeRequested;
             GameEvents.OnIncomeCollected += HandleIncomeCollected;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
         }
 
         private void OnDisable()
@@ -103,6 +111,7 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnUpgradeRestaurantRequested -= HandleUpgradeRequested;
             GameEvents.OnIncomeCollected -= HandleIncomeCollected;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
         }
 
         private void HandleGameStart()
@@ -111,14 +120,21 @@ namespace FortuneValley.Core
             _totalEarned = 0f;
         }
 
-        /// <summary>
-        /// Restore the restaurant tier from a saved state.
-        /// Fires OnRestaurantUpgraded so the UI and visuals refresh.
-        /// </summary>
-        public void ApplyState(int level)
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
         {
-            if (level < 1) return;
-            _currentLevel = level;
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(RestaurantSystem)}] hydrate failed: {e}"); }
+        }
+
+        /// <summary>
+        /// Restore the restaurant tier from a saved DTO.
+        /// Fires OnRestaurantUpgraded so the UI and visuals refresh.
+        /// Public so EditMode tests can call directly without raising the event.
+        /// </summary>
+        public void Hydrate(GamePlayerStateDTO dto)
+        {
+            if (dto == null || dto.restaurant_level < 1) return;
+            _currentLevel = dto.restaurant_level;
             GameEvents.RaiseRestaurantUpgraded(_currentLevel);
         }
 

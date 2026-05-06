@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Enums;
 using FortuneValley.Domain.Interfaces;
 
@@ -108,12 +110,27 @@ namespace FortuneValley.Core
             // Listen for game start/end to control time flow
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnGameEnd += HandleGameEnd;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            // Phase 1 catch-up: if a save was already delivered before this
+            // system instantiated (e.g. scene swap), hydrate from the cached DTO.
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
         }
 
         private void OnDisable()
         {
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnGameEnd -= HandleGameEnd;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(TimeManager)}] hydrate failed: {e}"); }
         }
 
         private void Update()
@@ -153,18 +170,20 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Reset tick counter to zero.
-        /// </summary>
-        /// <summary>
-        /// Restore day and tick from a saved state. Does not fire OnTick
+        /// Restore day and tick from a saved DTO. Does not fire OnTick
         /// (no systems should process a phantom tick on restore).
+        /// Public so EditMode tests can call directly without raising the event.
         /// </summary>
-        public void ApplyState(int day, int tick)
+        public void Hydrate(GamePlayerStateDTO dto)
         {
-            _currentDay = day;
-            _currentTick = tick;
+            if (dto == null) return;
+            _currentDay = dto.current_day;
+            _currentTick = dto.current_tick;
         }
 
+        /// <summary>
+        /// Reset tick counter to zero.
+        /// </summary>
         public void ResetTime()
         {
             _currentTick = 0;

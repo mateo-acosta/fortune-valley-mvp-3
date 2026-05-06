@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using FortuneValley.Domain.Entities;
@@ -69,12 +70,25 @@ namespace FortuneValley.Core
         {
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnLoanPurchaseRequested += HandleLoanPurchaseRequested;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
         }
 
         private void OnDisable()
         {
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnLoanPurchaseRequested -= HandleLoanPurchaseRequested;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(LoanSystem)}] hydrate failed: {e}"); }
         }
 
         private void HandleGameStart()
@@ -98,18 +112,20 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Rebuild the loan portfolio from saved loan snapshots.
+        /// Rebuild the loan portfolio from a saved DTO.
         /// ADVISORY: contains a loop, but runs once at restore.
+        /// Public so EditMode tests can call directly without raising the event.
         /// </summary>
-        public void ApplyState(ActiveLoanDTO[] loans)
+        public void Hydrate(GamePlayerStateDTO state)
         {
+            if (state == null) return;
             if (_portfolio == null) _portfolio = new LoanPortfolio();
             _portfolio.Clear();
-            if (loans == null) return;
+            if (state.active_loans == null) return;
 
-            for (int i = 0; i < loans.Length; i++)
+            for (int i = 0; i < state.active_loans.Length; i++)
             {
-                var dto = loans[i];
+                var dto = state.active_loans[i];
                 if (dto == null) continue;
 
                 var loan = ActiveLoan.FromSave(

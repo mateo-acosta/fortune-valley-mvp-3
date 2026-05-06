@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using FortuneValley.Domain.Enums;
@@ -186,6 +187,12 @@ namespace FortuneValley.Core
             GameEvents.OnTick += HandleTick;
             GameEvents.OnPurchaseLotRequested += HandlePurchaseLotRequested;
             GameEvents.OnLotUpgradeRequested += HandleLotUpgradeRequested;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
         }
 
         private void OnDisable()
@@ -194,6 +201,13 @@ namespace FortuneValley.Core
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnPurchaseLotRequested -= HandlePurchaseLotRequested;
             GameEvents.OnLotUpgradeRequested -= HandleLotUpgradeRequested;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(CityManager)}] hydrate failed: {e}"); }
         }
 
         /// <summary>
@@ -538,41 +552,43 @@ namespace FortuneValley.Core
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Restore lot ownership and tiers from a saved state.
+        /// Restore lot ownership and tiers from a saved DTO.
         /// Sets dictionaries directly (bypasses SetOwner to avoid
-        /// win-condition checks during restore). Fires events so UI refreshes.
+        /// win-condition checks during restore). Fires per-lot events so
+        /// world-canvas + HUD subscribers refresh; UI components that prefer
+        /// "rebuild once at end" listen to OnSaveRestored instead.
         /// ADVISORY: contains loops, but runs once at restore.
+        /// Public so EditMode tests can call directly without raising the event.
         /// </summary>
-        public void ApplyState(
-            string[] playerLots,
-            string[] rivalLots,
-            FranchiseLevelDTO[] franchiseLevels)
+        public void Hydrate(GamePlayerStateDTO dto)
         {
+            if (dto == null) return;
+
             ResetOwnership();
 
-            if (playerLots != null)
+            if (dto.lots_owned != null)
             {
-                for (int i = 0; i < playerLots.Length; i++)
+                for (int i = 0; i < dto.lots_owned.Length; i++)
                 {
-                    _lotOwnership[playerLots[i]] = Owner.Player;
-                    GameEvents.RaiseLotPurchased(playerLots[i], Owner.Player);
+                    _lotOwnership[dto.lots_owned[i]] = Owner.Player;
+                    GameEvents.RaiseLotPurchased(dto.lots_owned[i], Owner.Player);
                 }
             }
 
-            if (rivalLots != null)
+            if (dto.rival_lots_owned != null)
             {
-                for (int i = 0; i < rivalLots.Length; i++)
+                for (int i = 0; i < dto.rival_lots_owned.Length; i++)
                 {
-                    _lotOwnership[rivalLots[i]] = Owner.Rival;
-                    GameEvents.RaiseLotPurchased(rivalLots[i], Owner.Rival);
+                    _lotOwnership[dto.rival_lots_owned[i]] = Owner.Rival;
+                    GameEvents.RaiseLotPurchased(dto.rival_lots_owned[i], Owner.Rival);
                 }
             }
 
-            if (franchiseLevels != null)
+            if (dto.franchise_levels != null)
             {
-                for (int i = 0; i < franchiseLevels.Length; i++)
+                for (int i = 0; i < dto.franchise_levels.Length; i++)
                 {
-                    var fl = franchiseLevels[i];
+                    var fl = dto.franchise_levels[i];
                     if (fl == null) continue;
                     _lotTier[fl.lot_id] = fl.tier;
                     GameEvents.RaiseLotTierChanged(fl.lot_id, fl.tier);

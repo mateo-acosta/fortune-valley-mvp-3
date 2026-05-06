@@ -6,30 +6,46 @@ namespace FortuneValley.Managers.Tutorial
 {
     /// <summary>
     /// For scenes without a Title → Start-button flow (like the current
-    /// Homebase direct-boot path), this component checks IntroGate after a
-    /// short startup delay and raises <c>GameEvents.OnTutorialStartRequested</c>
-    /// if the tutorial should run. Use INSTEAD of <c>BootFlowRouter</c> when
-    /// no <c>OnStartRequested</c> event ever fires in the scene.
+    /// Homebase direct-boot path), this component checks IntroGate when the
+    /// save state arrives (or after a timeout if it doesn't) and raises
+    /// <c>GameEvents.OnTutorialStartRequested</c> if the tutorial should run.
+    /// Use INSTEAD of <c>BootFlowRouter</c> when no <c>OnStartRequested</c>
+    /// event ever fires in the scene.
     ///
-    /// The startup delay gives APIClient time to receive the initial state
-    /// load from the JS bridge before IntroGate evaluates it. If the state
-    /// is still null at check time, IntroGate treats the player as
-    /// first-time and runs the tutorial — which is correct for a brand-new
-    /// player, but a returning player with a slow network would also see
-    /// the tutorial once. The PlayerPrefs fallback flag (written by
-    /// IntroTutorialController on prior completion) guards against that.
+    /// Wakes up on either signal, whichever comes first:
+    ///  1. <c>GameEvents.OnSaveStateLoaded</c> fires (or the catch-up handle
+    ///     <c>GameEvents.LastLoadedSaveDto</c> is already populated when this
+    ///     component enables) — happy path: server state is authoritative.
+    ///  2. The timeout elapses — offline or first-time student with no DB row.
+    ///     IntroGate falls back to the PlayerPrefs flag in that case.
     /// </summary>
     public class SceneBootTutorialTrigger : MonoBehaviour
     {
         [SerializeField] private PlayerStateAccessor _stateAccessor;
         [SerializeField] private APIClient _apiClient;
 
-        [Tooltip("Seconds to wait after scene start before evaluating IntroGate. " +
-                 "Lets the JS bridge deliver the loaded state via OnSaveStateLoaded.")]
-        [SerializeField] private float _startupDelaySeconds = 1.0f;
+        [Tooltip("Timeout (seconds) after scene start before IntroGate evaluates without a save. " +
+                 "OnSaveStateLoaded fires sooner in the happy path.")]
+        [SerializeField] private float _startupDelaySeconds = 2.0f;
 
         private float _remainingDelay;
         private bool _fired;
+
+        private void OnEnable()
+        {
+            GameEvents.OnSaveStateLoaded += HandleStateArrived;
+
+            // Catch-up: state may have arrived before this component enabled.
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleStateArrived(GameEvents.LastLoadedSaveDto);
+            }
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnSaveStateLoaded -= HandleStateArrived;
+        }
 
         private void Start()
         {
@@ -41,6 +57,12 @@ namespace FortuneValley.Managers.Tutorial
             if (_fired) return;
             _remainingDelay -= Time.unscaledDeltaTime;
             if (_remainingDelay > 0f) return;
+            EvaluateAndFire();
+        }
+
+        private void HandleStateArrived(GamePlayerStateDTO _)
+        {
+            if (_fired) return;
             EvaluateAndFire();
         }
 

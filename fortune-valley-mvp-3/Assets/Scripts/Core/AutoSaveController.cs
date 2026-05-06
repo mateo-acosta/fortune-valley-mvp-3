@@ -103,6 +103,10 @@ namespace FortuneValley.Core
             GamePlayerStateDTO state = _buildStateFunc();
             if (state != null)
             {
+                // Write-through cache so cross-scene re-entry hydrates from
+                // the latest local state, not the original session-start DTO
+                // that GameSaveBootstrapper cached at boot.
+                GameEvents.LastLoadedSaveDto = state;
                 _apiClient.SaveState(state);
             }
         }

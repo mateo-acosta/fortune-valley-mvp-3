@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Enums;
 using FortuneValley.Domain.Interfaces;
 
@@ -79,6 +81,24 @@ namespace FortuneValley.Core
 
             // Handle transfer intent events from UI
             GameEvents.OnTransferRequested += HandleTransferRequested;
+
+            // Two-phase save restore. Phase 1 hydrates checking_balance; Phase 2
+            // refreshes investing_balance after InvestmentSystem rebuilt holdings.
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+            GameEvents.OnSaveRestored += HandleSaveRestored;
+
+            // Phase 1 catch-up: if a save was already delivered before this
+            // system instantiated (e.g. scene swap), hydrate from cached DTO.
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
+            // Phase 2 catch-up: if reconcile already ran (late-joining system),
+            // refresh derived state immediately.
+            if (GameEvents.HasSaveBeenRestored)
+            {
+                HandleSaveRestored();
+            }
         }
 
         private void OnDisable()
@@ -86,6 +106,20 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnTransferRequested -= HandleTransferRequested;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+            GameEvents.OnSaveRestored -= HandleSaveRestored;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(CurrencyManager)}] hydrate failed: {e}"); }
+        }
+
+        private void HandleSaveRestored()
+        {
+            try { RefreshInvestingBalance(); }
+            catch (Exception e) { Debug.LogError($"[{nameof(CurrencyManager)}] reconcile failed: {e}"); }
         }
 
         private void HandleGameStart()
@@ -226,13 +260,14 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Restore checking balance from a saved state and refresh investing
-        /// so UI components pick up both values after all systems are loaded.
+        /// Phase 1 of restore: set checking balance from saved DTO.
+        /// Investing balance is refreshed in Phase 2 (HandleSaveRestored)
+        /// so InvestmentSystem has finished rebuilding its portfolio first.
         /// </summary>
-        public void ApplyState(float checkingBalance)
+        public void Hydrate(GamePlayerStateDTO dto)
         {
-            SetCheckingBalance(checkingBalance);
-            RefreshInvestingBalance();
+            if (dto == null) return;
+            SetCheckingBalance(dto.checking_balance);
         }
 
         /// <summary>

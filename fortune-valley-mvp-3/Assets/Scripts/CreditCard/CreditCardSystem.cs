@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Interfaces;
@@ -75,6 +76,12 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnCreditCardChargeRequested += HandleChargeRequested;
             GameEvents.OnDayEnd += HandleDayEnd;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
         }
 
         private void OnDisable()
@@ -82,6 +89,13 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnCreditCardChargeRequested -= HandleChargeRequested;
             GameEvents.OnDayEnd -= HandleDayEnd;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(CreditCardSystem)}] hydrate failed: {e}"); }
         }
 
         private void Start()
@@ -254,17 +268,19 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Restore credit balance and score from a saved state.
+        /// Restore credit balance and score from a saved DTO.
         /// Fires both change events so UI components refresh.
+        /// Public so EditMode tests can call directly without raising the event.
         /// </summary>
-        public void ApplyState(float creditBalance, int creditScore)
+        public void Hydrate(GamePlayerStateDTO dto)
         {
+            if (dto == null) return;
             if (_card != null)
             {
-                _card.SetBalance(creditBalance);
+                _card.SetBalance(dto.credit_balance);
                 GameEvents.RaiseCreditCardBalanceChanged(_card.CurrentBalance, 0f);
             }
-            _currentCreditScore = creditScore;
+            _currentCreditScore = dto.credit_score;
             GameEvents.RaiseCreditScoreChanged(_currentCreditScore);
         }
     }

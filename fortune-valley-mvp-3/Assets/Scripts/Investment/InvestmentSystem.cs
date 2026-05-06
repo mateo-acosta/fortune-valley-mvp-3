@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using FortuneValley.Domain.Entities;
@@ -141,6 +142,12 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnBuySharesRequested += HandleBuySharesRequested;
             GameEvents.OnSellSharesRequested += HandleSellSharesRequested;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
         }
 
         private void OnDisable()
@@ -149,6 +156,13 @@ namespace FortuneValley.Core
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnBuySharesRequested -= HandleBuySharesRequested;
             GameEvents.OnSellSharesRequested -= HandleSellSharesRequested;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(InvestmentSystem)}] hydrate failed: {e}"); }
         }
 
         /// <summary>
@@ -193,18 +207,20 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Rebuild the active investment list from saved holdings.
+        /// Rebuild the active investment list from a saved DTO.
         /// Matches instrument_id to InvestmentDefinition ScriptableObject.name.
         /// ADVISORY: contains a loop, but runs once at restore (not per-frame).
+        /// Public so EditMode tests can call directly without raising the event.
         /// </summary>
-        public void ApplyState(InvestmentHoldingDTO[] holdings, int currentTick)
+        public void Hydrate(GamePlayerStateDTO dto)
         {
+            if (dto == null) return;
             _activeInvestments.Clear();
-            if (holdings == null) return;
+            if (dto.investment_holdings == null) return;
 
-            for (int i = 0; i < holdings.Length; i++)
+            for (int i = 0; i < dto.investment_holdings.Length; i++)
             {
-                var h = holdings[i];
+                var h = dto.investment_holdings[i];
                 if (h == null) continue;
 
                 InvestmentDefinition def = FindDefinitionByInstrumentId(h.instrument_id);
@@ -214,7 +230,7 @@ namespace FortuneValley.Core
                     continue;
                 }
 
-                var inv = new ActiveInvestment(def, h.shares, h.avg_price, currentTick);
+                var inv = new ActiveInvestment(def, h.shares, h.avg_price, dto.current_tick);
                 _activeInvestments.Add(inv);
             }
         }

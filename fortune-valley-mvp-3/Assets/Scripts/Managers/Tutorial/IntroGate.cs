@@ -13,13 +13,13 @@ namespace FortuneValley.Managers.Tutorial
     /// player has no server-side record yet (first-ever load) which
     /// unambiguously maps to running the tutorial.
     ///
-    /// A PlayerPrefs fallback covers the window where the tutorial has
-    /// completed locally but a network failure prevented the SaveState
-    /// POST from landing. The IntroTutorialController writes PlayerPrefs
-    /// BEFORE calling SaveState, so a successful completion that failed to
-    /// persist server-side still suppresses re-runs on reload. The
-    /// overload that takes a null store skips this check and is retained
-    /// for existing callers and simple EditMode tests.
+    /// When server state is available we trust it directly; PlayerPrefs is
+    /// only consulted as a fallback when state is null (offline / first load
+    /// before the bootstrapper has delivered the DTO). This is an Issue 1+5
+    /// fix in the persistence revamp plan: PlayerPrefs is per-browser-origin,
+    /// not per-student, so reading it before the per-student server state
+    /// would let a tutorial completion on one account block the tutorial for
+    /// every subsequent student on the same shared browser.
     /// </summary>
     public static class IntroGate
     {
@@ -32,18 +32,21 @@ namespace FortuneValley.Managers.Tutorial
         {
             if (role == TeacherPreviewRole) return false;
 
-            if (state != null && state.tutorial_completed) return false;
+            // Server state is authoritative when delivered. Trust it over the
+            // browser-local PlayerPrefs flag, which is per-origin and would
+            // otherwise leak completion status across student accounts on a
+            // shared browser.
+            if (state != null) return !state.tutorial_completed;
 
+            // Offline / pre-bootstrapper fallback: use the local PlayerPrefs
+            // flag a previous in-browser completion may have written.
             if (keyValueStore != null)
             {
-                string gameMode = state != null && !string.IsNullOrEmpty(state.game_mode)
-                    ? state.game_mode
-                    : "homebase";
-                string key = IntroTutorialController.PlayerPrefsKeyPrefix + gameMode;
+                string key = IntroTutorialController.PlayerPrefsKeyPrefix + "homebase";
                 if (keyValueStore.GetInt(key, 0) == 1) return false;
             }
 
-            return state == null || !state.tutorial_completed;
+            return true;
         }
     }
 }
