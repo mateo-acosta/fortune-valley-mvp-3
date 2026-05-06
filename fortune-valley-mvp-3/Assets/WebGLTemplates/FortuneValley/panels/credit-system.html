@@ -373,19 +373,20 @@ html, body {
   margin-top: 6px;
   height: 8px; border-radius: 8px;
   background: var(--paper-3);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 .util-bar > span {
   display: block; height: 100%;
   border-radius: 8px;
+  overflow: hidden;
   transition: width var(--d-base) var(--ease);
 }
 .util-bar.good > span { background: var(--gain); }
 .util-bar.fair > span { background: var(--warn); }
 .util-bar.poor > span { background: var(--loss); }
 .util-bar .threshold {
-  position: absolute; top: -2px; bottom: -2px;
+  position: absolute; top: 0; bottom: 0;
   width: 2px; background: rgba(60,40,15,0.25);
   border-radius: 2px;
 }
@@ -633,7 +634,7 @@ html, body {
 .history-row .body { min-width: 0; }
 .history-row .body .label {
   font-size: 11px; font-weight: 800; color: var(--fg-3);
-  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px;
+  letter-spacing: 0.02em; margin-bottom: 2px;
 }
 .history-row .body .desc { font-weight: 800; font-size: 14px; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .history-row .body .sub { font-size: 12px; color: var(--fg-3); font-weight: 700; margin-top: 2px; }
@@ -646,6 +647,207 @@ html, body {
 .history-row .amount.outflow  { color: var(--loss); }
 .history-row .amount.inflow   { color: var(--gain); }
 .history-row .amount.neutral  { color: var(--fg-3); }
+
+/* ============================================================
+   REDESIGN ADDITIONS — score hero, score meter, lot cards,
+   total-cost story, narrative loan rows, util sentence, etc.
+   ============================================================ */
+
+/* Hero score block */
+.score-hero { text-align: center; padding: 20px 0 16px; }
+.score-hero .score-num {
+  font-size: 56px; font-weight: 900; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums; line-height: 1;
+  color: var(--fg-1);
+}
+.score-hero .score-label-text {
+  font-size: 18px; font-weight: 800; color: var(--fg-3);
+  margin-top: 6px;
+}
+
+/* Score spectrum meter */
+.score-meter { margin: 14px auto 0; max-width: 460px; }
+.score-track { position: relative; height: 12px; border-radius: 999px; overflow: visible; }
+.score-segments { display: flex; height: 100%; border-radius: 999px; overflow: hidden; }
+.score-segments .seg { flex: 1; }
+.score-segments .seg.poor      { background: var(--loss); }
+.score-segments .seg.fair      { background: var(--warn); }
+.score-segments .seg.good      { background: #8CD98C; }
+.score-segments .seg.excellent { background: var(--gain); }
+.score-marker {
+  position: absolute; top: -4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--fg-1);
+  transform: translateX(-50%);
+  box-shadow: var(--sh-1);
+  transition: left var(--d-base) var(--ease);
+}
+.score-range-labels {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--fg-4); font-weight: 700;
+  margin-top: 6px; padding: 0 2px;
+}
+
+/* Util block (full-width card replacing the two-column summary) */
+.util-block {
+  background: var(--paper); border: var(--bd);
+  border-radius: var(--r-md); box-shadow: var(--sh-1);
+  padding: 14px 16px; margin-top: 4px;
+}
+.util-sentence {
+  font-size: 13px; font-weight: 700; color: var(--fg-2);
+  margin-bottom: 8px; line-height: 1.4;
+}
+#home-util-bar { height: 16px; margin-top: 22px; }
+.util-target-label {
+  position: absolute; top: -16px; left: 30%;
+  transform: translateX(-50%);
+  font-size: 10px; font-weight: 800; color: var(--fg-3);
+  white-space: nowrap;
+}
+
+/* Compact summary rows (CC + loans) */
+.cc-summary-row {
+  font-size: 13px; color: var(--fg-3); font-weight: 700;
+  margin-top: 12px; line-height: 1.5;
+}
+.cc-summary-row strong { color: var(--fg-1); font-weight: 900; font-variant-numeric: tabular-nums; }
+.loan-summary-row {
+  font-size: 13px; color: var(--fg-3); font-weight: 700;
+  margin-top: 8px; margin-bottom: 16px; line-height: 1.5;
+}
+.loan-summary-row strong { color: var(--fg-1); font-weight: 900; font-variant-numeric: tabular-nums; }
+
+/* Loan row narrative layout */
+.loan-row-v {
+  background: var(--paper); border: var(--bd);
+  border-radius: 12px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  box-shadow: var(--sh-1);
+}
+.loan-row-v .row-head {
+  display: flex; align-items: center; gap: 10px;
+}
+.loan-row-v .row-head .ic {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--sky-soft); color: var(--sky-ink);
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.loan-row-v .nm { font-weight: 900; font-size: 15px; }
+.loan-row-v .sub { font-size: 12px; color: var(--fg-3); font-weight: 700; margin-top: 1px; }
+.loan-row-v .narrative {
+  font-size: 12px; color: var(--fg-3); font-weight: 700;
+}
+
+/* Lot cards (replaces dropdown). Horizontally scrollable so all 19
+   lots are reachable without forcing the row to wrap or stretch. */
+.lot-cards {
+  display: flex; gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin-bottom: 16px;
+  padding: 4px 2px 8px;
+  scrollbar-width: thin;
+}
+.lot-cards::-webkit-scrollbar { height: 8px; }
+.lot-cards::-webkit-scrollbar-thumb { background: var(--paper-4); border-radius: 8px; }
+.lot-card {
+  flex: 0 0 auto;
+  width: 140px;
+  scroll-snap-align: start;
+  background: var(--paper); border: var(--bd-2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  cursor: pointer; text-align: center;
+  font-family: var(--font);
+  transition: all var(--d-fast) var(--ease);
+  box-shadow: var(--sh-1);
+}
+.lot-card:hover { background: var(--paper-2); transform: translateY(-1px); }
+.lot-card.active { background: var(--sky-soft); border-color: rgba(79,184,232,0.5); }
+.lot-card .lot-icon { font-size: 24px; margin-bottom: 6px; }
+.lot-card .lot-name {
+  font-weight: 900; font-size: 13px; color: var(--fg-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lot-card .lot-price {
+  font-size: 12px; color: var(--fg-3); font-weight: 800;
+  margin-top: 2px; font-variant-numeric: tabular-nums;
+}
+
+/* Pre-pick prompt (uses .empty base, just a margin tweak) */
+.pick-prompt { margin-top: 14px; }
+
+/* Stats grid layouts: 3-col collapsed + 2-col detail strip. These mirror
+   the .stats-table .field styling so labels render at 10px uppercase and
+   the inline (i) info button stays on the same line as the label. */
+.collapsed-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+}
+.detail-stats {
+  display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
+}
+.detail-stats.open { display: grid; }
+.collapsed-stats .field, .detail-stats .field {
+  background: var(--paper); border: var(--bd);
+  border-radius: 10px; padding: 9px 10px;
+  display: flex; flex-direction: column; gap: 1px;
+  min-width: 0;
+}
+.collapsed-stats .field .k, .detail-stats .field .k {
+  font-size: 9px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.02em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 3px;
+  white-space: nowrap;
+}
+.collapsed-stats .field .k .fv-info-btn,
+.detail-stats .field .k .fv-info-btn {
+  flex: none;
+  width: 16px; height: 16px;
+  font-size: 10px;
+}
+.collapsed-stats .field .v, .detail-stats .field .v {
+  font-weight: 900; font-size: 15px; font-variant-numeric: tabular-nums;
+  color: var(--fg-1);
+}
+
+/* Carousel "more loans available" hint */
+.carousel-hint {
+  text-align: center;
+  font-size: 11px; color: var(--fg-3); font-weight: 700;
+  margin-top: 4px; line-height: 1.4;
+}
+
+/* Carousel plain-English term line */
+#carousel-term-plain {
+  text-align: center;
+  font-size: 12px; font-weight: 700; color: var(--fg-3);
+  margin-top: 2px;
+}
+
+/* Total cost story block */
+.total-cost-story {
+  font-size: 14px; font-weight: 700; line-height: 1.55;
+  color: var(--fg-2); background: var(--warn-soft);
+  border-radius: var(--r-md); padding: 12px 14px;
+  border: 1px solid rgba(212,148,20,0.25);
+  margin-top: 12px;
+}
+.total-cost-story strong { color: var(--fg-1); font-variant-numeric: tabular-nums; }
+
+/* "See full details" toggle */
+.details-toggle {
+  font-size: 12px; color: var(--sky-ink); font-weight: 800;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font); padding: 4px 0;
+  text-decoration: underline; text-underline-offset: 2px;
+  align-self: flex-start;
+}
+
+/* Score-change history row highlight */
+.history-row.score-event {
+  background: linear-gradient(90deg, var(--sky-soft) 0%, transparent 40%);
+}
 
 </style>
 </head>
@@ -712,7 +914,7 @@ html, body {
         </button>
         <button class="tab-btn" data-tab="explore" role="tab">
           <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><path d="M15 9 L13 14 L9 16 L11 11 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
-          Explore
+          Get a Loan
         </button>
         <button class="tab-btn" data-tab="history" role="tab">
           <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 7 V12 L15.5 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
@@ -724,80 +926,71 @@ html, body {
 
         <!-- ============= HOME ============= -->
         <section class="tab active" data-tab="home">
-          <div class="home-summary">
-            <!-- Loans group -->
-            <div class="summary-group" id="loans-group">
-              <div class="group-head">
-                <div class="ic loans"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M3 10 L12 3 L21 10 V20 H3 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 20 V13 H15 V20" stroke="currentColor" stroke-width="2"/></svg></div>
-                <div>
-                  <div class="h">Loans <button type="button" class="fv-info-btn" data-info-key="card:loans_summary" aria-label="About the Loans card">i</button></div>
-                  <div class="sub">Real estate financing</div>
+          <!-- Score hero: the credit score is the student's identity in this system -->
+          <div class="score-hero">
+            <div class="score-num" id="home-score">680</div>
+            <div class="score-label-text" id="home-score-label">Fair Credit</div>
+            <div class="score-meter">
+              <div class="score-track">
+                <div class="score-segments">
+                  <span class="seg poor"></span>
+                  <span class="seg fair"></span>
+                  <span class="seg good"></span>
+                  <span class="seg excellent"></span>
                 </div>
+                <div class="score-marker" id="home-score-marker" style="left:50%"></div>
               </div>
-              <div class="summary-stats">
-                <div class="cell">
-                  <div class="k">Total Debt <button type="button" class="fv-info-btn" data-info-key="total_debt" aria-label="About Total Debt">i</button></div>
-                  <div class="v" id="home-total-debt">$0.00</div>
-                </div>
-                <div class="cell">
-                  <div class="k">Monthly Payment <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About Monthly Payment">i</button></div>
-                  <div class="v" id="home-monthly">$0.00</div>
-                </div>
+              <div class="score-range-labels">
+                <span>300</span><span>650</span><span>700</span><span>750</span><span>850</span>
               </div>
             </div>
+          </div>
 
-            <!-- Credit card group -->
-            <div class="summary-group" id="cc-group">
-              <div class="group-head">
-                <div class="ic card"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="3" y="6" width="18" height="13" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M3 10 H21" stroke="currentColor" stroke-width="2"/></svg></div>
-                <div>
-                  <div class="h">Credit Card <button type="button" class="fv-info-btn" data-info-key="card:credit_card_summary" aria-label="About the Credit Card card">i</button></div>
-                  <div class="sub">Spending &amp; revolving credit</div>
-                </div>
-              </div>
-              <div class="summary-stats">
-                <div class="cell">
-                  <div class="k">Credit Score <button type="button" class="fv-info-btn" data-info-key="credit_score" aria-label="About Credit Score">i</button></div>
-                  <div class="v score" id="home-score-wrap">
-                    <span id="home-score">680</span>
-                    <span class="health-badge fair" id="home-score-badge"><span class="dot"></span><span id="home-score-label">Fair</span></span>
-                  </div>
-                </div>
-                <div class="cell">
-                  <div class="k">Utilization <button type="button" class="fv-info-btn" data-info-key="credit_utilization" aria-label="About Credit Utilization">i</button></div>
-                  <div class="v" id="home-util">25%</div>
-                  <div class="util-bar fair" id="home-util-bar"><span style="width:25%"></span><span class="threshold" style="left:30%"></span><span class="threshold" style="left:50%"></span></div>
-                </div>
-                <div class="cell">
-                  <div class="k">CC Balance <button type="button" class="fv-info-btn" data-info-key="cc_balance" aria-label="About CC Balance">i</button></div>
-                  <div class="v" id="home-cc-balance">$1,240.00</div>
-                </div>
-                <div class="cell">
-                  <div class="k">Available Credit <button type="button" class="fv-info-btn" data-info-key="available_credit" aria-label="About Available Credit">i</button></div>
-                  <div class="v" id="home-cc-avail">$3,760.00</div>
-                </div>
-              </div>
+          <!-- Credit card utilization block -->
+          <div class="util-block">
+            <div class="util-sentence" id="home-util-sentence">Your credit card is 25% full. You're in the green zone. Keep it below 30%.</div>
+            <div class="util-bar fair" id="home-util-bar">
+              <span style="width:25%"></span>
+              <div class="util-target-label">30% target</div>
+              <span class="threshold" style="left:30%"></span>
+              <span class="threshold" style="left:50%"></span>
             </div>
+            <span id="home-util" style="display:none">25%</span>
+            <div class="cc-summary-row">
+              Card balance <button type="button" class="fv-info-btn" data-info-key="cc_balance" aria-label="About card balance">i</button>: <strong id="home-cc-balance">$1,240</strong>
+              &nbsp;&middot;&nbsp; Credit limit: <strong id="home-cc-limit">$5,000</strong>
+              &nbsp;&middot;&nbsp; Available to spend <button type="button" class="fv-info-btn" data-info-key="available_credit" aria-label="About available credit">i</button>: <strong id="home-cc-avail">$3,760</strong>
+            </div>
+          </div>
+
+          <!-- Loans summary line -->
+          <div class="loan-summary-row">
+            <span id="home-loan-sentence">You owe <strong>$48,200</strong> across 2 loans, paying <strong>$640</strong>/mo</span>
+            <span id="home-total-debt" style="display:none">$0.00</span>
+            <span id="home-monthly" style="display:none">$0.00</span>
           </div>
 
           <!-- Active loans -->
           <div class="loans-section">
             <div class="head">
-              <div class="kicker">Active Loans <button type="button" class="fv-info-btn" data-info-key="card:active_loan_row" aria-label="About active loans">i</button> <span id="loans-count" style="color:var(--fg-2);font-weight:900">(0)</span></div>
+              <div class="kicker">Your loans <button type="button" class="fv-info-btn" data-info-key="card:active_loan_row" aria-label="About your loans">i</button> <span id="loans-count" style="color:var(--fg-2);font-weight:900">(0)</span></div>
             </div>
             <div class="loans-list" id="loans-list"></div>
             <div class="empty" id="loans-empty" style="display:none">
               <div class="h">You have no active loans.</div>
-              <div class="p">Visit <strong>Explore</strong> to finance a property.</div>
+              <div class="p">Visit <strong>Get a Loan</strong> to finance a property.</div>
             </div>
           </div>
         </section>
 
-        <!-- ============= EXPLORE ============= -->
+        <!-- ============= EXPLORE (visible label: Get a Loan) ============= -->
         <section class="tab" data-tab="explore">
-          <div class="lot-select-row" id="lot-select-row">
-            <span class="label">Lot</span>
-            <select class="lot-select" id="lot-select"></select>
+          <div class="lot-cards" id="lot-cards"></div>
+
+          <!-- Pre-pick prompt: visible while ui.selectedLotId === null -->
+          <div class="empty pick-prompt" id="pick-prompt" style="display:none">
+            <div class="h">Pick a property above to see your loan options</div>
+            <div class="p">Tap one of the lot cards to compare loans, see your monthly payment, and check if you qualify.</div>
           </div>
 
           <div class="explore-grid" id="explore-grid">
@@ -823,6 +1016,7 @@ html, body {
               <div>
                 <div class="carousel-name" id="carousel-name">30-Year Standard</div>
                 <div class="carousel-tagline" id="carousel-tag">Lower monthly payment, longer term</div>
+                <div id="carousel-term-plain">You'll make payments for 30 years.</div>
               </div>
               <div class="carousel-controls">
                 <button class="icon-btn" id="carousel-prev" aria-label="Previous loan">
@@ -833,6 +1027,7 @@ html, body {
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
                 </button>
               </div>
+              <div class="carousel-hint" id="carousel-hint"></div>
             </div>
 
             <!-- Stats -->
@@ -841,15 +1036,31 @@ html, body {
                 <div class="nm" id="stats-lot-name">Bistro Lot <button type="button" class="fv-info-btn" data-info-key="card:loan_offer" aria-label="About this loan offer">i</button></div>
                 <div class="price" id="stats-lot-price">$124,000</div>
               </div>
-              <div class="stats-table">
-                <div class="field"><div class="k">APR <button type="button" class="fv-info-btn" data-info-key="apr" aria-label="About APR">i</button></div><div class="v" id="stats-apr">5.2%</div></div>
-                <div class="field"><div class="k">Min Credit Score <button type="button" class="fv-info-btn" data-info-key="min_credit_score" aria-label="About Min Credit Score">i</button></div><div class="v" id="stats-min-score">650+</div></div>
-                <div class="field"><div class="k">Down Payment <button type="button" class="fv-info-btn" data-info-key="down_payment" aria-label="About Down Payment">i</button></div><div class="v" id="stats-down">$24,800</div></div>
-                <div class="field"><div class="k">Term <button type="button" class="fv-info-btn" data-info-key="loan_term" aria-label="About Term">i</button></div><div class="v" id="stats-term">30 yr</div></div>
-                <div class="field featured"><div class="k">Monthly Payment <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About Monthly Payment">i</button></div><div class="v" id="stats-monthly">$540</div></div>
-                <div class="field"><div class="k">Total Loan <button type="button" class="fv-info-btn" data-info-key="total_loan" aria-label="About Total Loan">i</button></div><div class="v" id="stats-total">$99,200</div></div>
-                <div class="field"><div class="k">Total Cost <button type="button" class="fv-info-btn" data-info-key="total_cost" aria-label="About Total Cost">i</button></div><div class="v" id="stats-cost">$194,400</div></div>
+
+              <!-- Visible by default: 3 most decision-relevant fields -->
+              <div class="collapsed-stats">
+                <div class="field"><div class="k">Score needed <button type="button" class="fv-info-btn" data-info-key="min_credit_score" aria-label="About score needed">i</button></div><div class="v" id="stats-min-score">650+</div></div>
+                <div class="field"><div class="k">Upfront payment <button type="button" class="fv-info-btn" data-info-key="down_payment" aria-label="About upfront payment">i</button></div><div class="v" id="stats-down">$24,800</div></div>
+                <div class="field"><div class="k">Payoff timeline <button type="button" class="fv-info-btn" data-info-key="loan_term" aria-label="About payoff timeline">i</button></div><div class="v" id="stats-term">30 yr</div></div>
               </div>
+
+              <!-- Featured monthly payment, full-width -->
+              <div class="stats-table">
+                <div class="field featured"><div class="k">Your monthly payment <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About your monthly payment">i</button></div><div class="v" id="stats-monthly">$540</div></div>
+              </div>
+
+              <!-- Hidden by default; revealed via the See full details toggle -->
+              <div class="detail-stats" id="detail-stats">
+                <div class="field"><div class="k">Yearly interest rate <button type="button" class="fv-info-btn" data-info-key="apr" aria-label="About yearly interest rate">i</button></div><div class="v" id="stats-apr">5.2%</div></div>
+                <div class="field"><div class="k">Amount borrowed <button type="button" class="fv-info-btn" data-info-key="total_loan" aria-label="About amount borrowed">i</button></div><div class="v" id="stats-total">$99,200</div></div>
+                <div class="field"><div class="k">Total you'll pay <button type="button" class="fv-info-btn" data-info-key="total_cost" aria-label="About total you'll pay">i</button></div><div class="v" id="stats-cost">$194,400</div></div>
+              </div>
+
+              <button class="details-toggle" id="details-toggle" type="button">See full details ↓</button>
+
+              <!-- Total cost story block -->
+              <div class="total-cost-story" id="total-cost-story"></div>
+
               <div id="qualify-row"></div>
               <div class="apply-row">
                 <button class="btn btn-primary btn-lg" id="apply-btn" style="flex:1">Apply Now</button>
@@ -870,7 +1081,7 @@ html, body {
         <!-- ============= HISTORY ============= -->
         <section class="tab" data-tab="history">
           <div class="history-controls">
-            <div class="kicker" style="margin-bottom:0">Recent activity <button type="button" class="fv-info-btn" data-info-key="history_legend" aria-label="About recent activity">i</button></div>
+            <div class="kicker" style="margin-bottom:0">Your credit history <button type="button" class="fv-info-btn" data-info-key="history_legend" aria-label="About your credit history">i</button></div>
             <div class="range-pills" id="range-pills"></div>
           </div>
           <div class="history-list" id="history-list"></div>
@@ -950,9 +1161,14 @@ function historyFilterChanged(range) {
    ============================================================ */
 const ui = {
   activeTab: "home",
-  selectedLotId: mockState.availableLots[0]?.id || null,
+  // No lot is preselected: the Explore tab opens with a "pick a property"
+  // prompt and reveals carousel/stats only after the student taps a lot card.
+  selectedLotId: null,
   carouselIndex: 0,
   historyRange: "all",
+  // "See full details" disclosure on the Explore tab. Persisted on `ui` so
+  // it survives carousel paging, lot card swaps, and Unity update() pushes.
+  showFullLoanDetails: false,
 };
 
 /* ============================================================
@@ -1004,30 +1220,66 @@ function switchTab(name) {
 /* ============================================================
    HOME
    ============================================================ */
+// Position the score-meter marker proportionally between 300 and 850.
+function positionScoreMarker() {
+  const score = mockState.creditScore;
+  const clamped = Math.max(300, Math.min(850, score));
+  const pct = ((clamped - 300) / 550 * 100).toFixed(1) + "%";
+  $("#home-score-marker").style.left = pct;
+}
+
+// Plain-English sentence derived from utilization bucket.
+function buildUtilSentence(util, bucket) {
+  const pct = Math.round(util * 100);
+  if (bucket === "good") return `Your credit card is ${pct}% full. You're in the green zone. Keep it below 30%.`;
+  if (bucket === "fair") return `Your credit card is ${pct}% full. Getting high, try to pay it down below 30%.`;
+  return `Your credit card is ${pct}% full. Too high, this is hurting your credit score.`;
+}
+
 function renderHome() {
+  // Hidden but kept-in-DOM elements still receive their values so the
+  // bridge contract stays intact even though the visible UI now reads
+  // these numbers via composed sentences.
   $("#home-total-debt").textContent = fmtMoney(mockState.totalDebt);
   $("#home-monthly").textContent    = fmtMoney(mockState.monthlyDebtPayment);
 
-  // Credit score + bucket
+  // Credit score hero + spectrum marker
   const sb = scoreBucket(mockState.creditScore);
   $("#home-score").textContent = mockState.creditScore;
-  $("#home-score-label").textContent = sb.label;
-  $("#home-score-badge").className = "health-badge " + sb.cls;
+  $("#home-score-label").textContent = sb.label + " Credit";
+  positionScoreMarker();
 
-  // CC group
-  $("#home-cc-balance").textContent = fmtMoney(mockState.ccBalance);
-  $("#home-cc-avail").textContent   = fmtMoney(mockState.ccAvailable);
+  // CC summary line
+  $("#home-cc-balance").textContent = fmtMoneyShort(mockState.ccBalance);
+  $("#home-cc-limit").textContent   = fmtMoneyShort(mockState.ccLimit);
+  $("#home-cc-avail").textContent   = fmtMoneyShort(mockState.ccAvailable);
 
+  // Util block: sentence + 16px bar.
   const utilCls = utilBucket(mockState.ccUtilization);
   $("#home-util").textContent = fmtPctInt(mockState.ccUtilization);
+  $("#home-util-sentence").textContent = buildUtilSentence(mockState.ccUtilization, utilCls);
   const utilBar = $("#home-util-bar");
   utilBar.className = "util-bar " + utilCls;
-  utilBar.firstElementChild.style.width = (mockState.ccUtilization*100).toFixed(0) + "%";
+  // Fill is the only <span> child (target-label and threshold are <div>s
+  // and <span class="threshold">). Use a more specific selector to keep
+  // this robust if the DOM order changes.
+  const fillSpan = utilBar.querySelector(":scope > span:not(.threshold)");
+  if (fillSpan) fillSpan.style.width = (mockState.ccUtilization*100).toFixed(0) + "%";
 
-  // Active loans
+  // Loans summary sentence
+  const loanCount = mockState.activeLoans.length;
+  if (loanCount > 0) {
+    const noun = loanCount === 1 ? "loan" : "loans";
+    $("#home-loan-sentence").innerHTML =
+      `You owe <strong>${fmtMoneyShort(mockState.totalDebt)}</strong> across ${loanCount} ${noun}, paying <strong>${fmtMoneyShort(mockState.monthlyDebtPayment)}</strong>/mo`;
+  } else {
+    $("#home-loan-sentence").innerHTML = "";
+  }
+
+  // Active loans list
   const list = $("#loans-list");
-  $("#loans-count").textContent = `(${mockState.activeLoans.length})`;
-  if (!mockState.activeLoans.length) {
+  $("#loans-count").textContent = `(${loanCount})`;
+  if (!loanCount) {
     list.innerHTML = "";
     $("#loans-empty").style.display = "block";
     return;
@@ -1038,28 +1290,22 @@ function renderHome() {
     const paidPrincipal = l.originalPrincipal - l.balance;
     const pct = Math.max(0, Math.min(100, (paidPrincipal / l.originalPrincipal) * 100));
     return `
-      <div class="loan-row" data-id="${l.id}">
-        <div class="name">
+      <div class="loan-row-v" data-id="${l.id}">
+        <div class="row-head">
           <div class="ic">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M9 20 V13 H15 V20"/></svg>
           </div>
           <div style="min-width:0">
             <div class="nm">${l.lotName}</div>
-            <div class="sub">${l.monthsPaid} of ${l.termMonths} months paid</div>
+            <div class="sub">${l.monthsPaid} of ${l.termMonths} months paid &middot; ${pct.toFixed(0)}% paid off</div>
           </div>
         </div>
-        <div class="stat">
-          <div class="k">Outstanding <button type="button" class="fv-info-btn" data-info-key="loan_principal_remaining" aria-label="About Outstanding loan balance">i</button></div>
-          <div class="v">${fmtMoneyShort(l.balance)}</div>
-        </div>
-        <div class="stat">
-          <div class="k">Monthly <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About Monthly Payment">i</button></div>
-          <div class="v">${fmtMoneyShort(l.monthlyPayment)}<span style="font-size:12px;font-weight:700;color:var(--fg-3)"> /mo</span></div>
-        </div>
-        <div class="progress">
-          <div class="top"><span>Paid off <button type="button" class="fv-info-btn" data-info-key="loan_paid_off" aria-label="About Paid off">i</button></span><span class="pct">${pct.toFixed(0)}%</span></div>
-          <div class="progress-track"><span style="width:${pct}%"></span></div>
-          <div class="top" style="font-size:11px"><span>${fmtMoneyShort(paidPrincipal)} of ${fmtMoneyShort(l.originalPrincipal)}</span><span></span></div>
+        <div class="progress-track"><span style="width:${pct}%"></span></div>
+        <div class="narrative">
+          Paid ${fmtMoneyShort(paidPrincipal)} of ${fmtMoneyShort(l.originalPrincipal)}
+          <button type="button" class="fv-info-btn" data-info-key="loan_paid_off" aria-label="About paid off">i</button>
+          &middot; paying ${fmtMoneyShort(l.monthlyPayment)}/mo
+          <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About monthly payment">i</button>
         </div>
       </div>
     `;
@@ -1069,18 +1315,49 @@ function renderHome() {
 /* ============================================================
    EXPLORE
    ============================================================ */
-function buildLotSelect() {
-  const sel = $("#lot-select");
-  sel.innerHTML = mockState.availableLots.map(l => `
-    <option value="${l.id}">${l.name} — ${fmtMoneyShort(l.price)}</option>
+// Plain-English term lookup for the carousel sub-line.
+const TERM_PLAIN = {
+  360: "You'll make payments for 30 years.",
+  180: "You'll make payments for 15 years.",
+  120: "You'll make payments for 10 years.",
+};
+
+// Replaces buildLotSelect() — renders one button per lot. Uses the 🏠
+// emoji uniformly because mockState.availableLots has no per-lot icon
+// field. Active card is bordered + sky-soft per CSS .lot-card.active.
+function buildLotCards() {
+  const container = $("#lot-cards");
+  container.innerHTML = mockState.availableLots.map(l => `
+    <button type="button" class="lot-card${ui.selectedLotId === l.id ? ' active' : ''}" data-lot-id="${l.id}">
+      <div class="lot-icon">🏠</div>
+      <div class="lot-name">${l.name}</div>
+      <div class="lot-price">${fmtMoneyShort(l.price)}</div>
+    </button>
   `).join("");
-  sel.value = ui.selectedLotId;
-  sel.addEventListener("change", () => {
-    ui.selectedLotId = sel.value;
-    ui.carouselIndex = 0;
-    renderExplore();
+  $$("#lot-cards .lot-card").forEach(btn => {
+    btn.addEventListener("click", () => {
+      ui.selectedLotId = btn.dataset.lotId;
+      ui.carouselIndex = 0;
+      renderExplore();
+    });
   });
 }
+
+// Legacy buildLotSelect — kept commented for git-history clarity. The
+// <select id="lot-select"> element it targeted has been removed in favor
+// of the lot-cards row.
+// function buildLotSelect() {
+//   const sel = $("#lot-select");
+//   sel.innerHTML = mockState.availableLots.map(l => `
+//     <option value="${l.id}">${l.name} - ${fmtMoneyShort(l.price)}</option>
+//   `).join("");
+//   sel.value = ui.selectedLotId;
+//   sel.addEventListener("change", () => {
+//     ui.selectedLotId = sel.value;
+//     ui.carouselIndex = 0;
+//     renderExplore();
+//   });
+// }
 
 function getQualifyingProducts(lot) {
   return mockState.loanProducts.filter(p => mockState.creditScore >= p.minCreditScore);
@@ -1119,18 +1396,28 @@ function renderExplore() {
   const grid = $("#explore-grid");
   const emptyLots = $("#explore-empty-lots");
   const emptyLoans = $("#explore-empty-loans");
-  const lotRow = $("#lot-select-row");
+  const lotCards = $("#lot-cards");
+  const pickPrompt = $("#pick-prompt");
+  const apply = $("#apply-btn");
   emptyLots.style.display = "none";
   emptyLoans.style.display = "none";
+  pickPrompt.style.display = "none";
 
   if (!lots.length) {
     grid.style.display = "none";
-    lotRow.style.display = "none";
+    lotCards.style.display = "none";
     emptyLots.style.display = "block";
     return;
   }
-  lotRow.style.display = "";
-  buildLotSelect();
+  lotCards.style.display = "";
+  buildLotCards();
+
+  // No-lot state: defer the rest of the panel until the student picks one.
+  if (ui.selectedLotId == null) {
+    grid.style.display = "none";
+    pickPrompt.style.display = "block";
+    return;
+  }
 
   const lot = lots.find(l => l.id === ui.selectedLotId) || lots[0];
   const qualifying = getQualifyingProducts(lot);
@@ -1150,6 +1437,7 @@ function renderExplore() {
   $("#carousel-name").textContent = product.name;
   $("#carousel-tag").textContent  = product.tagline;
   $("#carousel-term").textContent = (product.termMonths/12) + " yr";
+  $("#carousel-term-plain").textContent = TERM_PLAIN[product.termMonths] || "";
 
   // Dots
   $("#carousel-dots").innerHTML = qualifying.map((_,i) =>
@@ -1162,21 +1450,46 @@ function renderExplore() {
   $("#carousel-prev").style.visibility = single ? "hidden" : "";
   $("#carousel-next").style.visibility = single ? "hidden" : "";
 
+  // Surface non-qualifying loans so the student knows other products
+  // exist and what gates them. We don't put them in the carousel because
+  // the brief locks the carousel to qualifying loans only.
+  const totalProducts = mockState.loanProducts.length;
+  const lockedProducts = mockState.loanProducts.filter(p => mockState.creditScore < p.minCreditScore);
+  const lockedCount = lockedProducts.length;
+  const hint = $("#carousel-hint");
+  if (lockedCount > 0) {
+    const minNeeded = Math.min(...lockedProducts.map(p => p.minCreditScore));
+    const noun = lockedCount === 1 ? "loan" : "loans";
+    hint.textContent = `Showing ${qualifying.length} of ${totalProducts} loans. Reach a ${minNeeded} score to unlock ${lockedCount} more ${noun}.`;
+  } else {
+    hint.textContent = "";
+  }
+
   // Stats table
   const downPayment = Math.round(lot.price * product.downPaymentPercent);
   const totalLoan = lot.price - downPayment;
   const monthly = Math.round(monthlyPayment(totalLoan, product.apr/100/12, product.termMonths));
   const totalCost = downPayment + monthly * product.termMonths;
+  const interestExtra = totalCost - lot.price;
+  const years = product.termMonths / 12;
 
   $("#stats-lot-name").textContent  = lot.name;
   $("#stats-lot-price").textContent = fmtMoneyShort(lot.price);
   $("#stats-apr").textContent       = product.apr.toFixed(1) + "%";
   $("#stats-min-score").textContent = product.minCreditScore + "+";
   $("#stats-down").textContent      = fmtMoneyShort(downPayment) + " (" + Math.round(product.downPaymentPercent*100) + "%)";
-  $("#stats-term").textContent      = (product.termMonths/12) + " yr";
+  $("#stats-term").textContent      = years + " yr";
   $("#stats-monthly").textContent   = fmtMoneyShort(monthly) + "/mo";
   $("#stats-total").textContent     = fmtMoneyShort(totalLoan);
   $("#stats-cost").textContent      = fmtMoneyShort(totalCost);
+
+  // Apply the persisted disclosure state to the detail strip + toggle.
+  $("#detail-stats").classList.toggle("open", ui.showFullLoanDetails);
+  $("#details-toggle").textContent = ui.showFullLoanDetails ? "Hide full details ↑" : "See full details ↓";
+
+  // Total cost story: the redesign's core teaching block.
+  $("#total-cost-story").innerHTML =
+    `This property costs <strong>${fmtMoneyShort(lot.price)}</strong>. With this loan, you'll pay <strong>${fmtMoneyShort(totalCost)}</strong> total, which is <strong style="color:var(--warn);font-weight:900">${fmtMoneyShort(interestExtra)}</strong> extra in interest over ${years} years.`;
 
   // Qualify
   const q = evalQualify(product, lot);
@@ -1196,7 +1509,17 @@ function renderExplore() {
       "Insufficient cash for down payment": "down_payment",
       "Debt-to-income too high": "debt_to_income",
     };
+    // Instructive messages: tell the student what to do, not just what's wrong.
+    const REASON_MESSAGES = {
+      "Credit score too low":
+        `Your score is ${mockState.creditScore}. This loan needs ${product.minCreditScore}+. Pay your credit card on time to raise it.`,
+      "Insufficient cash for down payment":
+        `This loan needs ${fmtMoneyShort(Math.round(lot.price * product.downPaymentPercent))} upfront. You have ${fmtMoneyShort(mockState.cashOnHand)}.`,
+      "Debt-to-income too high":
+        `Your monthly loan payments take up too much of your income. Pay off some debt first, or choose a smaller property.`,
+    };
     const reason = q.reasons[0];
+    const message = REASON_MESSAGES[reason] || reason;
     const infoKey = REASON_INFO_KEYS[reason];
     const infoBtn = infoKey
       ? `<button type="button" class="fv-info-btn" data-info-key="${infoKey}" aria-label="About ${reason}">i</button>`
@@ -1204,12 +1527,11 @@ function renderExplore() {
     qrow.innerHTML = `
       <div class="qualify fail">
         <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8 V13"/><path d="M12 16 V16.01"/></svg></span>
-        <span>${reason} ${infoBtn}</span>
+        <span>${message} ${infoBtn}</span>
       </div>`;
   }
 
   // Apply button
-  const apply = $("#apply-btn");
   apply.disabled = !q.ok;
   apply.onclick = () => {
     if (apply.disabled) return;
@@ -1249,11 +1571,11 @@ function bindCarousel() {
    ============================================================ */
 const HISTORY_TYPES = {
   "loan-payment":     { label: "Loan Payment",     dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M9 20 V13 H15 V20"/></svg>' },
-  "loan-originated":  { label: "Loan Originated",  dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M12 13 V18"/><path d="M9.5 15.5 L12 13 L14.5 15.5"/></svg>' },
-  "cc-statement":     { label: "CC Statement",     dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10 H21"/></svg>' },
-  "cc-payment":       { label: "CC Payment",       dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>' },
+  "loan-originated":  { label: "Loan Started",     dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M12 13 V18"/><path d="M9.5 15.5 L12 13 L14.5 15.5"/></svg>' },
+  "cc-statement":     { label: "Card Statement",   dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10 H21"/></svg>' },
+  "cc-payment":       { label: "Card Payment",     dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>' },
   "missed-payment":   { label: "Missed Payment",   dir: "warn",    icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L21 19 H3 Z"/><path d="M12 10 V14"/><path d="M12 17 V17.01"/></svg>' },
-  "score-change":     { label: "Score Change",     dir: "neutral", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17 L9 12 L13 14 L20 6"/><path d="M14 6 L20 6 L20 12"/></svg>' },
+  "score-change":     { label: "Score Update",     dir: "neutral", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17 L9 12 L13 14 L20 6"/><path d="M14 6 L20 6 L20 12"/></svg>' },
 };
 
 const RANGES = [
@@ -1263,8 +1585,14 @@ const RANGES = [
 ];
 
 function buildRangePills() {
+  // Range pills are intentionally scaffolded for a future phase that
+  // wires real in-game date parsing. They render and stay clickable in
+  // the listener layer (so historyFilterChanged keeps firing for any
+  // future programmatic activation), but are visually inactive and not
+  // reachable by pointer or keyboard. Skip the active class so none
+  // appears selected.
   $("#range-pills").innerHTML = RANGES.map(r =>
-    `<button class="chip ${r.id===ui.historyRange?'active':''}" data-range="${r.id}">${r.label}</button>`).join("");
+    `<button class="chip" data-range="${r.id}" aria-disabled="true" tabindex="-1" title="Time filtering available in a future update" style="opacity:0.45;cursor:default;pointer-events:none">${r.label}</button>`).join("");
   $$("#range-pills .chip").forEach(b => b.addEventListener("click", () => {
     ui.historyRange = b.dataset.range;
     historyFilterChanged(ui.historyRange);
@@ -1291,19 +1619,31 @@ function renderHistory() {
   list.innerHTML = items.map(h => {
     const meta = HISTORY_TYPES[h.type] || { label: h.type, dir: "neutral", icon: "" };
     const dir = h.amount === 0 ? meta.dir : (h.amount > 0 ? "inflow" : "outflow");
-    const amountStr = h.amount === 0 ? (meta.dir === "warn" ? "—" : "—") : fmtSignedMoney(h.amount, 2);
-    // Date split: "Year 2, Mar 12" → "Mar 12" / "Year 2"
+    const amountStr = h.amount === 0 ? "—" : fmtSignedMoney(h.amount, 2);
+    // Date split: "Year 2, Mar 12" -> "Mar 12" / "Year 2"
     const m = h.date.match(/^(Year \d+),\s*(.+)$/);
     const day = m ? m[2] : h.date;
     const yr  = m ? m[1] : "";
+    // Score-change rows are pedagogically the most important entries —
+    // highlight the row, and color the sublabel by sign (+15 = green,
+    // -12 = red). The amount field on score-change events is 0, so we
+    // parse the sublabel's leading character to recover direction.
+    const isScoreEvent = h.type === "score-change";
+    const rowClass = isScoreEvent ? "history-row score-event" : "history-row";
+    let subStyle = "";
+    if (h.sublabel) {
+      const first = h.sublabel.charAt(0);
+      if (first === "+") subStyle = ' style="color:var(--gain);font-weight:800"';
+      else if (first === "-" || first === "−") subStyle = ' style="color:var(--loss);font-weight:800"';
+    }
     return `
-      <div class="history-row">
+      <div class="${rowClass}">
         <div class="date">${day}<span class="yr">${yr}</span></div>
         <div class="ic-wrap ${dir}">${meta.icon}</div>
         <div class="body">
           <div class="label">${meta.label}</div>
           <div class="desc">${h.description}</div>
-          ${h.sublabel ? `<div class="sub">${h.sublabel}</div>` : ``}
+          ${h.sublabel ? `<div class="sub"${subStyle}>${h.sublabel}</div>` : ``}
         </div>
         <div class="amount ${dir}">${amountStr}</div>
       </div>
@@ -1317,6 +1657,14 @@ function renderHistory() {
 function boot() {
   bindTabs();
   bindCarousel();
+
+  // "See full details" disclosure on the Explore tab. The toggle state
+  // lives on `ui.showFullLoanDetails` so it persists across re-renders
+  // (carousel paging, lot swaps, Unity update() pushes).
+  $("#details-toggle").addEventListener("click", () => {
+    ui.showFullLoanDetails = !ui.showFullLoanDetails;
+    renderExplore();
+  });
 
   // Close button — fire an intent through the host. The host SendMessage's
   // the C# CreditWebBridge which raises GameEvents.OnHidePanelRequested.
@@ -1358,8 +1706,14 @@ function boot() {
       if (Array.isArray(payload.history))       mockState.history = payload.history;
       if (Array.isArray(payload.availableLots)) {
         mockState.availableLots = payload.availableLots;
+        // If the previously-selected lot was removed from the list, fall
+        // back to the no-selection state. We deliberately don't auto-pick
+        // a replacement: the redesign's pre-pick prompt is the canonical
+        // initial state and re-entering it on a stale selection is the
+        // correct UX rather than silently substituting a different lot.
         if (ui.selectedLotId && !mockState.availableLots.find(l => l.id === ui.selectedLotId)) {
-          ui.selectedLotId = mockState.availableLots[0] ? mockState.availableLots[0].id : null;
+          ui.selectedLotId = null;
+          ui.carouselIndex = 0;
         }
       }
 
