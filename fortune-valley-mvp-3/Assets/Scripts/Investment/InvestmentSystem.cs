@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using FortuneValley.Domain.Entities;
+using FortuneValley.Domain.Interfaces;
 
 namespace FortuneValley.Core
 {
@@ -13,8 +14,11 @@ namespace FortuneValley.Core
     /// 3. Experience the time value of money (earlier investments grow more)
     ///
     /// All values are explicit and trackable to support learning reflection.
+    ///
+    /// Implements IBankruptcyResettable: on soft bankruptcy, all holdings,
+    /// realized gains, and sell history are wiped. Prices are re-seeded.
     /// </summary>
-    public class InvestmentSystem : MonoBehaviour, IInvestmentService
+    public class InvestmentSystem : MonoBehaviour, IInvestmentService, IBankruptcyResettable
     {
         // ═══════════════════════════════════════════════════════════════
         // DEPENDENCIES
@@ -164,6 +168,20 @@ namespace FortuneValley.Core
         }
 
         private void HandleGameStart()
+        {
+            ResetPortfolioState();
+        }
+
+        /// <summary>
+        /// IBankruptcyResettable. Soft reset: all holdings + history wiped,
+        /// prices re-seeded so the player starts fresh on the invest side.
+        /// </summary>
+        public void OnBankruptcyReset()
+        {
+            ResetPortfolioState();
+        }
+
+        private void ResetPortfolioState()
         {
             _activeInvestments.Clear();
             _lifetimeRealizedGains = 0f;

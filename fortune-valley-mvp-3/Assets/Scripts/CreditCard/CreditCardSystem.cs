@@ -1,5 +1,6 @@
 using UnityEngine;
 using FortuneValley.Domain.Entities;
+using FortuneValley.Domain.Interfaces;
 
 namespace FortuneValley.Core
 {
@@ -10,8 +11,12 @@ namespace FortuneValley.Core
     /// LEARNING DESIGN: Every purchase goes on credit. Students must
     /// actively decide how much to pay each month. Carrying a balance
     /// costs real money (interest), making the cost of debt visible.
+    ///
+    /// Implements IBankruptcyResettable: on soft bankruptcy, the active
+    /// card is recreated (zero balance, no history) and credit score
+    /// returns to the configured starting value (650 by default).
     /// </summary>
-    public class CreditCardSystem : MonoBehaviour
+    public class CreditCardSystem : MonoBehaviour, IBankruptcyResettable
     {
         // ===============================================================
         // CONFIGURATION
@@ -89,10 +94,24 @@ namespace FortuneValley.Core
 
         private void HandleGameStart()
         {
+            ResetCardAndScore();
+        }
+
+        /// <summary>
+        /// IBankruptcyResettable. Soft reset: clear debt, reset credit score
+        /// to the configured starting value, recreate the active card.
+        /// </summary>
+        public void OnBankruptcyReset()
+        {
+            ResetCardAndScore();
+        }
+
+        private void ResetCardAndScore()
+        {
             _card = new ActiveCreditCard();
             _currentCreditScore = _scoringConfig != null ? _scoringConfig.StartingScore : 0;
 
-            // Re-raise initial values so HUD displays are correct on game start
+            // Re-raise initial values so HUD displays update on reset.
             GameEvents.RaiseCreditCardBalanceChanged(0f, 0f);
             GameEvents.RaiseCreditScoreChanged(_currentCreditScore);
         }

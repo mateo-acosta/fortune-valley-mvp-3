@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Enums;
+using FortuneValley.Domain.Interfaces;
 
 namespace FortuneValley.Core
 {
@@ -14,8 +15,11 @@ namespace FortuneValley.Core
     /// LEARNING DESIGN: Students learn that insurance is a trade-off:
     /// pay a small regular cost (premium) to avoid large unexpected costs.
     /// Seeing uninsured losses makes the value of coverage tangible.
+    ///
+    /// Implements IBankruptcyResettable: on soft bankruptcy, all active
+    /// policies are dropped (lots returned to "for sale" lose coverage too).
     /// </summary>
-    public class InsuranceSystem : MonoBehaviour
+    public class InsuranceSystem : MonoBehaviour, IBankruptcyResettable
     {
         // ===============================================================
         // CONFIGURATION
@@ -82,6 +86,15 @@ namespace FortuneValley.Core
         }
 
         private void HandleGameStart()
+        {
+            _portfolio = new InsurancePortfolio();
+        }
+
+        /// <summary>
+        /// IBankruptcyResettable. Soft reset: drop all active policies
+        /// (the lots they covered are also being released to "for sale").
+        /// </summary>
+        public void OnBankruptcyReset()
         {
             _portfolio = new InsurancePortfolio();
         }

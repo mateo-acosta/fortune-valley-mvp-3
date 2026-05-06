@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using FortuneValley.Domain.Entities;
+using FortuneValley.Domain.Interfaces;
 
 namespace FortuneValley.Core
 {
@@ -12,8 +13,11 @@ namespace FortuneValley.Core
     /// LEARNING DESIGN: Loans let students finance lot purchases
     /// they cannot yet afford outright. The trade-off between
     /// paying interest vs waiting to save is a core lesson.
+    ///
+    /// Implements IBankruptcyResettable: on soft bankruptcy, all active
+    /// loans are wiped (student starts fresh on the borrow side).
     /// </summary>
-    public class LoanSystem : MonoBehaviour
+    public class LoanSystem : MonoBehaviour, IBankruptcyResettable
     {
         // ===============================================================
         // CONFIGURATION
@@ -76,6 +80,22 @@ namespace FortuneValley.Core
         private void HandleGameStart()
         {
             _portfolio = new LoanPortfolio();
+        }
+
+        /// <summary>
+        /// IBankruptcyResettable. Soft reset: clear the loan portfolio so the
+        /// player has no outstanding debt after bankruptcy.
+        /// </summary>
+        public void OnBankruptcyReset()
+        {
+            if (_portfolio != null)
+            {
+                _portfolio.Clear();
+            }
+            else
+            {
+                _portfolio = new LoanPortfolio();
+            }
         }
 
         // ===============================================================

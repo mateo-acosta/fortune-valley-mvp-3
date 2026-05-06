@@ -28,7 +28,7 @@ namespace FortuneValley.Core
     /// after load deposits that carried amount alongside the new day's
     /// accumulation in a single deposit. No special migration code needed.
     /// </summary>
-    public class DailyIncomeAccumulator : MonoBehaviour
+    public class DailyIncomeAccumulator : MonoBehaviour, IBankruptcyResettable
     {
         public const string RestaurantBuildingId = "restaurant";
 
@@ -287,6 +287,21 @@ namespace FortuneValley.Core
         private void HandleGameStart()
         {
             _warnedIds.Clear();
+            EnsureBucket(RestaurantBuildingId);
+        }
+
+        /// <summary>
+        /// IBankruptcyResettable. Soft reset: drop all pending income buckets
+        /// (lots are also being released back to "for sale"). Re-seed the
+        /// starter restaurant bucket so income flow resumes immediately.
+        /// </summary>
+        public void OnBankruptcyReset()
+        {
+            _accumulators.Clear();
+            _warnedIds.Clear();
+            _tickKeysScratch.Clear();
+            _totalDailyDirty = true;
+            _lastTotalDaily = -1f;
             EnsureBucket(RestaurantBuildingId);
         }
 

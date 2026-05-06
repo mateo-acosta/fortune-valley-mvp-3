@@ -9,8 +9,12 @@ namespace FortuneValley.Core
     /// Checking: liquid cash for spending, loan payments, CC repayments.
     /// Investing: separate pool for buying/selling shares.
     /// Credit card charges route through GameEvents (not this class).
+    ///
+    /// Implements IBankruptcyResettable so BankruptcyResetService can clear
+    /// the checking balance back to the starting amount during a soft reset.
+    /// (Investing portfolio is wiped by InvestmentSystem.OnBankruptcyReset.)
     /// </summary>
-    public class CurrencyManager : MonoBehaviour, ICurrencyService
+    public class CurrencyManager : MonoBehaviour, ICurrencyService, IBankruptcyResettable
     {
         // ═══════════════════════════════════════════════════════════════
         // CONFIGURATION
@@ -196,6 +200,17 @@ namespace FortuneValley.Core
         // ═══════════════════════════════════════════════════════════════
         // RESET / SETUP
         // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// IBankruptcyResettable. On soft bankruptcy, checking returns to the
+        /// starting balance. Investments are zeroed out by InvestmentSystem;
+        /// CC debt by CreditCardSystem. The orchestrating BankruptcyResetService
+        /// fires OnSoftBankruptcyReset after every IBankruptcyResettable runs.
+        /// </summary>
+        public void OnBankruptcyReset()
+        {
+            ResetBalance();
+        }
 
         /// <summary>
         /// Reset both accounts to starting amounts.
