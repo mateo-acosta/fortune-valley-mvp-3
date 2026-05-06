@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Investing System — Fortune Valley</title>
+<title>Investing System, Fortune Valley</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -10,7 +10,7 @@
 <script type="module" src="info/info-modal.js"></script>
 <style>
 /* ============================================================
-   Fortune Valley — Investing System panel
+   Fortune Valley, Investing System panel
    Single self-contained file. Light "paper" panel chrome that
    sits on top of the live game world.
    ============================================================ */
@@ -81,6 +81,13 @@
   --d-base: 200ms;
 
   --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Redesign tokens */
+  --hero-size:        52px;
+  --hero-sub-size:    16px;
+  --section-gap:      20px;
+  --story-card-bg:    var(--paper-2);
+  --story-card-radius: var(--r-lg);
 }
 
 * { box-sizing: border-box; }
@@ -140,7 +147,7 @@ html, body {
 }
 
 /* ----------------------------------------------------------
-   World chrome — Day badge, balance pills.
+   World chrome: Day badge, balance pills.
    ---------------------------------------------------------- */
 .topbar {
   position: fixed; top: 18px; left: 18px; right: 18px;
@@ -188,7 +195,7 @@ html, body {
 
 .spacer { flex: 1; }
 
-/* Right edge dock — entry point hint that this panel is one of five */
+/* Right edge dock: entry point hint that this panel is one of five */
 .dock {
   position: fixed; top: 110px; right: 18px;
   display: flex; flex-direction: column; gap: 10px; z-index: 20;
@@ -584,6 +591,231 @@ html, body {
 .graph-axis { font-size: 10px; fill: var(--fg-4); font-family: var(--font); font-weight: 700; }
 .graph-grid { stroke: var(--paper-4); stroke-width: 1; }
 
+/* ============================================================
+   Redesign: hero, kicker, risk meter, sparkline, featured,
+   clusters, story layout, collapsible graph, celebration.
+   ============================================================ */
+
+/* Hero block (Home) */
+.hero-block { text-align: center; padding: 8px 0 18px; }
+.hero-value {
+  font-weight: 900; font-size: var(--hero-size); letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums; line-height: 1.05; color: var(--fg-1);
+  display: inline-block;
+}
+.hero-sub {
+  margin-top: 8px; font-size: var(--hero-sub-size);
+  color: var(--fg-2); font-weight: 700;
+}
+.hero-sub .gain { color: var(--gain); font-weight: 900; }
+.hero-sub .loss { color: var(--loss); font-weight: 900; }
+
+/* Section spacing */
+.home-section + .home-section { margin-top: var(--section-gap); }
+
+/* Risk meter (replaces dot-style risk-badge in rendered output) */
+.risk-meter {
+  display: inline-flex; align-items: center; gap: 8px;
+  white-space: nowrap;
+}
+.risk-meter .risk-track {
+  width: 80px; height: 6px; border-radius: 999px;
+  background: var(--paper-4); overflow: hidden;
+}
+.risk-meter .risk-fill { height: 100%; border-radius: 999px; }
+.risk-meter.low    .risk-fill { width: 33%; background: var(--gain); }
+.risk-meter.medium .risk-fill { width: 66%; background: var(--warn); }
+.risk-meter.high   .risk-fill { width: 100%; background: var(--loss); }
+.risk-meter .risk-label { font-size: 12px; font-weight: 800; }
+.risk-meter.low    .risk-label { color: var(--gain); }
+.risk-meter.medium .risk-label { color: var(--warn); }
+.risk-meter.high   .risk-label { color: var(--loss); }
+
+/* Quieter info buttons */
+.fv-info-btn {
+  font-size: 10px; width: 16px; height: 16px;
+  padding: 0; border-radius: 50%;
+  color: var(--fg-4); background: transparent;
+  border: 1px solid var(--fg-4);
+  display: inline-flex; align-items: center; justify-content: center;
+  vertical-align: middle; cursor: pointer; line-height: 1;
+  font-family: var(--font); font-weight: 800;
+  transition: color var(--d-fast) var(--ease), background var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease);
+}
+.fv-info-btn:hover {
+  color: var(--fg-2); border-color: var(--fg-2);
+  background: rgba(14,21,48,0.04);
+}
+
+/* Compounding tick animations */
+@keyframes tickUp {
+  0%   { transform: scale(1);    color: var(--fg-1); }
+  40%  { transform: scale(1.04); color: var(--gain); }
+  100% { transform: scale(1);    color: var(--fg-1); }
+}
+@keyframes tickDown {
+  0%   { transform: scale(1);    color: var(--fg-1); }
+  40%  { transform: scale(1.04); color: var(--loss); }
+  100% { transform: scale(1);    color: var(--fg-1); }
+}
+.value-tick-up   { animation: tickUp   400ms ease; }
+.value-tick-down { animation: tickDown 400ms ease; }
+
+/* Sparkline (Market grid cards) */
+.sparkline { display: block; width: 80px; height: 36px; }
+.sparkline .spark-line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.sparkline.up   .spark-line { stroke: var(--gain); }
+.sparkline.down .spark-line { stroke: var(--loss); }
+
+/* Featured section + cards */
+.featured-section { display: flex; flex-direction: column; gap: 10px; margin-bottom: var(--section-gap); }
+.featured-card {
+  padding: 16px; border: var(--bd); border-radius: var(--r-md);
+  display: flex; gap: 14px; align-items: center;
+  background: var(--paper); cursor: pointer; box-shadow: var(--sh-1);
+  transition: transform var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease);
+}
+.featured-card:hover { transform: translateY(-2px); box-shadow: var(--sh-2); }
+.featured-card .av {
+  width: 44px; height: 44px; border-radius: 12px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 16px;
+}
+.featured-card .meta { flex: 1; min-width: 0; }
+.featured-card .nm { font-weight: 900; font-size: 15px; }
+.featured-card .desc { font-size: 12px; color: var(--fg-2); margin-top: 2px; line-height: 1.4; }
+.featured-card .price { font-weight: 900; font-size: 16px; font-variant-numeric: tabular-nums; }
+.featured-card .btn { flex: none; }
+
+/* Cluster sections (Market) */
+.cluster-section { margin-bottom: var(--section-gap); }
+.cluster-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 8px;
+}
+.see-all-link {
+  font-size: 12px; font-weight: 800; color: var(--fg-2);
+  cursor: pointer; background: none; border: none;
+  font-family: var(--font); padding: 0;
+}
+.see-all-link:hover { color: var(--fg-1); text-decoration: underline; }
+
+/* Filter toggle (Market and Portfolio) */
+.tab-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.tab-toolbar h2 {
+  margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -0.01em;
+  color: var(--fg-1);
+}
+.filter-toggle-btn {
+  font-family: var(--font); font-weight: 800; font-size: 13px;
+  padding: 7px 14px; border-radius: 999px;
+  background: var(--paper-2); border: var(--bd); color: var(--fg-2);
+  cursor: pointer; transition: background var(--d-fast) var(--ease);
+}
+.filter-toggle-btn:hover { background: var(--paper-3); color: var(--fg-1); }
+.filter-toggle-btn.active { background: var(--ink-900); color: #fff; border-color: var(--ink-900); }
+.filter-toggle-btn .count { margin-left: 6px; opacity: 0.8; font-weight: 700; }
+.filters-collapsible[hidden] { display: none; }
+
+/* Updated invest-card body for sparkline + description */
+.invest-card .body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.invest-card .top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+}
+.invest-card .top .titles { flex: 1; min-width: 0; }
+.invest-card .desc-line {
+  font-size: 12px; color: var(--fg-2); line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Story-first layout (Trade + Portfolio detail) */
+.story-block {
+  background: var(--story-card-bg);
+  border-radius: var(--story-card-radius);
+  padding: 18px;
+  border: var(--bd);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.story-line { font-size: 14px; color: var(--fg-1); line-height: 1.55; font-weight: 700; }
+.story-price { font-weight: 900; font-size: 16px; font-variant-numeric: tabular-nums; }
+.story-actions { display: flex; gap: 10px; margin-top: 4px; }
+.story-actions .btn { flex: 1; }
+
+/* Opportunity cost hint */
+.opportunity-cost {
+  font-size: 12px; color: var(--fg-3); margin-top: 8px; font-weight: 700;
+}
+
+/* Collapsible graph (Trade) */
+.graph-toggle {
+  font-family: var(--font); font-weight: 800; font-size: 13px;
+  background: none; border: none; color: var(--fg-2);
+  cursor: pointer; padding: 8px 0; margin-top: 4px;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.graph-toggle:hover { color: var(--fg-1); }
+.graph-toggle .arrow { transition: transform var(--d-base) var(--ease); display: inline-block; }
+.graph-toggle.open .arrow { transform: rotate(180deg); }
+.graph-collapsible {
+  max-height: 0; overflow: hidden;
+  transition: max-height 280ms var(--ease);
+}
+.graph-collapsible.open { max-height: 360px; }
+
+/* Recently viewed (collapsed by default) */
+details.recently-viewed { margin-top: 14px; }
+details.recently-viewed > summary {
+  list-style: none;
+  font-size: 13px; font-weight: 800; color: var(--fg-2);
+  padding: 8px 12px; border-radius: 999px;
+  background: var(--paper-2); border: var(--bd);
+  cursor: pointer; user-select: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+details.recently-viewed > summary::-webkit-details-marker { display: none; }
+details.recently-viewed > summary::after {
+  content: '▾'; font-size: 11px; color: var(--fg-3);
+  transition: transform var(--d-base) var(--ease);
+}
+details.recently-viewed[open] > summary::after { transform: rotate(180deg); }
+details.recently-viewed[open] > summary { background: var(--paper-3); }
+details.recently-viewed > .recent { margin-top: 12px; }
+
+/* First-purchase celebration */
+.first-buy-celebrate {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--gain-soft); color: var(--gain);
+  border-radius: var(--r-lg); border: 1px solid rgba(31,168,94,0.25);
+  box-shadow: var(--sh-2);
+  padding: 22px 28px;
+  width: 280px; min-height: 120px;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 6px;
+  font-weight: 800; pointer-events: none; z-index: 10;
+}
+.first-buy-celebrate.visible { display: flex; animation: celebrateFade 2000ms ease forwards; }
+.first-buy-celebrate .h { font-size: 18px; font-weight: 900; }
+.first-buy-celebrate .p { font-size: 13px; color: var(--gain); opacity: 0.9; }
+@keyframes celebrateFade {
+  0%   { opacity: 0; transform: translate(-50%, -45%); }
+  10%  { opacity: 1; transform: translate(-50%, -50%); }
+  85%  { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(-50%, -55%); }
+}
+
+/* Trade tab needs positioning for celebration overlay */
+.tab[data-tab="trade"] { position: relative; }
+
+/* Home holdings rows reuse the existing holdings-summary look but right-align value */
+.holdings-summary .item .val { font-weight: 900; font-variant-numeric: tabular-nums; font-size: 14px; }
+
+/* Trend kicker on graph card head (no leftover .v) */
+.graph-card .head .head-left { display: flex; align-items: center; gap: 8px; }
+
 </style>
 </head>
 <body>
@@ -654,7 +886,7 @@ html, body {
         </button>
         <button class="tab-btn" data-tab="explore" role="tab">
           <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><path d="M15 9 L13 14 L9 16 L11 11 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
-          Explore
+          Market
         </button>
         <button class="tab-btn" data-tab="trade" role="tab">
           <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 8 H18 L15 5 M20 16 H6 L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -667,51 +899,34 @@ html, body {
 
         <!-- ============= HOME ============= -->
         <section class="tab active" data-tab="home">
-          <div class="home-stats">
-            <div class="card stat">
-              <div class="kicker">Balance <button type="button" class="fv-info-btn" data-info-key="card:investing_balance" aria-label="About the Balance card">i</button> <button type="button" class="fv-info-btn" data-info-key="investing_balance" aria-label="About Investing Balance">i</button></div>
-              <div class="v" id="home-balance">$2,450</div>
-              <div class="s">Cash inside Investing</div>
-            </div>
-            <div class="card stat">
-              <div class="kicker">Invested <button type="button" class="fv-info-btn" data-info-key="card:invested_total" aria-label="About the Invested card">i</button> <button type="button" class="fv-info-btn" data-info-key="invested_total" aria-label="About Invested total">i</button></div>
-              <div class="v" id="home-invested">$5,820</div>
-              <div class="s">Across all holdings</div>
-            </div>
-            <div class="card stat">
-              <div class="kicker">Total Gain <button type="button" class="fv-info-btn" data-info-key="card:total_gain" aria-label="About the Total Gain card">i</button> <button type="button" class="fv-info-btn" data-info-key="total_gain" aria-label="About Total Gain">i</button></div>
-              <div class="v" id="home-gain">+$420</div>
-              <div class="s" id="home-gain-sub">+7.8% lifetime</div>
-            </div>
-            <div class="card stat">
-              <div class="kicker">Risk <button type="button" class="fv-info-btn" data-info-key="card:risk_profile" aria-label="About the Risk card">i</button> <button type="button" class="fv-info-btn" data-info-key="risk" aria-label="About Risk Level">i</button></div>
-              <div class="v" id="home-risk-v">Medium</div>
-              <div class="s"><span class="risk-badge medium" id="home-risk-badge"><span class="dots"><span></span><span></span><span></span></span>Medium risk</span></div>
-            </div>
+          <div class="hero-block home-section">
+            <div class="hero-value" id="home-balance">$5,820</div>
+            <div class="hero-sub" id="home-gain-sentence"></div>
           </div>
 
-          <div class="home-mid">
-            <div class="card graph-card">
-              <div class="head">
-                <div>
-                  <div class="kicker">Portfolio value · last 30 days <button type="button" class="fv-info-btn" data-info-key="card:portfolio_value_history" aria-label="About the Portfolio value graph">i</button></div>
-                  <div class="v" id="home-current">$5,820</div>
-                </div>
-                <div class="risk-badge low" id="home-trend"><span class="dots"><span></span><span></span><span></span></span><span id="home-trend-text">Up 7.8%</span></div>
+          <div class="card graph-card home-section">
+            <div class="head">
+              <div class="head-left">
+                <div class="kicker" style="margin:0">Last 30 days <button type="button" class="fv-info-btn" data-info-key="card:portfolio_value_history" aria-label="About the Portfolio value graph">i</button></div>
               </div>
-              <svg class="graph-svg tall" id="home-graph" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+              <div class="risk-badge low" id="home-trend"><span class="dots"><span></span><span></span><span></span></span><span id="home-trend-text">Up 7.8%</span></div>
             </div>
+            <svg class="graph-svg tall" id="home-graph" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+          </div>
 
-            <div class="card">
-              <div class="kicker">Current holdings <button type="button" class="fv-info-btn" data-info-key="card:current_holdings" aria-label="About Current holdings">i</button></div>
-              <div class="holdings-summary" id="home-holdings"></div>
-            </div>
+          <div class="home-section">
+            <div class="kicker">What you own <button type="button" class="fv-info-btn" data-info-key="card:current_holdings" aria-label="About Current holdings">i</button></div>
+            <div class="holdings-summary" id="home-holdings"></div>
           </div>
         </section>
 
         <!-- ============= PORTFOLIO ============= -->
         <section class="tab" data-tab="portfolio">
-          <div class="portfolio-filters">
+          <div class="tab-toolbar">
+            <h2>Your holdings <span id="pf-count" style="color:var(--fg-2);font-weight:900">(0)</span></h2>
+            <button type="button" class="filter-toggle-btn" id="pf-filter-toggle">Filter<span class="count" id="pf-filter-count"></span></button>
+          </div>
+          <div class="filters-collapsible portfolio-filters" id="pf-filters" hidden>
             <div class="chip-row">
               <span class="chip-label">Category <button type="button" class="fv-info-btn" data-info-key="category" aria-label="About investment Category">i</button></span>
               <div class="chip-row" id="pf-cat" data-filter="category"></div>
@@ -724,12 +939,11 @@ html, body {
 
           <div class="portfolio-grid">
             <div>
-              <div class="kicker" style="margin-bottom:8px">Holdings <span id="pf-count" style="color:var(--fg-2);font-weight:900">(0)</span></div>
               <div class="holdings-list" id="pf-list"></div>
               <div class="empty" id="pf-empty-all" style="display:none">
                 <div class="ic">📊</div>
                 <div class="h">You don't own any investments yet.</div>
-                <div class="p">Visit <strong>Explore</strong> to get started.</div>
+                <div class="p">Visit the <strong>Market</strong> tab to get started.</div>
               </div>
               <div class="empty" id="pf-empty-filter" style="display:none">
                 <div class="ic">🔍</div>
@@ -742,9 +956,13 @@ html, body {
           </div>
         </section>
 
-        <!-- ============= EXPLORE ============= -->
+        <!-- ============= MARKET (data-tab="explore") ============= -->
         <section class="tab" data-tab="explore">
-          <div class="portfolio-filters">
+          <div class="tab-toolbar">
+            <h2>Market</h2>
+            <button type="button" class="filter-toggle-btn" id="ex-filter-toggle">Filter<span class="count" id="ex-filter-count"></span></button>
+          </div>
+          <div class="filters-collapsible portfolio-filters" id="ex-filters" hidden>
             <div class="chip-row">
               <span class="chip-label">Category <button type="button" class="fv-info-btn" data-info-key="category" aria-label="About investment Category">i</button></span>
               <div class="chip-row" id="ex-cat" data-filter="category"></div>
@@ -754,7 +972,15 @@ html, body {
               <div class="chip-row" id="ex-ind" data-filter="industry"></div>
             </div>
           </div>
-          <div class="explore-grid" id="ex-grid"></div>
+
+          <div id="ex-featured-section" class="featured-section">
+            <div class="kicker">Good starting points</div>
+            <div id="ex-featured"></div>
+          </div>
+
+          <div id="ex-clusters"></div>
+
+          <div class="explore-grid" id="ex-grid" style="display:none"></div>
           <div class="empty" id="ex-empty" style="display:none">
             <div class="ic">🔍</div>
             <div class="h">No investments match your filters.</div>
@@ -764,13 +990,15 @@ html, body {
 
         <!-- ============= TRADE ============= -->
         <section class="tab" data-tab="trade">
-          <div class="trade-grid">
-            <div id="trade-detail-wrap"></div>
-            <div class="card graph-card">
+          <div id="trade-detail-wrap"></div>
+
+          <button type="button" class="graph-toggle" id="trade-graph-toggle" style="display:none">See price history <span class="arrow">▾</span></button>
+          <div class="graph-collapsible" id="trade-graph-collapsible">
+            <div class="card graph-card" style="margin-top:8px">
               <div class="head">
-                <div>
-                  <div class="kicker">Price · last 30 days</div>
-                  <div class="v" id="trade-graph-price">$ ---</div>
+                <div class="head-left">
+                  <div class="kicker" style="margin:0">Last 30 days</div>
+                  <div class="story-price" id="trade-graph-price">$ ---</div>
                 </div>
                 <div id="trade-graph-change"></div>
               </div>
@@ -778,12 +1006,16 @@ html, body {
             </div>
           </div>
 
-          <div class="recent">
-            <div class="head">
-              <div class="kicker" style="margin-bottom:0">Recently viewed</div>
-              <div style="font-size:12px;color:var(--fg-3);font-weight:700">vs. base price</div>
+          <details class="recently-viewed" id="trade-recent-details" style="display:none">
+            <summary><span id="trade-recent-summary-text">Recently viewed</span></summary>
+            <div class="recent">
+              <div class="rail" id="recent-rail"></div>
             </div>
-            <div class="rail" id="recent-rail"></div>
+          </details>
+
+          <div class="first-buy-celebrate" id="first-buy-celebrate">
+            <div class="h">🎉 You're an investor now!</div>
+            <div class="p">Your money is working for you.</div>
           </div>
         </section>
 
@@ -796,6 +1028,27 @@ html, body {
 /* ============================================================
    MOCK STATE
    ============================================================ */
+
+// Static plain-English asset descriptions, keyed by asset id. Missing
+// ids degrade gracefully (the description line just disappears).
+const ASSET_DESCRIPTIONS = {
+  "acme-foods":        "A big food company that grows slowly and steadily.",
+  "crestline-energy":  "An energy company. Prices move with oil and gas.",
+  "pixelbyte":         "A tech startup. High potential, but can drop fast.",
+  "sunburst-solar":    "A clean energy company with moderate ups and downs.",
+  "baker-bros":        "A bakery chain. Reliable but won't make you rich quick.",
+  "meadow-realty":     "A real-estate fund. Slow and stable.",
+  "valley-municipal":  "A government bond. Very safe, very slow.",
+  "farmco-bond":       "A food-industry bond. Low risk, predictable returns.",
+  "hydroflux-bond":    "An energy bond with a small chance of dips.",
+  "chunkcoin":         "Crypto. Can double or crash in a day.",
+  "flutterbit":        "A small crypto coin. Very unpredictable.",
+  "propchain":         "A crypto linked to real estate. Risky and new.",
+};
+
+// Curated starting points across the risk spectrum. Featured cards
+// render in this order; missing ids are skipped silently.
+const FEATURED_IDS = ["acme-foods", "valley-municipal", "sunburst-solar", "chunkcoin"];
 
 // Helper: build a wandering price series of length N.
 function genHistory(start, drift, vol, n=30, seed=1) {
@@ -841,7 +1094,7 @@ const mockState = {
 };
 
 /* ============================================================
-   ACTIONS — eventually call the Unity bridge via window.unity*.
+   ACTIONS, eventually call the Unity bridge via window.unity*.
    ============================================================ */
 
 // Phase 5: forward to Unity via the host's requestIntent dispatcher.
@@ -881,6 +1134,12 @@ const ui = {
   exIndustry: "All",
   pfSelectedId: mockState.holdings[0]?.id || null,
   tradeSelectedId: null, // set when arriving from Explore / Recently / Portfolio
+  // Redesign UI flags
+  hasEverBought: false,
+  lastRenderedPortfolioValue: null,
+  exploreFiltersOpen: false,
+  pfFiltersOpen: false,
+  tradeGraphOpen: false,
 };
 
 // Match the C# enum values exactly so payload data flows through the
@@ -944,8 +1203,10 @@ function computeChangePercent(history) {
    SVG line graph with axis ticks + grid
    ---------------------------------------------------------- */
 function renderGraph(svgEl, data, opts={}) {
+  const { stripped = false } = opts;
   const w = 600, h = +svgEl.getAttribute("viewBox").split(" ")[3];
-  const padL = 44, padR = 12, padT = 12, padB = 22;
+  // Stripped mode pulls in the left padding since there are no Y-axis labels.
+  const padL = stripped ? 12 : 44, padR = 12, padT = 12, padB = 22;
   if (!data || data.length < 2) { svgEl.innerHTML = ""; return; }
   const min = Math.min(...data), max = Math.max(...data);
   const range = max - min || Math.max(1, max*0.05);
@@ -959,20 +1220,27 @@ function renderGraph(svgEl, data, opts={}) {
   const color = opts.color || (positive ? "#1FA85E" : "#E83A50");
   const fillColor = positive ? "rgba(31,168,94,0.12)" : "rgba(232,58,80,0.12)";
 
-  // Grid lines (4 horizontal)
+  // Grid + Y-axis labels (skipped in stripped mode)
   let grid = "";
-  for (let i=0; i<5; i++) {
-    const yy = padT + (i/4)*(h - padT - padB);
-    const labelV = niceMax - (i/4)*span;
-    grid += `<line class="graph-grid" x1="${padL}" y1="${yy.toFixed(1)}" x2="${w-padR}" y2="${yy.toFixed(1)}"/>`;
-    grid += `<text class="graph-axis" x="${padL-6}" y="${(yy+3).toFixed(1)}" text-anchor="end">$${Math.round(labelV).toLocaleString()}</text>`;
+  if (!stripped) {
+    for (let i=0; i<5; i++) {
+      const yy = padT + (i/4)*(h - padT - padB);
+      const labelV = niceMax - (i/4)*span;
+      grid += `<line class="graph-grid" x1="${padL}" y1="${yy.toFixed(1)}" x2="${w-padR}" y2="${yy.toFixed(1)}"/>`;
+      grid += `<text class="graph-axis" x="${padL-6}" y="${(yy+3).toFixed(1)}" text-anchor="end">$${Math.round(labelV).toLocaleString()}</text>`;
+    }
   }
-  // X axis ticks (every 5 days)
+  // X axis ticks: full mode shows day numbers, stripped mode shows only Start/Now.
   let xticks = "";
-  for (let i=0; i<data.length; i+=5) {
-    xticks += `<text class="graph-axis" x="${x(i).toFixed(1)}" y="${h-6}" text-anchor="middle">d${i+1}</text>`;
+  if (stripped) {
+    xticks += `<text class="graph-axis" x="${x(0).toFixed(1)}" y="${h-6}" text-anchor="start">Start</text>`;
+    xticks += `<text class="graph-axis" x="${x(data.length-1).toFixed(1)}" y="${h-6}" text-anchor="end">Now</text>`;
+  } else {
+    for (let i=0; i<data.length; i+=5) {
+      xticks += `<text class="graph-axis" x="${x(i).toFixed(1)}" y="${h-6}" text-anchor="middle">d${i+1}</text>`;
+    }
+    xticks += `<text class="graph-axis" x="${x(data.length-1).toFixed(1)}" y="${h-6}" text-anchor="middle">d${data.length}</text>`;
   }
-  xticks += `<text class="graph-axis" x="${x(data.length-1).toFixed(1)}" y="${h-6}" text-anchor="middle">d${data.length}</text>`;
 
   // Path
   const lineD = data.map((v,i)=> (i===0?"M":"L")+x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ");
@@ -991,6 +1259,91 @@ function findHolding(id) { return mockState.holdings.find(h => h.id === id); }
 function buildHoldingsSummary(list) {
   if (!list.length) return "No holdings yet.";
   return list.map(h => `${h.shares} ${h.shares===1?"share":"shares"} of ${h.name}`).join(", ");
+}
+
+/* ----------------------------------------------------------
+   Redesign helpers: risk meter, sparkline, story sentences,
+   home gain sentence, category bucketing, sorters.
+   ---------------------------------------------------------- */
+
+const RISK_LABELS = {
+  low:    "Safe & Steady",
+  medium: "Some ups and downs",
+  high:   "Can jump or crash",
+};
+
+function buildRiskMeter(riskLevel, opts={}) {
+  const cls = (riskLevel || "Low").toLowerCase();
+  const safeCls = ["low","medium","high"].includes(cls) ? cls : "low";
+  const label = RISK_LABELS[safeCls];
+  const infoBtn = opts.withInfoBtn
+    ? ` <button type="button" class="fv-info-btn" data-info-key="risk" aria-label="About Risk Level">i</button>`
+    : "";
+  return `<span class="risk-meter ${safeCls}" aria-label="${safeCls} risk"><span class="risk-track"><span class="risk-fill"></span></span><span class="risk-label">${label}</span>${infoBtn}</span>`;
+}
+
+function buildSparkline(history) {
+  if (!history || history.length < 2) return "";
+  const w = 80, h = 36, pad = 2;
+  const min = Math.min(...history), max = Math.max(...history);
+  const span = (max - min) || 1;
+  const x = i => pad + (i/(history.length-1)) * (w - pad*2);
+  const y = v => pad + (1 - (v-min)/span) * (h - pad*2);
+  const d = history.map((v,i) => (i===0?"M":"L") + x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
+  const dir = history[history.length-1] >= history[0] ? "up" : "down";
+  return `<svg class="sparkline ${dir}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path class="spark-line" d="${d}"/></svg>`;
+}
+
+function buildTradeStory(def, holding) {
+  if (!holding || !holding.shares) return "";
+  const total = holding.shares * holding.avgCost;
+  const currentTotal = holding.shares * def.currentPrice;
+  const gain = currentTotal - total;
+  let gainSentence;
+  if (Math.abs(gain) < 0.5) {
+    gainSentence = "You're at break-even.";
+  } else if (gain >= 0) {
+    gainSentence = `You're up <span class="gain">${fmtMoney(gain, false, 0)}</span>.`;
+  } else {
+    gainSentence = `You're down <span class="loss">${fmtMoney(Math.abs(gain), false, 0)}</span>.`;
+  }
+  return `You bought ${holding.shares} ${holding.shares===1?"share":"shares"} at ${fmtMoney(holding.avgCost, false, 2)} each, which was ${fmtMoney(total, false, 0)} total. Today each share is worth ${fmtMoney(def.currentPrice, false, 2)}. ${gainSentence}`;
+}
+
+function buildPortfolioStory(holding) {
+  if (!holding) return "";
+  const total = holding.shares * holding.avgCost;
+  const currentTotal = holding.currentValue != null ? holding.currentValue : holding.shares * holding.currentPrice;
+  const gain = holding.totalGain != null ? holding.totalGain : currentTotal - total;
+  let gainSentence;
+  if (Math.abs(gain) < 0.5) {
+    gainSentence = "You're at break-even.";
+  } else if (gain >= 0) {
+    gainSentence = `You're up <span class="gain">${fmtMoney(gain, false, 0)}</span>.`;
+  } else {
+    gainSentence = `You're down <span class="loss">${fmtMoney(Math.abs(gain), false, 0)}</span>.`;
+  }
+  return `You own ${holding.shares} ${holding.shares===1?"share":"shares"}. You paid ${fmtMoney(holding.avgCost, false, 2)} each, ${fmtMoney(total, false, 0)} total. They're worth ${fmtMoney(currentTotal, false, 0)} now. ${gainSentence}`;
+}
+
+function buildHomeGainSentence(lifetimeTotalGain) {
+  const g = lifetimeTotalGain || 0;
+  if (g >= 0) {
+    return `You've made <span class="gain">+${fmtMoney(g, false, 0).replace("$", "$")}</span> so far 🎉`;
+  }
+  return `You're down <span class="loss">${fmtMoney(Math.abs(g), false, 0)}</span> this week.`;
+}
+
+function categoryBucket(asset) {
+  const c = asset && asset.category;
+  if (c === "Stocks" || c === "Stock") return "stocks";
+  if (c === "Bonds" || c === "Bond" || c === "ETF" || c === "TBill") return "funds";
+  if (c === "Crypto") return "crypto";
+  return "other";
+}
+
+function sortByCurrentValueDesc(arr) {
+  return arr.slice().sort((a, b) => (b.currentValue || 0) - (a.currentValue || 0));
 }
 
 /* ============================================================
@@ -1015,45 +1368,53 @@ function switchTab(name) {
 
 // ---- Home ----
 function renderHome() {
-  $("#home-balance").textContent  = fmtMoney(mockState.investingBalance, false, 0);
-  $("#home-invested").textContent = fmtMoney(mockState.totalPortfolioValue, false, 0);
+  // Hero number with optional pulse animation when value changes.
+  const balanceEl = $("#home-balance");
+  const newValue = mockState.totalPortfolioValue;
+  balanceEl.textContent = fmtMoney(newValue, false, 0);
+  if (ui.lastRenderedPortfolioValue != null && newValue !== ui.lastRenderedPortfolioValue) {
+    const cls = newValue > ui.lastRenderedPortfolioValue ? "value-tick-up" : "value-tick-down";
+    balanceEl.classList.remove("value-tick-up", "value-tick-down");
+    void balanceEl.offsetWidth; // restart animation
+    balanceEl.classList.add(cls);
+    balanceEl.addEventListener("animationend", () => balanceEl.classList.remove(cls), { once: true });
+  }
+  ui.lastRenderedPortfolioValue = newValue;
 
-  const gainEl = $("#home-gain");
-  gainEl.textContent = fmtMoney(mockState.lifetimeTotalGain, true, 0);
-  gainEl.classList.remove("gain","loss");
-  gainEl.classList.add(colorClass(mockState.lifetimeTotalGain));
-  const pct = mockState.lifetimeTotalGain / Math.max(1, mockState.totalPortfolioValue - mockState.lifetimeTotalGain) * 100;
-  $("#home-gain-sub").textContent = (mockState.lifetimeTotalGain >= 0 ? "+" : "−") + Math.abs(pct).toFixed(1) + "% lifetime";
+  // Plain English gain/loss sentence.
+  $("#home-gain-sentence").innerHTML = buildHomeGainSentence(mockState.lifetimeTotalGain);
 
-  $("#home-risk-v").textContent = mockState.riskProfile;
-  const rb = $("#home-risk-badge");
-  rb.className = "risk-badge " + mockState.riskProfile.toLowerCase();
-  rb.lastChild.textContent = mockState.riskProfile + " risk";
-
-  // Graph
-  renderGraph($("#home-graph"), mockState.portfolioValueHistory);
-  $("#home-current").textContent = fmtMoney(mockState.portfolioValueHistory.at(-1), false, 0);
+  // Stripped graph (Start / Now labels only).
+  renderGraph($("#home-graph"), mockState.portfolioValueHistory, { stripped: true });
   const trend = computeChangePercent(mockState.portfolioValueHistory);
   const trendEl = $("#home-trend");
   trendEl.className = "risk-badge " + (trend >= 0 ? "low" : "high");
   $("#home-trend-text").textContent = (trend >= 0 ? "Up " : "Down ") + Math.abs(trend).toFixed(1) + "%";
 
-  // Holdings summary list (richer than a flat string but text-equivalent)
+  // What you own: top 5 by currentValue, with overflow link.
   const wrap = $("#home-holdings");
   if (!mockState.holdings.length) {
-    wrap.innerHTML = `<div style="color:var(--fg-3);font-size:13px">No holdings yet. Visit Explore to get started.</div>`;
+    wrap.innerHTML = `<div style="color:var(--fg-3);font-size:13px">No holdings yet. Visit Market to get started.</div>`;
     return;
   }
-  wrap.innerHTML = mockState.holdings.map(h => `
+  const sorted = sortByCurrentValueDesc(mockState.holdings);
+  const top5 = sorted.slice(0, 5);
+  let html = top5.map(h => `
     <div class="item">
       <div class="av" style="background:${avatarColor(h.id)}">${initial(h.name)}</div>
       <div style="flex:1;min-width:0">
         <div class="nm">${h.name}</div>
-        <div class="sh">${h.shares} ${h.shares===1?"share":"shares"} · ${INDUSTRY_LABELS[h.industry]||h.industry}</div>
+        <div class="sh">${h.shares} ${h.shares===1?"share":"shares"}</div>
       </div>
-      <div class="num" style="font-size:13px">${fmtMoney(h.currentValue,false,0)}</div>
+      <div class="val">${fmtMoney(h.currentValue,false,0)}</div>
     </div>
   `).join("");
+  if (sorted.length > 5) {
+    html += `<button type="button" class="see-all-link" id="home-see-all" style="align-self:flex-start;margin-top:6px">See all in Portfolio →</button>`;
+  }
+  wrap.innerHTML = html;
+  const seeAll = $("#home-see-all");
+  if (seeAll) seeAll.addEventListener("click", () => switchTab("portfolio"));
 }
 
 // ---- Portfolio ----
@@ -1061,6 +1422,20 @@ function renderPortfolio() {
   // Build chip rows (idempotent)
   buildChips($("#pf-cat"), CATEGORIES, ui.pfCategory, v => { ui.pfCategory = v; renderPortfolio(); }, CATEGORY_LABELS);
   buildChips($("#pf-ind"), INDUSTRIES, ui.pfIndustry, v => { ui.pfIndustry = v; renderPortfolio(); }, INDUSTRY_LABELS);
+
+  // Filter toggle button + active counter.
+  const toggleBtn = $("#pf-filter-toggle");
+  const filtersEl = $("#pf-filters");
+  filtersEl.hidden = !ui.pfFiltersOpen;
+  toggleBtn.classList.toggle("active", ui.pfFiltersOpen);
+  let pfActive = 0;
+  if (ui.pfCategory !== "All") pfActive++;
+  if (ui.pfIndustry !== "All") pfActive++;
+  $("#pf-filter-count").textContent = pfActive > 0 ? ` (${pfActive} active)` : "";
+  toggleBtn.onclick = () => {
+    ui.pfFiltersOpen = !ui.pfFiltersOpen;
+    renderPortfolio();
+  };
 
   const all = mockState.holdings;
   const filtered = all.filter(h =>
@@ -1128,81 +1503,173 @@ function renderPortfolio() {
 
 function renderPortfolioDetail(h) {
   if (!h) {
-    return `<div class="detail" style="align-items:center;justify-content:center;min-height:280px;color:var(--fg-3);font-size:14px">Select a holding to see its detail.</div>`;
+    return `<div class="story-block" style="align-items:center;justify-content:center;min-height:280px;color:var(--fg-3);font-size:14px;text-align:center">Select a holding to see its detail.</div>`;
   }
-  const change = computeChangePercent(h.priceHistory);
+  const story = buildPortfolioStory(h);
   return `
-    <div class="detail">
+    <div class="story-block">
       <div>
         <div style="display:flex;align-items:center;gap:10px">
           <div class="av" style="width:44px;height:44px;border-radius:12px;background:${avatarColor(h.id)};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex:none">${initial(h.name)}</div>
           <div style="flex:1;min-width:0">
-            <div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.name} <button type="button" class="fv-info-btn" data-info-key="card:holding_detail" aria-label="About this holding detail">i</button></div>
-            <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap"><span class="cat-pill ${h.category.toLowerCase()}">${CATEGORY_LABELS[h.category]||h.category}</span><span style="font-size:12px;color:var(--fg-3);font-weight:700">${INDUSTRY_LABELS[h.industry]||h.industry}</span></div>
+            <div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:18px;font-weight:900">${h.name} <button type="button" class="fv-info-btn" data-info-key="card:holding_detail" aria-label="About this holding detail">i</button></div>
+            <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap"><span class="cat-pill ${h.category.toLowerCase()}">${CATEGORY_LABELS[h.category]||h.category}</span></div>
           </div>
         </div>
       </div>
-      <div class="meta-row">
-        <div class="price">${fmtMoney(h.currentPrice,false,2)} <button type="button" class="fv-info-btn" data-info-key="price" aria-label="About Price">i</button></div>
-        <div class="change ${colorClass(change)}">${fmtPct(change)} <button type="button" class="fv-info-btn" data-info-key="change_percent" aria-label="About Change percent">i</button></div>
-        <div><span class="risk-badge ${h.risk.toLowerCase()}"><span class="dots"><span></span><span></span><span></span></span>${h.risk} risk</span> <button type="button" class="fv-info-btn" data-info-key="risk" aria-label="About Risk Level">i</button></div>
-      </div>
-      <div class="detail-fields">
-        <div class="field"><div class="k">Shares Owned <button type="button" class="fv-info-btn" data-info-key="shares_owned" aria-label="About Shares Owned">i</button></div><div class="v">${h.shares}</div></div>
-        <div class="field"><div class="k">Avg Cost <button type="button" class="fv-info-btn" data-info-key="avg_cost" aria-label="About Average Cost">i</button></div><div class="v">${fmtMoney(h.avgCost,false,2)}</div></div>
-        <div class="field"><div class="k">Current Value <button type="button" class="fv-info-btn" data-info-key="current_value" aria-label="About Current Value">i</button></div><div class="v">${fmtMoney(h.currentValue,false,0)}</div></div>
-        <div class="field"><div class="k">Total Gain <button type="button" class="fv-info-btn" data-info-key="total_gain" aria-label="About Total Gain">i</button></div><div class="v ${colorClass(h.totalGain)}">${fmtMoney(h.totalGain,true,0)}</div></div>
-      </div>
+      <div class="story-line">${story} <button type="button" class="fv-info-btn" data-info-key="total_gain" aria-label="About Money made so far">i</button></div>
+      <div>${buildRiskMeter(h.risk, { withInfoBtn: true })}</div>
       <svg class="graph-svg" id="pf-detail-graph" viewBox="0 0 600 160" preserveAspectRatio="none"></svg>
-      <div class="desc">Tap <strong>Trade this</strong> to buy or sell ${h.name} shares.</div>
       <div><button class="btn btn-buy btn-lg" id="pf-trade-btn" style="width:100%">Trade this</button></div>
     </div>
   `;
 }
 
-// ---- Explore ----
-function renderExplore() {
-  buildChips($("#ex-cat"), CATEGORIES, ui.exCategory, v => { ui.exCategory = v; renderExplore(); }, CATEGORY_LABELS);
-  buildChips($("#ex-ind"), INDUSTRIES, ui.exIndustry, v => { ui.exIndustry = v; renderExplore(); }, INDUSTRY_LABELS);
-
-  const filtered = mockState.available.filter(a =>
-    (ui.exCategory==="All" || a.category===ui.exCategory) &&
-    (ui.exIndustry==="All" || a.industry===ui.exIndustry));
-
-  const grid = $("#ex-grid"), empty = $("#ex-empty");
-  if (!filtered.length) {
-    grid.innerHTML = ""; grid.style.display = "none"; empty.style.display = "block";
-    return;
-  }
-  empty.style.display = "none"; grid.style.display = "";
-
-  grid.innerHTML = filtered.map(a => `
+// ---- Market (data-tab="explore") ----
+function buildInvestCardHTML(a) {
+  return `
     <div class="invest-card" data-id="${a.id}">
-      <div class="hero ${a.industry.toLowerCase()}">
-        <span class="ind-tag">${INDUSTRY_LABELS[a.industry]||a.industry}</span>
-        <span class="cat-pill ${a.category.toLowerCase()}">${CATEGORY_LABELS[a.category]||a.category}</span>
-      </div>
       <div class="body">
-        <div class="name">${a.name} <button type="button" class="fv-info-btn" data-info-key="card:investment" aria-label="About this investment card">i</button></div>
+        <div class="top">
+          <div class="titles">
+            <div class="name">${a.name} <button type="button" class="fv-info-btn" data-info-key="card:investment" aria-label="About this investment card">i</button></div>
+            <div style="margin-top:4px"><span class="cat-pill ${a.category.toLowerCase()}">${CATEGORY_LABELS[a.category]||a.category}</span></div>
+          </div>
+          ${buildSparkline(a.priceHistory)}
+        </div>
+        <div class="desc-line">${ASSET_DESCRIPTIONS[a.id] || ""}</div>
         <div class="price-row">
           <div class="price">${fmtMoney(a.currentPrice,false,2)}</div>
-          <div class="change ${colorClass(a.changePercent)}">${fmtPct(a.changePercent)}</div>
         </div>
         <div class="footer">
-          <span class="risk-badge ${a.risk.toLowerCase()}"><span class="dots"><span></span><span></span><span></span></span>${a.risk} risk</span>
+          ${buildRiskMeter(a.risk)}
           <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px">Trade →</button>
         </div>
       </div>
     </div>
-  `).join("");
+  `;
+}
 
-  grid.querySelectorAll(".invest-card").forEach(card => {
-    card.addEventListener("click", () => {
-      const id = card.dataset.id;
-      ui.tradeSelectedId = id;
-      addRecent(id);
-      tradeRequested(id);
-      switchTab("trade");
+function buildFeaturedCardHTML(a) {
+  return `
+    <div class="featured-card" data-id="${a.id}">
+      <div class="av" style="background:${avatarColor(a.id)}">${initial(a.name)}</div>
+      <div class="meta">
+        <div class="nm">${a.name} <button type="button" class="fv-info-btn" data-info-key="card:investment" aria-label="About this investment card">i</button></div>
+        <div class="desc">${ASSET_DESCRIPTIONS[a.id] || ""}</div>
+        <div style="margin-top:6px">${buildRiskMeter(a.risk)}</div>
+      </div>
+      <div class="price">${fmtMoney(a.currentPrice,false,2)}</div>
+      <button class="btn btn-buy" style="padding:9px 16px;font-size:13px">Explore →</button>
+    </div>
+  `;
+}
+
+function wireMarketCardClick(el) {
+  el.addEventListener("click", (e) => {
+    // Allow info-button taps to bubble to the modal handler without switching tabs.
+    if (e.target.closest(".fv-info-btn")) return;
+    const id = el.dataset.id;
+    if (!id) return;
+    ui.tradeSelectedId = id;
+    addRecent(id);
+    tradeRequested(id);
+    switchTab("trade");
+  });
+}
+
+function renderExplore() {
+  buildChips($("#ex-cat"), CATEGORIES, ui.exCategory, v => { ui.exCategory = v; renderExplore(); }, CATEGORY_LABELS);
+  buildChips($("#ex-ind"), INDUSTRIES, ui.exIndustry, v => { ui.exIndustry = v; renderExplore(); }, INDUSTRY_LABELS);
+
+  // Filter toggle button + active counter.
+  const toggleBtn = $("#ex-filter-toggle");
+  const filtersEl = $("#ex-filters");
+  filtersEl.hidden = !ui.exploreFiltersOpen;
+  toggleBtn.classList.toggle("active", ui.exploreFiltersOpen);
+  let active = 0;
+  if (ui.exCategory !== "All") active++;
+  if (ui.exIndustry !== "All") active++;
+  $("#ex-filter-count").textContent = active > 0 ? ` (${active} active)` : "";
+  toggleBtn.onclick = () => {
+    ui.exploreFiltersOpen = !ui.exploreFiltersOpen;
+    renderExplore();
+  };
+
+  const filterActive = ui.exCategory !== "All" || ui.exIndustry !== "All";
+  const featuredSection = $("#ex-featured-section");
+  const clustersHost = $("#ex-clusters");
+  const grid = $("#ex-grid");
+  const empty = $("#ex-empty");
+
+  if (filterActive) {
+    // Filter mode: hide Featured + clusters, show flat grid.
+    featuredSection.style.display = "none";
+    clustersHost.style.display = "none";
+    clustersHost.innerHTML = "";
+
+    const filtered = mockState.available.filter(a =>
+      (ui.exCategory==="All" || a.category===ui.exCategory) &&
+      (ui.exIndustry==="All" || a.industry===ui.exIndustry));
+
+    if (!filtered.length) {
+      grid.innerHTML = ""; grid.style.display = "none"; empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none"; grid.style.display = "";
+    grid.innerHTML = filtered.map(buildInvestCardHTML).join("");
+    grid.querySelectorAll(".invest-card").forEach(wireMarketCardClick);
+    return;
+  }
+
+  // Default mode: Featured + 3 cluster sections, no flat grid, no empty.
+  empty.style.display = "none";
+  grid.style.display = "none";
+  grid.innerHTML = "";
+
+  // Featured
+  const featuredHost = $("#ex-featured");
+  const featured = FEATURED_IDS
+    .map(fid => mockState.available.find(a => a.id === fid))
+    .filter(Boolean);
+  if (!featured.length) {
+    featuredSection.style.display = "none";
+  } else {
+    featuredSection.style.display = "";
+    featuredHost.innerHTML = featured.map(buildFeaturedCardHTML).join("");
+    featuredHost.querySelectorAll(".featured-card").forEach(wireMarketCardClick);
+  }
+
+  // Clusters
+  const clusters = [
+    { key: "stocks", title: "Stocks",         category: "Stocks" },
+    { key: "funds",  title: "Funds & Bonds",  category: "Bonds"  },
+    { key: "crypto", title: "Crypto",         category: "Crypto" },
+  ];
+  clustersHost.style.display = "";
+  clustersHost.innerHTML = clusters.map(c => {
+    const all = mockState.available.filter(a => categoryBucket(a) === c.key);
+    if (!all.length) return "";
+    const top = all.slice(0, 4);
+    const overflow = all.length > 4;
+    const cards = top.map(buildInvestCardHTML).join("");
+    return `
+      <div class="cluster-section" data-cluster="${c.key}">
+        <div class="cluster-header">
+          <div class="kicker" style="margin:0">${c.title}</div>
+          ${overflow ? `<button type="button" class="see-all-link" data-cluster-cat="${c.category}">See all in ${c.title} →</button>` : ""}
+        </div>
+        <div class="explore-grid">${cards}</div>
+      </div>
+    `;
+  }).join("");
+  clustersHost.querySelectorAll(".invest-card").forEach(wireMarketCardClick);
+  clustersHost.querySelectorAll(".see-all-link").forEach(link => {
+    link.addEventListener("click", () => {
+      const cat = link.dataset.clusterCat;
+      ui.exCategory = cat;
+      ui.exploreFiltersOpen = true;
+      renderExplore();
     });
   });
 }
@@ -1211,24 +1678,55 @@ function renderExplore() {
 function renderTrade() {
   const def = ui.tradeSelectedId ? findDef(ui.tradeSelectedId) : null;
   $("#trade-detail-wrap").innerHTML = renderTradeDetail(def);
-  renderRecent();
 
+  // Recently viewed: hide entirely when 0 items.
+  const recentDetails = $("#trade-recent-details");
+  if (mockState.recentlyViewed.length === 0) {
+    recentDetails.style.display = "none";
+  } else {
+    recentDetails.style.display = "";
+    $("#trade-recent-summary-text").textContent = `Recently viewed (${mockState.recentlyViewed.length})`;
+    renderRecent();
+  }
+
+  // Graph (always populated when a def exists; collapsible visibility persists).
+  const toggleBtn = $("#trade-graph-toggle");
+  const collapsible = $("#trade-graph-collapsible");
   const graphEl = $("#trade-graph");
   if (def) {
+    toggleBtn.style.display = "";
     renderGraph(graphEl, def.priceHistory);
     $("#trade-graph-price").textContent = fmtMoney(def.currentPrice,false,2);
     $("#trade-graph-change").innerHTML =
       `<span class="risk-badge ${def.changePercent>=0?'low':'high'}"><span class="dots"><span></span><span></span><span></span></span>${fmtPct(def.changePercent)}</span>`;
   } else {
-    graphEl.innerHTML = `<text x="50%" y="50%" text-anchor="middle" class="graph-axis" style="font-size:12px">Select an investment to see its price history.</text>`;
+    toggleBtn.style.display = "none";
+    graphEl.innerHTML = "";
     $("#trade-graph-price").textContent = "$ ---";
     $("#trade-graph-change").innerHTML = "";
   }
+  // Apply persisted open/closed state.
+  collapsible.classList.toggle("open", ui.tradeGraphOpen);
+  toggleBtn.classList.toggle("open", ui.tradeGraphOpen);
+  toggleBtn.onclick = () => {
+    ui.tradeGraphOpen = !ui.tradeGraphOpen;
+    collapsible.classList.toggle("open", ui.tradeGraphOpen);
+    toggleBtn.classList.toggle("open", ui.tradeGraphOpen);
+  };
 
   // Wire buy/sell
   const buyBtn = $("#trade-buy"), sellBtn = $("#trade-sell");
   if (buyBtn) buyBtn.addEventListener("click", () => {
     if (buyBtn.disabled) return;
+    // Optimistic first-purchase celebration trigger.
+    if (mockState.holdings.length === 0 && !ui.hasEverBought) {
+      ui.hasEverBought = true;
+      const overlay = $("#first-buy-celebrate");
+      overlay.classList.remove("visible");
+      void overlay.offsetWidth; // restart animation
+      overlay.classList.add("visible");
+      setTimeout(() => overlay.classList.remove("visible"), 2000);
+    }
     buySharesRequested(ui.tradeSelectedId, 1);
     flashAck(buyBtn, "Buy queued");
   });
@@ -1241,55 +1739,63 @@ function renderTrade() {
 function renderTradeDetail(def) {
   if (!def) {
     return `
-      <div class="trade-detail placeholder">
-        <div class="kicker">No selection</div>
-        <div class="name">Select an investment <button type="button" class="fv-info-btn" data-info-key="card:trade_panel" aria-label="About the Trade panel">i</button></div>
-        <div class="detail-fields" style="width:100%;margin-top:12px">
-          <div class="field"><div class="k">Price <button type="button" class="fv-info-btn" data-info-key="price" aria-label="About Price">i</button></div><div class="v">$ ---</div></div>
-          <div class="field"><div class="k">Change <button type="button" class="fv-info-btn" data-info-key="change_percent" aria-label="About Change percent">i</button></div><div class="v">---%</div></div>
-          <div class="field"><div class="k">Shares Owned <button type="button" class="fv-info-btn" data-info-key="shares_owned" aria-label="About Shares Owned">i</button></div><div class="v">---</div></div>
-          <div class="field"><div class="k">Avg Cost <button type="button" class="fv-info-btn" data-info-key="avg_cost" aria-label="About Average Cost">i</button></div><div class="v">$ ---</div></div>
-        </div>
-        <div class="desc" style="text-align:center;margin-top:10px">Pick an asset from the <strong>Explore</strong> tab or your <strong>Portfolio</strong>.</div>
+      <div class="story-block" style="text-align:center;align-items:center">
+        <div class="kicker" style="margin:0">No selection</div>
+        <div class="name" style="font-size:18px;font-weight:900">Pick an investment <button type="button" class="fv-info-btn" data-info-key="card:trade_panel" aria-label="About the Trade panel">i</button></div>
+        <div class="story-line" style="font-weight:600;color:var(--fg-2)">Choose an asset from the <strong>Market</strong> tab or your <strong>Portfolio</strong> to start trading.</div>
       </div>`;
   }
   const holding = findHolding(def.id);
   const sharesOwned = holding ? holding.shares : 0;
-  const avgCost = holding ? holding.avgCost : null;
   const canBuy = mockState.checkingBalance >= def.currentPrice;
-  const desc = sharesOwned > 0
-    ? "Tap <strong>Sell</strong> to remove 1 share."
-    : "Tap <strong>Buy</strong> to purchase 1 share.";
+  const desc = ASSET_DESCRIPTIONS[def.id] || "";
+  const todayMove = def.changePercent >= 0
+    ? `<span class="gain">up ${Math.abs(def.changePercent).toFixed(1)}%</span>`
+    : `<span class="loss">down ${Math.abs(def.changePercent).toFixed(1)}%</span>`;
 
-  return `
-    <div class="trade-detail">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="av" style="width:48px;height:48px;border-radius:13px;background:${avatarColor(def.id)};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex:none">${initial(def.name)}</div>
-        <div style="flex:1;min-width:0">
-          <div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${def.name} <button type="button" class="fv-info-btn" data-info-key="card:trade_panel" aria-label="About the Trade panel">i</button></div>
-          <div style="display:flex;gap:6px;margin-top:4px;align-items:center;flex-wrap:wrap">
-            <span class="cat-pill ${def.category.toLowerCase()}">${CATEGORY_LABELS[def.category]||def.category}</span>
-            <span style="font-size:12px;color:var(--fg-3);font-weight:700">${INDUSTRY_LABELS[def.industry]||def.industry}</span>
-            <span class="risk-badge ${def.risk.toLowerCase()}"><span class="dots"><span></span><span></span><span></span></span>${def.risk} risk</span>
-            <button type="button" class="fv-info-btn" data-info-key="risk" aria-label="About Risk Level">i</button>
-          </div>
+  const header = `
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="av" style="width:48px;height:48px;border-radius:13px;background:${avatarColor(def.id)};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex:none">${initial(def.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:20px;font-weight:900">${def.name} <button type="button" class="fv-info-btn" data-info-key="card:trade_panel" aria-label="About the Trade panel">i</button></div>
+        <div style="display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap">
+          <span class="cat-pill ${def.category.toLowerCase()}">${CATEGORY_LABELS[def.category]||def.category}</span>
+          ${buildRiskMeter(def.risk, { withInfoBtn: true })}
         </div>
       </div>
+    </div>
+  `;
 
-      <div class="detail-fields">
-        <div class="field"><div class="k">Price <button type="button" class="fv-info-btn" data-info-key="price" aria-label="About Price">i</button></div><div class="v">${fmtMoney(def.currentPrice,false,2)}</div></div>
-        <div class="field"><div class="k">Change <button type="button" class="fv-info-btn" data-info-key="change_percent" aria-label="About Change percent">i</button></div><div class="v ${colorClass(def.changePercent)}">${fmtPct(def.changePercent)}</div></div>
-        <div class="field"><div class="k">Shares Owned <button type="button" class="fv-info-btn" data-info-key="shares_owned" aria-label="About Shares Owned">i</button></div><div class="v">${sharesOwned}</div></div>
-        <div class="field"><div class="k">Avg Cost <button type="button" class="fv-info-btn" data-info-key="avg_cost" aria-label="About Average Cost">i</button></div><div class="v">${avgCost!=null ? fmtMoney(avgCost,false,2) : "$---"}</div></div>
+  let body;
+  if (sharesOwned > 0) {
+    const story = buildTradeStory(def, holding);
+    body = `
+      <div class="story-line">${story}</div>
+      <div class="story-line">Current price: <span class="story-price">${fmtMoney(def.currentPrice,false,2)}</span>.</div>
+      <div class="story-actions">
+        <button class="btn btn-buy btn-lg" id="trade-buy" ${canBuy?"":"disabled"} title="${canBuy?"":"Not enough Checking balance"}">Buy more</button>
+        <button class="btn btn-sell btn-lg" id="trade-sell">Sell 1 share</button>
       </div>
-
-      <div class="desc">${desc}</div>
-
-      <div class="trade-actions">
-        <button class="btn btn-buy btn-lg" id="trade-buy" ${canBuy?"":"disabled"} title="${canBuy?"":"Not enough Checking balance"}">Buy 1 share</button>
-        ${sharesOwned > 0 ? `<button class="btn btn-sell btn-lg" id="trade-sell">Sell 1 share</button>` : ""}
+    `;
+  } else {
+    body = `
+      ${desc ? `<div class="story-line" style="font-weight:600;color:var(--fg-2)">${desc}</div>` : ""}
+      <div class="story-line">Price: <span class="story-price">${fmtMoney(def.currentPrice,false,2)}</span>. Today's move: ${todayMove}.</div>
+      <div class="story-actions">
+        <button class="btn btn-buy btn-lg" id="trade-buy" ${canBuy?"":"disabled"} title="${canBuy?"":"Not enough Checking balance"}" style="flex:0 0 auto;min-width:200px">Buy 1 share</button>
       </div>
-      ${!canBuy ? `<div style="font-size:12px;color:var(--fg-3);margin-top:-4px">Need ${fmtMoney(def.currentPrice,false,2)} in Checking · you have ${fmtMoney(mockState.checkingBalance,false,0)}.</div>` : ""}
+    `;
+  }
+
+  const footer = canBuy
+    ? `<div class="opportunity-cost">After this buy, Checking will be ${fmtMoney(mockState.checkingBalance - def.currentPrice, false, 0)}.</div>`
+    : `<div style="font-size:12px;color:var(--fg-3);margin-top:4px">Need ${fmtMoney(def.currentPrice,false,2)} in Checking, you have ${fmtMoney(mockState.checkingBalance,false,0)}.</div>`;
+
+  return `
+    <div class="story-block">
+      ${header}
+      ${body}
+      ${footer}
     </div>
   `;
 }
@@ -1416,7 +1922,7 @@ window.FV.investing = {
   }
 };
 
-// Close button — fire an intent through the host. The host SendMessage's
+// Close button. Fire an intent through the host. The host SendMessage's
 // the C# bridge, which raises GameEvents.OnHidePanelRequested. Wired in
 // Phase 4 on the C# side.
 $(".close").addEventListener("click", () => {
