@@ -155,6 +155,16 @@ namespace FortuneValley.Core
         /// <summary>
         /// Reset tick counter to zero.
         /// </summary>
+        /// <summary>
+        /// Restore day and tick from a saved state. Does not fire OnTick
+        /// (no systems should process a phantom tick on restore).
+        /// </summary>
+        public void ApplyState(int day, int tick)
+        {
+            _currentDay = day;
+            _currentTick = tick;
+        }
+
         public void ResetTime()
         {
             _currentTick = 0;

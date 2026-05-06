@@ -111,6 +111,17 @@ namespace FortuneValley.Core
             _totalEarned = 0f;
         }
 
+        /// <summary>
+        /// Restore the restaurant tier from a saved state.
+        /// Fires OnRestaurantUpgraded so the UI and visuals refresh.
+        /// </summary>
+        public void ApplyState(int level)
+        {
+            if (level < 1) return;
+            _currentLevel = level;
+            GameEvents.RaiseRestaurantUpgraded(_currentLevel);
+        }
+
         private void HandleUpgradeRequested()
         {
             TryUpgrade();

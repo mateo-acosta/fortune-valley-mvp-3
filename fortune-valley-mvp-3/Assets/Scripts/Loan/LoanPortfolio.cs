@@ -151,6 +151,14 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Add a pre-built loan (state restoration only, no validation).
+        /// </summary>
+        public void AddRestored(ActiveLoan loan)
+        {
+            if (loan != null) _loans.Add(loan);
+        }
+
+        /// <summary>
         /// Clear all loans (game reset / bankruptcy).
         /// </summary>
         public void Clear()

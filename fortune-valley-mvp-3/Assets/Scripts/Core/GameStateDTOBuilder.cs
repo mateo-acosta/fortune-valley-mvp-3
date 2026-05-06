@@ -66,8 +66,10 @@ namespace FortuneValley.Core
             };
 
             BuildLotOwnership(dto);
+            BuildFranchiseLevels(dto);
             BuildActiveLoans(dto);
             BuildInsurancePolicies(dto);
+            BuildInvestmentHoldings(dto);
 
             if (_pendingIncome != null)
             {
@@ -183,6 +185,50 @@ namespace FortuneValley.Core
             }
 
             dto.insurance_policies = policyDtos.ToArray();
+        }
+
+        private void BuildFranchiseLevels(GamePlayerStateDTO dto)
+        {
+            if (_cityManager == null) return;
+
+            var tiers = _cityManager.LotTiers;
+            var dtos = new List<FranchiseLevelDTO>();
+
+            foreach (var kvp in tiers)
+            {
+                dtos.Add(new FranchiseLevelDTO
+                {
+                    lot_id = kvp.Key,
+                    tier = kvp.Value
+                });
+            }
+
+            dto.franchise_levels = dtos.ToArray();
+        }
+
+        private void BuildInvestmentHoldings(GamePlayerStateDTO dto)
+        {
+            if (_investmentSystem == null) return;
+
+            var holdings = _investmentSystem.ActiveInvestments;
+            var dtos = new List<InvestmentHoldingDTO>();
+
+            for (int i = 0; i < holdings.Count; i++)
+            {
+                var h = holdings[i];
+                if (h == null || h.Definition == null) continue;
+                dtos.Add(new InvestmentHoldingDTO
+                {
+                    // DisplayName is the user-facing label; asset name is the stable instrument_id Rails expects.
+                    name = h.Definition.DisplayName,
+                    instrument_id = h.Definition.name,
+                    shares = h.NumberOfShares,
+                    avg_price = h.AveragePurchasePrice,
+                    current_value = h.CurrentValue
+                });
+            }
+
+            dto.investment_holdings = dtos.ToArray();
         }
     }
 }

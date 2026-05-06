@@ -111,6 +111,36 @@ namespace FortuneValley.Domain.Entities
         }
 
         /// <summary>
+        /// Reconstruct a loan from a saved state snapshot.
+        /// Unlike the normal constructor, this sets remaining_balance and
+        /// payments_made to their saved values instead of fresh-loan defaults.
+        /// </summary>
+        public static ActiveLoan FromSave(
+            string loanId,
+            string lotId,
+            float principal,
+            float apr,
+            int termMonths,
+            float monthlyPayment,
+            float downPayment,
+            int startDay,
+            float remainingBalance,
+            int paymentsMade)
+        {
+            var loan = new ActiveLoan(
+                loanId, lotId, principal, apr,
+                termMonths, monthlyPayment, downPayment, startDay);
+            loan._remainingBalance = remainingBalance;
+            loan._paymentsMade = paymentsMade;
+            if (remainingBalance <= PaidOffThreshold)
+            {
+                loan._remainingBalance = 0f;
+                loan._isPaidOff = true;
+            }
+            return loan;
+        }
+
+        /// <summary>
         /// Calculate monthly payment using the standard amortization formula.
         /// Uses double precision for accuracy, returns float for storage.
         /// Zero APR is handled as simple division (principal / term).

@@ -192,6 +192,44 @@ namespace FortuneValley.Core
             InitializePrices();
         }
 
+        /// <summary>
+        /// Rebuild the active investment list from saved holdings.
+        /// Matches instrument_id to InvestmentDefinition ScriptableObject.name.
+        /// ADVISORY: contains a loop, but runs once at restore (not per-frame).
+        /// </summary>
+        public void ApplyState(InvestmentHoldingDTO[] holdings, int currentTick)
+        {
+            _activeInvestments.Clear();
+            if (holdings == null) return;
+
+            for (int i = 0; i < holdings.Length; i++)
+            {
+                var h = holdings[i];
+                if (h == null) continue;
+
+                InvestmentDefinition def = FindDefinitionByInstrumentId(h.instrument_id);
+                if (def == null)
+                {
+                    Debug.LogWarning($"[InvestmentSystem] No definition found for instrument_id '{h.instrument_id}', skipping");
+                    continue;
+                }
+
+                var inv = new ActiveInvestment(def, h.shares, h.avg_price, currentTick);
+                _activeInvestments.Add(inv);
+            }
+        }
+
+        private InvestmentDefinition FindDefinitionByInstrumentId(string instrumentId)
+        {
+            if (_availableInvestments == null) return null;
+            for (int i = 0; i < _availableInvestments.Count; i++)
+            {
+                if (_availableInvestments[i] != null && _availableInvestments[i].name == instrumentId)
+                    return _availableInvestments[i];
+            }
+            return null;
+        }
+
         private void HandleTick(int tickNumber)
         {
             UpdatePrices(tickNumber);

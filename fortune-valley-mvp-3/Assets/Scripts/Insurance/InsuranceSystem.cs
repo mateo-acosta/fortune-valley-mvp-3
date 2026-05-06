@@ -90,13 +90,53 @@ namespace FortuneValley.Core
             _portfolio = new InsurancePortfolio();
         }
 
-        /// <summary>
         /// IBankruptcyResettable. Soft reset: drop all active policies
         /// (the lots they covered are also being released to "for sale").
         /// </summary>
         public void OnBankruptcyReset()
         {
             _portfolio = new InsurancePortfolio();
+        }
+
+        /// <summary>
+        /// Rebuild insurance policies from saved state. Looks up config
+        /// by policy_id to recover coveragePercent and coveredAccidentIds
+        /// (not stored in the DTO).
+        /// ADVISORY: contains a loop, but runs once at restore.
+        /// </summary>
+        public void ApplyState(ActiveInsurancePolicyDTO[] policies)
+        {
+            if (_portfolio == null) _portfolio = new InsurancePortfolio();
+            _portfolio.Clear();
+            if (policies == null) return;
+
+            for (int i = 0; i < policies.Length; i++)
+            {
+                var dto = policies[i];
+                if (dto == null) continue;
+
+                InsurancePolicyConfig config = InsurancePortfolio.FindPolicyConfig(
+                    _availablePolicies, dto.policy_id);
+                if (config == null)
+                {
+                    Debug.LogWarning($"[InsuranceSystem] No config for policy_id '{dto.policy_id}', skipping");
+                    continue;
+                }
+
+                if (!System.Enum.TryParse<FortuneValley.Domain.Enums.InsurancePolicyType>(
+                    dto.policy_type, true, out var policyType))
+                {
+                    Debug.LogWarning($"[InsuranceSystem] Unknown policy_type '{dto.policy_type}', skipping");
+                    continue;
+                }
+
+                var coveredIds = InsurancePortfolio.BuildCoveredAccidentIds(config);
+                var policy = new ActiveInsurancePolicy(
+                    dto.policy_id, dto.lot_id, policyType,
+                    dto.monthly_premium, dto.deductible,
+                    config.CoveragePercent, coveredIds, dto.start_day);
+                _portfolio.Add(policy);
+            }
         }
 
         // ===============================================================

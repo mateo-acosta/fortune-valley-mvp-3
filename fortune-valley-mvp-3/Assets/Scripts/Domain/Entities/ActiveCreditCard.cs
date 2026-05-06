@@ -176,6 +176,14 @@ namespace FortuneValley.Domain.Entities
         }
 
         /// <summary>
+        /// Set the current balance directly (state restoration only).
+        /// </summary>
+        public void SetBalance(float balance)
+        {
+            _currentBalance = balance;
+        }
+
+        /// <summary>
         /// Reset all state (used on game start or bankruptcy).
         /// </summary>
         public void Reset()

@@ -82,7 +82,6 @@ namespace FortuneValley.Core
             _portfolio = new LoanPortfolio();
         }
 
-        /// <summary>
         /// IBankruptcyResettable. Soft reset: clear the loan portfolio so the
         /// player has no outstanding debt after bankruptcy.
         /// </summary>
@@ -95,6 +94,29 @@ namespace FortuneValley.Core
             else
             {
                 _portfolio = new LoanPortfolio();
+            }
+        }
+
+        /// <summary>
+        /// Rebuild the loan portfolio from saved loan snapshots.
+        /// ADVISORY: contains a loop, but runs once at restore.
+        /// </summary>
+        public void ApplyState(ActiveLoanDTO[] loans)
+        {
+            if (_portfolio == null) _portfolio = new LoanPortfolio();
+            _portfolio.Clear();
+            if (loans == null) return;
+
+            for (int i = 0; i < loans.Length; i++)
+            {
+                var dto = loans[i];
+                if (dto == null) continue;
+
+                var loan = ActiveLoan.FromSave(
+                    dto.loan_id, dto.lot_id, dto.principal, dto.apr,
+                    dto.term_months, dto.monthly_payment, dto.down_payment,
+                    dto.start_day, dto.remaining_balance, dto.payments_made);
+                _portfolio.AddRestored(loan);
             }
         }
 

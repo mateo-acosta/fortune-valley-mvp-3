@@ -537,6 +537,49 @@ namespace FortuneValley.Core
         // PRIVATE METHODS
         // ═══════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Restore lot ownership and tiers from a saved state.
+        /// Sets dictionaries directly (bypasses SetOwner to avoid
+        /// win-condition checks during restore). Fires events so UI refreshes.
+        /// ADVISORY: contains loops, but runs once at restore.
+        /// </summary>
+        public void ApplyState(
+            string[] playerLots,
+            string[] rivalLots,
+            FranchiseLevelDTO[] franchiseLevels)
+        {
+            ResetOwnership();
+
+            if (playerLots != null)
+            {
+                for (int i = 0; i < playerLots.Length; i++)
+                {
+                    _lotOwnership[playerLots[i]] = Owner.Player;
+                    GameEvents.RaiseLotPurchased(playerLots[i], Owner.Player);
+                }
+            }
+
+            if (rivalLots != null)
+            {
+                for (int i = 0; i < rivalLots.Length; i++)
+                {
+                    _lotOwnership[rivalLots[i]] = Owner.Rival;
+                    GameEvents.RaiseLotPurchased(rivalLots[i], Owner.Rival);
+                }
+            }
+
+            if (franchiseLevels != null)
+            {
+                for (int i = 0; i < franchiseLevels.Length; i++)
+                {
+                    var fl = franchiseLevels[i];
+                    if (fl == null) continue;
+                    _lotTier[fl.lot_id] = fl.tier;
+                    GameEvents.RaiseLotTierChanged(fl.lot_id, fl.tier);
+                }
+            }
+        }
+
         private void ResetOwnership()
         {
             // Capture prior state so we can notify listeners of Player/Rival -> None

@@ -615,8 +615,9 @@ namespace FortuneValley.Core
         public static event Action<string, int, int, bool> OnCosmeticVariantApplied;
         public static void RaiseCosmeticVariantApplied(string lotId, int tierSlot, int variantId, bool instant) => OnCosmeticVariantApplied?.Invoke(lotId, tierSlot, variantId, instant);
 
-        // Save replay: raised by GameSaveBootstrapper when the host page delivers saved state.
-        // CityManager subscribes to apply cosmetic variants (and future: tiers, ownership, finances).
+        // Phase 1 of restore: raised by GameSaveBootstrapper after parsing the
+        // JSON delivered by the host page (window.FV.loadState round-trip).
+        // Each system subscribes and hydrates its own DTO fields.
         public static event Action<GamePlayerStateDTO> OnSaveStateLoaded;
         public static void RaiseSaveStateLoaded(GamePlayerStateDTO dto) => OnSaveStateLoaded?.Invoke(dto);
 
@@ -811,6 +812,32 @@ namespace FortuneValley.Core
             => OnLotsBatchReset?.Invoke(lotIds);
 
         // ═══════════════════════════════════════════════════════════════
+        // PERSISTENCE RESTORE (two-phase signal + catch-up handles)
+        // ═══════════════════════════════════════════════════════════════
+
+        // Phase 2 of restore: GameSaveBootstrapper queues this for the frame
+        // after Apply, so any system that hydrated on Phase 1 (OnSaveStateLoaded)
+        // is already done by the time reconcile listeners run. CurrencyManager
+        // subscribes to call RefreshInvestingBalance after InvestmentSystem has
+        // rebuilt its portfolio.
+        public static event Action OnSaveRestored;
+        public static void RaiseSaveRestored() => OnSaveRestored?.Invoke();
+
+        // Catch-up handle for Phase 1. Set by GameSaveBootstrapper.Apply and
+        // write-throughed by AutoSaveController.PerformSave so cross-scene
+        // re-entry sees the latest local state, not the original session-start
+        // DTO. Newly-instantiated systems read this in their OnEnable to
+        // hydrate without waiting for another network round-trip.
+        // Intentionally NOT cleared in ClearAllSubscriptions.
+        public static GamePlayerStateDTO LastLoadedSaveDto { get; set; }
+
+        // Catch-up handle for Phase 2. Set when OnSaveRestored fires so
+        // late-joining Phase-2 subscribers know the reconcile already happened
+        // and can run theirs immediately on OnEnable.
+        // Intentionally NOT cleared in ClearAllSubscriptions.
+        public static bool HasSaveBeenRestored { get; set; }
+
+        // ═══════════════════════════════════════════════════════════════
         // CLEANUP (call when exiting play mode or restarting)
         // ═══════════════════════════════════════════════════════════════
 
@@ -931,8 +958,13 @@ namespace FortuneValley.Core
             OnCosmeticPickerOpened = null;
             OnCosmeticVariantChosen = null;
             OnCosmeticVariantApplied = null;
-            OnSaveStateLoaded = null;
             OnBlockingPanelOpenChanged = null;
+
+            // Persistence: clear event subscriptions but intentionally NOT
+            // LastLoadedSaveDto / HasSaveBeenRestored. Those catch-up handles
+            // survive scene reloads so late-joining systems can hydrate.
+            OnSaveStateLoaded = null;
+            OnSaveRestored = null;
 
             // QuestionMaster
             OnQuestionStartRequested = null;

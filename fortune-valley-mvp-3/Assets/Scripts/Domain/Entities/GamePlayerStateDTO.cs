@@ -29,6 +29,7 @@ namespace FortuneValley.Domain.Entities
         // Financial system state
         public ActiveLoanDTO[] active_loans;
         public ActiveInsurancePolicyDTO[] insurance_policies;
+        public FranchiseLevelDTO[] franchise_levels;
         public int consecutive_insolvent_months;
         public bool bankruptcy_flag;
         public int restaurant_level;

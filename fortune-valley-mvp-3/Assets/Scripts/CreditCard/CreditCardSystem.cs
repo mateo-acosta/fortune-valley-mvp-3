@@ -252,5 +252,20 @@ namespace FortuneValley.Core
         {
             _currentCreditScore = score;
         }
+
+        /// <summary>
+        /// Restore credit balance and score from a saved state.
+        /// Fires both change events so UI components refresh.
+        /// </summary>
+        public void ApplyState(float creditBalance, int creditScore)
+        {
+            if (_card != null)
+            {
+                _card.SetBalance(creditBalance);
+                GameEvents.RaiseCreditCardBalanceChanged(_card.CurrentBalance, 0f);
+            }
+            _currentCreditScore = creditScore;
+            GameEvents.RaiseCreditScoreChanged(_currentCreditScore);
+        }
     }
 }

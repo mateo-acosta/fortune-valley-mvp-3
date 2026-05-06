@@ -226,6 +226,16 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Restore checking balance from a saved state and refresh investing
+        /// so UI components pick up both values after all systems are loaded.
+        /// </summary>
+        public void ApplyState(float checkingBalance)
+        {
+            SetCheckingBalance(checkingBalance);
+            RefreshInvestingBalance();
+        }
+
+        /// <summary>
         /// Set checking balance directly (testing and state loading).
         /// </summary>
         public void SetCheckingBalance(float amount)
