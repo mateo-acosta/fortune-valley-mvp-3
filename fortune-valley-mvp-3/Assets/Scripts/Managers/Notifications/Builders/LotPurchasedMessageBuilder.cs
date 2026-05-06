@@ -5,7 +5,7 @@ namespace FortuneValley.Managers.Notifications.Builders
 {
     /// <summary>
     /// Formats a LotPurchasedContext into banner copy. Positional args:
-    ///   {0} = lot id (raw, e.g. "Lot_Bistro")
+    ///   {0} = lot id (raw, e.g. "lot_block02")
     /// </summary>
     public class LotPurchasedMessageBuilder : IBannerMessageBuilder<LotPurchasedContext>
     {

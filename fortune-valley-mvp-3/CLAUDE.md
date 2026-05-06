@@ -46,7 +46,7 @@ Explicitly Out of Scope for POC:
 - No decay during play. Buildings do not degrade over time. A Tier 2 restaurant does not revert to Tier 1. The player must actively upgrade, but never has to "maintain" against decay.
 - No intermediate sub-tiers between the three main tiers. Three tiers only: dilapidated, normal, thriving.
 - Investing has no world-visible effect. Portfolio value changes numbers in the UI only. A skyline-linked investing visual is a post-POC stretch goal.
-- The 7 `CityLotDefinition` assets (Lot_Bakery, Lot_Bistro, Lot_Corner, Lot_Diner, Lot_Hotel, Lot_Tower, Lot_Cafe) are district flavor labels only. All use the same hero restaurant mesh with the same three tiers. They do NOT imply different building silhouettes per cuisine type.
+- All 19 `CityLotDefinition` assets are named `Lot_Block01` through `Lot_Block19` and display as "Block 1" through "Block 19" in-game. They are generic numbered lots with no district flavor. All use the same hero restaurant mesh with the same three tiers.
 
 ---
 

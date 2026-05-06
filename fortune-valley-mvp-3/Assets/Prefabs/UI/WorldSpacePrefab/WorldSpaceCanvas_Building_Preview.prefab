@@ -840,12 +840,18 @@ MonoBehaviour:
   _cityManager: {fileID: 0}
   _timeManager: {fileID: 0}
   _fillImage: {fileID: 3118605646811160945}
+  _coinTintImage: {fileID: 0}
   _button: {fileID: 3671308573791919532}
   _amountLabel: {fileID: 3589437954152914306}
   _amountFormat: +${0:N0}/day
+  _flashAmountFormat: +${0:N0}
   _previewTier: 1
-  _pulseScale: 1.1
-  _pulseDuration: 0.4
+  _flashScale: 1.2
+  _flashDuration: 0.35
+  _fadeInDuration: 0.1
+  _holdDuration: 0.3
+  _fadeOutDuration: 0.4
+  _flashColor: {r: 1, g: 0.95, b: 0.3, a: 1}
   _visibilityGroup: {fileID: 4990716418100380688}
 --- !u!114 &1649289276213594835
 MonoBehaviour:

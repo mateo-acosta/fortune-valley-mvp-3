@@ -24,9 +24,9 @@ namespace FortuneValley.Tests
         [Test]
         public void Build_PassesLotIdAsArg1()
         {
-            var ctx = new LoanTakenContext(0, "Lot_Bistro", 0, 0);
+            var ctx = new LoanTakenContext(0, "lot_block02", 0, 0);
             var (_, message) = _builder.Build("", "on {1}", ctx);
-            Assert.AreEqual("on Lot_Bistro", message);
+            Assert.AreEqual("on lot_block02", message);
         }
 
         [Test]

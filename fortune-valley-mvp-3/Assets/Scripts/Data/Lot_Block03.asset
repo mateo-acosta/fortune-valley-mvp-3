@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dcb0a45f9abd14fd1875d02deaa05010, type: 3}
-  m_Name: Lot_Hotel
+  m_Name: Lot_Block03
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.CityLotDefinition
-  _lotId: Lot_Hotel
-  _displayName: City Hotel
-  _description: "A prestigious city hotel site \u2014 expensive, but the highest income in town."
-  _baseCost: 6000
-  _incomeBonus: 20
+  _lotId: lot_block03
+  _displayName: Block 3
+  _description: "A cozy cafe spot in a charming neighborhood \u2014 solid income for the price."
+  _baseCost: 800
+  _incomeBonus: 3
   _gridPosition: {x: 0, y: 0}

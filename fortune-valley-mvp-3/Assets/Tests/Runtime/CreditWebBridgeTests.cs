@@ -136,7 +136,7 @@ namespace FortuneValley.Tests
         [Test]
         public void RequestApplyForLoan_WithMissingLoanConfigId_ShowsError()
         {
-            _bridge.RequestApplyForLoan("{\"lotId\":\"Lot_Bistro\",\"price\":100000}");
+            _bridge.RequestApplyForLoan("{\"lotId\":\"lot_block02\",\"price\":100000}");
             Assert.AreEqual(1, _fakeBridge.ShowErrorCalls.Count);
             StringAssert.Contains("loan", _fakeBridge.ShowErrorCalls[0].Message.ToLower());
         }
@@ -152,7 +152,7 @@ namespace FortuneValley.Tests
         [Test]
         public void RequestApplyForLoan_WithZeroPrice_ShowsError()
         {
-            _bridge.RequestApplyForLoan("{\"loanConfigId\":\"loan-30y\",\"lotId\":\"Lot_Bistro\",\"price\":0}");
+            _bridge.RequestApplyForLoan("{\"loanConfigId\":\"loan-30y\",\"lotId\":\"lot_block02\",\"price\":0}");
             Assert.AreEqual(1, _fakeBridge.ShowErrorCalls.Count);
             StringAssert.Contains("price", _fakeBridge.ShowErrorCalls[0].Message.ToLower());
         }
@@ -160,7 +160,7 @@ namespace FortuneValley.Tests
         [Test]
         public void RequestApplyForLoan_WithNoLoanSystemWired_ShowsError()
         {
-            _bridge.RequestApplyForLoan("{\"loanConfigId\":\"loan-30y\",\"lotId\":\"Lot_Bistro\",\"price\":100000}");
+            _bridge.RequestApplyForLoan("{\"loanConfigId\":\"loan-30y\",\"lotId\":\"lot_block02\",\"price\":100000}");
             Assert.AreEqual(1, _fakeBridge.ShowErrorCalls.Count);
             StringAssert.Contains("not ready", _fakeBridge.ShowErrorCalls[0].Message.ToLower());
         }

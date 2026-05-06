@@ -64,20 +64,20 @@ namespace FortuneValley.Tests
         [Test]
         public void HandleLotPurchased_Player_EmitsBanner()
         {
-            _dispatcher.HandleLotPurchased("Lot_Bistro", Owner.Player);
+            _dispatcher.HandleLotPurchased("lot_block02", Owner.Player);
 
             Assert.AreEqual(1, _bus.CountOf<GuidanceBannerRequest>());
             var raised = (GuidanceBannerRequest)_bus.RaisedEvents[0];
-            Assert.AreEqual("Lot Lot_Bistro purchased", raised.Title);
-            Assert.AreEqual("You bought Lot_Bistro!", raised.Message);
-            Assert.AreEqual("Lot_Bistro", raised.TargetData);
+            Assert.AreEqual("Lot lot_block02 purchased", raised.Title);
+            Assert.AreEqual("You bought lot_block02!", raised.Message);
+            Assert.AreEqual("lot_block02", raised.TargetData);
             Assert.AreEqual(GuidanceSeverity.Positive, raised.Severity);
         }
 
         [Test]
         public void HandleLotPurchased_Rival_DoesNotEmit()
         {
-            _dispatcher.HandleLotPurchased("Lot_Bistro", Owner.Rival);
+            _dispatcher.HandleLotPurchased("lot_block02", Owner.Rival);
             Assert.AreEqual(0, _bus.CountOf<GuidanceBannerRequest>(),
                 "Rival purchases must not produce a banner (RivalPurchaseOverlay handles that)");
         }
@@ -85,7 +85,7 @@ namespace FortuneValley.Tests
         [Test]
         public void HandleLotPurchased_None_DoesNotEmit()
         {
-            _dispatcher.HandleLotPurchased("Lot_Bistro", Owner.None);
+            _dispatcher.HandleLotPurchased("lot_block02", Owner.None);
             Assert.AreEqual(0, _bus.CountOf<GuidanceBannerRequest>());
         }
 

@@ -51,13 +51,13 @@ namespace FortuneValley.Tests
         [Test]
         public void HandleRivalTargetingLot_EmitsBanner()
         {
-            _dispatcher.HandleRivalTargetingLot("Lot_Corner");
+            _dispatcher.HandleRivalTargetingLot("lot_block04");
             Assert.AreEqual(1, _bus.CountOf<GuidanceBannerRequest>());
             var r = (GuidanceBannerRequest)_bus.RaisedEvents[0];
-            Assert.AreEqual("Rival eyeing Lot_Corner", r.Title);
-            Assert.AreEqual("Your rival is targeting Lot_Corner.", r.Message);
+            Assert.AreEqual("Rival eyeing lot_block04", r.Title);
+            Assert.AreEqual("Your rival is targeting lot_block04.", r.Message);
             Assert.AreEqual(GuidanceSeverity.Warning, r.Severity);
-            Assert.AreEqual("Lot_Corner", r.TargetData);
+            Assert.AreEqual("lot_block04", r.TargetData);
         }
 
         [Test]

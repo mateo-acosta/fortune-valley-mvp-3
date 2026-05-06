@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dcb0a45f9abd14fd1875d02deaa05010, type: 3}
-  m_Name: Lot_Bakery
+  m_Name: Lot_Block02
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.CityLotDefinition
-  _lotId: Lot_Bakery
-  _displayName: Main Restaurant
-  _description: Your flagship restaurant. It anchors your chain and generates baseline daily income.
-  _baseCost: 1200
-  _incomeBonus: 5
+  _lotId: lot_block02
+  _displayName: Block 2
+  _description: "An upscale bistro in a trendy district \u2014 a solid mid-tier investment."
+  _baseCost: 3500
+  _incomeBonus: 12
   _gridPosition: {x: 0, y: 0}

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dcb0a45f9abd14fd1875d02deaa05010, type: 3}
-  m_Name: Lot_Diner
+  m_Name: Lot_Block04
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.CityLotDefinition
-  _lotId: Lot_Diner
-  _displayName: Downtown Diner
-  _description: "A prime downtown diner location \u2014 higher cost, but strong daily earnings."
-  _baseCost: 2000
-  _incomeBonus: 8
+  _lotId: lot_block04
+  _displayName: Block 4
+  _description: "A busy street corner with steady foot traffic \u2014 affordable and reliable."
+  _baseCost: 500
+  _incomeBonus: 2
   _gridPosition: {x: 0, y: 0}

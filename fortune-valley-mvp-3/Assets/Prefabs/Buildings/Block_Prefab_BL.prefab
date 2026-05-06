@@ -108,7 +108,7 @@ Transform:
   - {fileID: 7239365152477080697}
   - {fileID: 5459694801325697958}
   - {fileID: 5287125168982667810}
-  - {fileID: 8701123049849509234}
+  - {fileID: 9088321469679297345}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4861379983453834713
@@ -171,13 +171,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5dd206861822c40a5898d1e89cc69681, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.City.BlockHoverController
-  _canvasRoot: {fileID: 4580123653243000054}
-  _canvasGroup: {fileID: 4826292267749848054}
+  _canvasRoot: {fileID: 0}
+  _canvasGroup: {fileID: 0}
   _cornerNW: {fileID: 5391996999531426932}
   _cornerNE: {fileID: 1491016052584532101}
   _cornerSE: {fileID: 1807388915502100963}
   _cornerSW: {fileID: 2809034932885744502}
   _camera: {fileID: 0}
+  _block: {fileID: 0}
+  _cityManager: {fileID: 0}
+  _raiseRestaurantSelectedOnClick: 1
   _footprintHeight: 5
   _fadeInDuration: 0.15
   _fadeOutDuration: 0.2
@@ -947,7 +950,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3e6f547b236fb436ca700aa53a17a466, type: 3}
   m_PrefabInstance: {fileID: 6882598435359404446}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &9189464711822242529
+--- !u!1001 &8748000512488686802
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -1021,7 +1024,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 524405643534706579, guid: af48ec811559140638aedc631de855e7, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 524405643534706579, guid: af48ec811559140638aedc631de855e7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1042,30 +1045,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4614033774300046871, guid: af48ec811559140638aedc631de855e7, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4826292267749848054}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af48ec811559140638aedc631de855e7, type: 3}
---- !u!1 &4580123653243000054 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4614033774300046871, guid: af48ec811559140638aedc631de855e7, type: 3}
-  m_PrefabInstance: {fileID: 9189464711822242529}
-  m_PrefabAsset: {fileID: 0}
---- !u!225 &4826292267749848054
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4580123653243000054}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!224 &8701123049849509234 stripped
+--- !u!224 &9088321469679297345 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 524405643534706579, guid: af48ec811559140638aedc631de855e7, type: 3}
-  m_PrefabInstance: {fileID: 9189464711822242529}
+  m_PrefabInstance: {fileID: 8748000512488686802}
   m_PrefabAsset: {fileID: 0}

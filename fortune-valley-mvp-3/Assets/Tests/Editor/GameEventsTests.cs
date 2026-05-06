@@ -107,9 +107,9 @@ namespace FortuneValley.Tests
                 receivedOwner = owner;
             };
 
-            GameEvents.RaiseLotPurchased("lot_corner", Owner.Player);
+            GameEvents.RaiseLotPurchased("lot_block04", Owner.Player);
 
-            Assert.AreEqual("lot_corner", receivedLotId);
+            Assert.AreEqual("lot_block04", receivedLotId);
             Assert.AreEqual(Owner.Player, receivedOwner);
         }
 
@@ -119,9 +119,9 @@ namespace FortuneValley.Tests
             string receivedLotId = "";
             GameEvents.OnRivalTargetingLot += (lotId) => receivedLotId = lotId;
 
-            GameEvents.RaiseRivalTargetingLot("lot_hotel");
+            GameEvents.RaiseRivalTargetingLot("lot_block06");
 
-            Assert.AreEqual("lot_hotel", receivedLotId);
+            Assert.AreEqual("lot_block06", receivedLotId);
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -181,9 +181,9 @@ namespace FortuneValley.Tests
                 receivedTick = tick;
             };
 
-            GameEvents.RaisePurchaseLotRequested("lot_corner", 42);
+            GameEvents.RaisePurchaseLotRequested("lot_block04", 42);
 
-            Assert.AreEqual("lot_corner", receivedLotId);
+            Assert.AreEqual("lot_block04", receivedLotId);
             Assert.AreEqual(42, receivedTick);
         }
 

@@ -34,7 +34,7 @@ namespace FortuneValley.Tests
 
             summary.LotPurchases.Add(new LotPurchaseRecord
             {
-                LotId = "lot_corner",
+                LotId = "lot_block04",
                 LotName = "Corner Bistro",
                 Cost = 2000f,
                 IncomeBonus = 50f,
@@ -43,7 +43,7 @@ namespace FortuneValley.Tests
 
             summary.LotPurchases.Add(new LotPurchaseRecord
             {
-                LotId = "lot_cafe",
+                LotId = "lot_block03",
                 LotName = "Downtown Cafe",
                 Cost = 3000f,
                 IncomeBonus = 75f,

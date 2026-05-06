@@ -61,21 +61,21 @@ namespace FortuneValley.Tests
         [Test]
         public void HandleAccidentOccurred_EmitsBannerWithNameLotAndDamage()
         {
-            var roll = new AccidentRollResult("Lot_Bistro", "fire", "Fire", 1200f);
+            var roll = new AccidentRollResult("lot_block02", "fire", "Fire", 1200f);
             _dispatcher.HandleAccidentOccurred(roll);
 
             Assert.AreEqual(1, _bus.CountOf<GuidanceBannerRequest>());
             var r = (GuidanceBannerRequest)_bus.RaisedEvents[0];
-            Assert.AreEqual("Fire at Lot_Bistro", r.Title);
+            Assert.AreEqual("Fire at lot_block02", r.Title);
             Assert.AreEqual("Damage: $1,200", r.Message);
-            Assert.AreEqual("Lot_Bistro", r.TargetData);
+            Assert.AreEqual("lot_block02", r.TargetData);
             Assert.AreEqual(GuidanceSeverity.Alert, r.Severity);
         }
 
         [Test]
         public void HandleAccidentResolved_Covered_UsesCoveredLabel()
         {
-            _dispatcher.HandleAccidentResolved("Lot_Bistro", "Fire",
+            _dispatcher.HandleAccidentResolved("lot_block02", "Fire",
                 totalDamage: 1200f, wasCovered: true, playerCost: 200f);
 
             var r = (GuidanceBannerRequest)_bus.RaisedEvents[0];
@@ -86,7 +86,7 @@ namespace FortuneValley.Tests
         [Test]
         public void HandleAccidentResolved_Uncovered_UsesUncoveredLabel()
         {
-            _dispatcher.HandleAccidentResolved("Lot_Bistro", "Flood",
+            _dispatcher.HandleAccidentResolved("lot_block02", "Flood",
                 totalDamage: 5000f, wasCovered: false, playerCost: 5000f);
 
             var r = (GuidanceBannerRequest)_bus.RaisedEvents[0];
