@@ -45,6 +45,11 @@ namespace FortuneValley.UI.Panels
         [SerializeField] private TextMeshProUGUI _opportunityCostText;
         [SerializeField] private TextMeshProUGUI _whatIfText;
 
+        [Header("Life Goals Scorecard")]
+        [Tooltip("Optional. Renders the GoalScorecard from GameSummary at game end. " +
+                 "If null, scorecard text is appended to _whatIfText as a fallback.")]
+        [SerializeField] private TextMeshProUGUI _scorecardText;
+
         [Header("Buttons")]
         [SerializeField] private Button _playAgainButton;
         [SerializeField] private Button _mainMenuButton;
@@ -142,7 +147,71 @@ namespace FortuneValley.UI.Panels
                 DisplayStatistics();
                 DisplayKeyDecisions();
                 DisplayLearningReflections();
+                DisplayScorecard();
             }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // LIFE GOALS SCORECARD
+        // Pure renderer (Issue 5 / 5A) -- reads _summary.Scorecard which is
+        // built by GameSummaryBuilder + RetirementEvaluator and contains the
+        // realized vs missed split, retirement age, and bankruptcy_flag.
+        // No formatting logic lives here beyond layout: any narrative copy
+        // belongs in the renderer's strings, not in the data struct.
+        // ═══════════════════════════════════════════════════════════════
+        private void DisplayScorecard()
+        {
+            if (_summary == null || _summary.Scorecard == null) return;
+
+            var card = _summary.Scorecard;
+            string body = BuildScorecardText(card);
+
+            if (_scorecardText != null)
+            {
+                _scorecardText.text = body;
+                _scorecardText.gameObject.SetActive(true);
+            }
+            else if (_whatIfText != null)
+            {
+                // Fallback: append to the what-if reflection so the scorecard
+                // is still visible until a dedicated label is wired.
+                string current = _whatIfText.text ?? string.Empty;
+                _whatIfText.text = string.IsNullOrEmpty(current)
+                    ? body
+                    : current + "\n\n" + body;
+            }
+        }
+
+        private static string BuildScorecardText(GoalScorecard card)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append("Life Goals — ");
+            sb.Append(card.RealizedCount);
+            sb.Append("/");
+            sb.Append(card.TotalGoalCount);
+            sb.Append(" realized");
+            if (card.bankruptcy_flag) sb.Append(" (bankruptcy on record)");
+            sb.AppendLine();
+
+            if (card.realized != null)
+            {
+                for (int i = 0; i < card.realized.Length; i++)
+                {
+                    sb.Append("  ✓ ");
+                    sb.Append(card.realized[i].goal_id);
+                    sb.AppendLine();
+                }
+            }
+            if (card.missed != null)
+            {
+                for (int i = 0; i < card.missed.Length; i++)
+                {
+                    sb.Append("  ✗ ");
+                    sb.Append(card.missed[i].goal_id);
+                    sb.AppendLine();
+                }
+            }
+            return sb.ToString();
         }
 
         private void DisplayBasicOutcome()
