@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using FortuneValley.Core;
+using FortuneValley.Domain;
 
 namespace FortuneValley.UI.HUD
 {
@@ -17,7 +18,7 @@ namespace FortuneValley.UI.HUD
 
         [Header("Display")]
         [SerializeField] private TextMeshProUGUI _valueText;
-        [SerializeField] private string _format = "+${0:N0}/day";
+        [SerializeField] private string _format = "+${0:N0}/year";
 
         private void OnEnable()
         {
@@ -46,7 +47,8 @@ namespace FortuneValley.UI.HUD
             if (_valueText == null) return;
             float ratePerTick = _rivalAI != null ? _rivalAI.TotalIncomePerTick : 0f;
             int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
-            _valueText.text = string.Format(_format, ratePerTick * ticksPerDay);
+            float ratePerYear = ratePerTick * ticksPerDay * LifespanConstants.DaysPerYear;
+            _valueText.text = string.Format(_format, ratePerYear);
         }
     }
 }

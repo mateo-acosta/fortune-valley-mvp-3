@@ -35,9 +35,6 @@ namespace FortuneValley.Core
         [Tooltip("The restaurant building in the scene (for positioning feedback above the rooftop)")]
         [SerializeField] private Transform _restaurantBuilding;
 
-        [Tooltip("Extra height above rooftop to spawn floating text")]
-        [SerializeField] private float _spawnHeightOffset = 0.5f;
-
         [Header("Debug")]
         [SerializeField] private bool _logIncome = false;
 

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdff44b400bc145d3b292b7c1a920d94, type: 3}
+  m_Name: Step_01_Welcome
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
+  _kind: 0
+  _pose: 1
+  _dialogText: Welcome to Fortune Valley. You're 25 years old, and you've just inherited one rundown restaurant in town. The next 40 years are yours to play.
+  _targetKind: 0
+  _maskTargetKind: 0
+  _hideDialog: 0
+  _closePanelsOnEnter: 0
+  _allowWorldHover: 0
+  _keepFullDim: 0
+  _maskPaddingExtra: {x: 0, y: 0}
+  _arrowScreenOffset: {x: 0, y: 0}
+  _autoAdvanceSeconds: 0

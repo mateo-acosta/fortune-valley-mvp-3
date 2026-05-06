@@ -199,29 +199,35 @@ namespace FortuneValley.City
 
         private void Show()
         {
-            if (_canvasRoot == null || _canvasGroup == null) return;
+            // The canvas-fade path is optional. The OnBlockHoverChanged broadcast
+            // must fire regardless so consumers like LotWorldCanvas (which manage
+            // their own visibility) still get hover events even when this block's
+            // canvas refs are unwired.
+            if (_canvasRoot != null && _canvasGroup != null)
+            {
+                if (_exitSequence != null) _exitSequence.Kill();
+                if (_currentTween != null) _currentTween.Kill();
 
-            if (_exitSequence != null) _exitSequence.Kill();
-            if (_currentTween != null) _currentTween.Kill();
-
-            _canvasGroup.blocksRaycasts = true;
-            _canvasGroup.interactable = true;
-            _currentTween = FadeCanvasGroup(1f, _fadeInDuration);
+                _canvasGroup.blocksRaycasts = true;
+                _canvasGroup.interactable = true;
+                _currentTween = FadeCanvasGroup(1f, _fadeInDuration);
+            }
 
             GameEvents.RaiseBlockHoverChanged(GetHoverLotId(), true);
         }
 
         private void Hide()
         {
-            if (_canvasRoot == null || _canvasGroup == null) return;
+            if (_canvasRoot != null && _canvasGroup != null)
+            {
+                if (_currentTween != null) _currentTween.Kill();
+                if (_exitSequence != null) _exitSequence.Kill();
 
-            if (_currentTween != null) _currentTween.Kill();
-            if (_exitSequence != null) _exitSequence.Kill();
-
-            _exitSequence = DOTween.Sequence();
-            _exitSequence.AppendInterval(_exitGrace);
-            _exitSequence.Append(FadeCanvasGroup(HiddenAlpha, _fadeOutDuration));
-            _exitSequence.OnComplete(FinalizeHide);
+                _exitSequence = DOTween.Sequence();
+                _exitSequence.AppendInterval(_exitGrace);
+                _exitSequence.Append(FadeCanvasGroup(HiddenAlpha, _fadeOutDuration));
+                _exitSequence.OnComplete(FinalizeHide);
+            }
 
             GameEvents.RaiseBlockHoverChanged(GetHoverLotId(), false);
         }

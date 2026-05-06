@@ -843,7 +843,6 @@ MonoBehaviour:
   _coinTintImage: {fileID: 0}
   _button: {fileID: 3671308573791919532}
   _amountLabel: {fileID: 3589437954152914306}
-  _amountFormat: +${0:N0}/day
   _flashAmountFormat: +${0:N0}
   _previewTier: 1
   _flashScale: 1.2
@@ -1336,7 +1335,6 @@ MonoBehaviour:
   _forSaleLabel: For Sale
   _tierFormat: Tier {0}
   _rivalTierFormat: Rival Tier {0}
-  _incomeFormat: +${0:N0}/day
   _buyButtonLabel: Buy
   _manageButtonLabel: Manage
   _colorForSale: {r: 0.25, g: 0.55, b: 1, a: 1}

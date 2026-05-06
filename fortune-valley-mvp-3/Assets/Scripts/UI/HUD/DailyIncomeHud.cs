@@ -1,19 +1,20 @@
 using TMPro;
 using UnityEngine;
 using FortuneValley.Core;
+using FortuneValley.Domain;
 
 namespace FortuneValley.UI.HUD
 {
     /// <summary>
-    /// Renders the persistent "+$X/day" total daily income readout on the
-    /// homebase HUD. Pure subscriber to OnTotalDailyIncomeChanged; does not
-    /// touch managers or game systems directly. The accumulator computes and
-    /// raises the total; this component only formats and writes the text.
+    /// Renders the persistent "+$X/year" total income readout on the
+    /// homebase HUD. Subscribes to OnTotalDailyIncomeChanged for the daily
+    /// total and scales it to per-year for display so days never appear in
+    /// the UI; the underlying tick stays daily.
     /// </summary>
     public class DailyIncomeHud : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI _dailyIncomeText;
-        [SerializeField] private string _format = "+${0:N0}/day";
+        [SerializeField] private string _format = "+${0:N0}/year";
 
         private float _lastTotal = -1f;
 
@@ -31,8 +32,9 @@ namespace FortuneValley.UI.HUD
         {
             if (_dailyIncomeText == null) return;
 
-            int rounded = Mathf.FloorToInt(total);
-            int lastRounded = Mathf.FloorToInt(_lastTotal);
+            float yearly = total * LifespanConstants.DaysPerYear;
+            int rounded = Mathf.FloorToInt(yearly);
+            int lastRounded = Mathf.FloorToInt(_lastTotal * LifespanConstants.DaysPerYear);
             if (_lastTotal >= 0f && rounded == lastRounded) return;
 
             _lastTotal = total;

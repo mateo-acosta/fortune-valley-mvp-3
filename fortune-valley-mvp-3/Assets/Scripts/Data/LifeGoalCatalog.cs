@@ -25,6 +25,7 @@ namespace FortuneValley.Core
 
         public LifeGoalSO[] AllGoals => _goals;
         public int Count => _goals != null ? _goals.Length : 0;
+        public string DesignNote => _designNote;
 
         public LifeGoalSO FindById(string goalId)
         {

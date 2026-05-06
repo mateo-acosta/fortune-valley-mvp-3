@@ -95,7 +95,7 @@ namespace FortuneValley.UI.Components
             {
                 if (_lot.IncomeBonus > 0)
                 {
-                    _incomeText.text = $"+${_lot.IncomeBonus:N0}/day";
+                    _incomeText.text = $"+${_lot.IncomeBonus:N0} per tick";
                 }
                 else
                 {

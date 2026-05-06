@@ -530,7 +530,7 @@ namespace FortuneValley.Core
                    $"• Your lots: {PlayerLotCount}\n" +
                    $"• Rival's lots: {RivalLotCount}\n" +
                    $"• Available: {AvailableLotCount}\n" +
-                   $"• Your lot income: ${PlayerLotIncomeBonus:F0}/day";
+                   $"• Your lot income: ${PlayerLotIncomeBonus:F0} per tick";
         }
 
         // ═══════════════════════════════════════════════════════════════

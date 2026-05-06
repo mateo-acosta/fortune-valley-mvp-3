@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using FortuneValley.Core;
+using FortuneValley.Domain;
 
 namespace FortuneValley.UI.Panels
 {
@@ -26,14 +27,14 @@ namespace FortuneValley.UI.Panels
         [Tooltip("Currency manager -- used to check affordability (read-only)")]
         [SerializeField] private CurrencyManager _currencyManager;
 
-        [Tooltip("Time manager -- used to convert per-tick income into per-day for display.")]
+        [Tooltip("Time manager -- used to convert per-tick income into per-year for display.")]
         [SerializeField] private TimeManager _timeManager;
 
         [Header("Current Tier Display")]
         [Tooltip("Shows the current tier name, e.g. 'Bistro'")]
         [SerializeField] private TextMeshProUGUI _tierNameText;
 
-        [Tooltip("Shows income per day, e.g. 'Income: $250/day'")]
+        [Tooltip("Shows income per year, e.g. 'Income: $7,500/year'")]
         [SerializeField] private TextMeshProUGUI _incomeText;
 
         [Tooltip("Tier image -- swap sprite per tier to give visual feedback")]
@@ -136,7 +137,8 @@ namespace FortuneValley.UI.Panels
             if (_incomeText != null)
             {
                 int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
-                _incomeText.text = $"Income: ${_restaurantSystem.IncomePerTick * ticksPerDay:N0}/day";
+                float incomePerYear = _restaurantSystem.IncomePerTick * ticksPerDay * LifespanConstants.DaysPerYear;
+                _incomeText.text = $"Income: ${incomePerYear:N0}/year";
             }
 
             // Tier image (tier index is level - 1)

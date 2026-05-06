@@ -870,7 +870,7 @@ html, body {
 
 <!-- World chrome (top bar + dock) -->
 <div class="topbar">
-  <div class="day-badge"><div class="coin">4</div><div class="label">Day 4</div></div>
+  <div class="day-badge"><div class="coin">25</div><div class="label">Age 25</div></div>
   <div class="spacer"></div>
   <div class="balance-pill"><div class="swatch cash">$</div>
     <div class="meta"><div class="k">Checking</div><div class="v">$3,200</div></div></div>
@@ -1603,7 +1603,7 @@ function buildRangePills() {
 function renderHistory() {
   buildRangePills();
   // Mock state has only fixed dates; for the prototype we do not actually filter.
-  // (Real wire-up would parse Year/Month/Day from in-game time.)
+  // (Real wire-up would read state.current_age from the Unity bridge payload.)
   const items = mockState.history;
 
   const list = $("#history-list");

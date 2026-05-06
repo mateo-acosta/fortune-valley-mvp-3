@@ -3865,7 +3865,7 @@ MonoBehaviour:
   m_LoopMode: 1
   m_Method: 0
   m_Duration: 45
-  m_MaxSpeed: 3.167397
+  m_MaxSpeed: 3.15641
   m_EasingMode: 0
   m_AlignmentMode: 1
   m_ObjectForwardAxis: 2
@@ -6357,7 +6357,7 @@ MonoBehaviour:
   m_LoopMode: 1
   m_Method: 0
   m_Duration: 45
-  m_MaxSpeed: 3.167397
+  m_MaxSpeed: 3.15641
   m_EasingMode: 0
   m_AlignmentMode: 1
   m_ObjectForwardAxis: 2
@@ -42409,7 +42409,7 @@ MonoBehaviour:
   m_LoopMode: 1
   m_Method: 0
   m_Duration: 45
-  m_MaxSpeed: 3.656286
+  m_MaxSpeed: 3.645299
   m_EasingMode: 0
   m_AlignmentMode: 1
   m_ObjectForwardAxis: 2
@@ -46783,24 +46783,6 @@ MonoBehaviour:
     - Position:
         x: -4
         y: 0
-        z: 8
-      TangentIn:
-        x: 0
-        y: 0
-        z: 0
-      TangentOut:
-        x: 0
-        y: 0
-        z: 0
-      Rotation:
-        value:
-          x: 0
-          y: 1
-          z: 0
-          w: 0
-    - Position:
-        x: -4
-        y: 0
         z: 26
       TangentIn:
         x: 0
@@ -48809,24 +48791,6 @@ MonoBehaviour:
           y: 0.8422277
           z: -2.0013722e-19
           w: 0.5391219
-    - Position:
-        x: -4
-        y: 0
-        z: 8
-      TangentIn:
-        x: 0
-        y: 0
-        z: 0
-      TangentOut:
-        x: 0
-        y: 0
-        z: 0
-      Rotation:
-        value:
-          x: 0
-          y: 1
-          z: 0
-          w: 0
     - Position:
         x: -4
         y: 0
@@ -77503,24 +77467,6 @@ MonoBehaviour:
           y: 0.8422277
           z: -2.0013722e-19
           w: 0.5391219
-    - Position:
-        x: -4
-        y: 0
-        z: 8
-      TangentIn:
-        x: 0
-        y: 0
-        z: 0
-      TangentOut:
-        x: 0
-        y: 0
-        z: 0
-      Rotation:
-        value:
-          x: 0
-          y: 1
-          z: 0
-          w: 0
     - Position:
         x: -4
         y: 0
@@ -111588,7 +111534,6 @@ MonoBehaviour:
   _currencyManager: {fileID: 2029218249}
   _cityManager: {fileID: 2029218248}
   _restaurantBuilding: {fileID: 0}
-  _spawnHeightOffset: 0.5
   _logIncome: 1
 --- !u!114 &2029218247
 MonoBehaviour:
@@ -117527,8 +117472,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 182.80078, y: 299.56055}
-  m_SizeDelta: {x: -1288.9624, y: 328.9617}
+  m_AnchoredPosition: {x: 212.5, y: 299.56055}
+  m_SizeDelta: {x: -1175, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1148559429640665948
 MonoBehaviour:
@@ -117649,8 +117594,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 6.8007812, y: -13.569992}
-  m_SizeDelta: {x: -168.23022, y: -121.32362}
+  m_AnchoredPosition: {x: 15, y: 15}
+  m_SizeDelta: {x: -70, y: -50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1498814428147024550
 MonoBehaviour:

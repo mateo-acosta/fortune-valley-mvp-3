@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using FortuneValley.Core;
+using FortuneValley.Domain;
 using FortuneValley.Domain.Enums;
 
 namespace FortuneValley.UI.World
@@ -12,7 +13,7 @@ namespace FortuneValley.UI.World
     /// Non-interactive indicator under the automatic end-of-day deposit model:
     /// hidden by default, briefly fades in for a punch + color flash when its
     /// building's income lands at day-end, then fades back out. Hover reveals
-    /// a static "+$X/day" rate readout for any owned building.
+    /// a static "+$X/year" rate readout for any owned building.
     /// </summary>
     public class BuildingCollectButton : MonoBehaviour
     {
@@ -26,7 +27,6 @@ namespace FortuneValley.UI.World
         [SerializeField] private Image _coinTintImage;
         [SerializeField] private Button _button;
         [SerializeField] private TextMeshProUGUI _amountLabel;
-        [SerializeField] private string _amountFormat = "+${0:N0}/day";
         [SerializeField] private string _flashAmountFormat = "+${0:N0}";
 
         [Header("Preview")]
@@ -130,7 +130,9 @@ namespace FortuneValley.UI.World
 
             if (_amountLabel != null)
             {
-                _amountLabel.text = CoinLabelFormatter.FormatRate(dailyPayout, _amountFormat);
+                // Unit suffix is hardcoded so a stale prefab-serialized format
+                // string cannot reintroduce the dropped "/day" wording.
+                _amountLabel.text = $"+${Mathf.FloorToInt(dailyPayout * LifespanConstants.DaysPerYear):N0}/year";
             }
         }
 
@@ -156,7 +158,7 @@ namespace FortuneValley.UI.World
             _isHovered = hovered;
             if (hovered && !_isFlashing && _amountLabel != null)
             {
-                _amountLabel.text = CoinLabelFormatter.FormatRate(_lastKnownDailyRate, _amountFormat);
+                _amountLabel.text = $"+${Mathf.FloorToInt(_lastKnownDailyRate * LifespanConstants.DaysPerYear):N0}/year";
             }
             ApplyVisibility();
         }
@@ -210,8 +212,10 @@ namespace FortuneValley.UI.World
         }
 
         /// <summary>
-        /// Unowned/rival lots show the daily rate the player would unlock by
-        /// buying. No state in the accumulator to query.
+        /// Unowned/rival lots show the yearly rate the player would unlock by
+        /// buying. No state in the accumulator to query. The internal
+        /// _lastKnownDailyRate stays in daily units for consistency with
+        /// OnCoinStateChanged; the label scales to per-year at format time.
         /// </summary>
         private void ShowPotentialRate()
         {
@@ -219,9 +223,9 @@ namespace FortuneValley.UI.World
             var lot = _cityManager.GetLot(_buildingId);
             if (lot == null) return;
 
-            int potential = Mathf.FloorToInt(lot.GetIncomeAtTier(_previewTier) * _timeManager.TicksPerDay);
-            _lastKnownDailyRate = potential;
-            _amountLabel.text = string.Format(_amountFormat, potential);
+            int dailyPotential = Mathf.FloorToInt(lot.GetIncomeAtTier(_previewTier) * _timeManager.TicksPerDay);
+            _lastKnownDailyRate = dailyPotential;
+            _amountLabel.text = $"+${dailyPotential * LifespanConstants.DaysPerYear:N0}/year";
         }
     }
 }

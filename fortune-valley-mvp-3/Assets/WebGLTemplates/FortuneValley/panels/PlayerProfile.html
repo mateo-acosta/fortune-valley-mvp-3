@@ -732,6 +732,13 @@ html, body {
           <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 C13 6 16 7 16 11 C16 13.5 14.2 15 12 15 C9.8 15 8 13.5 8 11 C8 9 9 8 9 8 C9 9.5 10 10 10.5 10 C10.5 8 11 5 12 2 Z"/><path d="M7.5 12 C7 13 6.5 14.2 6.5 15.5 C6.5 18.5 9 21 12 21 C15 21 17.5 18.5 17.5 15.5 C17.5 14 16.8 12.6 16 11.5"/></svg></span>
           <span class="nm">Activity</span>
         </button>
+
+        <div style="margin-top:auto; padding-top:12px; border-top: var(--bd);">
+          <button id="replay-tutorial-btn" class="tab-btn" type="button" style="color: var(--cash-ink);">
+            <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 A9 9 0 1 0 6 5.5"/><path d="M3 4 V8 H7"/></svg></span>
+            <span class="nm">Replay Tutorial</span>
+          </button>
+        </div>
       </div>
 
       <!-- Content area -->
@@ -1101,6 +1108,27 @@ html, body {
     console.log('[Profile] close requested');
     if (window.parent && window.parent !== window) {
       try { window.parent.postMessage({ type: 'profile:close' }, '*'); } catch (e) {}
+    }
+  });
+
+  // Replay Tutorial button. Sends directly to ReplayTutorialService in Unity.
+  // The host page (WebGL template) holds unityInstance on window. When the
+  // PlayerProfile panel is hosted inside the FortuneValley iframe, parent
+  // resolves to that template's window. ReplayTutorialService.RequestReplay()
+  // wipes server state for the current game_mode and restarts the tutorial.
+  const replay = document.getElementById('replay-tutorial-btn');
+  replay && replay.addEventListener('click', () => {
+    console.log('[Profile] replay tutorial requested');
+    try {
+      if (window.parent && window.parent.unityInstance &&
+          typeof window.parent.unityInstance.SendMessage === 'function') {
+        window.parent.unityInstance.SendMessage('ReplayTutorialService', 'RequestReplay', '');
+      } else if (window.parent && window.parent !== window) {
+        // Fallback for hosts that listen for postMessage instead of exposing unityInstance.
+        try { window.parent.postMessage({ type: 'tutorial:replay' }, '*'); } catch (e) {}
+      }
+    } catch (e) {
+      console.error('[Profile] replay tutorial failed', e);
     }
   });
 

@@ -1,7 +1,6 @@
 using UnityEngine;
 using FortuneValley.Core;
 using FortuneValley.Domain.Entities;
-using FortuneValley.Domain.Enums;
 using FortuneValley.Domain.Tutorial;
 using FortuneValley.Managers.Notifications;
 
@@ -463,108 +462,28 @@ namespace FortuneValley.Managers.Tutorial
         private void SubscribeWaitEvent(TutorialStepKind kind)
         {
             _activeWaitKind = kind;
-            switch (kind)
+            if (kind == TutorialStepKind.WaitForLifeGoalsSelected)
             {
-                case TutorialStepKind.WaitForRestaurantTap:
-                    GameEvents.OnRestaurantSelected += HandleRestaurantSelected;
-                    return;
-                case TutorialStepKind.WaitForIncomeCollected:
-                    GameEvents.OnIncomeGenerated += HandleIncomeGenerated;
-                    return;
-                case TutorialStepKind.WaitForLoanTaken:
-                    GameEvents.OnLoanOriginated += HandleLoanOriginated;
-                    return;
-                case TutorialStepKind.WaitForLotPurchased:
-                    GameEvents.OnLotPurchased += HandleLotPurchased;
-                    return;
-                case TutorialStepKind.WaitForRestaurantUpgraded:
-                    GameEvents.OnRestaurantUpgraded += HandleRestaurantUpgraded;
-                    return;
-                case TutorialStepKind.WaitForLoanPanelOpened:
-                    GameEvents.OnPanelOpened += HandlePanelOpened;
-                    return;
-                case TutorialStepKind.WaitForLoanShopTabSelected:
-                    GameEvents.OnLoanShopTabSelected += HandleLoanShopTabSelected;
-                    return;
-                case TutorialStepKind.WaitForLotInfoOpened:
-                    GameEvents.OnLotInfoRequested += HandleLotInfoRequested;
-                    return;
-                case TutorialStepKind.WaitForLifeGoalsSelected:
-                    GameEvents.OnLifeGoalsSelected += HandleLifeGoalsSelected;
-                    // Surface the panel via event so this Managers-layer controller
-                    // does not reference UI directly.
-                    GameEvents.RaiseGoalSelectionPanelRequested(true);
-                    return;
+                GameEvents.OnLifeGoalsSelected += HandleLifeGoalsSelected;
+                // Surface the panel via event so this Managers-layer controller
+                // does not reference UI directly.
+                GameEvents.RaiseGoalSelectionPanelRequested(true);
             }
         }
 
         private void UnsubscribeWaitEvent()
         {
-            switch (_activeWaitKind)
+            if (_activeWaitKind == TutorialStepKind.WaitForLifeGoalsSelected)
             {
-                case TutorialStepKind.WaitForRestaurantTap:
-                    GameEvents.OnRestaurantSelected -= HandleRestaurantSelected;
-                    break;
-                case TutorialStepKind.WaitForIncomeCollected:
-                    GameEvents.OnIncomeGenerated -= HandleIncomeGenerated;
-                    break;
-                case TutorialStepKind.WaitForLoanTaken:
-                    GameEvents.OnLoanOriginated -= HandleLoanOriginated;
-                    break;
-                case TutorialStepKind.WaitForLotPurchased:
-                    GameEvents.OnLotPurchased -= HandleLotPurchased;
-                    break;
-                case TutorialStepKind.WaitForRestaurantUpgraded:
-                    GameEvents.OnRestaurantUpgraded -= HandleRestaurantUpgraded;
-                    break;
-                case TutorialStepKind.WaitForLoanPanelOpened:
-                    GameEvents.OnPanelOpened -= HandlePanelOpened;
-                    break;
-                case TutorialStepKind.WaitForLoanShopTabSelected:
-                    GameEvents.OnLoanShopTabSelected -= HandleLoanShopTabSelected;
-                    break;
-                case TutorialStepKind.WaitForLotInfoOpened:
-                    GameEvents.OnLotInfoRequested -= HandleLotInfoRequested;
-                    break;
-                case TutorialStepKind.WaitForLifeGoalsSelected:
-                    GameEvents.OnLifeGoalsSelected -= HandleLifeGoalsSelected;
-                    GameEvents.RaiseGoalSelectionPanelRequested(false);
-                    break;
+                GameEvents.OnLifeGoalsSelected -= HandleLifeGoalsSelected;
+                GameEvents.RaiseGoalSelectionPanelRequested(false);
             }
             _activeWaitKind = TutorialStepKind.Dialog;
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // WAIT-EVENT HANDLERS (each advances the sequence)
+        // WAIT-EVENT HANDLER
         // ═══════════════════════════════════════════════════════════════
-
-        private void HandleRestaurantSelected() => AdvanceStep();
-
-        private void HandleIncomeGenerated(float amount, string source) => AdvanceStep();
-
-        private void HandleLoanOriginated(ActiveLoan loan) => AdvanceStep();
-
-        private void HandleLotPurchased(string lotId, Owner owner)
-        {
-            if (owner != Owner.Player) return;
-            AdvanceStep();
-        }
-
-        private void HandleRestaurantUpgraded(int newLevel) => AdvanceStep();
-
-        private void HandlePanelOpened(PanelType panelType)
-        {
-            // The only WaitForX step that listens on OnPanelOpened is
-            // WaitForLoanPanelOpened. If the player opens a different panel
-            // (Insurance, Portfolio, etc.), do nothing.
-            if (_activeWaitKind != TutorialStepKind.WaitForLoanPanelOpened) return;
-            if (panelType != PanelType.Loan) return;
-            AdvanceStep();
-        }
-
-        private void HandleLoanShopTabSelected() => AdvanceStep();
-
-        private void HandleLotInfoRequested(string lotId) => AdvanceStep();
 
         private void HandleLifeGoalsSelected(FortuneValley.Domain.Entities.LifeGoalSelection selection) => AdvanceStep();
     }

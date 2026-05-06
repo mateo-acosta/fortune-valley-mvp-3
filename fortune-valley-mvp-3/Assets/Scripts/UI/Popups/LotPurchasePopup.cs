@@ -160,7 +160,7 @@ namespace FortuneValley.UI.Popups
             {
                 if (_currentLot.IncomeBonus > 0)
                 {
-                    _incomeBonusText.text = $"Income: +${_currentLot.IncomeBonus:N0}/day";
+                    _incomeBonusText.text = $"Income: +${_currentLot.IncomeBonus:N0} per tick";
                 }
                 else
                 {

@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 using FortuneValley.Core;
+using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Enums;
 using FortuneValley.Domain.Tutorial;
 using FortuneValley.Managers.Notifications;
@@ -189,7 +190,7 @@ namespace FortuneValley.Tests
         {
             Build(new[]
             {
-                MakeStep(TutorialStepKind.WaitForRestaurantTap),
+                MakeStep(TutorialStepKind.WaitForLifeGoalsSelected),
                 MakeStep(TutorialStepKind.Dialog, "done")
             });
 
@@ -205,48 +206,16 @@ namespace FortuneValley.Tests
         // ===============================================================
 
         [Test]
-        public void WaitForRestaurantTap_AdvancesOnOnRestaurantSelected()
+        public void WaitForLifeGoalsSelected_AdvancesOnOnLifeGoalsSelected()
         {
             Build(new[]
             {
-                MakeStep(TutorialStepKind.WaitForRestaurantTap),
+                MakeStep(TutorialStepKind.WaitForLifeGoalsSelected),
                 MakeStep(TutorialStepKind.Dialog, "done")
             });
 
             _controller.HandleTutorialStartRequested();
-            GameEvents.RaiseRestaurantSelected();
-            Assert.AreEqual(1, _controller.CurrentStepIndex);
-        }
-
-        [Test]
-        public void WaitForLoanTaken_AdvancesOnOnLoanOriginated()
-        {
-            Build(new[]
-            {
-                MakeStep(TutorialStepKind.WaitForLoanTaken),
-                MakeStep(TutorialStepKind.Dialog, "done")
-            });
-
-            _controller.HandleTutorialStartRequested();
-            var loan = new FortuneValley.Domain.Entities.ActiveLoan("L", "l", 100, 0.05f, 12, 10, 0, 1);
-            GameEvents.RaiseLoanOriginated(loan);
-            Assert.AreEqual(1, _controller.CurrentStepIndex);
-        }
-
-        [Test]
-        public void WaitForLotPurchased_IgnoresRivalPurchase()
-        {
-            Build(new[]
-            {
-                MakeStep(TutorialStepKind.WaitForLotPurchased),
-                MakeStep(TutorialStepKind.Dialog, "done")
-            });
-
-            _controller.HandleTutorialStartRequested();
-            GameEvents.RaiseLotPurchased("lot_a", Owner.Rival);
-            Assert.AreEqual(0, _controller.CurrentStepIndex);
-
-            GameEvents.RaiseLotPurchased("lot_a", Owner.Player);
+            GameEvents.RaiseLifeGoalsSelected(MakeSelection());
             Assert.AreEqual(1, _controller.CurrentStepIndex);
         }
 
@@ -255,17 +224,28 @@ namespace FortuneValley.Tests
         {
             Build(new[]
             {
-                MakeStep(TutorialStepKind.WaitForRestaurantTap),
+                MakeStep(TutorialStepKind.WaitForLifeGoalsSelected),
                 MakeStep(TutorialStepKind.Dialog, "done")
             });
 
             _controller.HandleTutorialStartRequested();
-            GameEvents.RaiseRestaurantSelected();   // advances to step 1 (Dialog)
+            GameEvents.RaiseLifeGoalsSelected(MakeSelection());   // advances to step 1 (Dialog)
 
-            // Firing another OnRestaurantSelected must NOT re-advance.
-            GameEvents.RaiseRestaurantSelected();
+            // Firing another OnLifeGoalsSelected must NOT re-advance.
+            GameEvents.RaiseLifeGoalsSelected(MakeSelection());
             Assert.AreEqual(1, _controller.CurrentStepIndex,
                 "After moving off a WaitFor step the subscription must be torn down");
+        }
+
+        private static LifeGoalSelection MakeSelection()
+        {
+            var entries = new[]
+            {
+                new LifeGoalEntry("starter", LifeGoalTier.Starter, 100_000f),
+                new LifeGoalEntry("mid", LifeGoalTier.Mid, 500_000f),
+                new LifeGoalEntry("ambitious", LifeGoalTier.Ambitious, 2_000_000f),
+            };
+            return new LifeGoalSelection(entries);
         }
 
         // ===============================================================
@@ -381,7 +361,7 @@ namespace FortuneValley.Tests
         {
             Build(new[]
             {
-                MakeStep(TutorialStepKind.WaitForRestaurantTap),
+                MakeStep(TutorialStepKind.WaitForLifeGoalsSelected),
                 MakeStep(TutorialStepKind.Dialog, "done")
             });
 
@@ -390,7 +370,7 @@ namespace FortuneValley.Tests
             GameEvents.OnTutorialHighlightTarget += t => { lastHighlight = t; highlightCalls++; };
 
             _controller.HandleTutorialStartRequested();
-            GameEvents.RaiseRestaurantSelected();   // advances to Dialog step
+            GameEvents.RaiseLifeGoalsSelected(MakeSelection());   // advances to Dialog step
 
             Assert.IsNull(lastHighlight,
                 "Moving off a WaitFor step should clear the highlight by broadcasting null");

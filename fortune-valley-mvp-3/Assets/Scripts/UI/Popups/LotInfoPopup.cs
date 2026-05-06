@@ -196,7 +196,7 @@ namespace FortuneValley.UI.Popups
             SetTextPair(_lotDescriptionText, _lotDescriptionTextUnowned, _currentLot.Description);
 
             string incomeCopy = _currentLot.IncomeBonus > 0f
-                ? $"Income: +${_currentLot.IncomeBonus:N0}/day"
+                ? $"Income: +${_currentLot.IncomeBonus:N0} per tick"
                 : "No income bonus";
             SetTextPair(_incomeBonusText, _incomeBonusTextUnowned, incomeCopy);
 

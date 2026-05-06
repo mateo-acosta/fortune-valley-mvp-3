@@ -2,14 +2,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using FortuneValley.Core;
+using FortuneValley.Domain;
 using FortuneValley.Domain.Enums;
 
 namespace FortuneValley.UI.World
 {
     /// <summary>
     /// Attached to each WorldSpaceCanvas_Building hovering over a RestaurantVisual.
-    /// Displays lot title, tier/status, per-second income, ownership color indicator,
+    /// Displays lot title, tier/status, income, ownership color indicator,
     /// and a context-aware Buy/Manage button that raises LotInfoRequested.
+    /// Visibility is hover-driven via OnBlockHoverChanged so the canvas only
+    /// shows when the player's mouse is over the matching block. A
+    /// self-managed CanvasGroup (auto-added if missing) makes this independent
+    /// of any Block-level hover-fade wiring that may have drifted.
     /// </summary>
     public class LotWorldCanvas : MonoBehaviour
     {
@@ -36,7 +41,6 @@ namespace FortuneValley.UI.World
         [SerializeField] private string _forSaleLabel = "For Sale";
         [SerializeField] private string _tierFormat = "Tier {0}";
         [SerializeField] private string _rivalTierFormat = "Rival Tier {0}";
-        [SerializeField] private string _incomeFormat = "+${0:N0}/day";
         [SerializeField] private string _buyButtonLabel = "Buy";
         [SerializeField] private string _manageButtonLabel = "Manage";
 
@@ -47,6 +51,10 @@ namespace FortuneValley.UI.World
 
         [Header("For-Sale Preview Tier")]
         [SerializeField] private int _previewTierWhenForSale = 1;
+
+        [Header("Hover Visibility")]
+        [Tooltip("Optional. If unwired, a CanvasGroup is auto-added to this GameObject so the canvas can fade with hover.")]
+        [SerializeField] private CanvasGroup _visibilityGroup;
 
         private Owner _owner = Owner.None;
         private int _tier;
@@ -65,6 +73,12 @@ namespace FortuneValley.UI.World
                 Transform anchor = _collectAnchor != null ? _collectAnchor : transform;
                 _collectionController.RegisterAnchor(_lot.LotId, anchor);
             }
+
+            if (_visibilityGroup == null) _visibilityGroup = GetComponent<CanvasGroup>();
+            if (_visibilityGroup == null) _visibilityGroup = gameObject.AddComponent<CanvasGroup>();
+            _visibilityGroup.alpha = 0f;
+            _visibilityGroup.blocksRaycasts = false;
+            _visibilityGroup.interactable = false;
         }
 
         private void OnEnable()
@@ -72,6 +86,7 @@ namespace FortuneValley.UI.World
             GameEvents.OnLotPurchased += HandleLotPurchased;
             GameEvents.OnLotTierChanged += HandleLotTierChanged;
             GameEvents.OnGameStart += HandleGameStart;
+            GameEvents.OnBlockHoverChanged += HandleBlockHoverChanged;
             RefreshDisplay();
         }
 
@@ -80,6 +95,16 @@ namespace FortuneValley.UI.World
             GameEvents.OnLotPurchased -= HandleLotPurchased;
             GameEvents.OnLotTierChanged -= HandleLotTierChanged;
             GameEvents.OnGameStart -= HandleGameStart;
+            GameEvents.OnBlockHoverChanged -= HandleBlockHoverChanged;
+        }
+
+        private void HandleBlockHoverChanged(string lotId, bool hovered)
+        {
+            if (_lot == null || lotId != _lot.LotId) return;
+            if (_visibilityGroup == null) return;
+            _visibilityGroup.alpha = hovered ? 1f : 0f;
+            _visibilityGroup.blocksRaycasts = hovered;
+            _visibilityGroup.interactable = hovered;
         }
 
         private void OnDestroy()
@@ -147,7 +172,10 @@ namespace FortuneValley.UI.World
             {
                 float incomePerTick = _lot.GetIncomeAtTier(displayTier);
                 int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
-                _incomeText.text = string.Format(_incomeFormat, incomePerTick * ticksPerDay);
+                float incomePerYear = incomePerTick * ticksPerDay * LifespanConstants.DaysPerYear;
+                // Unit suffix is hardcoded so a stale prefab-serialized format
+                // string cannot reintroduce the dropped "/day" wording.
+                _incomeText.text = $"+${incomePerYear:N0}/year";
             }
 
             if (_ownerIndicator != null)

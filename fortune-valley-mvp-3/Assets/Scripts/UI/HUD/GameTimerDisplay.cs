@@ -1,12 +1,14 @@
 using UnityEngine;
 using TMPro;
 using FortuneValley.Core;
+using FortuneValley.Domain;
 
 namespace FortuneValley.UI.HUD
 {
     /// <summary>
-    /// Displays the current game day as "Day X".
-    /// Updates when a day completes via OnDayEnd.
+    /// Displays the player's current age. The underlying tick is in days,
+    /// but the player only ever sees their age in years; days never appear
+    /// in the UI to avoid the "30 days = 1 year" confusion.
     /// </summary>
     public class GameTimerDisplay : MonoBehaviour
     {
@@ -29,7 +31,7 @@ namespace FortuneValley.UI.HUD
         {
             if (_timerText != null)
             {
-                _timerText.text = "Day 0";
+                _timerText.text = $"Age {LifespanConstants.StartingAge}";
             }
         }
 
@@ -37,7 +39,7 @@ namespace FortuneValley.UI.HUD
         {
             if (_timerText != null)
             {
-                _timerText.text = $"Day {dayNumber}";
+                _timerText.text = $"Age {LifespanConstants.AgeFromDay(dayNumber)}";
             }
         }
     }
