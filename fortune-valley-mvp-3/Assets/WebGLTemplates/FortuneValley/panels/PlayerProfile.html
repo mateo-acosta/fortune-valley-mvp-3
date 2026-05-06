@@ -536,6 +536,128 @@ html, body {
 }
 
 /* ============================================================
+   Header bankruptcy chip (right side, beside close button)
+   ============================================================ */
+.panel-header .header-flag {
+  align-self: center;
+  margin-right: 6px;
+}
+.panel-header .header-flag[hidden] { display: none; }
+
+/* ============================================================
+   Hero net: Total + Liquid + Next Goal pill
+   ============================================================ */
+.hero-net .liquid-row {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid rgba(14,21,48,0.06);
+}
+.hero-net .liquid-kicker {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.hero-net .liquid-v {
+  font-weight: 900; font-size: 32px; letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums; color: var(--fg-1); line-height: 1.0;
+}
+.hero-net .liquid-sub {
+  font-size: 12px; color: var(--fg-3); font-weight: 700;
+  margin-left: auto;
+}
+.hero-net .next-goal-pill {
+  display: inline-flex; align-items: center; gap: 10px;
+  align-self: flex-start;
+  margin-top: 14px;
+  padding: 8px 14px;
+  background: var(--cash-soft);
+  color: var(--cash-ink);
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(76,195,138,0.30);
+}
+.hero-net .next-goal-pill .ng-label {
+  font-size: 10px; font-weight: 900;
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.hero-net .next-goal-pill .ng-value {
+  font-size: 14px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.hero-net .next-goal-pill[data-state="all-realized"] {
+  background: var(--gain-soft);
+  color: var(--gain);
+  border-color: rgba(31,168,94,0.30);
+}
+
+/* ============================================================
+   TAB 4 - LIFE GOALS
+   ============================================================ */
+.goals-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 0 4px;
+}
+.goals-header .goals-count {
+  font-size: 12px; font-weight: 800; color: var(--fg-2);
+  font-variant-numeric: tabular-nums;
+}
+.goal-list {
+  display: flex; flex-direction: column;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: var(--bd);
+  background: var(--paper);
+  box-shadow: var(--sh-1);
+}
+.goal-card {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-top: 1px solid rgba(14,21,48,0.04);
+}
+.goal-card:first-child { border-top: none; }
+.goal-card[data-realized="true"] {
+  background: var(--gain-soft);
+}
+.goal-badge {
+  width: 48px; height: 48px; border-radius: 999px;
+  background: var(--paper-3); color: var(--fg-4);
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--paper-3);
+  flex: none;
+  transition: background var(--d-base) var(--ease), color var(--d-base) var(--ease), border-color var(--d-base) var(--ease);
+}
+.goal-card[data-realized="true"] .goal-badge {
+  background: linear-gradient(135deg, var(--cash), #2E9D6A);
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 4px 12px rgba(76,195,138,0.30);
+}
+.goal-meta {
+  display: flex; flex-direction: column; gap: 3px; min-width: 0;
+}
+.goal-meta .goal-tier {
+  font-size: 10px; font-weight: 900; color: var(--fg-3);
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.goal-meta .goal-name {
+  font-size: 16px; font-weight: 800; color: var(--fg-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.goal-meta .goal-threshold {
+  font-size: 14px; font-weight: 700; color: var(--fg-2);
+  font-variant-numeric: tabular-nums;
+}
+.goal-status {
+  align-self: center;
+}
+.goals-footer {
+  font-size: 12px; color: var(--fg-3); font-weight: 700;
+  line-height: 1.5;
+  padding: 0 4px;
+}
+
+/* ============================================================
    Narrow layout
    ============================================================ */
 @media (max-width: 760px) {
@@ -568,9 +690,12 @@ html, body {
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="3.6"/><path d="M5 20 c0 -3.6 3 -6 7 -6 c4 0 7 2.4 7 6"/></svg>
       </div>
       <div class="titles">
-        <div class="kicker">Snapshot</div>
+        <div class="kicker">Snapshot &middot; Age <span id="age-display">25</span></div>
         <div class="title" id="profile-title">Player Profile</div>
       </div>
+      <span class="zone-pill zone-poor header-flag" id="bankruptcy-chip" hidden>
+        <span class="dot"></span>Bankruptcy on Record
+      </span>
       <button class="close" id="profile-close" aria-label="Close">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
       </button>
@@ -596,6 +721,11 @@ html, body {
         <button data-tab="properties" class="tab-btn" role="tab" aria-selected="false">
           <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/><path d="M10 20 V14 H14 V20"/></svg></span>
           <span class="nm">Properties</span>
+        </button>
+
+        <button data-tab="goals" class="tab-btn" role="tab" aria-selected="false">
+          <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3 V21"/><path d="M5 4 H17 L15 8 L17 12 H5"/></svg></span>
+          <span class="nm">Life Goals</span>
         </button>
 
         <button data-tab="learning" class="tab-btn" role="tab" aria-selected="false">
@@ -631,9 +761,18 @@ html, body {
         <section class="tab active" data-tab-body="overview" role="tabpanel">
 
           <div class="hero-net">
-            <div class="kicker">Net Worth</div>
-            <div class="v">$48,420</div>
-            <div class="sub">Cash, investments, and property value, less debt.</div>
+            <div class="kicker">Total Net Worth</div>
+            <div class="v" id="total-nw">$48,420</div>
+            <div class="sub">Includes business assets (lots, restaurant tiers).</div>
+            <div class="liquid-row">
+              <span class="liquid-kicker">Liquid</span>
+              <span class="liquid-v" id="liquid-nw">$31,290</span>
+              <span class="liquid-sub">Cash + investments, less debts.</span>
+            </div>
+            <div class="next-goal-pill" id="next-goal-pill">
+              <span class="ng-label">Next Goal</span>
+              <span class="ng-value" id="next-goal-value">Family Home &middot; $500,000</span>
+            </div>
           </div>
 
           <div class="stat-grid">
@@ -829,7 +968,62 @@ html, body {
 
         </section>
 
-        <!-- ===== TAB 4: ACTIVITY ===== -->
+        <!-- ===== TAB 4: LIFE GOALS ===== -->
+        <section class="tab" data-tab-body="goals" role="tabpanel">
+
+          <div class="goals-header">
+            <span class="kicker">Your three picks</span>
+            <span class="goals-count" id="goals-count">0 of 3 realized</span>
+          </div>
+
+          <div class="goal-list" id="goal-list">
+
+            <div class="goal-card" id="goal-card-1" data-tier="starter" data-realized="false">
+              <div class="goal-badge">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+              </div>
+              <div class="goal-meta">
+                <span class="goal-tier">Starter</span>
+                <span class="goal-name" id="goal-1-name">Pick a starter goal</span>
+                <span class="goal-threshold" id="goal-1-threshold">$100,000</span>
+              </div>
+              <span class="zone-pill zone-fair goal-status" id="goal-1-status"><span class="dot"></span>In progress</span>
+            </div>
+
+            <div class="goal-card" id="goal-card-2" data-tier="mid" data-realized="false">
+              <div class="goal-badge">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+              </div>
+              <div class="goal-meta">
+                <span class="goal-tier">Mid</span>
+                <span class="goal-name" id="goal-2-name">Pick a mid goal</span>
+                <span class="goal-threshold" id="goal-2-threshold">$500,000</span>
+              </div>
+              <span class="zone-pill zone-fair goal-status" id="goal-2-status"><span class="dot"></span>In progress</span>
+            </div>
+
+            <div class="goal-card" id="goal-card-3" data-tier="ambitious" data-realized="false">
+              <div class="goal-badge">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L15 9 L22 10 L17 15 L18 22 L12 19 L6 22 L7 15 L2 10 L9 9 Z"/></svg>
+              </div>
+              <div class="goal-meta">
+                <span class="goal-tier">Ambitious</span>
+                <span class="goal-name" id="goal-3-name">Pick an ambitious goal</span>
+                <span class="goal-threshold" id="goal-3-threshold">$2,000,000</span>
+              </div>
+              <span class="zone-pill zone-fair goal-status" id="goal-3-status"><span class="dot"></span>In progress</span>
+            </div>
+
+          </div>
+
+          <div class="goals-footer">
+            Goals realize automatically when your Total Net Worth reaches the threshold.
+            All three are evaluated at retirement (age 65).
+          </div>
+
+        </section>
+
+        <!-- ===== TAB 5: ACTIVITY ===== -->
         <section class="tab" data-tab-body="learning" role="tabpanel">
 
           <div class="learning-grid">
@@ -865,16 +1059,19 @@ html, body {
 
 <!--
   ============================================================
-  v2 ideas (held back for v1, listed for the next pass)
-  - Goal tracker: a small "next milestone" pill on the Overview hero
-    (e.g., "Reach $50k net worth").
+  Implemented in v2 (this pass):
+  - Goal tracker pill on the Overview hero (next-cheapest unrealized goal)
+  - Total + Liquid net worth split on the hero
+  - Header age display + bankruptcy chip
+  - Dedicated Life Goals tab with 3 goal cards + badge state
+
+  Still held back for v3:
   - Health score breakdown: tap-to-expand reveal of the four sub-scores
     (net worth percentile, credit band, DTI band, savings rate) so
     students can see WHY the number is what it is. Still read-only.
   - Per-property mini sparkline of last N ticks. Out of scope per
     the snapshot-only constraint; revisit if students ask for it.
-  - Learning levels, accuracy %, and a badge system once those
-    systems exist in the game (not part of the POC).
+  - Learning levels and accuracy %, once those systems exist in the game.
   ============================================================
 -->
 
