@@ -939,6 +939,7 @@ namespace FortuneValley.Core
             OnLoanPaymentMade = null;
             OnLoanPaymentMissed = null;
             OnLoanPaidOff = null;
+            OnLoanBalanceChanged = null;
 
             // Monthly payment cycle
             OnMonthlyPaymentDayStarted = null;

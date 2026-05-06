@@ -59,10 +59,10 @@ namespace FortuneValley.Tests
             GameEvents.OnSaveStateLoaded += _ => eventFires++;
 
             var bs = SpawnReadyBootstrapper();
-            // Match either parser dialect; behavior is "warn + skip".
-            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[GameSaveBootstrapper\] parse failed"));
-            // Suppress the four-boundary diag log so the assertion does not flag it.
+            // LogAssert.Expect requires the logs in the order they fire. The
+            // bootstrapper logs entry FIRST, then warns on parse failure.
             LogAssert.Expect(LogType.Log, new System.Text.RegularExpressions.Regex(@"\[GameSaveBootstrapper\] OnSaveLoaded received"));
+            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[GameSaveBootstrapper\] parse failed"));
 
             bs.ApplyForTest("{ this is not json");
 

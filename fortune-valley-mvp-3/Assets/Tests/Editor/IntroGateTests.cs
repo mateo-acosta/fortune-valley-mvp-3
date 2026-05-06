@@ -2,6 +2,7 @@ using NUnit.Framework;
 using FortuneValley.Domain.Entities;
 using FortuneValley.Managers.Tutorial;
 using FortuneValley.Core;
+using FortuneValley.Tests.Fakes;
 
 namespace FortuneValley.Tests
 {

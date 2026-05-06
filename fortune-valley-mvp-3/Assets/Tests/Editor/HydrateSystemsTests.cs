@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -124,10 +125,26 @@ namespace FortuneValley.Tests
         // CityManager
         // ─────────────────────────────────────────────────────────────────
 
+        // CityManager.ResetOwnership iterates _allLots (a [SerializeField]
+        // populated in the Inspector). In EditMode tests we set it to an
+        // empty list so the iteration is a no-op; the test still exercises
+        // Hydrate's dictionary writes + per-item event raises.
+        private static CityManager SpawnCityManagerWithEmptyLotList(SaveTestsBase fixture)
+        {
+            var city = fixture.GetType()
+                .GetMethod("SpawnComponent", BindingFlags.NonPublic | BindingFlags.Instance)
+                .MakeGenericMethod(typeof(CityManager))
+                .Invoke(fixture, new object[] { "CityManager", false }) as CityManager;
+            typeof(CityManager)
+                .GetField("_allLots", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(city, new List<CityLotDefinition>());
+            return city;
+        }
+
         [Test]
         public void CityManager_Hydrate_HappyPath_SetsOwnershipAndTiers()
         {
-            var city = SpawnComponent<CityManager>("CityManager");
+            var city = SpawnCityManagerWithEmptyLotList(this);
 
             int playerLotEvents = 0, rivalLotEvents = 0, tierEvents = 0;
             GameEvents.OnLotPurchased += (_, owner) =>
@@ -158,7 +175,7 @@ namespace FortuneValley.Tests
         [Test]
         public void CityManager_Hydrate_NullArrays_NoExceptionNoSpuriousEntries()
         {
-            var city = SpawnComponent<CityManager>("CityManager");
+            var city = SpawnCityManagerWithEmptyLotList(this);
 
             // Default DTO has empty arrays; explicitly null one to test the
             // null-array branches.
@@ -175,7 +192,7 @@ namespace FortuneValley.Tests
         [Test]
         public void CityManager_Hydrate_NullDto_DoesNothing()
         {
-            var city = SpawnComponent<CityManager>("CityManager");
+            var city = SpawnCityManagerWithEmptyLotList(this);
             Assert.DoesNotThrow(() => city.Hydrate(null));
         }
 

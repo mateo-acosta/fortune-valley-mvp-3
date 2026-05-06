@@ -175,14 +175,31 @@ namespace FortuneValley.Tests
         // ===============================================================
 
         [Test]
-        public void IntroGate_PlayerPrefsFlagSet_SuppressesEvenWhenServerStateSaysIncomplete()
+        public void IntroGate_ServerStateOverridesPlayerPrefsFlag_WhenStateSaysIncomplete()
         {
+            // Server state is authoritative when delivered. A stale browser-local
+            // PlayerPrefs flag (e.g. from a different student on the same shared
+            // dev browser) must NOT block the tutorial for a student whose
+            // server-side row has tutorial_completed=false.
+            // (Persistence revamp Issue 5a: prefs is per-origin, not per-student.)
             var store = new InMemoryKeyValueStore();
             store.SetInt(IntroTutorialController.PlayerPrefsKeyPrefix + "homebase", 1);
 
             var state = new GamePlayerStateDTO { game_mode = "homebase", tutorial_completed = false };
-            Assert.IsFalse(IntroGate.ShouldRunIntro(state, role: "student", keyValueStore: store),
-                "Local PlayerPrefs flag covers a network outage where SaveState did not persist server-side");
+            Assert.IsTrue(IntroGate.ShouldRunIntro(state, role: "student", keyValueStore: store),
+                "Server state non-null + tutorial_completed=false must override prefs");
+        }
+
+        [Test]
+        public void IntroGate_PlayerPrefsFlagSet_StateNull_FallsBackToPrefs()
+        {
+            // When state is null (offline / pre-bootstrapper), the local prefs
+            // flag is the only source of truth. This is the "I just finished
+            // locally, the SaveState POST didn't land" recovery path.
+            var store = new InMemoryKeyValueStore();
+            store.SetInt(IntroTutorialController.PlayerPrefsKeyPrefix + "homebase", 1);
+
+            Assert.IsFalse(IntroGate.ShouldRunIntro(state: null, role: "student", keyValueStore: store));
         }
 
         [Test]
@@ -212,17 +229,22 @@ namespace FortuneValley.Tests
         }
 
         [Test]
-        public void IntroGate_PerGameMode_PrefsScopedByGameMode()
+        public void IntroGate_PerGameMode_DrivenByServerStateNotPrefs()
         {
+            // Per-mode tutorial completion is now a property of the server-side
+            // game_player_states row (one row per (student_id, game_mode)).
+            // PlayerPrefs scoping is irrelevant when state is delivered. With
+            // both states saying tutorial_completed=false, both should run
+            // regardless of which mode's PlayerPrefs flag is set.
             var store = new InMemoryKeyValueStore();
             store.SetInt(IntroTutorialController.PlayerPrefsKeyPrefix + "learning_level_1", 1);
 
             var homebase = new GamePlayerStateDTO { game_mode = "homebase", tutorial_completed = false };
             var ll1 = new GamePlayerStateDTO { game_mode = "learning_level_1", tutorial_completed = false };
 
-            Assert.IsTrue(IntroGate.ShouldRunIntro(homebase, "student", store),
-                "Homebase PlayerPrefs key is independent from learning_level_1");
-            Assert.IsFalse(IntroGate.ShouldRunIntro(ll1, "student", store));
+            Assert.IsTrue(IntroGate.ShouldRunIntro(homebase, "student", store));
+            Assert.IsTrue(IntroGate.ShouldRunIntro(ll1, "student", store),
+                "Server state authoritative: tutorial_completed=false runs the intro even when the per-mode prefs flag is set");
         }
     }
 }

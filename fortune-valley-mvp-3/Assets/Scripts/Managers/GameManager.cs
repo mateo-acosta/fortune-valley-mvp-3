@@ -250,6 +250,7 @@ namespace FortuneValley.Managers
             _stateDTOBuilder = new GameStateDTOBuilder(
                 _timeManager, _currencyManager, _cityManager,
                 _restaurantSystem, _creditCardSystem, _loanSystem, _insuranceSystem,
+                _investmentSystem,
                 _pendingIncome,
                 _lifeGoalSelection);
 

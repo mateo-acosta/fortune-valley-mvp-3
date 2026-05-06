@@ -9949,6 +9949,9 @@ MonoBehaviour:
   _restaurantPanel: {fileID: 589052243553810559}
   _insurancePanel: {fileID: 0}
   _loanPanel: {fileID: 0}
+  _investingWebBridge: {fileID: 0}
+  _creditWebBridge: {fileID: 0}
+  _questionMasterWebBridge: {fileID: 0}
   _lotPurchasePopup: {fileID: 1336260227}
   _buyInvestmentPopup: {fileID: 0}
   _sellInvestmentPopup: {fileID: 0}
@@ -15259,6 +15262,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FortuneValley::FortuneValley.CameraControl.CameraPanController
   _dragThreshold: 10
+  _scrollZoomSpeed: 0.01
+  _pinchZoomSpeed: 0.01
+  _minZoom: 4
+  _maxZoom: 14
+  _minX: -20
+  _maxX: 20
+  _minZ: -20
+  _maxZ: 20
+  _fenceGizmoColor: {r: 1, g: 0.92, b: 0.016, a: 0.8}
+  _fenceGizmoY: 0
   _camera: {fileID: 330585545}
 --- !u!114 &330585549
 MonoBehaviour:
@@ -18174,7 +18187,6 @@ MonoBehaviour:
   _currencyManager: {fileID: 404598230}
   _cityManager: {fileID: 404598227}
   _restaurantBuilding: {fileID: 800577314}
-  _spawnHeightOffset: 0.5
   _logIncome: 0
 --- !u!114 &404598230
 MonoBehaviour:
@@ -18299,6 +18311,7 @@ MonoBehaviour:
   _creditCardSystem: {fileID: 0}
   _loanSystem: {fileID: 0}
   _insuranceSystem: {fileID: 0}
+  _pendingIncome: {fileID: 0}
   _autoStart: 0
   _logStateChanges: 1
 --- !u!1001 &404806760
@@ -66256,6 +66269,7 @@ MonoBehaviour:
   _investmentInsightText: {fileID: 310129532}
   _opportunityCostText: {fileID: 809077762}
   _whatIfText: {fileID: 706471811}
+  _scorecardText: {fileID: 0}
   _playAgainButton: {fileID: 122776324}
   _mainMenuButton: {fileID: 794051787}
   _victoryColor: {r: 0.2, g: 0.6, b: 0.9, a: 1}
@@ -84159,6 +84173,50 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
   m_PrefabInstance: {fileID: 386887314}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1874174056
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1874174058}
+  - component: {fileID: 1874174057}
+  m_Layer: 0
+  m_Name: GameSaveBootstrapper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1874174057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874174056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cac46aff230d14cb685ced7d9175ef93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.GameSaveBootstrapper
+--- !u!4 &1874174058
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874174056}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1875391717 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7be6a961774c7435fa74f968e29ee880, type: 3}
@@ -95103,6 +95161,7 @@ MonoBehaviour:
   _panelRoot: {fileID: 7091226569140932563}
   _restaurantSystem: {fileID: 404598229}
   _currencyManager: {fileID: 404598230}
+  _timeManager: {fileID: 0}
   _tierNameText: {fileID: 2705480704612518836}
   _incomeText: {fileID: 2280361680294757700}
   _tierImage: {fileID: 2419162673005852008}
@@ -97434,3 +97493,4 @@ SceneRoots:
   - {fileID: 1766025788}
   - {fileID: 213467559}
   - {fileID: 563026381}
+  - {fileID: 1874174058}

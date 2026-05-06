@@ -18,6 +18,7 @@ namespace FortuneValley.Core
         private readonly CreditCardSystem _creditCardSystem;
         private readonly LoanSystem _loanSystem;
         private readonly InsuranceSystem _insuranceSystem;
+        private readonly InvestmentSystem _investmentSystem;
         private readonly DailyIncomeAccumulator _pendingIncome;
         private readonly LifeGoalSelectionService _lifeGoalSelection;
 
@@ -29,6 +30,7 @@ namespace FortuneValley.Core
             CreditCardSystem creditCardSystem,
             LoanSystem loanSystem,
             InsuranceSystem insuranceSystem,
+            InvestmentSystem investmentSystem,
             DailyIncomeAccumulator pendingIncome,
             LifeGoalSelectionService lifeGoalSelection = null)
         {
@@ -39,6 +41,7 @@ namespace FortuneValley.Core
             _creditCardSystem = creditCardSystem;
             _loanSystem = loanSystem;
             _insuranceSystem = insuranceSystem;
+            _investmentSystem = investmentSystem;
             _pendingIncome = pendingIncome;
             _lifeGoalSelection = lifeGoalSelection;
         }
