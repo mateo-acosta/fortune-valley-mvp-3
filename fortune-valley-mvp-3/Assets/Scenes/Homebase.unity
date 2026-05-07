@@ -81570,6 +81570,10 @@ MonoBehaviour:
   _currencyManager: {fileID: 2029218249}
   _cityManager: {fileID: 2029218248}
   _timeManager: {fileID: 2029218250}
+  _creditCardSystem: {fileID: 2029218242}
+  _questionManager: {fileID: 2029218254}
+  _restaurantSystem: {fileID: 2029218246}
+  _investmentSystem: {fileID: 2029218245}
 --- !u!4 &1476615078
 Transform:
   m_ObjectHideFlags: 0
@@ -119482,7 +119486,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 602.5, y: -50}
+  m_AnchoredPosition: {x: 50, y: -50}
   m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2075326520484046410
@@ -121784,7 +121788,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1032, y: -50}
+  m_AnchoredPosition: {x: 100, y: -50}
   m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2075326521050418583
@@ -121889,7 +121893,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 177.5, y: -50}
+  m_AnchoredPosition: {x: 0, y: -50}
   m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2075326521110765603
