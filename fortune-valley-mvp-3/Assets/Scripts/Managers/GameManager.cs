@@ -225,7 +225,7 @@ namespace FortuneValley.Managers
         public string GetGameSummary()
         {
             return $"=== Fortune Valley Summary ===\n\n" +
-                   $"Day: {_timeManager.CurrentTick}\n\n" +
+                   $"Day: {_timeManager.CurrentEnginePulse}\n\n" +
                    $"FINANCES:\n" +
                    $"Checking: ${_currencyManager.CheckingBalance:F0} | Investing: ${_currencyManager.InvestingBalance:F0}\n" +
                    $"{_restaurantSystem.GetPerformanceSummary()}\n\n" +
@@ -284,7 +284,7 @@ namespace FortuneValley.Managers
             // 4. Goal progress tracker. Subscribes to OnNetWorthChanged.
             _goalProgressTracker = new GoalProgressTracker(
                 _lifeGoalSelection,
-                () => _timeManager != null ? _timeManager.CurrentDay : 0);
+                () => _timeManager != null ? _timeManager.CurrentTickCount : 0);
 
             // 5. Lifespan controller. Subscribes to OnDayEnd.
             _lifespanController = new LifespanController();
@@ -413,7 +413,7 @@ namespace FortuneValley.Managers
             System.Collections.Generic.List<SellTransactionRecord> sellHistory = null;
             if (_investmentSystem != null)
                 sellHistory = new System.Collections.Generic.List<SellTransactionRecord>(_investmentSystem.SellHistory);
-            int daysPlayed = _timeManager != null ? _timeManager.CurrentTick : 0;
+            int daysPlayed = _timeManager != null ? _timeManager.CurrentEnginePulse : 0;
 
             // Build scorecard if this game-end is a retirement (or any time
             // the evaluator has selection state available). Returns a struct

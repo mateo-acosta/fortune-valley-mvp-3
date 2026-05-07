@@ -25,7 +25,7 @@ namespace FortuneValley.Managers.Notifications.Builders
                 FormatCurrency(context.Principal),
                 context.LotId ?? string.Empty,
                 context.TermMonths.ToString(CultureInfo.InvariantCulture),
-                FormatCurrency(context.MonthlyPayment)
+                FormatCurrency(context.YearlyPayment)
             };
 
             string title = string.Format(CultureInfo.InvariantCulture, titleTemplate ?? string.Empty, args);

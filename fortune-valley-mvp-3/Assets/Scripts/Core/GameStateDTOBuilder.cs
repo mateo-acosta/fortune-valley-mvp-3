@@ -51,8 +51,8 @@ namespace FortuneValley.Core
         /// </summary>
         public GamePlayerStateDTO Build()
         {
-            int currentTickCount = _timeManager != null ? _timeManager.CurrentDay : 0;
-            int currentEnginePulse = _timeManager != null ? _timeManager.CurrentTick : 0;
+            int currentTickCount = _timeManager != null ? _timeManager.CurrentTickCount : 0;
+            int currentEnginePulse = _timeManager != null ? _timeManager.CurrentEnginePulse : 0;
             float yearlyIncome = ComputeMonthlyIncome();
 
             var dto = new GamePlayerStateDTO
@@ -71,7 +71,7 @@ namespace FortuneValley.Core
                 credit_balance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f,
                 credit_score = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0,
                 restaurant_level = _restaurantSystem != null ? _restaurantSystem.CurrentLevel : 1,
-                current_age = LifespanConstants.AgeFromDay(currentTickCount),
+                current_age = LifespanConstants.AgeFromTick(currentTickCount),
                 liquid_net_worth = ComputeLiquidNetWorth(),
                 total_net_worth = ComputeLiquidNetWorth(),
                 selected_goals = _lifeGoalSelection != null ? _lifeGoalSelection.BuildDtoEntries() : null
@@ -123,8 +123,8 @@ namespace FortuneValley.Core
             if (_restaurantSystem == null || _timeManager == null || _creditCardSystem == null) return 0f;
             return DtiCalculator.ComputeMonthlyIncome(
                 _restaurantSystem.TotalIncomePerTick,
-                _timeManager.TicksPerDay,
-                _creditCardSystem.BillingCycleDays);
+                _timeManager.EnginePulsesPerTick,
+                _creditCardSystem.BillingCycleTicks);
         }
 
         private void BuildLotOwnership(GamePlayerStateDTO dto)
@@ -163,13 +163,13 @@ namespace FortuneValley.Core
                     principal = loan.Principal,
                     remaining_balance = loan.RemainingBalance,
                     // Legacy fields (Stage 0a alias chain). Removed in Stage 0c.
-                    monthly_payment = loan.MonthlyPayment,
+                    monthly_payment = loan.YearlyPayment,
                     term_months = loan.TermMonths,
-                    start_day = loan.StartDay,
+                    start_day = loan.StartTick,
                     // New tick-vocabulary fields, written in parallel.
-                    yearly_payment = loan.MonthlyPayment,
+                    yearly_payment = loan.YearlyPayment,
                     term_ticks = loan.TermMonths,
-                    start_tick = loan.StartDay,
+                    start_tick = loan.StartTick,
                     payments_made = loan.PaymentsMade,
                     apr = loan.APR,
                     down_payment = loan.DownPayment

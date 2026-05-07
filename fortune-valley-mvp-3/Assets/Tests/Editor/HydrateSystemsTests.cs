@@ -33,21 +33,21 @@ namespace FortuneValley.Tests
 
             time.Hydrate(dto);
 
-            Assert.AreEqual(12, time.CurrentDay);
-            Assert.AreEqual(7, time.CurrentTick);
+            Assert.AreEqual(12, time.CurrentTickCount);
+            Assert.AreEqual(7, time.CurrentEnginePulse);
         }
 
         [Test]
         public void TimeManager_Hydrate_NullDto_DoesNothing()
         {
             var time = SpawnComponent<TimeManager>("TimeManager");
-            int dayBefore = time.CurrentDay;
-            int tickBefore = time.CurrentTick;
+            int dayBefore = time.CurrentTickCount;
+            int tickBefore = time.CurrentEnginePulse;
 
             time.Hydrate(null);
 
-            Assert.AreEqual(dayBefore, time.CurrentDay);
-            Assert.AreEqual(tickBefore, time.CurrentTick);
+            Assert.AreEqual(dayBefore, time.CurrentTickCount);
+            Assert.AreEqual(tickBefore, time.CurrentEnginePulse);
         }
 
         [Test]
@@ -59,8 +59,8 @@ namespace FortuneValley.Tests
             time.Hydrate(dto);
             time.Hydrate(dto);
 
-            Assert.AreEqual(5, time.CurrentDay);
-            Assert.AreEqual(3, time.CurrentTick);
+            Assert.AreEqual(5, time.CurrentTickCount);
+            Assert.AreEqual(3, time.CurrentEnginePulse);
         }
 
         [Test]
@@ -72,9 +72,9 @@ namespace FortuneValley.Tests
 
             var time = SpawnComponent<TimeManager>("TimeManager", invokeOnEnable: true);
 
-            Assert.AreEqual(99, time.CurrentDay,
+            Assert.AreEqual(99, time.CurrentTickCount,
                 "Late-joining TimeManager must hydrate from LastLoadedSaveDto in OnEnable");
-            Assert.AreEqual(1, time.CurrentTick);
+            Assert.AreEqual(1, time.CurrentEnginePulse);
         }
 
         // ─────────────────────────────────────────────────────────────────

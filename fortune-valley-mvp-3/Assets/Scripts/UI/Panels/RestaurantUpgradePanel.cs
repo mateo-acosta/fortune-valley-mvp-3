@@ -136,8 +136,8 @@ namespace FortuneValley.UI.Panels
 
             if (_incomeText != null)
             {
-                int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
-                float incomePerYear = _restaurantSystem.IncomePerTick * ticksPerDay * LifespanConstants.DaysPerYear;
+                int ticksPerDay = _timeManager != null ? _timeManager.EnginePulsesPerTick : 1;
+                float incomePerYear = _restaurantSystem.IncomePerTick * ticksPerDay * LifespanConstants.TicksPerYear;
                 _incomeText.text = $"Income: ${incomePerYear:N0}/year";
             }
 

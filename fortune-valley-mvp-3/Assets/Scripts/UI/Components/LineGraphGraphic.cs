@@ -354,7 +354,7 @@ namespace FortuneValley.UI.Components
                     float frac     = i / (float)(_xLabels.Length - 1);
                     int   dayIndex = Mathf.RoundToInt(frac * (count - 1));
                     int   dayLabel = _startDayLabel + dayIndex;
-                    float yearLabel = dayLabel / (float)LifespanConstants.DaysPerYear;
+                    float yearLabel = dayLabel / (float)LifespanConstants.TicksPerYear;
 
                     UIBuilderUtils.SetTextIfChanged(_xLabels[i], yearLabel.ToString("F1"));
 

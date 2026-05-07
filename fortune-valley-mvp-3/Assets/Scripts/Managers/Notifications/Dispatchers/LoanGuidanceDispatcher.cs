@@ -117,7 +117,7 @@ namespace FortuneValley.Managers.Notifications.Dispatchers
                 principal: loan.Principal,
                 lotId: loan.LotId,
                 termMonths: loan.TermMonths,
-                monthlyPayment: loan.MonthlyPayment);
+                monthlyPayment: loan.YearlyPayment);
 
             var (title, message) = _takenBuilder.Build(
                 _loanTakenTip.TitleTemplate, _loanTakenTip.MessageTemplate, context);

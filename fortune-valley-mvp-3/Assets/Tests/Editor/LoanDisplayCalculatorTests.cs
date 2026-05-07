@@ -47,10 +47,10 @@ namespace FortuneValley.Tests
             var result = LoanDisplayCalculator.Calculate(lotPrice, _config);
 
             // Verify against ActiveLoan's amortization directly
-            float expectedPayment = ActiveLoan.CalculateMonthlyPayment(
+            float expectedPayment = ActiveLoan.CalculateYearlyPayment(
                 8000f, 0.08f, 12);
 
-            Assert.AreEqual(expectedPayment, result.MonthlyPayment, 0.01f);
+            Assert.AreEqual(expectedPayment, result.YearlyPayment, 0.01f);
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace FortuneValley.Tests
 
             var result = LoanDisplayCalculator.Calculate(lotPrice, _config);
 
-            float expectedTotal = (result.MonthlyPayment * 12) + 2000f;
+            float expectedTotal = (result.YearlyPayment * 12) + 2000f;
             Assert.AreEqual(expectedTotal, result.TotalCost, 0.01f);
         }
 
@@ -107,7 +107,7 @@ namespace FortuneValley.Tests
             var result = LoanDisplayCalculator.Calculate(lotPrice, zeroAprConfig);
 
             // 8000 principal / 10 months = 800 per month
-            Assert.AreEqual(800f, result.MonthlyPayment, 0.01f);
+            Assert.AreEqual(800f, result.YearlyPayment, 0.01f);
 
             // Total cost = (800 * 10) + 2000 = 10000, no interest
             Assert.AreEqual(10000f, result.TotalCost, 0.01f);
@@ -122,7 +122,7 @@ namespace FortuneValley.Tests
 
             Assert.AreEqual(0f, result.Principal, 0.01f);
             Assert.AreEqual(0f, result.DownPayment, 0.01f);
-            Assert.AreEqual(0f, result.MonthlyPayment, 0.01f);
+            Assert.AreEqual(0f, result.YearlyPayment, 0.01f);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace FortuneValley.Tests
 
             Assert.AreEqual(10000f, result.DownPayment, 0.01f);
             Assert.AreEqual(0f, result.Principal, 0.01f);
-            Assert.AreEqual(0f, result.MonthlyPayment, 0.01f);
+            Assert.AreEqual(0f, result.YearlyPayment, 0.01f);
 
             Object.DestroyImmediate(fullDownConfig);
         }
@@ -158,7 +158,7 @@ namespace FortuneValley.Tests
             var highResult = LoanDisplayCalculator.Calculate(lotPrice, highAprConfig);
 
             // Higher APR means higher monthly payment for same principal
-            Assert.Greater(highResult.MonthlyPayment, normalResult.MonthlyPayment);
+            Assert.Greater(highResult.YearlyPayment, normalResult.YearlyPayment);
             Assert.Greater(highResult.TotalCost, normalResult.TotalCost);
 
             Object.DestroyImmediate(highAprConfig);

@@ -60,7 +60,7 @@ namespace FortuneValley.Managers.WebPanels
             target.ccAvailable = _creditCardSystem.AvailableCredit;
             target.ccUtilization = _creditCardSystem.Utilization;
             target.totalDebt = _loanSystem.TotalOutstandingPrincipal;
-            target.monthlyDebtPayment = _loanSystem.TotalMonthlyDebt;
+            target.monthlyDebtPayment = _loanSystem.TotalYearlyDebt;
             target.cashOnHand = _currencyManager.CheckingBalance;
             // creditScoreLabel left empty; HTML computes its own bucket from creditScore.
 
@@ -111,7 +111,7 @@ namespace FortuneValley.Managers.WebPanels
             row.lotName = ResolveLotName(loan.LotId);
             row.balance = loan.RemainingBalance;
             row.originalPrincipal = loan.Principal;
-            row.monthlyPayment = loan.MonthlyPayment;
+            row.monthlyPayment = loan.YearlyPayment;
             row.monthsPaid = loan.PaymentsMade;
             row.termMonths = loan.TermMonths;
         }
@@ -225,7 +225,7 @@ namespace FortuneValley.Managers.WebPanels
                 target.history = new HistoryEntryDTO[count];
             }
 
-            int ticksPerDay = _timeManager != null && _timeManager.TicksPerDay > 0 ? _timeManager.TicksPerDay : 1;
+            int ticksPerDay = _timeManager != null && _timeManager.EnginePulsesPerTick > 0 ? _timeManager.EnginePulsesPerTick : 1;
             int idx = 0;
             for (int i = all.Count - 1; i >= 0 && idx < count; i--)
             {

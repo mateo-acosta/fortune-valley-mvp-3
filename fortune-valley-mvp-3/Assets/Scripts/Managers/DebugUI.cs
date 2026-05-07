@@ -82,7 +82,7 @@ namespace FortuneValley.Managers
             GUILayout.Label("<b>═══ GAME STATE ═══</b>", CreateRichTextStyle());
 
             var time = _gameManager.TimeManager;
-            GUILayout.Label($"Day: {time.CurrentTick}");
+            GUILayout.Label($"Day: {time.CurrentEnginePulse}");
             GUILayout.Label($"Speed: {time.CurrentSpeed}x");
             GUILayout.Label($"State: {_gameManager.CurrentState}");
 
@@ -287,7 +287,7 @@ namespace FortuneValley.Managers
 
                 if (GUILayout.Button("Buy"))
                 {
-                    if (city.TryPurchaseLot(lot.LotId, _gameManager.TimeManager.CurrentTick))
+                    if (city.TryPurchaseLot(lot.LotId, _gameManager.TimeManager.CurrentEnginePulse))
                         LogAction($"Bought {lot.DisplayName}");
                     else
                         LogAction($"Cannot buy {lot.DisplayName}");
@@ -338,7 +338,7 @@ namespace FortuneValley.Managers
 
         private void LogAction(string action)
         {
-            _lastAction = $"[Day {_gameManager.TimeManager.CurrentTick}] {action}";
+            _lastAction = $"[Day {_gameManager.TimeManager.CurrentEnginePulse}] {action}";
         }
 
         private GUIStyle CreateRichTextStyle()

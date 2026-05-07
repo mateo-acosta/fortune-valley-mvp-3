@@ -228,7 +228,7 @@ namespace FortuneValley.Core
             TryLog(NewBuilder()
                 .Type("loan_payment_missed")
                 .Instrument(loan.LotId)
-                .Amount(loan.MonthlyPayment)
+                .Amount(loan.YearlyPayment)
                 .Category("event")
                 .AddMetaString("loan_id", loan.LoanId)
                 .AddMetaString("lot_id", loan.LotId)

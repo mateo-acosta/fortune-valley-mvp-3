@@ -39,7 +39,7 @@ namespace FortuneValley.UI.Components
                 _remainingBalanceText.text = $"Remaining: ${loan.RemainingBalance:N2}";
 
             if (_monthlyPaymentText != null)
-                _monthlyPaymentText.text = $"${loan.MonthlyPayment:N2}/mo";
+                _monthlyPaymentText.text = $"${loan.YearlyPayment:N2}/mo";
 
             if (_progressText != null)
                 _progressText.text = $"{loan.PaymentsMade} of {loan.TermMonths} payments";

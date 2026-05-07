@@ -325,7 +325,7 @@ namespace FortuneValley.Core
             }
 
             // Create new investment
-            var investment = new ActiveInvestment(definition, shareCount, pricePerShare, _timeManager.CurrentTick);
+            var investment = new ActiveInvestment(definition, shareCount, pricePerShare, _timeManager.CurrentEnginePulse);
             _activeInvestments.Add(investment);
 
             GameEvents.RaiseInvestmentCreated(investment);
@@ -520,7 +520,7 @@ namespace FortuneValley.Core
                     InvestmentName    = inv.Definition.DisplayName,
                     Category          = inv.Definition.Category.ToString(),
                     SharesSold        = sharesSold,
-                    SellDay           = _timeManager.CurrentTick,
+                    SellDay           = _timeManager.CurrentEnginePulse,
                     SellPricePerShare = sellPrice,
                     CostBasisPerShare = inv.AveragePurchasePrice,
                     GainOrLoss        = gainPerShare * sharesSold,

@@ -134,7 +134,7 @@ namespace FortuneValley.UI.Panels.Credit
                 if (_totalDebtText != null)
                     _totalDebtText.text = $"Total Debt: ${_loanSystem.TotalOutstandingPrincipal:N2}";
                 if (_totalMonthlyText != null)
-                    _totalMonthlyText.text = $"${_loanSystem.TotalMonthlyDebt:N2}";
+                    _totalMonthlyText.text = $"${_loanSystem.TotalYearlyDebt:N2}";
             }
 
             // Credit card summary (property reads only)

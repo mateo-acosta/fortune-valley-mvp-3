@@ -80,9 +80,9 @@ namespace FortuneValley.Managers.WebPanels
             // Currency + city + time are required to render anything meaningful.
             if (_currencyManager == null || _cityManager == null || _timeManager == null) return false;
 
-            int day = _timeManager.CurrentDay;
+            int day = _timeManager.CurrentTickCount;
             target.current_day = day;
-            target.current_age = LifespanConstants.AgeFromDay(day);
+            target.current_age = LifespanConstants.AgeFromTick(day);
             target.retirement_age = LifespanConstants.RetirementAge;
 
             target.total_net_worth = _totalNetWorth;
@@ -91,7 +91,7 @@ namespace FortuneValley.Managers.WebPanels
             target.investment_value = _currencyManager.InvestingBalance;
             target.loans_total = _loanSystem != null ? _loanSystem.TotalOutstandingPrincipal : 0f;
             target.yearly_loan_payments = _loanSystem != null
-                ? _loanSystem.TotalMonthlyDebt * 12f
+                ? _loanSystem.TotalYearlyDebt
                 : 0f;
 
             FillRestaurants(target);
@@ -140,7 +140,7 @@ namespace FortuneValley.Managers.WebPanels
 
                     int tier = _cityManager.GetTier(lot.LotId);
                     float perDay = _cityManager.GetIncomeAtTier(lot.LotId, tier);
-                    float perYear = perDay * LifespanConstants.DaysPerYear;
+                    float perYear = perDay * LifespanConstants.TicksPerYear;
 
                     target.restaurants[idx].lot_id = lot.LotId;
                     target.restaurants[idx].lot_name = string.IsNullOrEmpty(lot.DisplayName) ? lot.LotId : lot.DisplayName;
@@ -172,7 +172,7 @@ namespace FortuneValley.Managers.WebPanels
                 target.selected_goals = new ProfileGoalRowDTO[count];
             }
 
-            int day = _timeManager.CurrentDay;
+            int day = _timeManager.CurrentTickCount;
             for (int i = 0; i < count; i++)
             {
                 var entry = entries[i];
@@ -183,7 +183,7 @@ namespace FortuneValley.Managers.WebPanels
                 row.threshold = entry != null ? entry.threshold : 0f;
                 row.realized = entry != null && entry.realized;
                 row.realized_age = (entry != null && entry.realized && entry.realized_at_day >= 0)
-                    ? LifespanConstants.AgeFromDay(entry.realized_at_day)
+                    ? LifespanConstants.AgeFromTick(entry.realized_at_day)
                     : -1;
                 row.just_realized = entry != null && _justRealizedGoalIds.Contains(entry.goal_id);
             }
@@ -235,7 +235,7 @@ namespace FortuneValley.Managers.WebPanels
             row.lotName = ResolveLotName(loan.LotId);
             row.balance = loan.RemainingBalance;
             row.originalPrincipal = loan.Principal;
-            row.monthlyPayment = loan.MonthlyPayment;
+            row.monthlyPayment = loan.YearlyPayment;
             row.monthsPaid = loan.PaymentsMade;
             row.termMonths = loan.TermMonths;
         }

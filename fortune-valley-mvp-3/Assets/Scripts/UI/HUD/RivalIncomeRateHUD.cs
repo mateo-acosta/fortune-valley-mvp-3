@@ -46,8 +46,8 @@ namespace FortuneValley.UI.HUD
         {
             if (_valueText == null) return;
             float ratePerTick = _rivalAI != null ? _rivalAI.TotalIncomePerTick : 0f;
-            int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
-            float ratePerYear = ratePerTick * ticksPerDay * LifespanConstants.DaysPerYear;
+            int ticksPerDay = _timeManager != null ? _timeManager.EnginePulsesPerTick : 1;
+            float ratePerYear = ratePerTick * ticksPerDay * LifespanConstants.TicksPerYear;
             _valueText.text = string.Format(_format, ratePerYear);
         }
     }

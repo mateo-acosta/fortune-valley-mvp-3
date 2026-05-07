@@ -505,7 +505,7 @@ namespace FortuneValley.Tests
             return new DecisionDTOBuilder(null, null)
                 .Type("loan_payment_missed")
                 .Instrument(loan.LotId)
-                .Amount(loan.MonthlyPayment)
+                .Amount(loan.YearlyPayment)
                 .Category("event")
                 .AddMetaString("loan_id", loan.LoanId)
                 .AddMetaString("lot_id", loan.LotId)

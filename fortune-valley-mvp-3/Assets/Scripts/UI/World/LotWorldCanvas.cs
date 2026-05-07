@@ -171,8 +171,8 @@ namespace FortuneValley.UI.World
             if (_incomeText != null)
             {
                 float incomePerTick = _lot.GetIncomeAtTier(displayTier);
-                int ticksPerDay = _timeManager != null ? _timeManager.TicksPerDay : 1;
-                float incomePerYear = incomePerTick * ticksPerDay * LifespanConstants.DaysPerYear;
+                int ticksPerDay = _timeManager != null ? _timeManager.EnginePulsesPerTick : 1;
+                float incomePerYear = incomePerTick * ticksPerDay * LifespanConstants.TicksPerYear;
                 // Unit suffix is hardcoded so a stale prefab-serialized format
                 // string cannot reintroduce the dropped "/day" wording.
                 _incomeText.text = $"+${incomePerYear:N0}/year";

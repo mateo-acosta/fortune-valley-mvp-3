@@ -8,5 +8,9 @@ namespace FortuneValley.Domain.Interfaces
     public interface ITickClock
     {
         int TicksPerDay { get; }
+
+        // Stage 0a alias: same value, new naming. Defaults to TicksPerDay so
+        // existing implementers don't have to add the property explicitly.
+        int EnginePulsesPerTick => TicksPerDay;
     }
 }

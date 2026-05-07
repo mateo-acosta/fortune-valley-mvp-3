@@ -61,7 +61,7 @@ namespace FortuneValley.Tests
         {
             using (var ctrl = new LifespanController())
             {
-                // DaysPerYear = 30. At day 30, age becomes 26.
+                // TicksPerYear = 30. At day 30, age becomes 26.
                 GameEvents.RaiseDayEnd(30);
 
                 Assert.AreEqual(1, _yearEndFireCount);
@@ -90,7 +90,7 @@ namespace FortuneValley.Tests
             using (var ctrl = new LifespanController())
             {
                 // 40 years * 30 days = 1200 days. Age becomes 65 at day 1200.
-                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeDays);
+                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeTicks);
 
                 Assert.AreEqual(1, _retirementFireCount);
                 Assert.IsTrue(ctrl.HasRetired);
@@ -103,9 +103,9 @@ namespace FortuneValley.Tests
         {
             using (var ctrl = new LifespanController())
             {
-                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeDays);
-                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeDays + 30);
-                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeDays + 60);
+                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeTicks);
+                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeTicks + 30);
+                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeTicks + 60);
 
                 Assert.AreEqual(1, _retirementFireCount,
                     "OnRetirementReached must fire exactly once per life.");
@@ -117,7 +117,7 @@ namespace FortuneValley.Tests
         {
             using (var ctrl = new LifespanController())
             {
-                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeDays);
+                GameEvents.RaiseDayEnd(LifespanConstants.TotalLifeTicks);
                 Assert.IsTrue(ctrl.HasRetired);
 
                 ctrl.ResetForNewGame();
@@ -143,11 +143,11 @@ namespace FortuneValley.Tests
         {
             // Belt-and-suspenders: verifies the formula used by both
             // LifespanController and GameStateDTOBuilder.
-            Assert.AreEqual(25, LifespanConstants.AgeFromDay(0));
-            Assert.AreEqual(25, LifespanConstants.AgeFromDay(29));
-            Assert.AreEqual(26, LifespanConstants.AgeFromDay(30));
-            Assert.AreEqual(64, LifespanConstants.AgeFromDay(LifespanConstants.TotalLifeDays - 1));
-            Assert.AreEqual(65, LifespanConstants.AgeFromDay(LifespanConstants.TotalLifeDays));
+            Assert.AreEqual(25, LifespanConstants.AgeFromTick(0));
+            Assert.AreEqual(25, LifespanConstants.AgeFromTick(29));
+            Assert.AreEqual(26, LifespanConstants.AgeFromTick(30));
+            Assert.AreEqual(64, LifespanConstants.AgeFromTick(LifespanConstants.TotalLifeTicks - 1));
+            Assert.AreEqual(65, LifespanConstants.AgeFromTick(LifespanConstants.TotalLifeTicks));
         }
     }
 }

@@ -39,7 +39,7 @@ namespace FortuneValley.UI.HUD
         {
             if (_timerText != null)
             {
-                _timerText.text = $"Age {LifespanConstants.AgeFromDay(dayNumber)}";
+                _timerText.text = $"Age {LifespanConstants.AgeFromTick(dayNumber)}";
             }
         }
     }

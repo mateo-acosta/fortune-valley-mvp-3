@@ -15,6 +15,9 @@ namespace FortuneValley.UI
         /// <summary>Monthly amortized payment.</summary>
         public float MonthlyPayment { get; }
 
+        // Stage 0a alias: per-cycle payment (= 1 in-game year per cycle).
+        public float YearlyPayment => MonthlyPayment;
+
         /// <summary>Total cost over the life of the loan (payments + down payment).</summary>
         public float TotalCost { get; }
 

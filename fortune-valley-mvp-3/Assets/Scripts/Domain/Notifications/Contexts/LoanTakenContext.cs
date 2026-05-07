@@ -12,6 +12,9 @@ namespace FortuneValley.Domain.Notifications.Contexts
         public int TermMonths { get; }
         public float MonthlyPayment { get; }
 
+        // Stage 0a alias: per-cycle payment (= 1 in-game year per cycle).
+        public float YearlyPayment => MonthlyPayment;
+
         public LoanTakenContext(float principal, string lotId, int termMonths, float monthlyPayment)
         {
             Principal = principal;

@@ -105,7 +105,7 @@ namespace FortuneValley.UI.HUD
             _currentDay = day;
             if (_dayText != null)
             {
-                _dayText.text = $"Age {LifespanConstants.AgeFromDay(day)}";
+                _dayText.text = $"Age {LifespanConstants.AgeFromTick(day)}";
             }
         }
 

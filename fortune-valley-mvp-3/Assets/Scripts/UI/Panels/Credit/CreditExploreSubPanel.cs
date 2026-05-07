@@ -282,7 +282,7 @@ namespace FortuneValley.UI.Panels.Credit
             // Property reads only for eligibility data
             var configs = _loanSystem.AvailableLoans;
             int creditScore = _creditCardSystem.CreditScore;
-            float monthlyDebt = _loanSystem.TotalMonthlyDebt;
+            float monthlyDebt = _loanSystem.TotalYearlyDebt;
             float checkingBalance = _currencyManager.CheckingBalance;
             float monthlyIncome = CreditExploreIncomeEstimator.EstimateMonthlyIncome(
                 checkingBalance, _monthlyIncomeFraction);
@@ -333,7 +333,7 @@ namespace FortuneValley.UI.Panels.Credit
                 _totalLoanValueText.text = $"${values.Principal:N0}";
 
             if (_monthlyPaymentValueText != null)
-                _monthlyPaymentValueText.text = $"${values.MonthlyPayment:N0}";
+                _monthlyPaymentValueText.text = $"${values.YearlyPayment:N0}";
 
             if (_creditScoreValueText != null)
                 _creditScoreValueText.text = $"{values.MinCreditScore}+";

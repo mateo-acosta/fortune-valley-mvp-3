@@ -129,7 +129,7 @@ namespace FortuneValley.Tests
             GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 10000f);
             float balanceAfterLoan = _currencyManager.CheckingBalance;
 
-            _loanSystem.ProcessMonthlyPayments();
+            _loanSystem.ProcessYearlyPayments();
 
             Assert.Less(_currencyManager.CheckingBalance, balanceAfterLoan);
         }
@@ -142,7 +142,7 @@ namespace FortuneValley.Tests
             bool paymentFired = false;
             GameEvents.OnLoanPaymentMade += (loan, amount) => paymentFired = true;
 
-            _loanSystem.ProcessMonthlyPayments();
+            _loanSystem.ProcessYearlyPayments();
 
             Assert.IsTrue(paymentFired);
         }
@@ -156,7 +156,7 @@ namespace FortuneValley.Tests
             bool missedFired = false;
             GameEvents.OnLoanPaymentMissed += (loan) => missedFired = true;
 
-            _loanSystem.ProcessMonthlyPayments();
+            _loanSystem.ProcessYearlyPayments();
 
             Assert.IsTrue(missedFired);
         }
@@ -183,7 +183,7 @@ namespace FortuneValley.Tests
             bool paidOffFired = false;
             GameEvents.OnLoanPaidOff += (loan) => paidOffFired = true;
 
-            _loanSystem.ProcessMonthlyPayments();
+            _loanSystem.ProcessYearlyPayments();
 
             Assert.IsTrue(paidOffFired);
 

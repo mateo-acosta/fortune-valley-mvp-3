@@ -6,7 +6,7 @@ using FortuneValley.Domain.Entities;
 namespace FortuneValley.Tests
 {
     /// <summary>
-    /// EditMode tests for LoanPortfolio and ActiveLoan.CalculateMonthlyPayment.
+    /// EditMode tests for LoanPortfolio and ActiveLoan.CalculateYearlyPayment.
     /// </summary>
     [TestFixture]
     public class LoanPortfolioTests
@@ -28,7 +28,7 @@ namespace FortuneValley.Tests
         {
             // $10,000 at 12% APR for 12 months
             // Expected: ~$888.49 (standard amortization)
-            float payment = ActiveLoan.CalculateMonthlyPayment(10000f, 0.12f, 12);
+            float payment = ActiveLoan.CalculateYearlyPayment(10000f, 0.12f, 12);
             Assert.AreEqual(888.49f, payment, 0.50f);
         }
 
@@ -36,7 +36,7 @@ namespace FortuneValley.Tests
         public void CalculateMonthlyPayment_ZeroAPR_ReturnsEqualDivision()
         {
             // $12,000 at 0% for 12 months = $1,000/month
-            float payment = ActiveLoan.CalculateMonthlyPayment(12000f, 0f, 12);
+            float payment = ActiveLoan.CalculateYearlyPayment(12000f, 0f, 12);
             Assert.AreEqual(1000f, payment, 0.01f);
         }
 
@@ -44,28 +44,28 @@ namespace FortuneValley.Tests
         public void CalculateMonthlyPayment_OneMonthTerm_ReturnsPrincipalPlusInterest()
         {
             // $1,000 at 12% for 1 month = $1,000 + ($1,000 * 0.01) = $1,010
-            float payment = ActiveLoan.CalculateMonthlyPayment(1000f, 0.12f, 1);
+            float payment = ActiveLoan.CalculateYearlyPayment(1000f, 0.12f, 1);
             Assert.AreEqual(1010f, payment, 0.50f);
         }
 
         [Test]
         public void CalculateMonthlyPayment_ZeroPrincipal_ReturnsZero()
         {
-            float payment = ActiveLoan.CalculateMonthlyPayment(0f, 0.12f, 12);
+            float payment = ActiveLoan.CalculateYearlyPayment(0f, 0.12f, 12);
             Assert.AreEqual(0f, payment);
         }
 
         [Test]
         public void CalculateMonthlyPayment_ZeroTerm_ReturnsZero()
         {
-            float payment = ActiveLoan.CalculateMonthlyPayment(1000f, 0.12f, 0);
+            float payment = ActiveLoan.CalculateYearlyPayment(1000f, 0.12f, 0);
             Assert.AreEqual(0f, payment);
         }
 
         [Test]
         public void CalculateMonthlyPayment_NegativePrincipal_ReturnsZero()
         {
-            float payment = ActiveLoan.CalculateMonthlyPayment(-1000f, 0.12f, 12);
+            float payment = ActiveLoan.CalculateYearlyPayment(-1000f, 0.12f, 12);
             Assert.AreEqual(0f, payment);
         }
 
@@ -75,7 +75,7 @@ namespace FortuneValley.Tests
             // Any loan with APR > 0 should cost more than the principal
             float principal = 10000f;
             int term = 24;
-            float payment = ActiveLoan.CalculateMonthlyPayment(principal, 0.10f, term);
+            float payment = ActiveLoan.CalculateYearlyPayment(principal, 0.10f, term);
             float totalPaid = payment * term;
             Assert.Greater(totalPaid, principal);
         }
@@ -96,7 +96,7 @@ namespace FortuneValley.Tests
             Assert.AreEqual(2000f, loan.DownPayment, 0.01f);
             Assert.AreEqual(0.08f, loan.APR);
             Assert.AreEqual(12, loan.TermMonths);
-            Assert.AreEqual(5, loan.StartDay);
+            Assert.AreEqual(5, loan.StartTick);
             Assert.IsTrue(loan.IsActive);
             Assert.IsFalse(loan.IsPaidOff);
         }
@@ -142,7 +142,7 @@ namespace FortuneValley.Tests
             _portfolio.Originate("loan1", "lot1", 1000f, 0f, 10, 0f, 0);
 
             float deducted = 0f;
-            _portfolio.ProcessMonthlyPayments(
+            _portfolio.ProcessYearlyPayments(
                 (amount, reason) => { deducted = amount; return true; },
                 (loan, paid) => { },
                 (loan) => { });
@@ -156,7 +156,7 @@ namespace FortuneValley.Tests
             _portfolio.Originate("loan1", "lot1", 1000f, 0f, 10, 0f, 0);
 
             bool missedFired = false;
-            _portfolio.ProcessMonthlyPayments(
+            _portfolio.ProcessYearlyPayments(
                 (amount, reason) => false, // insufficient funds
                 (loan, paid) => { },
                 (loan) => { missedFired = true; });
@@ -170,7 +170,7 @@ namespace FortuneValley.Tests
         {
             var loan = _portfolio.Originate("loan1", "lot1", 100f, 0f, 1, 0f, 0);
             // Pay off in one payment
-            _portfolio.ProcessMonthlyPayments(
+            _portfolio.ProcessYearlyPayments(
                 (amount, reason) => true,
                 (l, paid) => { },
                 (l) => { });
@@ -179,7 +179,7 @@ namespace FortuneValley.Tests
 
             // Second processing should not fire any callbacks
             int callbackCount = 0;
-            _portfolio.ProcessMonthlyPayments(
+            _portfolio.ProcessYearlyPayments(
                 (amount, reason) => { callbackCount++; return true; },
                 (l, paid) => { callbackCount++; },
                 (l) => { callbackCount++; });
@@ -197,14 +197,14 @@ namespace FortuneValley.Tests
             // Process 11 payments
             for (int i = 0; i < 11; i++)
             {
-                _portfolio.ProcessMonthlyPayments(
+                _portfolio.ProcessYearlyPayments(
                     (amount, reason) => true,
                     (l, paid) => { lastPaid = paid; },
                     (l) => { });
             }
 
             // 12th payment should be the remainder
-            _portfolio.ProcessMonthlyPayments(
+            _portfolio.ProcessYearlyPayments(
                 (amount, reason) => true,
                 (l, paid) => { lastPaid = paid; },
                 (l) => { });
@@ -223,7 +223,7 @@ namespace FortuneValley.Tests
             _portfolio.Originate("loan1", "lot1", 1000f, 0f, 10, 0f, 0); // $100/mo
             _portfolio.Originate("loan2", "lot2", 2000f, 0f, 10, 0f, 0); // $200/mo
 
-            Assert.AreEqual(300f, _portfolio.GetTotalMonthlyDebt(), 0.01f);
+            Assert.AreEqual(300f, _portfolio.GetTotalYearlyDebt(), 0.01f);
         }
 
         [Test]
@@ -260,7 +260,7 @@ namespace FortuneValley.Tests
             _portfolio.Clear();
 
             Assert.AreEqual(0, _portfolio.AllLoans.Count);
-            Assert.AreEqual(0f, _portfolio.GetTotalMonthlyDebt());
+            Assert.AreEqual(0f, _portfolio.GetTotalYearlyDebt());
         }
 
         // ===============================================================
@@ -317,7 +317,7 @@ namespace FortuneValley.Tests
         public void ActiveLoan_TotalCost_IncludesDownPayment()
         {
             var loan = new ActiveLoan("l1", "lot1", 8000f, 0.10f, 12,
-                ActiveLoan.CalculateMonthlyPayment(8000f, 0.10f, 12), 2000f, 0);
+                ActiveLoan.CalculateYearlyPayment(8000f, 0.10f, 12), 2000f, 0);
 
             // Total cost = (monthlyPayment * 12) + downPayment
             Assert.Greater(loan.TotalCost, 10000f); // Must exceed purchase price
@@ -327,7 +327,7 @@ namespace FortuneValley.Tests
         public void ActiveLoan_TotalInterest_PositiveForNonZeroAPR()
         {
             float principal = 8000f;
-            float mp = ActiveLoan.CalculateMonthlyPayment(principal, 0.10f, 12);
+            float mp = ActiveLoan.CalculateYearlyPayment(principal, 0.10f, 12);
             var loan = new ActiveLoan("l1", "lot1", principal, 0.10f, 12, mp, 2000f, 0);
 
             Assert.Greater(loan.TotalInterest, 0f);
@@ -337,7 +337,7 @@ namespace FortuneValley.Tests
         public void ActiveLoan_TotalInterest_ZeroForZeroAPR()
         {
             float principal = 8000f;
-            float mp = ActiveLoan.CalculateMonthlyPayment(principal, 0f, 12);
+            float mp = ActiveLoan.CalculateYearlyPayment(principal, 0f, 12);
             var loan = new ActiveLoan("l1", "lot1", principal, 0f, 12, mp, 2000f, 0);
 
             Assert.AreEqual(0f, loan.TotalInterest, 0.01f);

@@ -25,7 +25,7 @@ namespace FortuneValley.UI
             float downPayment = lotPrice * config.DownPaymentPercent;
             float principal = lotPrice - downPayment;
 
-            float monthlyPayment = ActiveLoan.CalculateMonthlyPayment(
+            float monthlyPayment = ActiveLoan.CalculateYearlyPayment(
                 principal, config.APR, config.TermMonths);
 
             float totalCost = (monthlyPayment * config.TermMonths) + downPayment;

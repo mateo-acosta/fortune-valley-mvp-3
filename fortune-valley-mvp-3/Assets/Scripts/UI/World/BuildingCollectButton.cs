@@ -132,7 +132,7 @@ namespace FortuneValley.UI.World
             {
                 // Unit suffix is hardcoded so a stale prefab-serialized format
                 // string cannot reintroduce the dropped "/day" wording.
-                _amountLabel.text = $"+${Mathf.FloorToInt(dailyPayout * LifespanConstants.DaysPerYear):N0}/year";
+                _amountLabel.text = $"+${Mathf.FloorToInt(dailyPayout * LifespanConstants.TicksPerYear):N0}/year";
             }
         }
 
@@ -158,7 +158,7 @@ namespace FortuneValley.UI.World
             _isHovered = hovered;
             if (hovered && !_isFlashing && _amountLabel != null)
             {
-                _amountLabel.text = $"+${Mathf.FloorToInt(_lastKnownDailyRate * LifespanConstants.DaysPerYear):N0}/year";
+                _amountLabel.text = $"+${Mathf.FloorToInt(_lastKnownDailyRate * LifespanConstants.TicksPerYear):N0}/year";
             }
             ApplyVisibility();
         }
@@ -223,9 +223,9 @@ namespace FortuneValley.UI.World
             var lot = _cityManager.GetLot(_buildingId);
             if (lot == null) return;
 
-            int dailyPotential = Mathf.FloorToInt(lot.GetIncomeAtTier(_previewTier) * _timeManager.TicksPerDay);
+            int dailyPotential = Mathf.FloorToInt(lot.GetIncomeAtTier(_previewTier) * _timeManager.EnginePulsesPerTick);
             _lastKnownDailyRate = dailyPotential;
-            _amountLabel.text = $"+${dailyPotential * LifespanConstants.DaysPerYear:N0}/year";
+            _amountLabel.text = $"+${dailyPotential * LifespanConstants.TicksPerYear:N0}/year";
         }
     }
 }

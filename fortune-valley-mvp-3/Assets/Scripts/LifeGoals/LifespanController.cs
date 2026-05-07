@@ -56,7 +56,7 @@ namespace FortuneValley.Core
 
         private void HandleDayEnd(int currentDay)
         {
-            int newAge = LifespanConstants.AgeFromDay(currentDay);
+            int newAge = LifespanConstants.AgeFromTick(currentDay);
 
             if (newAge > _lastObservedAge)
             {

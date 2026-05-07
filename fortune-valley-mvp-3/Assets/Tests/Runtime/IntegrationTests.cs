@@ -74,7 +74,7 @@ namespace FortuneValley.Tests
         /// </summary>
         private void SimulateDayAndCollect()
         {
-            int ticks = _timeManager.TicksPerDay;
+            int ticks = _timeManager.EnginePulsesPerTick;
             for (int i = 1; i <= ticks; i++) GameEvents.RaiseTick(i);
             GameEvents.RaiseDayEnd(1);
             GameEvents.RaiseIncomeCollectRequested(DailyIncomeAccumulator.RestaurantBuildingId, CollectReason.PlayerTap);
@@ -153,7 +153,7 @@ namespace FortuneValley.Tests
             SimulateDayAndCollect();
 
             // Restaurant earns 10/tick * ticksPerDay ticks per day.
-            float expected = startBalance + 10f * _timeManager.TicksPerDay;
+            float expected = startBalance + 10f * _timeManager.EnginePulsesPerTick;
             Assert.AreEqual(expected, _currencyManager.CheckingBalance, 0.1f);
         }
 
@@ -211,7 +211,7 @@ namespace FortuneValley.Tests
             // Start with 1000, lot costs 2000. Under tap-to-collect, a day's
             // cap is one day's income (10 * ticksPerDay), so the player must
             // collect each day to keep accumulating toward the lot cost.
-            int ticksPerDay = _timeManager.TicksPerDay;
+            int ticksPerDay = _timeManager.EnginePulsesPerTick;
             int daysNeeded = Mathf.CeilToInt(1000f / (10f * ticksPerDay)) + 1;
 
             for (int d = 0; d < daysNeeded; d++) SimulateDayAndCollect();
@@ -229,7 +229,7 @@ namespace FortuneValley.Tests
             Assert.AreEqual(200f, _currencyManager.CheckingBalance, 1f);
 
             // Simulate time + daily collects so restaurant income compounds into checking.
-            int ticksPerDay = _timeManager.TicksPerDay;
+            int ticksPerDay = _timeManager.EnginePulsesPerTick;
             int totalTicks = 360;
             int days = totalTicks / ticksPerDay;
             int tick = 0;

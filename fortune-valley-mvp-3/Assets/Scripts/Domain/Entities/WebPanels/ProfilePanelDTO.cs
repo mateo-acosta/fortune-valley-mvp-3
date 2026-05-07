@@ -8,7 +8,7 @@ namespace FortuneValley.Domain.Entities.WebPanels
     /// FV.profile.update(payload) handler expects.
     ///
     /// All monetary values are absolute (positive), in dollars.
-    /// All "yearly" values are pre-scaled server-side (per-day * DaysPerYear,
+    /// All "yearly" values are pre-scaled server-side (per-day * TicksPerYear,
     /// per-month * 12) so the iframe renders them without further math.
     ///
     /// active_loans reuses the existing ActiveLoanRowDTO (with monthlyPayment);

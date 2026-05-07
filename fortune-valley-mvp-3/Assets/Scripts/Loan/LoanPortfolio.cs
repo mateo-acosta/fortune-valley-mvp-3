@@ -60,6 +60,17 @@ namespace FortuneValley.Core
         /// Calls onPaymentMissed for each loan where checking had insufficient funds.
         /// Returns via callbacks so the MonoBehaviour can handle currency deduction.
         /// </summary>
+        /// <summary>
+        /// Stage 0a alias for ProcessMonthlyPayments. Same callback contract
+        /// and behavior. Renamed because the payment cycle currently fires
+        /// once per in-game year.
+        /// </summary>
+        public void ProcessYearlyPayments(
+            System.Func<float, string, bool> tryDeductFromChecking,
+            System.Action<ActiveLoan, float> onPaymentMade,
+            System.Action<ActiveLoan> onPaymentMissed)
+            => ProcessMonthlyPayments(tryDeductFromChecking, onPaymentMade, onPaymentMissed);
+
         public void ProcessMonthlyPayments(
             System.Func<float, string, bool> tryDeductFromChecking,
             System.Action<ActiveLoan, float> onPaymentMade,

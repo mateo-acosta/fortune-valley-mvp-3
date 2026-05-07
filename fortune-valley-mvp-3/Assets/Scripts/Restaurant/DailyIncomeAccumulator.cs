@@ -307,7 +307,7 @@ namespace FortuneValley.Core
 
         private void HandleTick(int tickNumber)
         {
-            int ticksPerDay = Clock != null ? Clock.TicksPerDay : 0;
+            int ticksPerDay = Clock != null ? Clock.EnginePulsesPerTick : 0;
             if (ticksPerDay <= 0) return;
 
             // Snapshot keys into the pre-allocated scratch list so handlers
@@ -462,7 +462,7 @@ namespace FortuneValley.Core
         // queried lazily via GetCurrentAccumulated when the button needs it.
         private void WriteAndRaise(string buildingId, IncomeAccumulator acc)
         {
-            int ticksPerDay = Clock != null ? Clock.TicksPerDay : 0;
+            int ticksPerDay = Clock != null ? Clock.EnginePulsesPerTick : 0;
             float progress01 = ticksPerDay > 0 ? (float)acc.TicksRemaining / ticksPerDay : 0f;
             float dailyRate = ComputeDayRate(buildingId);
             GameEvents.RaiseCoinStateChanged(buildingId, dailyRate, progress01, acc.IsReady);
@@ -482,7 +482,7 @@ namespace FortuneValley.Core
 
         private float ComputeDayRate(string buildingId)
         {
-            int ticksPerDay = Clock != null ? Clock.TicksPerDay : 0;
+            int ticksPerDay = Clock != null ? Clock.EnginePulsesPerTick : 0;
             if (ticksPerDay <= 0) return 0f;
 
             if (buildingId == RestaurantBuildingId)

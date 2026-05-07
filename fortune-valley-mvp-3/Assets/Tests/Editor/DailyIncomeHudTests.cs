@@ -12,7 +12,7 @@ namespace FortuneValley.Tests
     /// renderer subscribed to OnTotalDailyIncomeChanged; tests drive the event
     /// directly and assert the TextMeshProUGUI text is updated with the
     /// expected format. The HUD scales the daily input by
-    /// LifespanConstants.DaysPerYear (= TicksPerYear) and renders /year so
+    /// LifespanConstants.TicksPerYear (= TicksPerYear) and renders /year so
     /// the player never has to convert in their head.
     /// </summary>
     [TestFixture]

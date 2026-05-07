@@ -55,7 +55,7 @@ namespace FortuneValley.Tests
 
         private void AccumulateAndCloseDay(string buildingId)
         {
-            for (int i = 0; i < _clock.TicksPerDay; i++) GameEvents.RaiseTick(i + 1);
+            for (int i = 0; i < _clock.EnginePulsesPerTick; i++) GameEvents.RaiseTick(i + 1);
             // OnDayEnd flips IsReady true so IncomeCollectionController.TryCollect
             // can deposit. We bypass GameEvents.RaiseDayEnd here to avoid
             // double-deposit: the test invokes HandleCollectRequested directly.
@@ -163,7 +163,7 @@ namespace FortuneValley.Tests
         {
             _lots.RegisterLot("lot_A", Owner.Player, 1, 5f);
             _pending.EnsureBucket("lot_A");
-            for (int i = 0; i < _clock.TicksPerDay; i++) GameEvents.RaiseTick(i + 1);
+            for (int i = 0; i < _clock.EnginePulsesPerTick; i++) GameEvents.RaiseTick(i + 1);
 
             float deposited = 0f;
             bool feedbackFired = false;

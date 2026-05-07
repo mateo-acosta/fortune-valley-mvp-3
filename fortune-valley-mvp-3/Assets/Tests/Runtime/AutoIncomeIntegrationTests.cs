@@ -144,7 +144,7 @@ namespace FortuneValley.Tests
         [Test]
         public void MidDayLotTierUpgrade_ProRates()
         {
-            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
+            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentEnginePulse));
             // T1 fresh: 8 * 0.5 = 4/tick
             for (int i = 1; i <= 4; i++) GameEvents.RaiseTick(i);
             Assert.AreEqual(16f, _pending.Accumulators["lot_extra"].DailyPayout, 0.01f);
@@ -180,7 +180,7 @@ namespace FortuneValley.Tests
         [Test]
         public void RivalTakeover_WithZeroAccumulation_NoPayoutNoCrash()
         {
-            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
+            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentEnginePulse));
             float before = _currency.CheckingBalance;
 
             SimulateOwnershipLoss("lot_extra");
@@ -196,7 +196,7 @@ namespace FortuneValley.Tests
         [Test]
         public void RivalTakeover_WithAccumulation_PaysOutViaOwnershipLostPath()
         {
-            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
+            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentEnginePulse));
             for (int i = 1; i <= 5; i++) GameEvents.RaiseTick(i);
             float before = _currency.CheckingBalance;
 
@@ -236,7 +236,7 @@ namespace FortuneValley.Tests
         public void PlayerBuysNewLot_FreshAccumulatorStartsAtZero()
         {
             Assert.IsFalse(_pending.Accumulators.ContainsKey("lot_extra"));
-            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
+            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentEnginePulse));
 
             var bucket = _pending.Accumulators["lot_extra"];
             Assert.AreEqual(0f, bucket.DailyPayout,
@@ -284,7 +284,7 @@ namespace FortuneValley.Tests
         [Test]
         public void DayEnd_WithMultipleBuckets_RaisesOneSavePerCollect()
         {
-            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentTick));
+            Assert.IsTrue(_city.TryPurchaseLot("lot_extra", _time.CurrentEnginePulse));
             for (int i = 1; i <= TicksPerDay; i++) GameEvents.RaiseTick(i);
 
             int saveRequests = 0;

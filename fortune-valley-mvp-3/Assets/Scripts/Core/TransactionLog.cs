@@ -101,8 +101,8 @@ namespace FortuneValley.Core
         {
             _history.Record(
                 TransactionType.LoanPaymentMissed,
-                $"Loan payment missed: ${loan.MonthlyPayment:N2} due",
-                loan.MonthlyPayment,
+                $"Loan payment missed: ${loan.YearlyPayment:N2} due",
+                loan.YearlyPayment,
                 Time.frameCount);
         }
 

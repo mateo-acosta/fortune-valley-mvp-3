@@ -32,9 +32,9 @@ namespace FortuneValley.UI.HUD
         {
             if (_dailyIncomeText == null) return;
 
-            float yearly = total * LifespanConstants.DaysPerYear;
+            float yearly = total * LifespanConstants.TicksPerYear;
             int rounded = Mathf.FloorToInt(yearly);
-            int lastRounded = Mathf.FloorToInt(_lastTotal * LifespanConstants.DaysPerYear);
+            int lastRounded = Mathf.FloorToInt(_lastTotal * LifespanConstants.TicksPerYear);
             if (_lastTotal >= 0f && rounded == lastRounded) return;
 
             _lastTotal = total;
