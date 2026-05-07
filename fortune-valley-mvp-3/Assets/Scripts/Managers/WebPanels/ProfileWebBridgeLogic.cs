@@ -139,8 +139,18 @@ namespace FortuneValley.Managers.WebPanels
                     if (target.restaurants[idx] == null) target.restaurants[idx] = new ProfileRestaurantRowDTO();
 
                     int tier = _cityManager.GetTier(lot.LotId);
-                    float perDay = _cityManager.GetIncomeAtTier(lot.LotId, tier);
-                    float perYear = perDay * LifespanConstants.TicksPerYear;
+                    // GetIncomeAtTier returns per-engine-pulse income (the
+                    // 0.4s atomic). To convert to per-year:
+                    //   perPulse * EnginePulsesPerTick * TicksPerYear
+                    //   = perPulse * 10 * 30 = perPulse * 300
+                    // RestaurantUpgradePanel + BuildingCollectButton + the
+                    // HUD income readouts all use this same chain; matches
+                    // existing rendering convention.
+                    float perPulse = _cityManager.GetIncomeAtTier(lot.LotId, tier);
+                    int pulsesPerTick = _timeManager.EnginePulsesPerTick > 0
+                        ? _timeManager.EnginePulsesPerTick
+                        : 1;
+                    float perYear = perPulse * pulsesPerTick * LifespanConstants.TicksPerYear;
 
                     target.restaurants[idx].lot_id = lot.LotId;
                     target.restaurants[idx].lot_name = string.IsNullOrEmpty(lot.DisplayName) ? lot.LotId : lot.DisplayName;

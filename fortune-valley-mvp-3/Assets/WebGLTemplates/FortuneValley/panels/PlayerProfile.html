@@ -945,25 +945,25 @@ html, body {
           </div>
 
           <div class="vitals-strip">
-            <div class="vital">
+            <div class="vital" id="vital-cash">
               <span class="vital-k">Cash</span>
-              <span class="vital-v">$12,340</span>
-              <span class="vital-dot zone-good" aria-hidden="true"></span>
+              <span class="vital-v" id="vital-cash-v">$12,340</span>
+              <span class="vital-dot zone-good" id="vital-cash-dot" aria-hidden="true"></span>
             </div>
-            <div class="vital">
+            <div class="vital" id="vital-credit">
               <span class="vital-k">Credit</span>
-              <span class="vital-v">684</span>
-              <span class="vital-dot zone-fair" aria-hidden="true"></span>
+              <span class="vital-v" id="vital-credit-v">684</span>
+              <span class="vital-dot zone-fair" id="vital-credit-dot" aria-hidden="true"></span>
             </div>
-            <div class="vital">
+            <div class="vital" id="vital-income">
               <span class="vital-k">Income / yr</span>
-              <span class="vital-v">$39,000</span>
-              <span class="vital-dot zone-good" aria-hidden="true"></span>
+              <span class="vital-v" id="vital-income-v">$39,000</span>
+              <span class="vital-dot zone-good" id="vital-income-dot" aria-hidden="true"></span>
             </div>
-            <div class="vital">
+            <div class="vital" id="vital-dti">
               <span class="vital-k">DTI</span>
-              <span class="vital-v">32%</span>
-              <span class="vital-dot zone-fair" aria-hidden="true"></span>
+              <span class="vital-v" id="vital-dti-v">32%</span>
+              <span class="vital-dot zone-fair" id="vital-dti-dot" aria-hidden="true"></span>
             </div>
           </div>
 
@@ -1020,22 +1020,33 @@ html, body {
                 <span class="kicker" style="margin-bottom:0;">Your loans</span>
               </div>
 
-              <div class="loan-row">
-                <div class="name">
-                  <div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg></div>
-                  <div class="nm"><span class="h">Lot 6 - Build Loan</span><span class="s">Valley Trust Bank</span></div>
+              <!-- Dynamic: receiver replaces children with payload.active_loans
+                   when the bridge sends data. Static rows below are the
+                   standalone-preview fallback. -->
+              <div id="loans-rows">
+                <div class="loan-row">
+                  <div class="name">
+                    <div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg></div>
+                    <div class="nm"><span class="h">Lot 6 - Build Loan</span><span class="s">Valley Trust Bank</span></div>
+                  </div>
+                  <div class="col-meta"><span class="k">Remaining</span><span class="v">$8,250</span></div>
+                  <div class="col-meta"><span class="k">Yearly</span><span class="v">$2,640</span></div>
                 </div>
-                <div class="col-meta"><span class="k">Remaining</span><span class="v">$8,250</span></div>
-                <div class="col-meta"><span class="k">Yearly</span><span class="v">$2,640</span></div>
+
+                <div class="loan-row">
+                  <div class="name">
+                    <div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg></div>
+                    <div class="nm"><span class="h">Lot 3 - Equipment Loan</span><span class="s">Founders Credit Union</span></div>
+                  </div>
+                  <div class="col-meta"><span class="k">Remaining</span><span class="v">$2,400</span></div>
+                  <div class="col-meta"><span class="k">Yearly</span><span class="v">$1,140</span></div>
+                </div>
               </div>
 
-              <div class="loan-row">
-                <div class="name">
-                  <div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg></div>
-                  <div class="nm"><span class="h">Lot 3 - Equipment Loan</span><span class="s">Founders Credit Union</span></div>
-                </div>
-                <div class="col-meta"><span class="k">Remaining</span><span class="v">$2,400</span></div>
-                <div class="col-meta"><span class="k">Yearly</span><span class="v">$1,140</span></div>
+              <!-- Empty state shown when no loans (receiver toggles via [hidden]). -->
+              <div id="loans-empty" class="empty" hidden style="margin: 8px 18px 14px;">
+                <div class="h">No loans</div>
+                <div class="p">You have no outstanding loans. Buying a lot you can't afford outright opens a loan.</div>
               </div>
 
             </div>
@@ -1046,58 +1057,74 @@ html, body {
         <!-- ===== TAB 3: PROPERTIES ===== -->
         <section class="tab" data-tab-body="properties" role="tabpanel">
 
-          <div class="prop-list">
+          <!-- Dynamic: receiver replaces #prop-rows children with
+               payload.restaurants when the bridge sends data. Static rows
+               below are the standalone-preview fallback. -->
+          <div class="prop-list" id="prop-list">
+            <div id="prop-rows">
 
-            <div class="prop-row">
-              <div class="lot-ic">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+              <div class="prop-row">
+                <div class="lot-ic">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+                </div>
+                <div class="lot-meta">
+                  <span class="nm">Lot 6 - Bayside Bistro</span>
+                  <span class="co">Grid C-3</span>
+                </div>
+                <span class="tier-pill t2"><span class="dot"></span>Tier 2</span>
+                <div class="income">
+                  <span class="k">per year</span>
+                  <span class="v">+$67,525</span>
+                </div>
               </div>
-              <div class="lot-meta">
-                <span class="nm">Lot 6 - Bayside Bistro</span>
-                <span class="co">Grid C-3</span>
+
+              <div class="prop-row">
+                <div class="lot-ic">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+                </div>
+                <div class="lot-meta">
+                  <span class="nm">Lot 3 - Corner Cafe</span>
+                  <span class="co">Grid B-2</span>
+                </div>
+                <span class="tier-pill t1"><span class="dot"></span>Tier 1</span>
+                <div class="income">
+                  <span class="k">per year</span>
+                  <span class="v">+$34,675</span>
+                </div>
               </div>
-              <span class="tier-pill t2"><span class="dot"></span>Tier 2</span>
-              <div class="income">
-                <span class="k">per year</span>
-                <span class="v">+$67,525</span>
+
+              <div class="prop-row">
+                <div class="lot-ic">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+                </div>
+                <div class="lot-meta">
+                  <span class="nm">Lot 7 - Harbor House</span>
+                  <span class="co">Grid D-4</span>
+                </div>
+                <span class="tier-pill t3"><span class="dot"></span>Tier 3</span>
+                <div class="income">
+                  <span class="k">per year</span>
+                  <span class="v">+$113,150</span>
+                </div>
               </div>
+
             </div>
 
-            <div class="prop-row">
-              <div class="lot-ic">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
-              </div>
-              <div class="lot-meta">
-                <span class="nm">Lot 3 - Corner Cafe</span>
-                <span class="co">Grid B-2</span>
-              </div>
-              <span class="tier-pill t1"><span class="dot"></span>Tier 1</span>
-              <div class="income">
-                <span class="k">per year</span>
-                <span class="v">+$34,675</span>
-              </div>
-            </div>
-
-            <div class="prop-row">
-              <div class="lot-ic">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
-              </div>
-              <div class="lot-meta">
-                <span class="nm">Lot 7 - Harbor House</span>
-                <span class="co">Grid D-4</span>
-              </div>
-              <span class="tier-pill t3"><span class="dot"></span>Tier 3</span>
-              <div class="income">
-                <span class="k">per year</span>
-                <span class="v">+$113,150</span>
-              </div>
-            </div>
-
-            <div class="prop-total-row">
+            <div class="prop-total-row" id="prop-total-row">
               <span class="prop-total-k">Total income per year</span>
-              <span class="prop-total-v">+$215,350</span>
+              <span class="prop-total-v" id="prop-total-v">+$215,350</span>
             </div>
 
+          </div>
+
+          <!-- Empty-state container; receiver toggles between #prop-list and
+               #prop-empty depending on whether the player owns any lots. -->
+          <div id="prop-empty" class="empty" hidden>
+            <div class="spot">
+              <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/><path d="M10 20 V14 H14 V20"/></svg>
+            </div>
+            <div class="h">No properties yet</div>
+            <div class="p">Buy a lot in town to start a restaurant. Owned properties and their tier will appear here.</div>
           </div>
 
           <!-- Empty state markup is rendered by JS when ownedLots is 0; left here as reference fallback (hidden). -->
@@ -1486,8 +1513,125 @@ html, body {
       }
     }
 
-    // Properties tab is currently static-mock. The bridge ships
-    // payload.restaurants for future wiring; no DOM write here yet.
+    // Vitals strip: Cash + Income/yr come straight from the bridge.
+    // Credit and DTI are wired in Stage 3b.
+    if (typeof payload.cash_in_checking === 'number') {
+      setText('vital-cash-v', fmtMoney(payload.cash_in_checking));
+    }
+    if (typeof payload.yearly_restaurant_income === 'number') {
+      setText('vital-income-v', fmtMoney(payload.yearly_restaurant_income));
+    }
+
+    // Properties tab: rebuild prop-rows from payload.restaurants. Toggle
+    // empty state if the player owns nothing.
+    if (Array.isArray(payload.restaurants)) {
+      renderRestaurants(payload.restaurants);
+    }
+    // Total income synced from yearly_restaurant_income (already summed server-side).
+    if (typeof payload.yearly_restaurant_income === 'number') {
+      setText('prop-total-v', '+' + fmtMoney(payload.yearly_restaurant_income));
+    }
+
+    // Active loans rows. monthlyPayment is per-cycle (= 1 game year), so
+    // display the value as-is under the "Yearly" column.
+    if (Array.isArray(payload.active_loans)) {
+      renderActiveLoans(payload.active_loans);
+    }
+  }
+
+  function renderRestaurants(restaurants) {
+    var rowsHost = document.getElementById('prop-rows');
+    var listHost = document.getElementById('prop-list');
+    var emptyHost = document.getElementById('prop-empty');
+    if (!rowsHost || !listHost || !emptyHost) return;
+
+    if (!restaurants || restaurants.length === 0) {
+      // Empty state: hide list, show empty.
+      listHost.setAttribute('hidden', '');
+      emptyHost.removeAttribute('hidden');
+      return;
+    }
+
+    listHost.removeAttribute('hidden');
+    emptyHost.setAttribute('hidden', '');
+
+    // Build all rows once into a fragment to minimize layout thrash.
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < restaurants.length; i++) {
+      var r = restaurants[i] || {};
+      var row = document.createElement('div');
+      row.className = 'prop-row';
+      var tier = (typeof r.tier === 'number' ? r.tier : 1);
+      var tierClass = tier === 3 ? 't3' : (tier === 2 ? 't2' : 't1');
+
+      row.innerHTML =
+        '<div class="lot-ic">' +
+          '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>' +
+        '</div>' +
+        '<div class="lot-meta">' +
+          '<span class="nm"></span>' +
+          '<span class="co"></span>' +
+        '</div>' +
+        '<span class="tier-pill ' + tierClass + '"><span class="dot"></span>Tier ' + tier + '</span>' +
+        '<div class="income">' +
+          '<span class="k">per year</span>' +
+          '<span class="v"></span>' +
+        '</div>';
+
+      // Set text content via DOM so any names with HTML-special chars don't break out.
+      row.querySelector('.lot-meta .nm').textContent = r.lot_name || r.lot_id || '';
+      row.querySelector('.lot-meta .co').textContent = r.lot_id || '';
+      row.querySelector('.income .v').textContent = '+' + fmtMoney(r.yearly_income);
+      frag.appendChild(row);
+    }
+
+    // Atomic replace: clear children then append fragment.
+    while (rowsHost.firstChild) rowsHost.removeChild(rowsHost.firstChild);
+    rowsHost.appendChild(frag);
+  }
+
+  function renderActiveLoans(loans) {
+    var rowsHost = document.getElementById('loans-rows');
+    var emptyHost = document.getElementById('loans-empty');
+    if (!rowsHost || !emptyHost) return;
+
+    if (!loans || loans.length === 0) {
+      while (rowsHost.firstChild) rowsHost.removeChild(rowsHost.firstChild);
+      rowsHost.setAttribute('hidden', '');
+      emptyHost.removeAttribute('hidden');
+      return;
+    }
+    rowsHost.removeAttribute('hidden');
+    emptyHost.setAttribute('hidden', '');
+
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < loans.length; i++) {
+      var loan = loans[i] || {};
+      var row = document.createElement('div');
+      row.className = 'loan-row';
+      // monthlyPayment is per-cycle (= 1 game year). Render as-is.
+      var yearly = typeof loan.monthlyPayment === 'number' ? loan.monthlyPayment : 0;
+      var balance = typeof loan.balance === 'number' ? loan.balance : 0;
+
+      row.innerHTML =
+        '<div class="name">' +
+          '<div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg></div>' +
+          '<div class="nm"><span class="h"></span><span class="s"></span></div>' +
+        '</div>' +
+        '<div class="col-meta"><span class="k">Remaining</span><span class="v"></span></div>' +
+        '<div class="col-meta"><span class="k">Yearly</span><span class="v"></span></div>';
+
+      row.querySelector('.name .nm .h').textContent = loan.lotName || loan.id || 'Loan';
+      row.querySelector('.name .nm .s').textContent = loan.id ? ('Loan ID: ' + loan.id) : '';
+      var metaVals = row.querySelectorAll('.col-meta .v');
+      if (metaVals.length >= 2) {
+        metaVals[0].textContent = fmtMoney(balance);
+        metaVals[1].textContent = fmtMoney(yearly);
+      }
+      frag.appendChild(row);
+    }
+    while (rowsHost.firstChild) rowsHost.removeChild(rowsHost.firstChild);
+    rowsHost.appendChild(frag);
   }
 
   // Iframe-local FV namespace. parent.FV.updatePanel routes here via
