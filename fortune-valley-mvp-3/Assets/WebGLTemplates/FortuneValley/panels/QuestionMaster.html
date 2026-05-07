@@ -405,6 +405,22 @@ html, body {
   padding: 6px 14px; border-radius: 999px;
   font-size: 11px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase;
 }
+
+/* Per-question explanation rendered during the reveal phase. The bridge
+   ships QuestionData.explanation as payload.explanation; receiver writes
+   into both #qm-explanation-correct and #qm-explanation-incorrect so
+   whichever overlay shows already has the right copy. */
+.qm-explanation {
+  margin-top: 14px;
+  max-width: 480px;
+  padding: 10px 16px;
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.6);
+  font-size: 14px; line-height: 1.5; font-weight: 600;
+  color: var(--ink-700);
+  text-align: left;
+}
+.qm-explanation[hidden] { display: none; }
 .overlay.correct .stamp { background: var(--gain); color: #fff; }
 .overlay.incorrect .stamp { background: var(--loss); color: #fff; }
 
@@ -661,6 +677,7 @@ html, body {
             <span id="qm-correct-reward">+$25</span>
           </div>
           <div class="streak-line">Streak: <span id="qm-correct-streak">1</span></div>
+          <div class="qm-explanation" id="qm-explanation-correct" hidden></div>
         </div>
       </div>
 
@@ -673,6 +690,7 @@ html, body {
             was correct
           </div>
           <div class="streak-line" id="qm-incorrect-streak">Streak reset to 0</div>
+          <div class="qm-explanation" id="qm-explanation-incorrect" hidden></div>
         </div>
       </div>
 
@@ -787,6 +805,7 @@ function present(q) {
   });
 
   hideOverlays();
+  setExplanation("");
   resetTimer();
 }
 
@@ -1034,11 +1053,13 @@ function applyEmbeddedPayload(payload) {
   if (payload.phase === "asking") {
     answered = false;
     hideOverlays();
+    setExplanation("");
   } else if (payload.phase === "revealing") {
     answered = true;
     if (typeof payload.correctIndex === "number" && payload.correctIndex >= 0) {
       lockAnswers(typeof payload.chosenIndex === "number" ? payload.chosenIndex : -1, payload.correctIndex);
     }
+    setExplanation(typeof payload.explanation === "string" ? payload.explanation : "");
     if (payload.wasCorrect) {
       showCorrectOverlay(payload.rewardEarned || 0);
     } else {
@@ -1049,6 +1070,21 @@ function applyEmbeddedPayload(payload) {
     }
   } else if (payload.phase === "idle") {
     // No-op: the panel is closing or has not started yet.
+  }
+}
+
+// Mirror the explanation into both overlay copies (whichever ends up shown
+// already carries the right text). Empty string hides via [hidden] so the
+// asking phase shows no stale explanation.
+function setExplanation(text) {
+  const trimmed = (text || "").trim();
+  const ids = ["qm-explanation-correct", "qm-explanation-incorrect"];
+  for (let i = 0; i < ids.length; i++) {
+    const el = $(ids[i]);
+    if (!el) continue;
+    el.textContent = trimmed;
+    if (trimmed) el.removeAttribute("hidden");
+    else el.setAttribute("hidden", "");
   }
 }
 
