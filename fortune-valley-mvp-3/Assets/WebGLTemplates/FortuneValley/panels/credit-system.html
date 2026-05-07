@@ -1717,10 +1717,29 @@ function boot() {
         }
       }
 
-      switch (ui.activeTab) {
-        case "home":    renderHome();    break;
-        case "explore": renderExplore(); break;
-        case "history": renderHistory(); break;
+      // One-shot lot pre-selection from OnLotLoanExploreRequested. Validate
+      // against availableLots to avoid pre-selecting a lot the player no
+      // longer has access to. Switch to Explore tab on receipt so the
+      // student lands where the action is.
+      let didPreSelect = false;
+      if (typeof payload.selectedLotId === "string" && payload.selectedLotId.length > 0) {
+        const exists = mockState.availableLots && mockState.availableLots.find(l => l.id === payload.selectedLotId);
+        if (exists) {
+          ui.selectedLotId = payload.selectedLotId;
+          ui.carouselIndex = 0;
+          didPreSelect = true;
+        }
+      }
+
+      if (didPreSelect) {
+        // switchTab updates buttons + section .active classes AND renders.
+        switchTab("explore");
+      } else {
+        switch (ui.activeTab) {
+          case "home":    renderHome();    break;
+          case "explore": renderExplore(); break;
+          case "history": renderHistory(); break;
+        }
       }
     },
     showError(message) {

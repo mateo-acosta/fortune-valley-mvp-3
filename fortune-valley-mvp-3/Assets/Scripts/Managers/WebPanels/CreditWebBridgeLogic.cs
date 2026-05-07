@@ -31,6 +31,16 @@ namespace FortuneValley.Managers.WebPanels
         private TransactionLog _transactionLog;
         private TimeManager _timeManager;
 
+        // One-shot lot pre-selection. The bridge sets this when
+        // OnLotLoanExploreRequested fires. PopulateDTO copies it to the DTO
+        // and clears it so subsequent pushes do not re-fire the selection.
+        private string _pendingSelectedLotId;
+
+        public void SetSelectedLotId(string lotId)
+        {
+            _pendingSelectedLotId = lotId;
+        }
+
         public void Initialize(
             LoanSystem loanSystem,
             CreditCardSystem creditCardSystem,
@@ -63,6 +73,11 @@ namespace FortuneValley.Managers.WebPanels
             target.monthlyDebtPayment = _loanSystem.TotalYearlyDebt;
             target.cashOnHand = _currencyManager.CheckingBalance;
             // creditScoreLabel left empty; HTML computes its own bucket from creditScore.
+
+            // One-shot lot pre-selection: surface pending id then clear so the
+            // iframe only acts on it once.
+            target.selectedLotId = _pendingSelectedLotId;
+            _pendingSelectedLotId = null;
 
             FillActiveLoans(target);
             FillLoanProducts(target);

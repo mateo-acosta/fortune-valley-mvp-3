@@ -43,6 +43,25 @@ namespace FortuneValley.Managers.WebPanels
         {
             base.OnEnable();
             _logic.Initialize(_loanSystem, _creditCardSystem, _currencyManager, _cityManager, _transactionLog, _timeManager);
+            // Pre-selection intent must subscribe BEFORE Show because the event
+            // fires from the lot click that ALSO opens the panel; if we waited
+            // until Subscribe (Show), we would miss the event.
+            GameEvents.OnLotLoanExploreRequested += HandleLotLoanExploreRequested;
+        }
+
+        protected override void OnDisable()
+        {
+            GameEvents.OnLotLoanExploreRequested -= HandleLotLoanExploreRequested;
+            base.OnDisable();
+        }
+
+        private void HandleLotLoanExploreRequested(string lotId)
+        {
+            _logic.SetSelectedLotId(lotId);
+            // Mark dirty so the next Show / LateUpdate push surfaces the pre-select.
+            // Safe even when not visible: WebPanelBridgeBase.Show calls PushNow
+            // unconditionally on transition to visible.
+            MarkDirty();
         }
 
         protected override void Subscribe()
