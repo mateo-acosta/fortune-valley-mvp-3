@@ -43,6 +43,17 @@ namespace FortuneValley.Domain.Entities.WebPanels
         public int current_quiz_streak;
         public float lifetime_restaurant_earnings;
 
+        // Bankruptcy chip in the panel header. Sticky-true after the
+        // first soft bankruptcy event for this life.
+        public bool has_bankruptcy_flag;
+
+        // Investments section breakdown. investment_value is already
+        // exposed above; these add the lifetime principal/gain + count
+        // for the Finances tab "Your investments" story numbers.
+        public float investment_principal;     // lifetime principal invested
+        public float investment_growth;        // lifetime total gain
+        public int investment_count;           // active holdings count
+
         // Goals
         public ProfileGoalRowDTO[] selected_goals;
 

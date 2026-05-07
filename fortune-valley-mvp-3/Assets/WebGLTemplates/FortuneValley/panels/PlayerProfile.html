@@ -1002,12 +1002,12 @@ html, body {
             <div class="head"><span class="kicker">Your investments</span></div>
             <div class="body">
               <div class="invest-story" id="invest-story">
-                You put in $16,200 and it grew to $18,950. Your investments made you an extra <span class="gain">$2,750</span>.
+                You put in <span id="invest-story-principal">$16,200</span> and it grew to <span id="invest-story-current">$18,950</span>. Your investments made you an extra <span class="gain" id="invest-story-growth">$2,750</span>.
               </div>
-              <div class="fin-row"><span class="lbl">Current investment value</span><span class="val">$18,950</span></div>
-              <div class="fin-row"><span class="lbl">Amount you originally put in</span><span class="val">$16,200</span></div>
-              <div class="fin-row"><span class="lbl">Growth so far (not yet cashed out)</span><span class="val gain">+$2,750</span></div>
-              <div class="fin-row"><span class="lbl">Investments you hold</span><span class="val">5</span></div>
+              <div class="fin-row"><span class="lbl">Current investment value</span><span class="val" id="invest-current-v">$18,950</span></div>
+              <div class="fin-row"><span class="lbl">Amount you originally put in</span><span class="val" id="invest-principal-v">$16,200</span></div>
+              <div class="fin-row"><span class="lbl">Growth so far (not yet cashed out)</span><span class="val gain" id="invest-growth-v">+$2,750</span></div>
+              <div class="fin-row"><span class="lbl">Investments you hold</span><span class="val" id="invest-count-v">5</span></div>
             </div>
           </div>
 
@@ -1578,6 +1578,36 @@ html, body {
       var lifetimeFmt = fmtMoney(payload.lifetime_restaurant_earnings);
       setText('activity-lifetime-num', lifetimeFmt);
       setText('activity-lifetime-strong', lifetimeFmt);
+    }
+
+    // Header bankruptcy chip: sticky-true once flagged. Toggle via [hidden].
+    var bankChip = document.getElementById('bankruptcy-chip');
+    if (bankChip && typeof payload.has_bankruptcy_flag === 'boolean') {
+      if (payload.has_bankruptcy_flag) bankChip.removeAttribute('hidden');
+      else bankChip.setAttribute('hidden', '');
+    }
+
+    // Investments breakdown (Finances tab "Your investments" section).
+    var hasInvest = typeof payload.investment_value === 'number';
+    var hasPrincipal = typeof payload.investment_principal === 'number';
+    var hasGrowth = typeof payload.investment_growth === 'number';
+    var hasCount = typeof payload.investment_count === 'number';
+    if (hasInvest) {
+      setText('invest-current-v', fmtMoney(payload.investment_value));
+      setText('invest-story-current', fmtMoney(payload.investment_value));
+    }
+    if (hasPrincipal) {
+      setText('invest-principal-v', fmtMoney(payload.investment_principal));
+      setText('invest-story-principal', fmtMoney(payload.investment_principal));
+    }
+    if (hasGrowth) {
+      // Growth can be negative (loss). fmtMoney already handles sign.
+      var sign = payload.investment_growth >= 0 ? '+' : '';
+      setText('invest-growth-v', sign + fmtMoney(payload.investment_growth));
+      setText('invest-story-growth', fmtMoney(payload.investment_growth));
+    }
+    if (hasCount) {
+      setText('invest-count-v', String(payload.investment_count));
     }
   }
 

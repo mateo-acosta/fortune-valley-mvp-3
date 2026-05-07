@@ -32,6 +32,18 @@ namespace FortuneValley.Managers.WebPanels
         private CreditCardSystem _creditCardSystem;
         private QuestionManager _questionManager;
         private RestaurantSystem _restaurantSystem;
+        private InvestmentSystem _investmentSystem;
+
+        // Sticky bankruptcy flag — once set true (first OnSoftBankruptcyReset
+        // or hydrate from save with bankruptcy_flag=true) it stays true for
+        // the lifetime of the session per the soft-bankruptcy design spec.
+        private bool _bankruptcyFlag;
+
+        public void SetBankruptcyFlag(bool value)
+        {
+            // Sticky: only allow false -> true transitions.
+            if (value) _bankruptcyFlag = true;
+        }
 
         // Cached values pushed in from the MonoBehaviour bridge after each
         // NetWorthService / LifeGoalSelection event.
@@ -51,7 +63,8 @@ namespace FortuneValley.Managers.WebPanels
             TimeManager timeManager,
             CreditCardSystem creditCardSystem = null,
             QuestionManager questionManager = null,
-            RestaurantSystem restaurantSystem = null)
+            RestaurantSystem restaurantSystem = null,
+            InvestmentSystem investmentSystem = null)
         {
             _loanSystem = loanSystem;
             _currencyManager = currencyManager;
@@ -60,6 +73,7 @@ namespace FortuneValley.Managers.WebPanels
             _creditCardSystem = creditCardSystem;
             _questionManager = questionManager;
             _restaurantSystem = restaurantSystem;
+            _investmentSystem = investmentSystem;
         }
 
         public void SetNetWorthSnapshot(float total, float liquid)
@@ -116,6 +130,22 @@ namespace FortuneValley.Managers.WebPanels
             // Activity tab: quiz streak + lifetime restaurant earnings.
             target.current_quiz_streak = _questionManager != null ? _questionManager.CurrentStreak : 0;
             target.lifetime_restaurant_earnings = _restaurantSystem != null ? _restaurantSystem.TotalEarned : 0f;
+
+            // Header bankruptcy chip: cached sticky flag.
+            target.has_bankruptcy_flag = _bankruptcyFlag;
+
+            // Investments breakdown for the Finances tab story numbers.
+            // investment_value is already populated above from CurrencyManager.
+            // InvestmentSystem owns the lifetime-tracking fields.
+            target.investment_principal = _investmentSystem != null
+                ? _investmentSystem.LifetimeTotalPrincipalInvested
+                : 0f;
+            target.investment_growth = _investmentSystem != null
+                ? _investmentSystem.LifetimeTotalGain
+                : 0f;
+            target.investment_count = _investmentSystem != null && _investmentSystem.ActiveInvestments != null
+                ? _investmentSystem.ActiveInvestments.Count
+                : 0;
 
             // DTI ratio: yearly debt / yearly income, clamped 0..1. Filled
             // AFTER FillRestaurants so target.yearly_restaurant_income is

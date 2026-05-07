@@ -41,6 +41,7 @@ namespace FortuneValley.Managers.WebPanels
         [SerializeField] private CreditCardSystem _creditCardSystem;
         [SerializeField] private QuestionManager _questionManager;
         [SerializeField] private RestaurantSystem _restaurantSystem;
+        [SerializeField] private InvestmentSystem _investmentSystem;
 
         // Cached DTO + logic to keep per-push allocation bounded.
         private readonly ProfilePanelDTO _dto = new ProfilePanelDTO();
@@ -49,17 +50,27 @@ namespace FortuneValley.Managers.WebPanels
         protected override void OnEnable()
         {
             base.OnEnable();
-            _logic.Initialize(_loanSystem, _currencyManager, _cityManager, _timeManager, _creditCardSystem, _questionManager, _restaurantSystem);
+            _logic.Initialize(_loanSystem, _currencyManager, _cityManager, _timeManager, _creditCardSystem, _questionManager, _restaurantSystem, _investmentSystem);
 
-            // Catch-up: if a save was already loaded with selected goals before
-            // this component instantiated, hydrate from the cached DTO so the
-            // first push does not show empty placeholder stamps.
+            // Catch-up from save: BankruptcyResetService is pure C# (owned by
+            // GameManager) and the bankruptcy flag is sticky. The selected
+            // life goals are likewise loaded into LifeGoalSelectionService;
+            // if a save was hydrated before this component instantiated,
+            // we reseed both from the cached DTO so the first push reflects
+            // restored state.
             var saveDto = GameEvents.LastLoadedSaveDto;
-            if (saveDto != null && saveDto.selected_goals != null
-                && saveDto.selected_goals.Length == LifeGoalSelection.RequiredEntryCount
-                && LifeGoalSelection.IsValidTierComposition(saveDto.selected_goals))
+            if (saveDto != null)
             {
-                _logic.SetSelection(new LifeGoalSelection(saveDto.selected_goals));
+                if (saveDto.bankruptcy_flag)
+                {
+                    _logic.SetBankruptcyFlag(true);
+                }
+                if (saveDto.selected_goals != null
+                    && saveDto.selected_goals.Length == LifeGoalSelection.RequiredEntryCount
+                    && LifeGoalSelection.IsValidTierComposition(saveDto.selected_goals))
+                {
+                    _logic.SetSelection(new LifeGoalSelection(saveDto.selected_goals));
+                }
             }
         }
 
@@ -83,6 +94,12 @@ namespace FortuneValley.Managers.WebPanels
             GameEvents.OnQuestionAnswered += HandleQuestionAnswered;
             GameEvents.OnQuestionRewardGranted += HandleQuestionRewardGranted;
             GameEvents.OnIncomeCollected += HandleIncomeCollected;
+            // Bankruptcy chip: sticky-true after first OnSoftBankruptcyReset.
+            GameEvents.OnSoftBankruptcyReset += HandleSoftBankruptcyReset;
+            // Investment story numbers: react to all create/sell/compound events.
+            GameEvents.OnInvestmentCreated += HandleInvestmentChanged;
+            GameEvents.OnInvestmentWithdrawn += HandleInvestmentWithdrawn;
+            GameEvents.OnInvestmentCompounded += HandleInvestmentChanged;
 
             // Pull-pattern seed: ask NetWorthService to re-emit current cached
             // values immediately. The cascaded OnNetWorthChanged populates the
@@ -107,6 +124,10 @@ namespace FortuneValley.Managers.WebPanels
             GameEvents.OnQuestionAnswered -= HandleQuestionAnswered;
             GameEvents.OnQuestionRewardGranted -= HandleQuestionRewardGranted;
             GameEvents.OnIncomeCollected -= HandleIncomeCollected;
+            GameEvents.OnSoftBankruptcyReset -= HandleSoftBankruptcyReset;
+            GameEvents.OnInvestmentCreated -= HandleInvestmentChanged;
+            GameEvents.OnInvestmentWithdrawn -= HandleInvestmentWithdrawn;
+            GameEvents.OnInvestmentCompounded -= HandleInvestmentChanged;
         }
 
         protected override string BuildPayloadJson()
@@ -153,6 +174,13 @@ namespace FortuneValley.Managers.WebPanels
         private void HandleQuestionAnswered(QuestionData q, bool correct, int chosen, int correctIdx, int streak) => MarkDirty();
         private void HandleQuestionRewardGranted(int amount, int newStreak) => MarkDirty();
         private void HandleIncomeCollected(string buildingId, float amount) => MarkDirty();
+        private void HandleSoftBankruptcyReset()
+        {
+            _logic.SetBankruptcyFlag(true);
+            MarkDirty();
+        }
+        private void HandleInvestmentChanged(ActiveInvestment inv) => MarkDirty();
+        private void HandleInvestmentWithdrawn(ActiveInvestment inv, float payout) => MarkDirty();
 
         // ---------- SendMessage entry points (called from JS) ----------
 
