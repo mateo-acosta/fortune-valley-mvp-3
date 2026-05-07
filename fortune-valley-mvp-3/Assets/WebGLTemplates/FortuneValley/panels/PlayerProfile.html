@@ -1191,35 +1191,32 @@ html, body {
     });
   });
 
-  // Close button - emits the same hook the other panels use.
+  // Helper: route a request through the WebGL template's FV bridge, falling
+  // back to a postMessage for standalone-preview hosts. Mirrors the pattern
+  // used by credit-system.html / investing-system.html.
+  function fvRequest(intentName, payload, fallbackType) {
+    try {
+      if (window.parent && window.parent.FV && typeof window.parent.FV.requestIntent === 'function') {
+        window.parent.FV.requestIntent('profile', intentName, payload || {});
+        return;
+      }
+    } catch (e) {}
+    if (window.parent && window.parent !== window && fallbackType) {
+      try { window.parent.postMessage({ type: fallbackType }, '*'); } catch (e) {}
+    }
+  }
+
+  // Close button.
   const close = document.getElementById('profile-close');
   close && close.addEventListener('click', () => {
-    // In-game: posts up to Unity to dismiss. Standalone: just logs.
-    console.log('[Profile] close requested');
-    if (window.parent && window.parent !== window) {
-      try { window.parent.postMessage({ type: 'profile:close' }, '*'); } catch (e) {}
-    }
+    fvRequest('close', {}, 'profile:close');
   });
 
-  // Replay Tutorial button. Sends directly to ReplayTutorialService in Unity.
-  // The host page (WebGL template) holds unityInstance on window. When the
-  // PlayerProfile panel is hosted inside the FortuneValley iframe, parent
-  // resolves to that template's window. ReplayTutorialService.RequestReplay()
-  // wipes server state for the current game_mode and restarts the tutorial.
+  // Replay Tutorial button. Routes through ProfileWebBridge.RequestReplayTutorial
+  // which raises GameEvents.OnTutorialStartRequested(true).
   const replay = document.getElementById('replay-tutorial-btn');
   replay && replay.addEventListener('click', () => {
-    console.log('[Profile] replay tutorial requested');
-    try {
-      if (window.parent && window.parent.unityInstance &&
-          typeof window.parent.unityInstance.SendMessage === 'function') {
-        window.parent.unityInstance.SendMessage('ReplayTutorialService', 'RequestReplay', '');
-      } else if (window.parent && window.parent !== window) {
-        // Fallback for hosts that listen for postMessage instead of exposing unityInstance.
-        try { window.parent.postMessage({ type: 'tutorial:replay' }, '*'); } catch (e) {}
-      }
-    } catch (e) {
-      console.error('[Profile] replay tutorial failed', e);
-    }
+    fvRequest('replayTutorial', {}, 'tutorial:replay');
   });
 
   // ----------------------------------------------------------------
@@ -1421,6 +1418,91 @@ html, body {
   });
 
   recomputeNetWorth();
+
+  // ----------------------------------------------------------------
+  // Bridge contract: window.FV.profile.update(payload)
+  // The WebGL template's FV.updatePanel("profile", json) forwards the
+  // parsed JSON here. We translate the ProfilePanelDTO shape into the
+  // existing IDs and data-attributes the IIFEs above already handle.
+  // ----------------------------------------------------------------
+  function fmtMoney(n) {
+    if (n == null || isNaN(n)) return '$0';
+    var sign = n < 0 ? '-' : '';
+    var abs = Math.abs(Math.round(n)).toLocaleString('en-US');
+    return sign + '$' + abs;
+  }
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function applyProfileUpdate(payload) {
+    if (!payload) return;
+
+    // Net Worth Calculation leaves (recomputeNetWorth picks up the totals via
+    // its MutationObserver, which also propagates to #total-nw + constellation).
+    if (typeof payload.cash_in_checking          === 'number') setText('nw-calc-cash-v',     '+' + fmtMoney(payload.cash_in_checking));
+    if (typeof payload.investment_value          === 'number') setText('nw-calc-invest-v',   '+' + fmtMoney(payload.investment_value));
+    if (typeof payload.restaurant_assets_value   === 'number') setText('nw-calc-property-v', '+' + fmtMoney(payload.restaurant_assets_value));
+    if (typeof payload.loans_total               === 'number') setText('nw-calc-loans-v',    '−' + fmtMoney(payload.loans_total));
+
+    // Liquid net worth strip.
+    if (typeof payload.liquid_net_worth === 'number') setText('liquid-nw', fmtMoney(payload.liquid_net_worth));
+
+    // Lifespan: age display + constellation trail metadata.
+    var ageDisplay = document.getElementById('age-display');
+    if (ageDisplay && typeof payload.current_age === 'number') ageDisplay.textContent = String(payload.current_age);
+    var overviewConstellation = document.getElementById('goal-constellation');
+    if (overviewConstellation) {
+      if (typeof payload.current_age    === 'number') overviewConstellation.setAttribute('data-current-age',    String(payload.current_age));
+      if (typeof payload.retirement_age === 'number') overviewConstellation.setAttribute('data-retirement-age', String(payload.retirement_age));
+    }
+
+    // Goals: per-stamp data-* attributes drive the constellation IIFE's
+    // MutationObserver, which repaints rings + labels + bloom flags.
+    var goals = Array.isArray(payload.selected_goals) ? payload.selected_goals : [];
+    for (var i = 0; i < 3; i++) {
+      var stamp = document.getElementById('goal-stamp-' + (i + 1));
+      if (!stamp) continue;
+      var g = goals[i];
+      if (g) {
+        stamp.setAttribute('data-picked', 'true');
+        if (g.goal_id) stamp.setAttribute('data-goal-id', g.goal_id);
+        if (typeof g.threshold === 'number') stamp.setAttribute('data-threshold', String(g.threshold));
+        stamp.setAttribute('data-realized-age', g.realized_age != null && g.realized_age >= 0 ? String(g.realized_age) : '');
+        if (g.just_realized) stamp.setAttribute('data-just-realized', 'true');
+        // Set data-realized last so the MutationObserver sees the final state on the same tick.
+        stamp.setAttribute('data-realized', g.realized ? 'true' : 'false');
+        var nameEl = document.getElementById('goal-stamp-' + (i + 1) + '-name');
+        if (nameEl && typeof g.goal_id === 'string') {
+          // The stamp emoji map looks up data-goal-id directly; the visible
+          // name is populated server-side via a separate label dictionary on
+          // the iframe side. For now, mirror the goal_id as the label so the
+          // panel works without a label catalog round-trip.
+          // (Bridge can override later by adding goal display_name to the DTO.)
+        }
+      } else {
+        stamp.setAttribute('data-picked', 'false');
+      }
+    }
+
+    // Properties tab is currently static-mock. The bridge ships
+    // payload.restaurants for future wiring; no DOM write here yet.
+  }
+
+  // Iframe-local FV namespace. parent.FV.updatePanel routes here via
+  // iframe.contentWindow.FV.profile.update(payload).
+  window.FV = window.FV || {};
+  window.FV.profile = { update: applyProfileUpdate };
+
+  // Signal the host that this iframe is ready to receive updates. The host
+  // replays any pending payload it buffered before this listener was wired.
+  try {
+    if (window.parent && window.parent !== window
+        && window.parent.FV && typeof window.parent.FV.iframeReady === 'function') {
+      window.parent.FV.iframeReady('profile');
+    }
+  } catch (e) { /* standalone preview: no-op */ }
 })();
 </script>
 

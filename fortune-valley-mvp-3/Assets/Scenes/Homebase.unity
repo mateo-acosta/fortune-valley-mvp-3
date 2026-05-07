@@ -53698,7 +53698,6 @@ GameObject:
   - component: {fileID: 968857981}
   - component: {fileID: 968857984}
   - component: {fileID: 968857983}
-  - component: {fileID: 968857982}
   m_Layer: 0
   m_Name: NetWorthTitle
   m_TagString: Untagged
@@ -53726,20 +53725,6 @@ RectTransform:
   m_AnchoredPosition: {x: -81.309494, y: 65.2}
   m_SizeDelta: {x: 200, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &968857982
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 968857980}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97cca18cc282244bf8b202c338c589a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.HUD.DailyIncomeHud
-  _dailyIncomeText: {fileID: 1174951125}
-  _format: +${0:N0}/day
 --- !u!114 &968857983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81552,6 +81537,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0df637487b48844fab40dd5b511dc8fb, type: 3}
   m_PrefabInstance: {fileID: 1473172968}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1476615076
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1476615078}
+  - component: {fileID: 1476615077}
+  m_Layer: 0
+  m_Name: ProfileWebBridge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1476615077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476615076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46755558cc4274f59b3635cd13494f7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FortuneValley.Managers::FortuneValley.Managers.WebPanels.ProfileWebBridge
+  _loanSystem: {fileID: 2029218241}
+  _currencyManager: {fileID: 2029218249}
+  _cityManager: {fileID: 2029218248}
+  _timeManager: {fileID: 2029218250}
+--- !u!4 &1476615078
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476615076}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 236.99648, y: 991.31256, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1477528326
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -111730,6 +111763,7 @@ MonoBehaviour:
   _investingWebBridge: {fileID: 1129039367}
   _creditWebBridge: {fileID: 687236396}
   _questionMasterWebBridge: {fileID: 1704019517}
+  _profileWebBridge: {fileID: 1476615077}
   _lotPurchasePopup: {fileID: 0}
   _buyInvestmentPopup: {fileID: 0}
   _sellInvestmentPopup: {fileID: 0}
@@ -118530,7 +118564,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +$$$$ / day
+  m_text: +$$$$ / year
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5f58c05479cb14f588efcdfcbdab347c, type: 2}
   m_sharedMaterial: {fileID: 7423409246693961632, guid: 5f58c05479cb14f588efcdfcbdab347c, type: 2}
@@ -118616,10 +118650,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1989613830424526819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 34.532944}
+  m_SizeDelta: {x: -40, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1989613830424526816
 GameObject:
@@ -118653,7 +118687,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.06581525, g: 0.46753776, b: 0.8207547, a: 1}
+  m_Color: {r: 0.13333334, g: 0.6392157, b: 0.49411765, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -118687,8 +118721,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 161, y: -63.2}
-  m_SizeDelta: {x: 200, y: 40}
+  m_AnchoredPosition: {x: 182.9, y: -63.2}
+  m_SizeDelta: {x: 250, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1989613830424526821
 CanvasRenderer:
@@ -118711,7 +118745,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FortuneValley.UI::FortuneValley.UI.HUD.DailyIncomeHud
   _dailyIncomeText: {fileID: 1989613830349033910}
-  _format: +${0:N0}/day
+  _format: +${0:N0}/year
 --- !u!1 &1989613830854683010
 GameObject:
   m_ObjectHideFlags: 0
@@ -121262,6 +121296,7 @@ MonoBehaviour:
   _insuranceTabButton: {fileID: 2075326520788431433}
   _creditTabButton: {fileID: 2075326520757232484}
   _questionMasterButton: {fileID: 1906572361}
+  _profileButton: {fileID: 2075326522260606093}
   _uiManager: {fileID: 2029218243}
 --- !u!1 &2075326520996587648
 GameObject:
@@ -124526,3 +124561,4 @@ SceneRoots:
   - {fileID: 687236397}
   - {fileID: 1704019518}
   - {fileID: 427087794}
+  - {fileID: 1476615078}

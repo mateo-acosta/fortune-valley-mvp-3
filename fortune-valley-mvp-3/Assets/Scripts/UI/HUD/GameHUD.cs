@@ -26,6 +26,10 @@ namespace FortuneValley.UI.HUD
         [Tooltip("Opens the QuestionMaster popup")]
         [SerializeField] private Button _questionMasterButton;
 
+        [Header("Player Profile")]
+        [Tooltip("Player avatar / profile button. Opens the read-only PlayerProfile panel.")]
+        [SerializeField] private Button _profileButton;
+
         [Header("Dependencies")]
         [Tooltip("HomebaseSceneManager. Required — receives TogglePanel / ShowPopup calls from tab buttons.")]
         [SerializeField] private UIManager _uiManager;
@@ -67,6 +71,11 @@ namespace FortuneValley.UI.HUD
             {
                 _questionMasterButton.onClick.AddListener(OnQuestionMasterClicked);
             }
+
+            if (_profileButton != null)
+            {
+                _profileButton.onClick.AddListener(OnProfileButtonClicked);
+            }
         }
 
         private void OnInvestingTabClicked()
@@ -90,6 +99,11 @@ namespace FortuneValley.UI.HUD
             // UIManager.GetWebBridge falls through to null when the bridge isn't wired,
             // so a missing bridge just opens nothing -- no crash, no legacy popup.
             _uiManager.TogglePanel(PanelType.QuestionMaster);
+        }
+
+        private void OnProfileButtonClicked()
+        {
+            _uiManager.TogglePanel(PanelType.Profile);
         }
     }
 }

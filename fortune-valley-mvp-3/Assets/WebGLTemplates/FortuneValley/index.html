@@ -83,6 +83,7 @@
     <iframe id="fv-investing"       class="fv-iframe" src="panels/investing-system.html" title="Investing"></iframe>
     <iframe id="fv-credit"          class="fv-iframe" src="panels/credit-system.html"    title="Credit"></iframe>
     <iframe id="fv-question-master" class="fv-iframe" src="panels/QuestionMaster.html"   title="QuestionMaster"></iframe>
+    <iframe id="fv-profile"         class="fv-iframe" src="panels/PlayerProfile.html"    title="Player Profile"></iframe>
   </div>
 
   <script src="Build/{{{ LOADER_FILENAME }}}"></script>
@@ -104,20 +105,22 @@
     var BRIDGE_OBJECTS = {
       investing:      "InvestingWebBridge",
       credit:         "CreditWebBridge",
-      questionMaster: "QuestionMasterWebBridge"
+      questionMaster: "QuestionMasterWebBridge",
+      profile:        "ProfileWebBridge"
     };
 
     var iframes = {
       investing:      document.getElementById("fv-investing"),
       credit:         document.getElementById("fv-credit"),
-      questionMaster: document.getElementById("fv-question-master")
+      questionMaster: document.getElementById("fv-question-master"),
+      profile:        document.getElementById("fv-profile")
     };
 
     // Issue 2A: cold-start queue. If C# pushes an update before the
     // target iframe has defined its FV.<id>.update, hold the latest
     // payload here and replay when the iframe signals iframeReady.
-    var iframeReady = { investing: false, credit: false, questionMaster: false };
-    var pendingPushes = { investing: null, credit: null, questionMaster: null };
+    var iframeReady = { investing: false, credit: false, questionMaster: false, profile: false };
+    var pendingPushes = { investing: null, credit: null, questionMaster: null, profile: null };
 
     function dispatchUpdate(panelId, payload) {
       var iframe = iframes[panelId];

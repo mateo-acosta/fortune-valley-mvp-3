@@ -10,6 +10,7 @@ namespace FortuneValley.Domain.Enums
         Restaurant,
         Insurance,
         Loan,
-        QuestionMaster
+        QuestionMaster,
+        Profile
     }
 }

@@ -44,6 +44,9 @@ namespace FortuneValley.UI
         [Tooltip("HTML QuestionMaster panel bridge. When wired, ShowPanel(QuestionMaster) routes here.")]
         [SerializeField] private QuestionMasterWebBridge _questionMasterWebBridge;
 
+        [Tooltip("HTML PlayerProfile panel bridge. When wired, ShowPanel(Profile) routes here.")]
+        [SerializeField] private ProfileWebBridge _profileWebBridge;
+
         [Header("Popup References")]
         [Tooltip("Lot purchase confirmation popup")]
         [SerializeField] private UIPopup _lotPurchasePopup;
@@ -276,6 +279,7 @@ namespace FortuneValley.UI
                 PanelType.Portfolio => _investingWebBridge,
                 PanelType.Loan => _creditWebBridge,
                 PanelType.QuestionMaster => _questionMasterWebBridge,
+                PanelType.Profile => _profileWebBridge,
                 _ => null
             };
         }
@@ -302,6 +306,7 @@ namespace FortuneValley.UI
             if (_investingWebBridge != null) _investingWebBridge.Hide();
             if (_creditWebBridge != null) _creditWebBridge.Hide();
             if (_questionMasterWebBridge != null) _questionMasterWebBridge.Hide();
+            if (_profileWebBridge != null) _profileWebBridge.Hide();
             _currentPanel = null;
             _currentWebBridge = null;
         }
