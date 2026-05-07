@@ -38,6 +38,7 @@ namespace FortuneValley.Managers.WebPanels
         [SerializeField] private CurrencyManager _currencyManager;
         [SerializeField] private CityManager _cityManager;
         [SerializeField] private TimeManager _timeManager;
+        [SerializeField] private CreditCardSystem _creditCardSystem;
 
         // Cached DTO + logic to keep per-push allocation bounded.
         private readonly ProfilePanelDTO _dto = new ProfilePanelDTO();
@@ -46,7 +47,7 @@ namespace FortuneValley.Managers.WebPanels
         protected override void OnEnable()
         {
             base.OnEnable();
-            _logic.Initialize(_loanSystem, _currencyManager, _cityManager, _timeManager);
+            _logic.Initialize(_loanSystem, _currencyManager, _cityManager, _timeManager, _creditCardSystem);
 
             // Catch-up: if a save was already loaded with selected goals before
             // this component instantiated, hydrate from the cached DTO so the
@@ -73,6 +74,7 @@ namespace FortuneValley.Managers.WebPanels
             GameEvents.OnLotPurchased += HandleLotPurchased;
             GameEvents.OnLotTierChanged += HandleLotTierChanged;
             GameEvents.OnLotOwnershipChanged += HandleLotOwnershipChanged;
+            GameEvents.OnCreditScoreChanged += HandleCreditScoreChanged;
 
             // Pull-pattern seed: ask NetWorthService to re-emit current cached
             // values immediately. The cascaded OnNetWorthChanged populates the
@@ -93,6 +95,7 @@ namespace FortuneValley.Managers.WebPanels
             GameEvents.OnLotPurchased -= HandleLotPurchased;
             GameEvents.OnLotTierChanged -= HandleLotTierChanged;
             GameEvents.OnLotOwnershipChanged -= HandleLotOwnershipChanged;
+            GameEvents.OnCreditScoreChanged -= HandleCreditScoreChanged;
         }
 
         protected override string BuildPayloadJson()
@@ -135,6 +138,7 @@ namespace FortuneValley.Managers.WebPanels
         private void HandleLotPurchased(string lotId, Owner owner) => MarkDirty();
         private void HandleLotTierChanged(string lotId, int newTier) => MarkDirty();
         private void HandleLotOwnershipChanged(string lotId, Owner prev, Owner next) => MarkDirty();
+        private void HandleCreditScoreChanged(int newScore) => MarkDirty();
 
         // ---------- SendMessage entry points (called from JS) ----------
 

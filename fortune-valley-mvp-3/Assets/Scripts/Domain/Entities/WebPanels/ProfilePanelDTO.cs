@@ -34,6 +34,11 @@ namespace FortuneValley.Domain.Entities.WebPanels
         public float yearly_loan_payments;
         public float yearly_restaurant_income;
 
+        // Vitals: Credit + DTI. credit_score is 300..850; dti_ratio is 0..1
+        // (clamped server-side; the iframe formats as percent).
+        public int credit_score;
+        public float dti_ratio;
+
         // Goals
         public ProfileGoalRowDTO[] selected_goals;
 

@@ -29,6 +29,7 @@ namespace FortuneValley.Managers.WebPanels
         private CurrencyManager _currencyManager;
         private CityManager _cityManager;
         private TimeManager _timeManager;
+        private CreditCardSystem _creditCardSystem;
 
         // Cached values pushed in from the MonoBehaviour bridge after each
         // NetWorthService / LifeGoalSelection event.
@@ -45,12 +46,14 @@ namespace FortuneValley.Managers.WebPanels
             LoanSystem loanSystem,
             CurrencyManager currencyManager,
             CityManager cityManager,
-            TimeManager timeManager)
+            TimeManager timeManager,
+            CreditCardSystem creditCardSystem = null)
         {
             _loanSystem = loanSystem;
             _currencyManager = currencyManager;
             _cityManager = cityManager;
             _timeManager = timeManager;
+            _creditCardSystem = creditCardSystem;
         }
 
         public void SetNetWorthSnapshot(float total, float liquid)
@@ -100,6 +103,20 @@ namespace FortuneValley.Managers.WebPanels
             // Negative results clamp to 0 in case of tiny float drift.
             float businessAssets = target.total_net_worth - target.liquid_net_worth;
             target.restaurant_assets_value = businessAssets > 0f ? businessAssets : 0f;
+
+            // Vitals: credit score (300..850; defaults to 0 if no CC system).
+            target.credit_score = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0;
+
+            // DTI ratio: yearly debt / yearly income, clamped 0..1. Filled
+            // AFTER FillRestaurants so target.yearly_restaurant_income is
+            // populated. If income is zero, DTI is treated as 0 (no income
+            // to evaluate against rather than divide-by-zero infinity).
+            float yearlyDebt = target.yearly_loan_payments;
+            float yearlyIncome = target.yearly_restaurant_income;
+            float dti = yearlyIncome > 0f ? yearlyDebt / yearlyIncome : 0f;
+            if (dti < 0f) dti = 0f;
+            if (dti > 1f) dti = 1f;
+            target.dti_ratio = dti;
 
             FillGoals(target);
             FillActiveLoans(target);

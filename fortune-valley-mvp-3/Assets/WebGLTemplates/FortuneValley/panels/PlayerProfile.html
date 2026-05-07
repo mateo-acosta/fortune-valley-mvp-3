@@ -1463,6 +1463,16 @@ html, body {
     if (el) el.textContent = text;
   }
 
+  // Apply one of the three zone classes (good / fair / poor) to a vital-dot
+  // element, replacing any prior zone. Used by the vitals strip to color
+  // each pill's dot from the value's bucket.
+  function applyVitalZone(id, zone) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('zone-good', 'zone-fair', 'zone-poor');
+    el.classList.add('zone-' + zone);
+  }
+
   function applyProfileUpdate(payload) {
     if (!payload) return;
 
@@ -1513,13 +1523,28 @@ html, body {
       }
     }
 
-    // Vitals strip: Cash + Income/yr come straight from the bridge.
-    // Credit and DTI are wired in Stage 3b.
+    // Vitals strip: Cash, Credit, Income/yr, DTI from the bridge.
     if (typeof payload.cash_in_checking === 'number') {
       setText('vital-cash-v', fmtMoney(payload.cash_in_checking));
+      applyVitalZone('vital-cash-dot', payload.cash_in_checking >= 5000 ? 'good' : (payload.cash_in_checking >= 1000 ? 'fair' : 'poor'));
     }
     if (typeof payload.yearly_restaurant_income === 'number') {
       setText('vital-income-v', fmtMoney(payload.yearly_restaurant_income));
+      applyVitalZone('vital-income-dot', payload.yearly_restaurant_income >= 50000 ? 'good' : (payload.yearly_restaurant_income >= 15000 ? 'fair' : 'poor'));
+    }
+    if (typeof payload.credit_score === 'number') {
+      setText('vital-credit-v', String(payload.credit_score));
+      // FICO bands: 670+ Good, 580-669 Fair, <580 Poor.
+      var creditZone = payload.credit_score >= 670 ? 'good' : (payload.credit_score >= 580 ? 'fair' : 'poor');
+      applyVitalZone('vital-credit-dot', creditZone);
+    }
+    if (typeof payload.dti_ratio === 'number') {
+      // DTI is 0..1 -> render as integer percent.
+      var pct = Math.round(payload.dti_ratio * 100);
+      setText('vital-dti-v', pct + '%');
+      // Lower is better: <=20% Good, <=40% Fair, otherwise Poor.
+      var dtiZone = payload.dti_ratio <= 0.20 ? 'good' : (payload.dti_ratio <= 0.40 ? 'fair' : 'poor');
+      applyVitalZone('vital-dti-dot', dtiZone);
     }
 
     // Properties tab: rebuild prop-rows from payload.restaurants. Toggle
