@@ -43,6 +43,7 @@ namespace FortuneValley.Core
             GameEvents.OnLoanOriginated += HandleLoanOriginated;
             GameEvents.OnLoanPaidOff += HandleLoanPaidOff;
             GameEvents.OnTick += HandleTick;
+            GameEvents.OnRequestNetWorthSnapshot += HandleSnapshotRequest;
         }
 
         public float LiquidNetWorth => _liquidNetWorthFunc != null ? _liquidNetWorthFunc() : 0f;
@@ -60,8 +61,11 @@ namespace FortuneValley.Core
             if (!_dirty) return;
             _dirty = false;
 
-            float total = TotalNetWorth;
+            // Compute liquid first, then derive total. Avoids the duplicate
+            // _liquidNetWorthFunc invocation that the previous TotalNetWorth +
+            // LiquidNetWorth read pair did.
             float liquid = LiquidNetWorth;
+            float total = liquid + BusinessAssetValue;
 
             if (!_hasFiredOnce ||
                 Math.Abs(total - _lastTotal) > ChangeEpsilon ||
@@ -97,7 +101,32 @@ namespace FortuneValley.Core
             GameEvents.OnLoanOriginated -= HandleLoanOriginated;
             GameEvents.OnLoanPaidOff -= HandleLoanPaidOff;
             GameEvents.OnTick -= HandleTick;
+            GameEvents.OnRequestNetWorthSnapshot -= HandleSnapshotRequest;
             _disposed = true;
+        }
+
+        /// <summary>
+        /// Pull-pattern hook: re-emits OnNetWorthChanged with current values so
+        /// freshly subscribed listeners (HUD on scene load, save load) get the
+        /// snapshot without waiting for the next data change. Bypasses the
+        /// change-detection guard. Idempotent: each request produces one emit.
+        /// If no values have been computed yet, computes fresh and emits.
+        /// </summary>
+        private void HandleSnapshotRequest()
+        {
+            if (_hasFiredOnce)
+            {
+                GameEvents.RaiseNetWorthChanged(_lastTotal, _lastLiquid);
+                return;
+            }
+
+            float liquid = LiquidNetWorth;
+            float total = liquid + BusinessAssetValue;
+            _lastTotal = total;
+            _lastLiquid = liquid;
+            _hasFiredOnce = true;
+            _dirty = false;
+            GameEvents.RaiseNetWorthChanged(total, liquid);
         }
 
         private void HandleBalance(float balance, float delta) => MarkDirty();

@@ -8,6 +8,7 @@ namespace FortuneValley.UI.HUD
     /// Displays player and rival balances.
     /// Player balance comes from OnCheckingBalanceChanged,
     /// rival balance from OnRivalBalanceChanged.
+    /// Currency formatting is shared via CurrencyFormatter.
     /// </summary>
     public class BalanceDisplay : MonoBehaviour
     {
@@ -31,7 +32,7 @@ namespace FortuneValley.UI.HUD
         {
             if (_playerBalanceText != null)
             {
-                _playerBalanceText.text = FormatCurrency(balance);
+                _playerBalanceText.text = CurrencyFormatter.FormatCurrency(balance);
             }
         }
 
@@ -39,20 +40,8 @@ namespace FortuneValley.UI.HUD
         {
             if (_rivalBalanceText != null)
             {
-                _rivalBalanceText.text = FormatCurrency(balance);
+                _rivalBalanceText.text = CurrencyFormatter.FormatCurrency(balance);
             }
-        }
-
-        /// <summary>
-        /// Format currency: $X,XXX for >= 1000, $X.XX otherwise.
-        /// </summary>
-        private static string FormatCurrency(float amount)
-        {
-            if (amount >= 1000f)
-            {
-                return $"${amount:N0}";
-            }
-            return $"${amount:F2}";
         }
     }
 }

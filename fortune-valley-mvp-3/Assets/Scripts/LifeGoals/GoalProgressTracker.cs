@@ -21,6 +21,7 @@ namespace FortuneValley.Core
         private readonly LifeGoalSelectionService _selectionService;
         private readonly Func<int> _currentDayFunc;
         private bool _disposed;
+        private bool _allGoalsRealizedFired;
 
         public GoalProgressTracker(LifeGoalSelectionService selectionService, Func<int> currentDayFunc)
         {
@@ -40,7 +41,17 @@ namespace FortuneValley.Core
         {
             var selection = _selectionService.CurrentSelection;
             if (selection == null) return;
-            if (selection.IsAllRealized()) return; // early-return, perf
+
+            // Save-load fast path: hydration may bring back a selection where
+            // all goals are already realized. The realize loop has nothing to
+            // do, but a fresh subscriber (HUD on scene load) still needs the
+            // OnAllGoalsRealized signal to render the trophy state. Idempotent
+            // via _allGoalsRealizedFired so repeated NW ticks don't re-emit.
+            if (selection.IsAllRealized())
+            {
+                EmitAllGoalsRealizedIfNeeded(selection);
+                return;
+            }
 
             int currentDay = _currentDayFunc();
             var entries = selection.Entries;
@@ -58,16 +69,30 @@ namespace FortuneValley.Core
                 }
             }
 
-            // Drive HUD slider toward next-cheapest unrealized. When all goals
-            // realize on this same change, NextUnrealized() returns null and we
-            // do not fire OnGoalProgressChanged -- subscribers should treat the
-            // last-fired progress event plus OnGoalRealized as terminal.
+            // Drive HUD slider toward next-cheapest unrealized, or fire the
+            // terminal OnAllGoalsRealized signal when the chain just completed
+            // the final goal on this change.
             var next = selection.NextUnrealized();
             if (next != null)
             {
                 float prev = selection.PreviousRealizedThreshold();
                 GameEvents.RaiseGoalProgressChanged(totalNetWorth, prev, next.threshold);
             }
+            else
+            {
+                EmitAllGoalsRealizedIfNeeded(selection);
+            }
+        }
+
+        private void EmitAllGoalsRealizedIfNeeded(LifeGoalSelection selection)
+        {
+            if (_allGoalsRealizedFired) return;
+            _allGoalsRealizedFired = true;
+
+            // Entries sorted ascending; final tier is the highest threshold.
+            var entries = selection.Entries;
+            float finalThreshold = entries[entries.Length - 1].threshold;
+            GameEvents.RaiseAllGoalsRealized(finalThreshold);
         }
     }
 }

@@ -771,6 +771,23 @@ namespace FortuneValley.Core
         public static void RaiseGoalProgressChanged(float currentNetWorth, float prevThreshold, float nextThreshold)
             => OnGoalProgressChanged?.Invoke(currentNetWorth, prevThreshold, nextThreshold);
 
+        // Fired by GoalProgressTracker exactly once per life when all three goals
+        // become realized. Parameter: the highest goal threshold (final tier value).
+        // Subscribers use this for the HUD "trophy state" pin (slider full + frozen).
+        // Idempotent: tracker tracks last-fired state and will not re-emit.
+        public static event Action<float> OnAllGoalsRealized;
+        public static void RaiseAllGoalsRealized(float finalThreshold)
+            => OnAllGoalsRealized?.Invoke(finalThreshold);
+
+        // Pull-pattern snapshot request. Fresh subscribers (HUD on scene load,
+        // save load, etc.) raise this in OnEnable to ask NetWorthService to
+        // re-emit OnNetWorthChanged with current cached values, regardless of
+        // whether values changed. GoalProgressTracker rides along via the
+        // cascaded OnNetWorthChanged and re-fires its own progress events.
+        public static event Action OnRequestNetWorthSnapshot;
+        public static void RaiseRequestNetWorthSnapshot()
+            => OnRequestNetWorthSnapshot?.Invoke();
+
         // Fired by LifespanController on each in-game year boundary. Parameter: new age.
         public static event Action<int> OnYearEnd;
         public static void RaiseYearEnd(int age)
@@ -994,6 +1011,8 @@ namespace FortuneValley.Core
             OnNetWorthChanged = null;
             OnGoalRealized = null;
             OnGoalProgressChanged = null;
+            OnAllGoalsRealized = null;
+            OnRequestNetWorthSnapshot = null;
             OnYearEnd = null;
             OnRetirementReached = null;
             OnGoalsEvaluated = null;

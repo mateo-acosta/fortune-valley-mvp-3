@@ -15,6 +15,7 @@ namespace FortuneValley.Tests
         private float _lastProgressNetWorth;
         private float _lastProgressNextThreshold;
         private int _currentDay;
+        private List<float> _allRealizedFires;
 
         [SetUp]
         public void SetUp()
@@ -25,6 +26,7 @@ namespace FortuneValley.Tests
             _lastProgressNetWorth = 0f;
             _lastProgressNextThreshold = 0f;
             _currentDay = 0;
+            _allRealizedFires = new List<float>();
 
             GameEvents.OnGoalRealized += entry => _realizedFires.Add(entry);
             GameEvents.OnGoalProgressChanged += (cur, prev, next) =>
@@ -33,6 +35,7 @@ namespace FortuneValley.Tests
                 _lastProgressNetWorth = cur;
                 _lastProgressNextThreshold = next;
             };
+            GameEvents.OnAllGoalsRealized += threshold => _allRealizedFires.Add(threshold);
         }
 
         [TearDown]
@@ -194,6 +197,103 @@ namespace FortuneValley.Tests
 
                 Assert.AreEqual(0, _realizedFires.Count);
                 Assert.AreEqual(0, _progressFireCount);
+            }
+        }
+
+        [Test]
+        public void Hydrate_AllAlreadyRealized_FiresAllGoalsRealizedOnce()
+        {
+            // Save load with all 3 goals already realized -> next NW event must
+            // fire OnAllGoalsRealized so the HUD can pin the trophy slider.
+            var entries = StandardTrio();
+            for (int i = 0; i < entries.Length; i++) entries[i].MarkRealized(10);
+            _selection.HydrateFromDto(entries);
+
+            using (var tracker = BuildTracker())
+            {
+                GameEvents.RaiseNetWorthChanged(2_500_000f, 2_500_000f);
+
+                Assert.AreEqual(1, _allRealizedFires.Count);
+                Assert.AreEqual(2_000_000f, _allRealizedFires[0]);
+                Assert.AreEqual(0, _realizedFires.Count, "No new realizes -- already realized.");
+                Assert.AreEqual(0, _progressFireCount, "No next-unrealized -> no progress event.");
+            }
+        }
+
+        [Test]
+        public void Hydrate_PartiallyRealized_FiresProgressNotAllRealized()
+        {
+            // Save load with 2 of 3 realized -> tracker drives progress toward
+            // the remaining unrealized; OnAllGoalsRealized must NOT fire.
+            var entries = StandardTrio();
+            entries[0].MarkRealized(5); // Starter
+            entries[1].MarkRealized(20); // Mid
+            _selection.HydrateFromDto(entries);
+
+            using (var tracker = BuildTracker())
+            {
+                GameEvents.RaiseNetWorthChanged(750_000f, 750_000f);
+
+                Assert.AreEqual(0, _allRealizedFires.Count);
+                Assert.AreEqual(1, _progressFireCount);
+                Assert.AreEqual(2_000_000f, _lastProgressNextThreshold);
+                Assert.AreEqual(750_000f, _lastProgressNetWorth);
+            }
+        }
+
+        [Test]
+        public void CrossesFinalThreshold_FiresAllGoalsRealizedOnce_ThenIdempotent()
+        {
+            // Realize Starter + Mid first, then cross Ambitious in a single NW
+            // change -> OnGoalRealized for Ambitious fires, OnAllGoalsRealized
+            // fires once. Subsequent NW changes do not re-fire.
+            _selection.HydrateFromDto(StandardTrio());
+
+            using (var tracker = BuildTracker())
+            {
+                GameEvents.RaiseNetWorthChanged(750_000f, 750_000f); // Starter + Mid
+                _realizedFires.Clear();
+                _progressFireCount = 0;
+                _allRealizedFires.Clear();
+
+                GameEvents.RaiseNetWorthChanged(2_100_000f, 2_100_000f); // Ambitious
+
+                Assert.AreEqual(1, _realizedFires.Count);
+                Assert.AreEqual("retire_early", _realizedFires[0].goal_id);
+                Assert.AreEqual(1, _allRealizedFires.Count);
+                Assert.AreEqual(2_000_000f, _allRealizedFires[0]);
+                Assert.AreEqual(0, _progressFireCount, "No next-unrealized after final cross.");
+
+                _allRealizedFires.Clear();
+                GameEvents.RaiseNetWorthChanged(2_500_000f, 2_500_000f);
+                GameEvents.RaiseNetWorthChanged(3_000_000f, 3_000_000f);
+
+                Assert.AreEqual(0, _allRealizedFires.Count, "Idempotent: no re-emit on later ticks.");
+            }
+        }
+
+        [Test]
+        public void AllRealized_NetWorthDropsBelowThreshold_NoSpuriousReEmit()
+        {
+            // Sticky behavior preserved post-realization: NW dropping below the
+            // final threshold must not un-realize and must not re-fire any
+            // event (no OnGoalRealized, OnGoalProgressChanged, or OnAllGoalsRealized).
+            _selection.HydrateFromDto(StandardTrio());
+
+            using (var tracker = BuildTracker())
+            {
+                GameEvents.RaiseNetWorthChanged(2_500_000f, 2_500_000f); // all realize
+                _realizedFires.Clear();
+                _progressFireCount = 0;
+                _allRealizedFires.Clear();
+
+                GameEvents.RaiseNetWorthChanged(500_000f, 500_000f);
+                GameEvents.RaiseNetWorthChanged(0f, 0f);
+
+                Assert.AreEqual(0, _realizedFires.Count);
+                Assert.AreEqual(0, _progressFireCount);
+                Assert.AreEqual(0, _allRealizedFires.Count);
+                Assert.IsTrue(_selection.CurrentSelection.IsAllRealized(), "Goals stay sticky.");
             }
         }
     }

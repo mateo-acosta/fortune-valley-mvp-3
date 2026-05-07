@@ -221,5 +221,82 @@ namespace FortuneValley.Tests
 
             Assert.AreEqual(0, _eventFireCount);
         }
+
+        [Test]
+        public void SnapshotRequest_FirstCall_ComputesAndEmits()
+        {
+            // Construct service before any pump; snapshot request should compute
+            // current values fresh and emit them so a freshly bound HUD sees the
+            // real net worth on its first frame.
+            _liquid = 1500f;
+            _business = 250_000f;
+
+            using (var svc = BuildService())
+            {
+                GameEvents.RaiseRequestNetWorthSnapshot();
+
+                Assert.AreEqual(1, _eventFireCount);
+                Assert.AreEqual(251_500f, _lastTotal);
+                Assert.AreEqual(1500f, _lastLiquid);
+            }
+        }
+
+        [Test]
+        public void SnapshotRequest_AfterPumpWithUnchangedValues_StillEmits()
+        {
+            // The change-detection guard in Pump() suppresses unchanged emits.
+            // Snapshot request must bypass that guard so a fresh subscriber gets
+            // the value even when nothing has changed since the last broadcast.
+            _liquid = 1000f;
+
+            using (var svc = BuildService())
+            {
+                svc.Pump();
+                _eventFireCount = 0;
+
+                GameEvents.RaiseRequestNetWorthSnapshot();
+
+                Assert.AreEqual(1, _eventFireCount);
+                Assert.AreEqual(1000f, _lastTotal);
+            }
+        }
+
+        [Test]
+        public void SnapshotRequest_RaisedTwice_EmitsTwice()
+        {
+            // Idempotency: each request produces exactly one emit. Two HUDs
+            // raising on OnEnable each produce one event; nothing is swallowed.
+            _liquid = 5000f;
+
+            using (var svc = BuildService())
+            {
+                GameEvents.RaiseRequestNetWorthSnapshot();
+                GameEvents.RaiseRequestNetWorthSnapshot();
+
+                Assert.AreEqual(2, _eventFireCount);
+            }
+        }
+
+        [Test]
+        public void SnapshotRequest_BeforeSubscriberAttaches_LaterRequestStillEmits()
+        {
+            // Scene-reload ordering: a snapshot request can fire before a HUD
+            // subscribes (e.g. one HUD raises in OnEnable, another HUD subscribes
+            // afterward). The second request must still emit to the new sub.
+            _liquid = 9000f;
+            GameEvents.OnNetWorthChanged -= CaptureEvent; // start with no subscriber
+
+            using (var svc = BuildService())
+            {
+                GameEvents.RaiseRequestNetWorthSnapshot(); // no subscriber, nothing captured
+                Assert.AreEqual(0, _eventFireCount);
+
+                GameEvents.OnNetWorthChanged += CaptureEvent;
+                GameEvents.RaiseRequestNetWorthSnapshot();
+
+                Assert.AreEqual(1, _eventFireCount);
+                Assert.AreEqual(9000f, _lastTotal);
+            }
+        }
     }
 }
