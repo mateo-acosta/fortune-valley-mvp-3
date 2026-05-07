@@ -102,6 +102,12 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Stage 0a alias: payments fire once per billing cycle (= 1 in-game
+        /// year), so the sum equals total yearly debt. Same value, new name.
+        /// </summary>
+        public float GetTotalYearlyDebt() => GetTotalMonthlyDebt();
+
+        /// <summary>
         /// Sum of all remaining loan balances (for insolvency check).
         /// </summary>
         public float GetTotalOutstandingPrincipal()

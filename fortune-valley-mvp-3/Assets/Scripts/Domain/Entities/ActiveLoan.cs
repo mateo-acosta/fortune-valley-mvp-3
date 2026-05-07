@@ -70,6 +70,14 @@ namespace FortuneValley.Domain.Entities
         public bool IsPaidOff => _isPaidOff;
         public bool IsActive => !_isPaidOff;
 
+        // Stage 0a aliases. The current "monthly" payment fires once per
+        // billing cycle (BillingCycleDays = 30 = 1 in-game year), so it is
+        // effectively a yearly payment. Legacy "monthly" naming is kept for
+        // backward compat through the alias chain (removed in Stage 0c).
+        public float YearlyPayment => _monthlyPayment;
+        public int TermTicks => _termMonths;
+        public int StartTick => _startDay;
+
         /// <summary>
         /// Total cost of the loan (all payments + down payment).
         /// </summary>
@@ -162,5 +170,11 @@ namespace FortuneValley.Domain.Entities
 
             return (float)payment;
         }
+
+        /// <summary>
+        /// Stage 0a alias: same amortization, named for the new tick vocabulary.
+        /// </summary>
+        public static float CalculateYearlyPayment(float principal, float apr, int termTicks)
+            => CalculateMonthlyPayment(principal, apr, termTicks);
     }
 }

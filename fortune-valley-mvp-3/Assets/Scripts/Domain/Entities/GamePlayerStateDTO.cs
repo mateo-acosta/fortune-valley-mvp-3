@@ -11,6 +11,7 @@ namespace FortuneValley.Domain.Entities
     {
         // Typed columns
         public string game_mode;
+        // Legacy "day" naming (Stage 0a alias chain). Removed in Stage 0c.
         public int current_day;
         public float checking_balance;
         public float credit_balance;
@@ -69,5 +70,16 @@ namespace FortuneValley.Domain.Entities
 
         // Liquid Net Worth: checking + investing - credit card debt - outstanding loan principal.
         public float liquid_net_worth;
+
+        // Stage 0a additions: new "tick" naming written in parallel with the
+        // legacy current_day / current_tick fields. Hydration in Stage 0b
+        // will prefer these and fall back to the legacy fields on older saves.
+        //   current_tick_count  : gameplay heartbeat counter (= legacy current_day)
+        //   current_engine_pulse: atomic 0.4s pulse counter (= legacy current_tick)
+        // Yearly_income mirrors monthly_income; both fields written for one
+        // commit window so 0b can swap readers safely.
+        public int current_tick_count;
+        public int current_engine_pulse;
+        public float yearly_income;
     }
 }

@@ -16,7 +16,14 @@ namespace FortuneValley.Domain.Entities
         public LifeGoalTier tier;
         public float threshold;
         public bool realized;
+
+        // Legacy "day" naming (Stage 0a alias chain). Removed in Stage 0c.
         public int realized_at_day;
+
+        // Stage 0a addition: new "tick" naming written in parallel with the
+        // legacy realized_at_day field. MarkRealized writes both. Hydration
+        // in Stage 0b will prefer realized_at_tick and fall back to legacy.
+        public int realized_at_tick;
 
         public LifeGoalEntry() { }
 
@@ -27,12 +34,14 @@ namespace FortuneValley.Domain.Entities
             this.threshold = threshold;
             realized = false;
             realized_at_day = -1;
+            realized_at_tick = -1;
         }
 
         public void MarkRealized(int dayRealized)
         {
             realized = true;
             realized_at_day = dayRealized;
+            realized_at_tick = dayRealized;
         }
     }
 }

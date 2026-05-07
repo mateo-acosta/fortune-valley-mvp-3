@@ -51,18 +51,27 @@ namespace FortuneValley.Core
         /// </summary>
         public GamePlayerStateDTO Build()
         {
+            int currentTickCount = _timeManager != null ? _timeManager.CurrentDay : 0;
+            int currentEnginePulse = _timeManager != null ? _timeManager.CurrentTick : 0;
+            float yearlyIncome = ComputeMonthlyIncome();
+
             var dto = new GamePlayerStateDTO
             {
                 game_mode = "homebase",
-                current_day = _timeManager != null ? _timeManager.CurrentDay : 0,
-                current_tick = _timeManager != null ? _timeManager.CurrentTick : 0,
+                // Legacy fields (Stage 0a alias chain). Removed in Stage 0c.
+                current_day = currentTickCount,
+                current_tick = currentEnginePulse,
+                monthly_income = yearlyIncome,
+                // New "tick" naming, written in parallel.
+                current_tick_count = currentTickCount,
+                current_engine_pulse = currentEnginePulse,
+                yearly_income = yearlyIncome,
                 checking_balance = _currencyManager != null ? _currencyManager.CheckingBalance : 0f,
                 investment_balance = _currencyManager != null ? _currencyManager.InvestingBalance : 0f,
                 credit_balance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f,
                 credit_score = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0,
                 restaurant_level = _restaurantSystem != null ? _restaurantSystem.CurrentLevel : 1,
-                monthly_income = ComputeMonthlyIncome(),
-                current_age = LifespanConstants.AgeFromDay(_timeManager != null ? _timeManager.CurrentDay : 0),
+                current_age = LifespanConstants.AgeFromDay(currentTickCount),
                 liquid_net_worth = ComputeLiquidNetWorth(),
                 total_net_worth = ComputeLiquidNetWorth(),
                 selected_goals = _lifeGoalSelection != null ? _lifeGoalSelection.BuildDtoEntries() : null
@@ -153,12 +162,17 @@ namespace FortuneValley.Core
                     lot_id = loan.LotId,
                     principal = loan.Principal,
                     remaining_balance = loan.RemainingBalance,
+                    // Legacy fields (Stage 0a alias chain). Removed in Stage 0c.
                     monthly_payment = loan.MonthlyPayment,
-                    payments_made = loan.PaymentsMade,
                     term_months = loan.TermMonths,
+                    start_day = loan.StartDay,
+                    // New tick-vocabulary fields, written in parallel.
+                    yearly_payment = loan.MonthlyPayment,
+                    term_ticks = loan.TermMonths,
+                    start_tick = loan.StartDay,
+                    payments_made = loan.PaymentsMade,
                     apr = loan.APR,
-                    down_payment = loan.DownPayment,
-                    start_day = loan.StartDay
+                    down_payment = loan.DownPayment
                 });
             }
 

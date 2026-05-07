@@ -56,6 +56,10 @@ namespace FortuneValley.Core
             ? _portfolio.GetTotalMonthlyDebt()
             : 0f;
 
+        // Stage 0a alias: the "monthly" payment fires once per billing cycle
+        // (= 1 in-game year), so this sum IS the yearly debt total.
+        public float TotalYearlyDebt => TotalMonthlyDebt;
+
         public float TotalOutstandingPrincipal => _portfolio != null
             ? _portfolio.GetTotalOutstandingPrincipal()
             : 0f;
@@ -206,6 +210,13 @@ namespace FortuneValley.Core
             if (newBalance != prevBalance)
                 GameEvents.RaiseLoanBalanceChanged(newBalance, newBalance - prevBalance);
         }
+
+        /// <summary>
+        /// Stage 0a alias for ProcessMonthlyPayments. Same behavior; the
+        /// payment cycle currently fires once per in-game year so "yearly"
+        /// is the accurate name.
+        /// </summary>
+        public void ProcessYearlyPayments() => ProcessMonthlyPayments();
 
         private void HandlePaymentMade(ActiveLoan loan, float amountPaid)
         {

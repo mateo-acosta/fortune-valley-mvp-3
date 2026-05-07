@@ -83,6 +83,28 @@ namespace FortuneValley.Core
         public int TicksPerDay => _ticksPerDay;
 
         /// <summary>
+        /// Stage 0a alias: number of atomic engine pulses per gameplay tick.
+        /// Same value as the legacy TicksPerDay. The legacy name will be
+        /// removed in Stage 0c after callers migrate.
+        /// </summary>
+        public int EnginePulsesPerTick => _ticksPerDay;
+
+        /// <summary>
+        /// Stage 0a alias: total gameplay ticks elapsed since game start.
+        /// Same value as the legacy CurrentDay (which counted heartbeats).
+        /// The atomic engine pulse counter is exposed separately via
+        /// CurrentEnginePulse (= legacy CurrentTick).
+        /// </summary>
+        public int CurrentTickCount => _currentDay;
+
+        /// <summary>
+        /// Stage 0a alias: count of atomic engine pulses (the 0.4s heartbeat).
+        /// Same value as the legacy CurrentTick. Players never see this; it
+        /// is internal subdivision used by income drain, animations, etc.
+        /// </summary>
+        public int CurrentEnginePulse => _currentTick;
+
+        /// <summary>
         /// Whether the game is paused (speed = 0).
         /// </summary>
         public bool IsPaused => CurrentSpeed == 0f;

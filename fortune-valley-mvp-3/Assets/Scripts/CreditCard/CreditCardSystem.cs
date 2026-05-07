@@ -63,6 +63,12 @@ namespace FortuneValley.Core
         public int BillingCycleDays => _config != null ? _config.BillingCycleDays : 0;
 
         /// <summary>
+        /// Stage 0a alias: same value, new name. The billing cycle is measured
+        /// in gameplay ticks; one full cycle = 30 ticks = 1 in-game year.
+        /// </summary>
+        public int BillingCycleTicks => BillingCycleDays;
+
+        /// <summary>
         /// Access payment history for credit score calculation.
         /// </summary>
         public ActiveCreditCard Card => _card;
