@@ -39,6 +39,8 @@ namespace FortuneValley.Managers.WebPanels
         [SerializeField] private CityManager _cityManager;
         [SerializeField] private TimeManager _timeManager;
         [SerializeField] private CreditCardSystem _creditCardSystem;
+        [SerializeField] private QuestionManager _questionManager;
+        [SerializeField] private RestaurantSystem _restaurantSystem;
 
         // Cached DTO + logic to keep per-push allocation bounded.
         private readonly ProfilePanelDTO _dto = new ProfilePanelDTO();
@@ -47,7 +49,7 @@ namespace FortuneValley.Managers.WebPanels
         protected override void OnEnable()
         {
             base.OnEnable();
-            _logic.Initialize(_loanSystem, _currencyManager, _cityManager, _timeManager, _creditCardSystem);
+            _logic.Initialize(_loanSystem, _currencyManager, _cityManager, _timeManager, _creditCardSystem, _questionManager, _restaurantSystem);
 
             // Catch-up: if a save was already loaded with selected goals before
             // this component instantiated, hydrate from the cached DTO so the
@@ -75,6 +77,12 @@ namespace FortuneValley.Managers.WebPanels
             GameEvents.OnLotTierChanged += HandleLotTierChanged;
             GameEvents.OnLotOwnershipChanged += HandleLotOwnershipChanged;
             GameEvents.OnCreditScoreChanged += HandleCreditScoreChanged;
+            // Activity tab: streak rides OnQuestionAnswered + OnQuestionRewardGranted
+            // (post-submission streak); lifetime restaurant earnings rides
+            // OnIncomeCollected.
+            GameEvents.OnQuestionAnswered += HandleQuestionAnswered;
+            GameEvents.OnQuestionRewardGranted += HandleQuestionRewardGranted;
+            GameEvents.OnIncomeCollected += HandleIncomeCollected;
 
             // Pull-pattern seed: ask NetWorthService to re-emit current cached
             // values immediately. The cascaded OnNetWorthChanged populates the
@@ -96,6 +104,9 @@ namespace FortuneValley.Managers.WebPanels
             GameEvents.OnLotTierChanged -= HandleLotTierChanged;
             GameEvents.OnLotOwnershipChanged -= HandleLotOwnershipChanged;
             GameEvents.OnCreditScoreChanged -= HandleCreditScoreChanged;
+            GameEvents.OnQuestionAnswered -= HandleQuestionAnswered;
+            GameEvents.OnQuestionRewardGranted -= HandleQuestionRewardGranted;
+            GameEvents.OnIncomeCollected -= HandleIncomeCollected;
         }
 
         protected override string BuildPayloadJson()
@@ -139,6 +150,9 @@ namespace FortuneValley.Managers.WebPanels
         private void HandleLotTierChanged(string lotId, int newTier) => MarkDirty();
         private void HandleLotOwnershipChanged(string lotId, Owner prev, Owner next) => MarkDirty();
         private void HandleCreditScoreChanged(int newScore) => MarkDirty();
+        private void HandleQuestionAnswered(QuestionData q, bool correct, int chosen, int correctIdx, int streak) => MarkDirty();
+        private void HandleQuestionRewardGranted(int amount, int newStreak) => MarkDirty();
+        private void HandleIncomeCollected(string buildingId, float amount) => MarkDirty();
 
         // ---------- SendMessage entry points (called from JS) ----------
 

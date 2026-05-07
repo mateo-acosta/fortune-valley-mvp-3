@@ -39,6 +39,10 @@ namespace FortuneValley.Domain.Entities.WebPanels
         public int credit_score;
         public float dti_ratio;
 
+        // Activity tab: surfaces from QuestionManager + RestaurantSystem.
+        public int current_quiz_streak;
+        public float lifetime_restaurant_earnings;
+
         // Goals
         public ProfileGoalRowDTO[] selected_goals;
 

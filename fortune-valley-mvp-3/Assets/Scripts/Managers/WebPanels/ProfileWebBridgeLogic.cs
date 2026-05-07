@@ -30,6 +30,8 @@ namespace FortuneValley.Managers.WebPanels
         private CityManager _cityManager;
         private TimeManager _timeManager;
         private CreditCardSystem _creditCardSystem;
+        private QuestionManager _questionManager;
+        private RestaurantSystem _restaurantSystem;
 
         // Cached values pushed in from the MonoBehaviour bridge after each
         // NetWorthService / LifeGoalSelection event.
@@ -47,13 +49,17 @@ namespace FortuneValley.Managers.WebPanels
             CurrencyManager currencyManager,
             CityManager cityManager,
             TimeManager timeManager,
-            CreditCardSystem creditCardSystem = null)
+            CreditCardSystem creditCardSystem = null,
+            QuestionManager questionManager = null,
+            RestaurantSystem restaurantSystem = null)
         {
             _loanSystem = loanSystem;
             _currencyManager = currencyManager;
             _cityManager = cityManager;
             _timeManager = timeManager;
             _creditCardSystem = creditCardSystem;
+            _questionManager = questionManager;
+            _restaurantSystem = restaurantSystem;
         }
 
         public void SetNetWorthSnapshot(float total, float liquid)
@@ -106,6 +112,10 @@ namespace FortuneValley.Managers.WebPanels
 
             // Vitals: credit score (300..850; defaults to 0 if no CC system).
             target.credit_score = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0;
+
+            // Activity tab: quiz streak + lifetime restaurant earnings.
+            target.current_quiz_streak = _questionManager != null ? _questionManager.CurrentStreak : 0;
+            target.lifetime_restaurant_earnings = _restaurantSystem != null ? _restaurantSystem.TotalEarned : 0f;
 
             // DTI ratio: yearly debt / yearly income, clamped 0..1. Filled
             // AFTER FillRestaurants so target.yearly_restaurant_income is
