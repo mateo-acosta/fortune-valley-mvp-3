@@ -43,12 +43,13 @@ namespace FortuneValley.Tests
             var list = new System.Collections.Generic.List<InvestmentDefinition> { _stockDef };
             SetField(_system, "_availableInvestments", list);
 
-            // Set balance directly (avoid relying on event chain)
+            // Set balance directly (avoid relying on event chain). Investment
+            // buys deduct from checking via TrySpendChecking; the InvestingBalance
+            // is now a computed property over InvestmentSystem.TotalPortfolioValue,
+            // so the legacy _investingBalance / _startingInvestingBalance backing
+            // fields no longer exist on CurrencyManager and don't need seeding.
             SetField(_currency, "_checkingBalance", 10000f);
             SetField(_currency, "_startingCheckingBalance", 10000f);
-            // Investment purchases deduct from investing balance
-            SetField(_currency, "_investingBalance", 10000f);
-            SetField(_currency, "_startingInvestingBalance", 10000f);
         }
 
         [TearDown]

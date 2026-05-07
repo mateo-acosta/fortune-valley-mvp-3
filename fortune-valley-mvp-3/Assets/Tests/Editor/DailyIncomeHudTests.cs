@@ -8,10 +8,12 @@ using FortuneValley.UI.HUD;
 namespace FortuneValley.Tests
 {
     /// <summary>
-    /// Coverage for the persistent "+$X/day" HUD readout. The HUD is a pure
+    /// Coverage for the persistent "+$X/year" HUD readout. The HUD is a pure
     /// renderer subscribed to OnTotalDailyIncomeChanged; tests drive the event
     /// directly and assert the TextMeshProUGUI text is updated with the
-    /// expected format.
+    /// expected format. The HUD scales the daily input by
+    /// LifespanConstants.DaysPerYear (= TicksPerYear) and renders /year so
+    /// the player never has to convert in their head.
     /// </summary>
     [TestFixture]
     public class DailyIncomeHudTests
@@ -44,39 +46,42 @@ namespace FortuneValley.Tests
         }
 
         [Test]
-        public void OnTotalDailyIncomeChanged_FormatsTextWithThousandsAndPerDay()
+        public void OnTotalDailyIncomeChanged_FormatsTextWithThousandsAndPerYear()
         {
+            // 1234/day * 30 ticks/year = 37020/year.
             GameEvents.RaiseTotalDailyIncomeChanged(1234f);
-            Assert.AreEqual("+$1,234/day", _text.text);
+            Assert.AreEqual("+$37,020/year", _text.text);
         }
 
         [Test]
         public void OnTotalDailyIncomeChanged_ZeroAmount_FormatsAsZero()
         {
             GameEvents.RaiseTotalDailyIncomeChanged(0f);
-            Assert.AreEqual("+$0/day", _text.text);
+            Assert.AreEqual("+$0/year", _text.text);
         }
 
         [Test]
         public void OnTotalDailyIncomeChanged_RepeatSameRoundedValue_SkipsUpdate()
         {
+            // 100/day -> 3000/year. 100.03/day -> 3000.9/year, floors to same 3000.
             GameEvents.RaiseTotalDailyIncomeChanged(100f);
             _text.text = "DIRTY";
 
-            // Same rounded total -> no rewrite.
-            GameEvents.RaiseTotalDailyIncomeChanged(100.4f);
+            // Same rounded yearly total -> no rewrite.
+            GameEvents.RaiseTotalDailyIncomeChanged(100.03f);
 
             Assert.AreEqual("DIRTY", _text.text,
-                "Same-rounded-int total must skip the redundant TMP rebuild.");
+                "Same-rounded-int yearly total must skip the redundant TMP rebuild.");
         }
 
         [Test]
         public void OnTotalDailyIncomeChanged_DifferentRoundedValue_Updates()
         {
+            // 100/day -> 3000/year, then 101/day -> 3030/year.
             GameEvents.RaiseTotalDailyIncomeChanged(100f);
             GameEvents.RaiseTotalDailyIncomeChanged(101f);
 
-            Assert.AreEqual("+$101/day", _text.text);
+            Assert.AreEqual("+$3,030/year", _text.text);
         }
 
         [Test]

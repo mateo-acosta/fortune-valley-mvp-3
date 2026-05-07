@@ -161,7 +161,8 @@ namespace FortuneValley.Tests
             var state = new GamePlayerStateDTO { game_mode = "homebase", tutorial_completed = false };
             Build(state, new[] { MakeDialog("one"), MakeDialog("two"), MakeDialog("three") });
 
-            _controller.HandleTutorialStartRequested();
+            // Skip path requires replay-mode start so the Skip button reveals.
+            _controller.HandleTutorialStartRequested(isReplay: true);
             _controller.HandleAdvanceRequested();   // reveal skip
             _controller.HandleSkipRequested();
 

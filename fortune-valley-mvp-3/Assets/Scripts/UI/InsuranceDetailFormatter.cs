@@ -34,7 +34,7 @@ namespace FortuneValley.UI
                 lotDisplayName,
                 $"${policy.MonthlyPremium:N2}/mo",
                 $"${policy.Deductible:N2}",
-                $"{policy.CoveragePercent:P0}",
+                $"{(int)System.Math.Round(policy.CoveragePercent * 100.0)}%",
                 $"${policy.TotalPremiumsPaid:N2}",
                 policy.IsPastDue ? "Past Due" : "Active",
                 coveredList);
@@ -60,7 +60,7 @@ namespace FortuneValley.UI
                 config.PolicyType.ToString(),
                 $"${config.MonthlyPremium:N2}/mo",
                 $"${config.Deductible:N2}",
-                $"{config.CoveragePercent:P0}",
+                $"{(int)System.Math.Round(config.CoveragePercent * 100.0)}%",
                 coveredNames);
         }
 

@@ -278,7 +278,9 @@ namespace FortuneValley.Tests
                 MakeStep(TutorialStepKind.Dialog, "three")
             });
 
-            _controller.HandleTutorialStartRequested();
+            // Skip-reveal is replay-only; this test exercises that behavior so
+            // start the tutorial as a replay run.
+            _controller.HandleTutorialStartRequested(isReplay: true);
             _controller.HandleAdvanceRequested();   // moves to step 1; skip revealed
             bool complete = false;
             GameEvents.OnTutorialComplete += () => complete = true;
@@ -302,7 +304,8 @@ namespace FortuneValley.Tests
             bool revealed = false;
             GameEvents.OnTutorialSkipRevealed += () => revealed = true;
 
-            _controller.HandleTutorialStartRequested();
+            // Skip-reveal only fires on replay runs, not first-pass tutorials.
+            _controller.HandleTutorialStartRequested(isReplay: true);
             Assert.IsFalse(revealed, "Skip must not be revealed on start");
 
             _controller.HandleAdvanceRequested();
@@ -321,7 +324,8 @@ namespace FortuneValley.Tests
             int revealCount = 0;
             GameEvents.OnTutorialSkipRevealed += () => revealCount++;
 
-            _controller.HandleTutorialStartRequested();
+            // Skip-reveal only fires on replay runs, not first-pass tutorials.
+            _controller.HandleTutorialStartRequested(isReplay: true);
             _controller.HandleAdvanceRequested();   // reveal
             _controller.HandleAdvanceRequested();
             _controller.HandleAdvanceRequested();
