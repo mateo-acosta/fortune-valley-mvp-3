@@ -82,3 +82,11 @@ TestResults.xml
 
 # Coach API key stored in config asset — do not commit
 Assets/Scripts/Data/CoachConfig.asset
+
+# Debug screenshots — Unity screenshot tool and ad-hoc captures
+Assets/Screenshots/
+/screenshots/
+
+# Unity Test Runner scaffolding (auto-created on PlayMode test runs)
+Assets/InitTestScene*.unity
+Assets/InitTestScene*.unity.meta
