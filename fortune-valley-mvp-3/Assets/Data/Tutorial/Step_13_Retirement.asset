@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 0
-  _dialogText: At age 65 the life ends. You'll see a scorecard showing which of your three Life Goals you hit and which you missed. That's how you'll be evaluated. There is no other ending.
+  _dialogText: 'At 65, you retire. You''ll see a scorecard of which life goals you
+    hit and which you missed. '
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

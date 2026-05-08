@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 3
-  _dialogText: You're not alone. A rival chain is buying lots and upgrading at the same time as you. Lots they buy are gone forever. If you wait too long to expand, you'll have less city to work with. That's the pressure.
+  _dialogText: 'As in life, there is always competition. A rival chain is buying
+    lots and upgrading at the same time as you. Lots they buy are able to be bought
+    back, but at a high price tag. If you wait too long to expand, you''ll have less
+    city to work with. '
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 0
-  _dialogText: Borrowing helps you grow faster. You don't have to pay for every lot or upgrade in cash. You can take a loan from the bank, just make sure you can keep up with the payments each year. Pay on time and your credit score improves, which means cheaper borrowing later. Miss payments and your score drops, which makes future loans more expensive.
+  _dialogText: Buying lots can be expensive, so taking loans may be beneficial. You
+    won't have to fork over all your cash at once, but be careful because if you
+    can't make your payments, the bank takes your business and you go bankrupt.
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

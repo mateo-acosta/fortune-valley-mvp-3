@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 1
-  _dialogText: You win by hitting Life Goals. In a moment you'll pick three of them, one Starter, one Mid, and one Ambitious. Each goal is a Total Net Worth target. The bigger the goal, the more you'll need to build.
+  _dialogText: 'In this game, you will first select your life-long goals that wou
+    want to achieve before you retire, and then try and work your way to realizing
+    them before age 65. Each goal is achieved by reaching a certain net worth. '
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

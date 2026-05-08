@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 1
-  _dialogText: Welcome to Fortune Valley. You're 25 years old, and you've just inherited one rundown restaurant in town. The next 40 years are yours to play.
+  _dialogText: 'Welcome to Fortune Valley! You''re 25 years old, and you''ve just
+    inherited your family business, which is a single restaurant in the city. '
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

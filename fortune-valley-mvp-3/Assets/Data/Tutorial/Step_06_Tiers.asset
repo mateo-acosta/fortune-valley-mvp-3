@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 0
-  _dialogText: Each restaurant has three tiers. Tier 1 is dilapidated, Tier 2 is finished, Tier 3 is thriving. You upgrade by spending cash. Higher tier means higher daily income, so upgrading is one of the strongest ways to grow.
+  _dialogText: 'Each restaurant has three tiers. Tier 1 is dilapidated, Tier 2 is
+    finished, Tier 3 is thriving. You upgrade by spending cash. Higher tier means
+    higher income. '
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

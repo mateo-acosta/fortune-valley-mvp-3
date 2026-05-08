@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 0
-  _dialogText: Net Worth is the scoreboard. It's your cash, plus investments, plus the value of every lot and upgrade you own, minus your debts. Goals realize automatically when your Net Worth crosses their threshold, and they stick once realized.
+  _dialogText: 'Since you have to have a certain net worth to achieve a goal, your
+    net worth is the scoreboard. It''s your cash, plus investments, plus the value
+    of every lot and upgrade you own (assets), minus your debts (liabilities). Build
+    your net worth to reach your goals you set. '
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

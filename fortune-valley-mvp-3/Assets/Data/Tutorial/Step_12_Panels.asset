@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 0
-  _dialogText: Four panels run your life: Loans, Investing, Question Master, and Player Profile. You can open them whenever you want. The Player Profile is your read-only snapshot of how you're doing. Goals, net worth, properties, all in one place.
+  _dialogText: Four panels run your life. Loans, Investing, Question Master, and Player Profile. Open them whenever you want. The Player Profile is your read-only snapshot of where you stand. Goals, net worth, properties, all in one place.
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

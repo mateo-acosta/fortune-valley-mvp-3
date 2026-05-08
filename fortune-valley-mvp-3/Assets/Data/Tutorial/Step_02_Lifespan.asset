@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 0
-  _dialogText: You'll live one full life from age 25 to retirement at 65. The whole life takes about 80 to 100 minutes of real time. Each year flies by in a couple of minutes. Once a year, you'll get an Annual Statement where your loans and insurance settle up.
+  _dialogText: 'As a 25 year old now in charge of your family business, you have
+    40 years to expand and reach your goals before you retire at age 65. '
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

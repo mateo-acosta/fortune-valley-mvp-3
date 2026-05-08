@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 3
-  _dialogText: If you're insolvent for five billing cycles in a row, that's soft bankruptcy. Most progress wipes: your cash, your lots besides the starter, your loans, your investments, your credit score back to 650. Your age, your Life Goals, and the bankruptcy mark on your record stay. The clock keeps ticking. Real reset, real consequence.
+  _dialogText: Can't pay your loans back and you go bankrupt. Most of what you built
+    wipes. Your age, your Life Goals, and a bankruptcy mark on your record stay with
+    you. The clock keeps ticking. It's a full reset, starting back from zero
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0

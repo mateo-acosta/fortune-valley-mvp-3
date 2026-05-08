@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 1
-  _dialogText: You can also grow money without restaurants by investing. Money invested earns more money over time. The longer it sits, the more it compounds. Higher returns come with higher risk. You'll see all of this in the Investing panel.
+  _dialogText: You can also grow money by investing. Money invested earns more money
+    over time. The longer it sits, the more it compounds. You'll see all of this
+    in the Investing panel. A great tool to build wealth if used correctly.
   _targetKind: 0
   _maskTargetKind: 0
   _hideDialog: 0
