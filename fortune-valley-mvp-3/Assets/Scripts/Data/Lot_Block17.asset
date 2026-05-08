@@ -15,9 +15,9 @@ MonoBehaviour:
   _lotId: lot_block17
   _displayName: Block 17
   _description: 
-  _baseCost: 1000
-  _incomeBonus: 5
-  _tier2UpgradeCost: 500
-  _tier3UpgradeCost: 1500
+  _baseCost: 60000
+  _incomeBonus: 42
+  _tier2UpgradeCost: 5000
+  _tier3UpgradeCost: 15000
   _rivalBuyoutMultiplier: 3
   _gridPosition: {x: 0, y: 0}

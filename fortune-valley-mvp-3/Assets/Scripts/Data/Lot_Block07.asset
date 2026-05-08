@@ -15,6 +15,6 @@ MonoBehaviour:
   _lotId: lot_block07
   _displayName: Block 7
   _description: Your flagship restaurant. It anchors your chain and generates baseline daily income.
-  _baseCost: 1200
-  _incomeBonus: 5
+  _baseCost: 50000
+  _incomeBonus: 42
   _gridPosition: {x: 0, y: 0}

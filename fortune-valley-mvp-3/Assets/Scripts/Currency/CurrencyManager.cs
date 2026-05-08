@@ -24,7 +24,7 @@ namespace FortuneValley.Core
 
         [Header("Starting Balances")]
         [Tooltip("Money the player starts with in checking")]
-        [SerializeField] private float _startingCheckingBalance = 1000f;
+        [SerializeField] private float _startingCheckingBalance = 10000f;
 
         [Header("Portfolio Reference")]
         [Tooltip("Investment system used to compute investing balance from portfolio value")]

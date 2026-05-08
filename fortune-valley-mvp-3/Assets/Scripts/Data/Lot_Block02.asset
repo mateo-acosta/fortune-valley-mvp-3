@@ -15,6 +15,6 @@ MonoBehaviour:
   _lotId: lot_block02
   _displayName: Block 2
   _description: "An upscale bistro in a trendy district \u2014 a solid mid-tier investment."
-  _baseCost: 3500
-  _incomeBonus: 12
+  _baseCost: 120000
+  _incomeBonus: 100
   _gridPosition: {x: 0, y: 0}

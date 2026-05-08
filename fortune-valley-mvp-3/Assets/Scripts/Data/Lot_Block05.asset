@@ -15,6 +15,6 @@ MonoBehaviour:
   _lotId: lot_block05
   _displayName: Block 5
   _description: "A prime downtown diner location \u2014 higher cost, but strong daily earnings."
-  _baseCost: 2000
-  _incomeBonus: 8
+  _baseCost: 80000
+  _incomeBonus: 67
   _gridPosition: {x: 0, y: 0}

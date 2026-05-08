@@ -15,6 +15,6 @@ MonoBehaviour:
   _lotId: lot_block01
   _displayName: Block 1
   _description: "A towering business complex in the financial district \u2014 the ultimate acquisition."
-  _baseCost: 10000
-  _incomeBonus: 35
+  _baseCost: 400000
+  _incomeBonus: 292
   _gridPosition: {x: 0, y: 0}

@@ -39,10 +39,10 @@ namespace FortuneValley.Core
         [SerializeField] private float _incomeBonus = 5f;
 
         [Tooltip("Cost to upgrade from Tier 1 to Tier 2")]
-        [SerializeField] private float _tier2UpgradeCost = 500f;
+        [SerializeField] private float _tier2UpgradeCost = 5000f;
 
         [Tooltip("Cost to upgrade from Tier 2 to Tier 3")]
-        [SerializeField] private float _tier3UpgradeCost = 1500f;
+        [SerializeField] private float _tier3UpgradeCost = 15000f;
 
         [Tooltip("Multiplier applied to BaseCost when the player buys this lot out from the rival")]
         [SerializeField] private float _rivalBuyoutMultiplier = 3f;

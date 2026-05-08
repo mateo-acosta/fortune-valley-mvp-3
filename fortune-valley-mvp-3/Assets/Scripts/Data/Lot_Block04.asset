@@ -15,6 +15,6 @@ MonoBehaviour:
   _lotId: lot_block04
   _displayName: Block 4
   _description: "A busy street corner with steady foot traffic \u2014 affordable and reliable."
-  _baseCost: 500
-  _incomeBonus: 2
+  _baseCost: 25000
+  _incomeBonus: 17
   _gridPosition: {x: 0, y: 0}

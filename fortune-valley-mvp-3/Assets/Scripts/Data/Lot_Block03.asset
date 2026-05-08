@@ -15,6 +15,6 @@ MonoBehaviour:
   _lotId: lot_block03
   _displayName: Block 3
   _description: "A cozy cafe spot in a charming neighborhood \u2014 solid income for the price."
-  _baseCost: 800
-  _incomeBonus: 3
+  _baseCost: 35000
+  _incomeBonus: 25
   _gridPosition: {x: 0, y: 0}
