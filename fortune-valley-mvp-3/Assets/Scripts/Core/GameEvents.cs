@@ -131,6 +131,12 @@ namespace FortuneValley.Core
         public static event Action<string> OnRivalPurchasedLot;
 
         /// <summary>
+        /// Fired when rival successfully upgrades one of its owned lots.
+        /// Parameters: lot ID, new tier (2 or 3).
+        /// </summary>
+        public static event Action<string, int> OnRivalUpgradedLot;
+
+        /// <summary>
         /// Fired when rival's money changes (for balance display).
         /// Parameter: new rival balance
         /// </summary>
@@ -453,6 +459,7 @@ namespace FortuneValley.Core
         public static void RaiseRivalTargetingLot(string lotId) => OnRivalTargetingLot?.Invoke(lotId);
         public static void RaiseRivalTargetChanged(string lotId, int daysUntil) => OnRivalTargetChanged?.Invoke(lotId, daysUntil);
         public static void RaiseRivalPurchasedLot(string lotId) => OnRivalPurchasedLot?.Invoke(lotId);
+        public static void RaiseRivalUpgradedLot(string lotId, int newTier) => OnRivalUpgradedLot?.Invoke(lotId, newTier);
         public static void RaiseRivalBalanceChanged(float balance) => OnRivalBalanceChanged?.Invoke(balance);
         public static void RaiseGameEnd(Owner winner) => OnGameEnd?.Invoke(winner);
         public static void RaiseGameEndWithSummary(bool isPlayerWin, GameSummary summary) => OnGameEndWithSummary?.Invoke(isPlayerWin, summary);
@@ -880,6 +887,7 @@ namespace FortuneValley.Core
             OnRivalTargetingLot = null;
             OnRivalTargetChanged = null;
             OnRivalPurchasedLot = null;
+            OnRivalUpgradedLot = null;
             OnRivalBalanceChanged = null;
             OnGameEnd = null;
             OnGameEndWithSummary = null;

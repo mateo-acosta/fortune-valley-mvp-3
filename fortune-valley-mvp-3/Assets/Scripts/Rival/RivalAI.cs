@@ -138,7 +138,7 @@ namespace FortuneValley.Core
 
                     if (_logBehavior)
                     {
-                        Debug.Log($"[RivalAI] New target: {newTarget} in {TicksUntilPurchase} ticks");
+                        Debug.Log($"[RivalAI] New target: {newTarget} in {TicksUntilPurchase} ticks ({TicksUntilPurchase / 10} days)");
                     }
                 }
                 else
@@ -223,7 +223,7 @@ namespace FortuneValley.Core
 
                         if (_logBehavior)
                         {
-                            Debug.Log($"[RivalAI] Warning: Targeting {_targetedLotId} in {ticksRemaining} ticks");
+                            Debug.Log($"[RivalAI] Warning: Targeting {_targetedLotId} in {ticksRemaining} ticks ({ticksRemaining / 10} days)");
                         }
                     }
                 }
@@ -235,10 +235,28 @@ namespace FortuneValley.Core
             _lastPurchaseTick = tickNumber;
             _targetedLotId = null;
 
-            // Soft cap (Life Goals revision): once the rival owns
-            // CityManager.MAX_RIVAL_LOTS, skip purchase attempts so the
-            // rival does not waste money trying to buy lots CityManager
-            // would now refuse.
+            // Branch 1: upgrade an owned lot if one is below T3 and affordable.
+            // Upgrade-before-buy gate: visible expansion arc + cash drag that
+            // keeps the rival from snowballing on cheap T1 lots.
+            string lotToUpgrade = PickLotToUpgrade(out float upgradeCost);
+            if (lotToUpgrade != null)
+            {
+                if (_cityManager.TryRivalUpgradeLot(lotToUpgrade, out float spent))
+                {
+                    _money -= spent;
+                    GameEvents.RaiseRivalBalanceChanged(_money);
+
+                    if (_logBehavior)
+                    {
+                        var upgradedLot = _cityManager.GetLot(lotToUpgrade);
+                        int newTier = _cityManager.GetTier(lotToUpgrade);
+                        Debug.Log($"[RivalAI] Upgraded {upgradedLot.DisplayName} to T{newTier} for ${spent:F0}. Remaining: ${_money:F0}");
+                    }
+                }
+                return;
+            }
+
+            // Branch 2: soft cap check before considering a buy.
             if (_cityManager != null && _cityManager.RivalAtSoftCap)
             {
                 if (_logBehavior)
@@ -248,14 +266,14 @@ namespace FortuneValley.Core
                 return;
             }
 
-            // Find a lot we can afford
+            // Branch 3: buy the cheapest affordable available lot.
             string lotToBuy = PickAffordableLot();
 
             if (lotToBuy == null)
             {
                 if (_logBehavior)
                 {
-                    Debug.Log("[RivalAI] No affordable lot found, skipping purchase");
+                    Debug.Log("[RivalAI] No affordable upgrade or lot, skipping cycle");
                 }
                 return;
             }
@@ -263,18 +281,62 @@ namespace FortuneValley.Core
             var lot = _cityManager.GetLot(lotToBuy);
             float cost = lot.BaseCost;
 
-            // Spend money and purchase
             _money -= cost;
             GameEvents.RaiseRivalBalanceChanged(_money);
             _cityManager.RivalPurchaseLot(lotToBuy, tickNumber);
 
-            // Raise event for UI feedback (overlay, etc.)
             GameEvents.RaiseRivalPurchasedLot(lotToBuy);
 
             if (_logBehavior)
             {
                 Debug.Log($"[RivalAI] Purchased {lot.DisplayName} for ${cost:F0}. Remaining: ${_money:F0}");
             }
+        }
+
+        /// <summary>
+        /// Pick the cheapest-to-upgrade rival-owned lot below T3 that we can
+        /// afford. Returns null if no rival lot needs upgrading or none are
+        /// affordable. Iterates AllLots once per decision cycle (every
+        /// _purchaseInterval ticks), not per tick.
+        /// </summary>
+        private string PickLotToUpgrade(out float cheapestCost)
+        {
+            cheapestCost = 0f;
+            string cheapestLotId = null;
+
+            if (_cityManager == null)
+            {
+                return null;
+            }
+
+            foreach (var lot in _cityManager.AllLots)
+            {
+                if (_cityManager.GetOwner(lot.LotId) != Owner.Rival)
+                {
+                    continue;
+                }
+
+                int currentTier = _cityManager.GetTier(lot.LotId);
+                if (currentTier >= 3)
+                {
+                    continue;
+                }
+
+                float costForNextTier = currentTier == 1 ? lot.Tier2UpgradeCost : lot.Tier3UpgradeCost;
+
+                if (_money < costForNextTier + _config.PurchaseBuffer)
+                {
+                    continue;
+                }
+
+                if (cheapestLotId == null || costForNextTier < cheapestCost)
+                {
+                    cheapestLotId = lot.LotId;
+                    cheapestCost = costForNextTier;
+                }
+            }
+
+            return cheapestLotId;
         }
 
         /// <summary>
@@ -348,7 +410,7 @@ namespace FortuneValley.Core
 
             return $"Rival Status:\n" +
                    $"• Money: ${_money:F0}\n" +
-                   $"• Next purchase in: {TicksUntilPurchase} days" +
+                   $"• Next decision in: {TicksUntilPurchase / 10} days" +
                    targetInfo;
         }
     }

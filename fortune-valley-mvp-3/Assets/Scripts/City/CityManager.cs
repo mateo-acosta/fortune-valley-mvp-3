@@ -484,6 +484,45 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Try to upgrade a rival-owned lot to the next tier. Sibling to
+        /// TryUpgradeLot but: requires Owner.Rival, does NOT touch the player
+        /// currency seam (rival uses its own wallet, deducted by RivalAI).
+        /// Reports the cost back via the out parameter so the caller can
+        /// debit the rival's money. Raises both OnLotTierChanged (for visuals)
+        /// and OnRivalUpgradedLot (for decision logging).
+        /// </summary>
+        /// <returns>True if upgrade succeeded</returns>
+        public bool TryRivalUpgradeLot(string lotId, out float costSpent)
+        {
+            costSpent = 0f;
+
+            var lot = GetLot(lotId);
+            if (lot == null)
+            {
+                return false;
+            }
+
+            if (GetOwner(lotId) != Owner.Rival)
+            {
+                return false;
+            }
+
+            int currentTier = GetTier(lotId);
+            if (currentTier >= 3)
+            {
+                return false;
+            }
+
+            int nextTier = currentTier + 1;
+            costSpent = nextTier == 2 ? lot.Tier2UpgradeCost : lot.Tier3UpgradeCost;
+
+            _lotTier[lotId] = nextTier;
+            GameEvents.RaiseLotTierChanged(lotId, nextTier);
+            GameEvents.RaiseRivalUpgradedLot(lotId, nextTier);
+            return true;
+        }
+
+        /// <summary>
         /// Get the current tier of a lot (1..3), or 0 if not yet owned.
         /// </summary>
         public int GetTier(string lotId)
