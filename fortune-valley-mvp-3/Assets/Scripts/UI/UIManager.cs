@@ -47,6 +47,9 @@ namespace FortuneValley.UI
         [Tooltip("HTML PlayerProfile panel bridge. When wired, ShowPanel(Profile) routes here.")]
         [SerializeField] private ProfileWebBridge _profileWebBridge;
 
+        [Tooltip("HTML lot detail panel bridge. When wired, OnLotInfoRequested routes here instead of opening the legacy LotInfoPopup.")]
+        [SerializeField] private LotWebBridge _lotWebBridge;
+
         [Header("Popup References")]
         [Tooltip("Lot purchase confirmation popup")]
         [SerializeField] private UIPopup _lotPurchasePopup;
@@ -170,6 +173,15 @@ namespace FortuneValley.UI
 
         private void HandleLotInfoRequested(string lotId)
         {
+            // Web bridge takes precedence when wired. Routes through ShowPanel
+            // so the bridge becomes _currentWebBridge and Close (via
+            // OnHidePanelRequested) tears it down through the same path.
+            if (_lotWebBridge != null)
+            {
+                _lotWebBridge.ConfigureForLotId(lotId);
+                ShowPanel(PanelType.Lots);
+                return;
+            }
             if (_lotInfoPopup == null) return;
             _lotInfoPopup.ConfigureForLotId(lotId);
             ShowPopup(_lotInfoPopup);
@@ -280,6 +292,7 @@ namespace FortuneValley.UI
                 PanelType.Loan => _creditWebBridge,
                 PanelType.QuestionMaster => _questionMasterWebBridge,
                 PanelType.Profile => _profileWebBridge,
+                PanelType.Lots => _lotWebBridge,
                 _ => null
             };
         }
@@ -307,6 +320,7 @@ namespace FortuneValley.UI
             if (_creditWebBridge != null) _creditWebBridge.Hide();
             if (_questionMasterWebBridge != null) _questionMasterWebBridge.Hide();
             if (_profileWebBridge != null) _profileWebBridge.Hide();
+            if (_lotWebBridge != null) _lotWebBridge.Hide();
             _currentPanel = null;
             _currentWebBridge = null;
         }

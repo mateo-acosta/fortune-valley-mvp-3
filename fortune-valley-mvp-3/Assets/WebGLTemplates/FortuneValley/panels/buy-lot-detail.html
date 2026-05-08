@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lot Detail - Fortune Valley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+<!-- Drop-in info-modal hook (matches Credit / Investing). 404s in standalone preview;
+     resolves when this file is dropped into Assets/WebGLTemplates/FortuneValley/panels/. -->
+<link rel="stylesheet" href="info/info-modal.css">
+<script type="module" src="info/info-modal.js"></script>
+
+<style>
+/* ============================================================
+   Fortune Valley - Lot Detail panel
+   Single self-contained file. Light "paper" panel chrome that
+   sits on top of the live game world. Same design language as
+   Investing System / Credit System; brand accent is warm amber
+   (--lot) for the restaurant-chain identity.
+
+   Two sub-layouts:
+     #panel-unowned  - Owner.None + Owner.Rival  (buy decision)
+     #panel-owned    - Owner.Player              (manage / upgrade)
+   Both share .panel-header and .panel-footer.
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --paper:    #FFFFFF;
+  --paper-2:  #F4F6FB;
+  --paper-3:  #E8ECF6;
+  --paper-4:  #DBE1F0;
+
+  /* Text */
+  --fg-1: #0E1530;
+  --fg-2: #3A4D8E;
+  --fg-3: #6B78A8;
+  --fg-4: #9AA3C2;
+
+  /* Semantic */
+  --gain: #1FA85E;  --gain-soft: #DCF3E6;
+  --loss: #E83A50;  --loss-soft: #FCE0E4;
+  --warn: #D49414;  --warn-soft: #FAEAC4;
+  --sky:  #4FB8E8;  --sky-soft:  #D6F0FB;  --sky-ink: #0C5A7A;
+
+  /* Lot panel accent */
+  --lot:      #E8A43A;
+  --lot-soft: #FDF0D5;
+  --lot-ink:  #7A4F00;
+
+  /* Radii */
+  --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* Shadows */
+  --sh-1: 0 1px 2px rgba(14,21,48,0.06), 0 2px 6px rgba(14,21,48,0.08);
+  --sh-2: 0 4px 12px rgba(14,21,48,0.10), 0 12px 28px rgba(14,21,48,0.12);
+  --sh-3: 0 12px 28px rgba(14,21,48,0.18), 0 28px 60px rgba(14,21,48,0.22);
+
+  /* Borders */
+  --bd:   1px solid rgba(14,21,48,0.08);
+  --bd-2: 1px solid rgba(14,21,48,0.14);
+
+  --ease:   cubic-bezier(0.2, 0.8, 0.2, 1);
+  --d-fast: 120ms;
+  --d-base: 200ms;
+
+  --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: var(--font);
+  color: var(--fg-1);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ----------------------------------------------------------
+   Dev state switcher (top strip). Hidden in iframe-embedded mode.
+   ---------------------------------------------------------- */
+.dev-bar {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: #1a1a2e;
+  color: #fff;
+  padding: 8px 16px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.dev-label { font-weight: 700; letter-spacing: 0.10em; opacity: 0.7; margin-right: 4px; }
+.dev-btn {
+  padding: 4px 10px; border-radius: 6px; font-size: 11px;
+  background: rgba(255,255,255,0.10);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.20);
+  cursor: pointer;
+  font-family: inherit; font-weight: 700;
+  transition: background var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease);
+}
+.dev-btn:hover { background: rgba(255,255,255,0.16); }
+.dev-btn.active {
+  background: var(--lot); color: var(--lot-ink); border-color: var(--lot);
+}
+.dev-spacer { flex: 1; }
+.dev-note { font-size: 10px; opacity: 0.5; }
+
+/* ----------------------------------------------------------
+   World (dimmed live game backdrop).
+   In embedded mode this lives behind the panel and the real
+   game scene shows through. In standalone preview the dev bar
+   pushes content down 38px.
+   ---------------------------------------------------------- */
+.world {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+}
+
+/* Topbar / dock are part of the shared world chrome on other
+   panels; the lot popup is contextual so it hides them. */
+.topbar, .dock { display: none; }
+
+/* ----------------------------------------------------------
+   Scrim + panel modal (narrow popup, not full-width like
+   Investing/Credit).
+   ---------------------------------------------------------- */
+.scrim {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 30;
+  padding: 24px;
+}
+body:not(.embedded) .scrim { padding-top: 56px; } /* leave room for dev bar */
+
+.panel {
+  position: relative;
+  width: min(500px, calc(100vw - 48px));
+  max-height: calc(100vh - 80px);
+  background: var(--paper);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-3);
+  border: var(--bd);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: panelIn 280ms var(--ease) both;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ----------------------------------------------------------
+   Shared header
+   ---------------------------------------------------------- */
+.panel-header {
+  height: 72px; flex: none;
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px 0 18px;
+  border-bottom: var(--bd);
+  background: linear-gradient(180deg, var(--paper), var(--paper-2));
+}
+.lot-icon {
+  width: 44px; height: 44px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--lot), #C47E1A);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(232,164,58,0.35);
+  border: 2px solid #fff;
+}
+.titles { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.titles .kicker {
+  font-size: 11px; font-weight: 800;
+  color: var(--lot-ink);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  line-height: 1.1;
+}
+.titles .title {
+  font-size: 20px; font-weight: 900;
+  color: var(--fg-1);
+  letter-spacing: -0.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.titles .desc {
+  font-size: 12px; font-weight: 700;
+  color: var(--fg-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.header-right {
+  display: flex; align-items: center; gap: 8px;
+  flex: none;
+}
+
+/* The status chip is a zone-pill variant. */
+.zone-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 999px;
+  font-size: 11px; font-weight: 900;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.zone-pill .dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+.zone-pill.zone-good { background: var(--gain-soft); color: var(--gain); }
+.zone-pill.zone-fair { background: var(--warn-soft); color: var(--warn); }
+.zone-pill.zone-poor { background: var(--loss-soft); color: var(--loss); }
+.zone-pill.chip-sale  { background: var(--sky-soft);  color: var(--sky-ink); }
+.zone-pill.chip-rival { background: var(--loss-soft); color: var(--loss); }
+.zone-pill.chip-owned { background: var(--lot-soft);  color: var(--lot-ink); }
+
+#balance-pill {
+  background: var(--paper-2);
+  border: var(--bd);
+  border-radius: var(--r-pill);
+  padding: 5px 12px;
+  font-size: 12px; font-weight: 800;
+  color: var(--fg-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.icon-btn-close {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--paper-2); border: var(--bd);
+  color: var(--fg-2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--d-fast) var(--ease);
+  flex: none;
+}
+.icon-btn-close:hover { background: var(--paper-3); }
+
+/* On narrow widths drop the desc and shrink kicker. */
+@media (max-width: 460px) {
+  .titles .desc { display: none; }
+  .header-right #balance-pill { display: none; }
+}
+
+/* ----------------------------------------------------------
+   Body (scrollable card stack)
+   ---------------------------------------------------------- */
+.panel-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 12px;
+  min-height: 0;
+}
+.panel-body::-webkit-scrollbar { width: 8px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--paper-4); border-radius: 8px; }
+
+/* Tab-equivalent: the two variants. */
+#panel-unowned, #panel-owned {
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+/* ----------------------------------------------------------
+   Card primitives
+   ---------------------------------------------------------- */
+.card {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  box-shadow: var(--sh-1);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.card.tinted { background: var(--paper-2); }
+
+.kicker {
+  font-size: 11px; font-weight: 800;
+  color: var(--fg-3);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 0;
+}
+.hero-num {
+  font-weight: 900; font-size: 48px;
+  letter-spacing: -0.02em; line-height: 1.0;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-1);
+}
+.story {
+  font-size: 14px; font-weight: 700;
+  color: var(--fg-2);
+  line-height: 1.5;
+}
+.story.muted { color: var(--fg-3); font-size: 12px; }
+
+/* Rival cost card: warning-tinted */
+#cost-card.is-rival {
+  background: var(--loss-soft);
+  border: 1px solid rgba(232,58,80,0.20);
+}
+#cost-card.is-rival .hero-num { color: var(--loss); }
+#cost-card.is-rival .story { color: var(--loss); }
+
+.cost-original-row {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+}
+#cost-original {
+  font-size: 16px; font-weight: 800;
+  color: var(--fg-4);
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}
+.multiplier-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--loss); color: #fff;
+  font-size: 11px; font-weight: 900;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Income card */
+#income-hero {
+  font-weight: 900; font-size: 28px;
+  color: var(--gain);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+#income-hero.no-income { color: var(--fg-3); font-size: 18px; }
+
+#income-payback {
+  font-size: 13px; font-weight: 700;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Affordability card */
+#afford-card .pill-row,
+#upgrade-card .pill-row {
+  display: flex; align-items: center; gap: 8px;
+}
+#afford-detail, #upgrade-afford-detail {
+  font-size: 13px; font-weight: 700;
+  color: var(--fg-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----------------------------------------------------------
+   Owned variant cards
+   ---------------------------------------------------------- */
+
+#tier-display {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+}
+#tier-display .tier-name {
+  font-size: 32px; font-weight: 900;
+  letter-spacing: -0.015em;
+  color: var(--fg-1);
+  line-height: 1.0;
+}
+#tier-display .tier-qual {
+  /* uses .zone-pill via class */
+}
+
+.tier-track {
+  display: flex; gap: 4px; height: 10px;
+  margin-top: 2px;
+}
+.tier-seg {
+  flex: 1;
+  border-radius: 6px;
+  background: var(--paper-3);
+  transition: background 400ms var(--ease);
+}
+.tier-seg.t1.filled { background: var(--warn); }
+.tier-seg.t2.filled { background: var(--sky); }
+.tier-seg.t3.filled { background: var(--gain); }
+
+#tier-income {
+  font-size: 18px; font-weight: 900;
+  color: var(--gain);
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+/* Upgrade card */
+#upgrade-cost-hero {
+  font-weight: 900; font-size: 28px;
+  letter-spacing: -0.01em;
+  color: var(--fg-1);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+#upgrade-cost-hero .of-tier {
+  font-size: 16px; font-weight: 800; color: var(--fg-3);
+  margin-left: 6px;
+}
+#upgrade-delta {
+  font-size: 14px; font-weight: 700;
+  color: var(--gain);
+  font-variant-numeric: tabular-nums;
+}
+#upgrade-story {
+  font-size: 12px; font-weight: 700;
+  color: var(--fg-3);
+  line-height: 1.5;
+}
+
+/* Max-tier card */
+#max-tier-card {
+  background: var(--gain-soft);
+  border: 1px solid rgba(31,168,94,0.25);
+  border-radius: var(--r-md);
+  padding: 24px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+}
+#max-tier-card .crown {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gain);
+}
+#max-tier-card .h {
+  font-size: 20px; font-weight: 900;
+  color: var(--gain);
+  letter-spacing: -0.01em;
+}
+#max-tier-card .sub {
+  font-size: 13px; font-weight: 700;
+  color: var(--fg-2);
+  line-height: 1.5;
+}
+
+/* Insurance card (feature-flag gated) */
+#insurance-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+}
+#insurance-card .ic {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--sky-soft); color: var(--sky-ink);
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+}
+#insurance-card .text {
+  flex: 1; min-width: 0;
+  font-size: 13px; font-weight: 800;
+  color: var(--fg-1);
+}
+#insurance-card .text small {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--fg-3); margin-top: 2px;
+}
+
+/* ----------------------------------------------------------
+   Footer
+   ---------------------------------------------------------- */
+.panel-footer {
+  flex: none;
+  padding: 14px 18px 16px;
+  border-top: var(--bd);
+  background: var(--paper);
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.btn {
+  font-family: var(--font); font-weight: 900;
+  border: none; cursor: pointer; border-radius: 14px;
+  padding: 14px 18px; font-size: 15px;
+  letter-spacing: -0.005em;
+  transition: transform var(--d-fast) var(--ease),
+              filter var(--d-fast) var(--ease),
+              background var(--d-fast) var(--ease);
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.btn:active:not([data-disabled="true"]):not([data-pending="true"]) {
+  transform: translateY(1px);
+}
+
+/* Lot-buy primary (cash buy, owner=none) */
+.btn-lot     { background: var(--lot);  color: var(--lot-ink); }
+.btn-lot:hover     { filter: brightness(0.96); }
+
+/* Sky primary (loan path) */
+.btn-sky     { background: var(--sky);  color: #fff; }
+.btn-sky:hover     { filter: brightness(0.94); }
+
+/* Loss primary (rival buyout, can afford) */
+.btn-loss    { background: var(--loss); color: #fff; }
+.btn-loss:hover    { filter: brightness(0.94); }
+
+/* Gain primary (upgrade) */
+.btn-gain    { background: var(--gain); color: #fff; }
+.btn-gain:hover    { filter: brightness(0.94); }
+
+/* Secondary / tertiary */
+.btn-ghost {
+  background: var(--paper-2);
+  color: var(--fg-2);
+  border: var(--bd);
+}
+.btn-ghost:hover { background: var(--paper-3); }
+
+/* Disabled (data-driven, not the HTML attribute) */
+.btn[data-disabled="true"] {
+  opacity: 0.45; cursor: not-allowed; filter: grayscale(0.3);
+}
+
+/* Pending state - small spinner inside button */
+.btn[data-pending="true"] {
+  cursor: wait;
+  opacity: 0.85;
+}
+.btn .spinner {
+  display: none;
+  width: 16px; height: 16px;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  animation: spin 700ms linear infinite;
+}
+.btn[data-pending="true"] .spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ----------------------------------------------------------
+   Confetti (in-panel burst on tier upgrade)
+   ---------------------------------------------------------- */
+.confetti-piece {
+  position: absolute; top: 56px; width: 8px; height: 8px;
+  border-radius: 2px; pointer-events: none;
+  animation: confettiFall 900ms var(--ease) forwards;
+  z-index: 5;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(220px) rotate(720deg); opacity: 0; }
+}
+
+/* Hide the body-state-toggled secondary panels when their
+   variant isn't active. Owner='none' or 'rival' → unowned;
+   owner='player' → owned. JS sets display directly. */
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- DEV-ONLY: state switcher. Hidden when in iframe-embedded mode. -->
+<div class="dev-bar" id="dev-bar" aria-hidden="true">
+  <span class="dev-label">DEV STATE:</span>
+  <button class="dev-btn active" data-state="none">For Sale</button>
+  <button class="dev-btn" data-state="rival">Rival Owned</button>
+  <button class="dev-btn" data-state="p1">My Lot T1</button>
+  <button class="dev-btn" data-state="p2">My Lot T2</button>
+  <button class="dev-btn" data-state="p3">My Lot T3</button>
+  <span class="dev-spacer"></span>
+  <span class="dev-note">Standalone preview. Hidden in iframe.</span>
+</div>
+
+<!-- Live game world dim -->
+<div class="world" aria-hidden="true"></div>
+
+<!-- Panel modal -->
+<div class="scrim">
+  <div class="panel" role="dialog" aria-labelledby="lot-name">
+
+    <!-- ===== Shared header ===== -->
+    <div class="panel-header">
+      <div class="lot-icon" aria-hidden="true">
+        <!-- Restaurant building glyph -->
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 11 L12 4 L21 11"/>
+          <path d="M5 10 V20 H19 V10"/>
+          <path d="M10 20 V14 H14 V20"/>
+        </svg>
+      </div>
+      <div class="titles">
+        <span class="kicker">Lot Details</span>
+        <span class="title" id="lot-name">Block 1</span>
+        <span class="desc" id="lot-desc">A towering business complex in the financial district.</span>
+      </div>
+      <div class="header-right">
+        <span class="zone-pill chip-sale" id="lot-status-chip">For Sale</span>
+        <span id="balance-pill">Checking: $48,200</span>
+        <button class="icon-btn-close" id="lot-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 6 L18 18"/><path d="M18 6 L6 18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== Body ===== -->
+    <div class="panel-body">
+
+      <!-- =========== NON-OWNED VARIANT =========== -->
+      <section id="panel-unowned" aria-label="Buy decision">
+
+        <!-- Card 1: Cost -->
+        <div class="card" id="cost-card">
+          <span class="kicker" id="cost-kicker">Purchase Price</span>
+          <!-- Rival-only row, hidden when owner=none -->
+          <div class="cost-original-row" id="cost-rival-row" hidden>
+            <span id="cost-original">$124,000</span>
+            <span class="multiplier-chip" id="cost-multiplier-chip">3x rival buyout</span>
+          </div>
+          <span class="hero-num" id="cost-hero">$124,000</span>
+          <span class="story" id="cost-story">Buying this lot lets you open a restaurant and earn $12,600 per year.</span>
+        </div>
+
+        <!-- Card 2: Income -->
+        <div class="card" id="income-card">
+          <span class="kicker">What You'll Earn</span>
+          <span id="income-hero">+$12,600 per year</span>
+          <span id="income-payback">Pays itself back in ~10 years</span>
+          <span id="income-sub" class="story muted">Each year this lot earns you money that compounds your buying power for the next lot.</span>
+        </div>
+
+        <!-- Card 3: Affordability -->
+        <div class="card" id="afford-card">
+          <div class="pill-row">
+            <span class="zone-pill" id="afford-chip">You can afford this!</span>
+          </div>
+          <span id="afford-detail">You have $48,200. This costs $124,000.</span>
+        </div>
+
+      </section>
+
+      <!-- =========== OWNED VARIANT =========== -->
+      <section id="panel-owned" aria-label="Manage lot" hidden>
+
+        <!-- Card 1: Tier -->
+        <div class="card" id="tier-card">
+          <span class="kicker">Current Status</span>
+          <div id="tier-display">
+            <span class="tier-name" id="tier-name">Tier 1</span>
+            <span class="zone-pill" id="tier-qual">Dilapidated</span>
+          </div>
+          <div class="tier-track" id="tier-track" aria-hidden="true">
+            <div class="tier-seg t1" data-seg="1"></div>
+            <div class="tier-seg t2" data-seg="2"></div>
+            <div class="tier-seg t3" data-seg="3"></div>
+          </div>
+          <span id="tier-income">Earning +$6,300 per year at this tier</span>
+        </div>
+
+        <!-- Card 2: Upgrade (hidden at T3) -->
+        <div class="card" id="upgrade-card">
+          <span class="kicker">Next Upgrade</span>
+          <span id="upgrade-cost-hero">$5,000<span class="of-tier"> to reach Tier 2</span></span>
+          <span id="upgrade-delta">You'd earn +$6,300 more per year after upgrading.</span>
+          <div class="pill-row">
+            <span class="zone-pill" id="upgrade-afford-chip">You can afford this!</span>
+          </div>
+          <span id="upgrade-afford-detail">You have $48,200. The upgrade costs $5,000.</span>
+          <span id="upgrade-story">Each tier multiplies your income. Getting to Tier 3 earns 4x more than Tier 1.</span>
+        </div>
+
+        <!-- Card 3: Max tier (T3 only) -->
+        <div id="max-tier-card" hidden>
+          <div class="crown" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9 L7 14 L12 6 L17 14 L21 9 L19 19 H5 Z"/>
+              <circle cx="3" cy="9" r="1.4" fill="currentColor"/>
+              <circle cx="12" cy="6" r="1.4" fill="currentColor"/>
+              <circle cx="21" cy="9" r="1.4" fill="currentColor"/>
+            </svg>
+          </div>
+          <span class="h">Thriving. Maximum Tier.</span>
+          <span class="sub" id="max-tier-sub">This lot is earning $25,200 per year, the maximum possible. It compounds into everything else you do.</span>
+        </div>
+
+        <!-- Card 4: Insurance (feature-flag gated) -->
+        <div class="card" id="insurance-card" hidden>
+          <div class="ic">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3 L20 6 V12 C20 17 16 20.5 12 21 C8 20.5 4 17 4 12 V6 Z"/>
+              <path d="M9 12 L11 14 L15 10"/>
+            </svg>
+          </div>
+          <div class="text">
+            Protect this lot from accidents
+            <small>Insurance keeps your income flowing if something goes wrong.</small>
+          </div>
+        </div>
+
+      </section>
+
+    </div><!-- /.panel-body -->
+
+    <!-- ===== Footer ===== -->
+    <div class="panel-footer">
+
+      <!-- Non-owned footer buttons -->
+      <button class="btn btn-lot" id="buy-btn" data-bind="buy-btn">
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="buy-btn-label">Buy This Lot</span>
+      </button>
+      <button class="btn btn-ghost" id="close-unowned">Close</button>
+
+      <!-- Owned footer buttons -->
+      <button class="btn btn-gain" id="upgrade-btn" data-bind="upgrade-btn" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="upgrade-btn-label">Upgrade to Tier 2</span>
+      </button>
+      <button class="btn btn-sky" id="insurance-btn-footer" hidden>Insure This Lot</button>
+      <button class="btn btn-ghost" id="close-owned" hidden>Close</button>
+
+    </div>
+
+  </div><!-- /.panel -->
+</div><!-- /.scrim -->
+
+<script>
+/* ============================================================
+   Lot Detail panel - script
+   ============================================================ */
+
+/* ---- Mock data + local panel state --------------------------
+   Numbers are designer-friendly previews when this file is opened
+   standalone. The bridge replaces all of them via update(payload).
+   All income figures are yearly so the standalone view matches the
+   panel's yearly copy.
+   ----------------------------------------------------------- */
+const MOCK = {
+  lotId:           "lot_block01",
+  displayName:     "Block 1",
+  description:     "A towering business complex in the financial district.",
+  baseCost:        124000,
+  resolvedCost:    124000,
+  rivalMultiplier: 3,
+  tier2Cost:       5000,
+  tier3Cost:       15000,
+  incomePerYear:              12600,   // T2 baseline yearly
+  incomeAtCurrentTierPerYear: 6300,    // T1 default for preview (0.5x)
+  incomeAtNextTierPerYear:    12600,   // T2 (1x)
+  paybackYears:    10,
+  checkingBalance: 48200,
+  insuranceEnabled: false,
+  upgradePending:  false,
+  isMaxTier:       false,
+};
+
+let panelState = Object.assign({}, MOCK, {
+  owner: 'none',  // 'none' | 'rival' | 'player'
+  tier:  0,       // only meaningful when owner === 'player'
+});
+
+/* ---- Helpers ---------------------------------------------- */
+function $(sel) { return document.querySelector(sel); }
+function fmtMoney(n) {
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+function resolvedCost() {
+  // Bridge ships resolvedCost pre-computed (handles rival multiplier).
+  // Fallback to multiplying baseCost in case of partial payload (mock view).
+  if (panelState.resolvedCost != null) return panelState.resolvedCost;
+  if (panelState.owner === 'rival') return panelState.baseCost * panelState.rivalMultiplier;
+  return panelState.baseCost;
+}
+function nextUpgradeCost() {
+  if (panelState.tier === 1) return panelState.tier2Cost;
+  if (panelState.tier === 2) return panelState.tier3Cost;
+  return 0;
+}
+function fmtPaybackYears(years) {
+  // -1 sentinel = no income, payback not applicable.
+  if (years == null || years < 0) return null;
+  if (years === 0) return 'Pays itself back in under a year';
+  if (years === 1) return 'Pays itself back in ~1 year';
+  return 'Pays itself back in ~' + years.toLocaleString('en-US') + ' years';
+}
+function safeIntent(system, action, args) {
+  try {
+    if (window.parent && window.parent !== window && window.parent.FV && typeof window.parent.FV.requestIntent === 'function') {
+      window.parent.FV.requestIntent(system, action, args || {});
+      return true;
+    }
+  } catch (e) { /* fall through */ }
+  console.log('[FV.lot] intent (no bridge):', system, action, args);
+  return false;
+}
+
+/* ---- Header rendering -------------------------------------- */
+function updateHeader() {
+  $('#lot-name').textContent = panelState.displayName;
+  $('#lot-desc').textContent = panelState.description;
+  updateBalancePill(panelState.checkingBalance);
+  updateStatusChip();
+}
+
+function updateBalancePill(balance) {
+  $('#balance-pill').textContent = 'Checking: ' + fmtMoney(balance);
+}
+
+function updateStatusChip() {
+  const chip = $('#lot-status-chip');
+  chip.className = 'zone-pill';
+  const o = panelState.owner;
+  if (o === 'none')   { chip.classList.add('chip-sale');  chip.textContent = 'For Sale'; }
+  if (o === 'rival')  { chip.classList.add('chip-rival'); chip.textContent = 'Rival Owned'; }
+  if (o === 'player') { chip.classList.add('chip-owned'); chip.textContent = 'Tier ' + panelState.tier; }
+}
+
+/* ---- Non-owned variant ------------------------------------- */
+function renderUnownedVariant() {
+  const isRival = panelState.owner === 'rival';
+  const cost    = resolvedCost();
+
+  // Cost card
+  const costCard   = $('#cost-card');
+  const costKicker = $('#cost-kicker');
+  const rivalRow   = $('#cost-rival-row');
+  const costHero   = $('#cost-hero');
+  const costStory  = $('#cost-story');
+
+  if (isRival) {
+    costCard.classList.add('is-rival');
+    costKicker.textContent = 'Rival Buyout Price';
+    rivalRow.hidden = false;
+    $('#cost-original').textContent = fmtMoney(panelState.baseCost);
+    $('#cost-multiplier-chip').textContent = panelState.rivalMultiplier + 'x rival buyout';
+    costHero.textContent = fmtMoney(cost);
+    costStory.textContent = "The rival owns this lot. You waited, and now it costs " + panelState.rivalMultiplier + "x the original price. This is opportunity cost.";
+  } else {
+    costCard.classList.remove('is-rival');
+    costKicker.textContent = 'Purchase Price';
+    rivalRow.hidden = true;
+    costHero.textContent = fmtMoney(cost);
+    costStory.textContent = "Buying this lot lets you open a restaurant and earn " + fmtMoney(panelState.incomePerYear) + " per year.";
+  }
+
+  // Income card. Bridge ships incomePerYear as the baseline (T2 equivalent)
+  // for unowned lots; payback is also pre-computed in whole years.
+  const incomeHero    = $('#income-hero');
+  const incomePayback = $('#income-payback');
+  const incomeSub     = $('#income-sub');
+  if (panelState.incomePerYear > 0) {
+    incomeHero.textContent = '+' + fmtMoney(panelState.incomePerYear) + ' per year';
+    incomeHero.classList.remove('no-income');
+    const paybackCopy = fmtPaybackYears(panelState.paybackYears);
+    if (paybackCopy) {
+      incomePayback.textContent = paybackCopy;
+      incomePayback.style.display = '';
+    } else {
+      incomePayback.style.display = 'none';
+    }
+    incomeSub.style.display = '';
+  } else {
+    incomeHero.textContent = 'No income bonus';
+    incomeHero.classList.add('no-income');
+    incomePayback.style.display = 'none';
+    incomeSub.style.display = 'none';
+  }
+
+  // Affordability
+  renderUnownedAfford();
+
+  // Footer state
+  $('#buy-btn').hidden = false;
+  $('#close-unowned').hidden = false;
+  $('#upgrade-btn').hidden = true;
+  $('#insurance-btn-footer').hidden = true;
+  $('#close-owned').hidden = true;
+}
+
+function renderUnownedAfford() {
+  const cost   = resolvedCost();
+  const bal    = panelState.checkingBalance;
+  const can    = bal >= cost;
+  const chip   = $('#afford-chip');
+  const detail = $('#afford-detail');
+  const btn    = $('#buy-btn');
+  const lbl    = $('#buy-btn-label');
+
+  chip.className = 'zone-pill';
+  if (can) {
+    chip.classList.add('zone-good');
+    chip.textContent = 'You can afford this!';
+    detail.textContent = 'You have ' + fmtMoney(bal) + '. This costs ' + fmtMoney(cost) + '.';
+  } else {
+    chip.classList.add('zone-poor');
+    const need = cost - bal;
+    chip.textContent = 'Need ' + fmtMoney(need) + ' more to buy with cash';
+    detail.textContent = 'Tap Buy to explore loan options.';
+  }
+
+  // Buy button label + style
+  btn.classList.remove('btn-lot', 'btn-sky', 'btn-loss', 'btn-gain');
+  if (panelState.owner === 'rival') {
+    if (can) {
+      btn.classList.add('btn-loss');
+      lbl.textContent = 'Buy from Rival, ' + fmtMoney(cost);
+    } else {
+      btn.classList.add('btn-sky');
+      lbl.textContent = 'Explore Loan Options';
+    }
+  } else {
+    // owner === 'none'
+    if (can) {
+      btn.classList.add('btn-lot');
+      lbl.textContent = 'Buy This Lot';
+    } else {
+      btn.classList.add('btn-sky');
+      lbl.textContent = 'Explore Loan Options';
+    }
+  }
+}
+
+/* ---- Owned variant ----------------------------------------- */
+function renderOwnedVariant() {
+  const tier = panelState.tier;
+  const tierName = $('#tier-name');
+  const tierQual = $('#tier-qual');
+
+  tierName.textContent = 'Tier ' + tier;
+  tierQual.className = 'zone-pill';
+  if (tier === 1) { tierQual.classList.add('zone-fair'); tierQual.textContent = 'Dilapidated'; }
+  if (tier === 2) { tierQual.classList.add('chip-sale'); tierQual.textContent = 'Established'; }
+  if (tier === 3) { tierQual.classList.add('zone-good'); tierQual.textContent = 'Thriving'; }
+
+  // Three-segment track
+  document.querySelectorAll('.tier-seg').forEach(seg => {
+    const segIdx = parseInt(seg.dataset.seg, 10);
+    seg.classList.toggle('filled', segIdx <= tier);
+  });
+
+  // Tier income. Bridge supplies the yearly figure pre-computed.
+  const incNow = panelState.incomeAtCurrentTierPerYear || 0;
+  $('#tier-income').textContent = 'Earning +' + fmtMoney(incNow) + ' per year at this tier';
+
+  // Upgrade card vs max-tier card. isMaxTier flag is authoritative.
+  if (!panelState.isMaxTier && tier < 3) {
+    $('#upgrade-card').hidden = false;
+    $('#max-tier-card').hidden = true;
+    const upgradeCost = nextUpgradeCost();
+    const nextTier    = tier + 1;
+    const incomeAfter = panelState.incomeAtNextTierPerYear || 0;
+    const delta       = Math.max(0, incomeAfter - incNow);
+
+    $('#upgrade-cost-hero').innerHTML = fmtMoney(upgradeCost) + '<span class="of-tier"> to reach Tier ' + nextTier + '</span>';
+    $('#upgrade-delta').textContent = "You'd earn +" + fmtMoney(delta) + ' more per year after upgrading.';
+
+    renderUpgradeAfford();
+  } else {
+    $('#upgrade-card').hidden = true;
+    $('#max-tier-card').hidden = false;
+    $('#max-tier-sub').textContent = 'This lot is earning ' + fmtMoney(incNow) + ' per year, the maximum possible. It compounds into everything else you do.';
+  }
+
+  // Insurance card + button (feature flag)
+  const ins = !!panelState.insuranceEnabled;
+  $('#insurance-card').hidden = !ins;
+  $('#insurance-btn-footer').hidden = !ins;
+
+  // Footer button visibility
+  $('#buy-btn').hidden = true;
+  $('#close-unowned').hidden = true;
+  $('#close-owned').hidden = false;
+  $('#upgrade-btn').hidden = (tier === 3);
+
+  // Upgrade button enabled / pending state
+  applyUpgradeBtnState();
+}
+
+function renderUpgradeAfford() {
+  if (panelState.tier >= 3) return;
+  const cost   = nextUpgradeCost();
+  const bal    = panelState.checkingBalance;
+  const can    = bal >= cost;
+  const chip   = $('#upgrade-afford-chip');
+  const detail = $('#upgrade-afford-detail');
+
+  chip.className = 'zone-pill';
+  if (can) {
+    chip.classList.add('zone-good');
+    chip.textContent = 'You can afford this!';
+    detail.textContent = 'You have ' + fmtMoney(bal) + '. The upgrade costs ' + fmtMoney(cost) + '.';
+  } else {
+    chip.classList.add('zone-poor');
+    chip.textContent = 'Need ' + fmtMoney(cost - bal) + ' more';
+    detail.textContent = 'Save up or earn more from your other lots.';
+  }
+  applyUpgradeBtnState();
+}
+
+function applyUpgradeBtnState() {
+  const btn = $('#upgrade-btn');
+  const lbl = $('#upgrade-btn-label');
+  const tier = panelState.tier;
+  if (tier >= 3) {
+    btn.hidden = true;
+    return;
+  }
+  btn.hidden = false;
+  const nextTier = tier + 1;
+
+  if (panelState.upgradePending) {
+    btn.dataset.pending = 'true';
+    btn.dataset.disabled = 'true';
+    lbl.textContent = 'Upgrading...';
+    return;
+  }
+  delete btn.dataset.pending;
+
+  const cost = nextUpgradeCost();
+  const can  = panelState.checkingBalance >= cost;
+  if (can) {
+    delete btn.dataset.disabled;
+  } else {
+    btn.dataset.disabled = 'true';
+  }
+  lbl.textContent = 'Upgrade to Tier ' + nextTier;
+}
+
+/* ---- Top-level render -------------------------------------- */
+function renderPanel() {
+  const o = panelState.owner;
+  const isUnowned = (o === 'none' || o === 'rival');
+  $('#panel-unowned').hidden = !isUnowned;
+  $('#panel-owned').hidden   = (o !== 'player');
+
+  updateHeader();
+  if (isUnowned)        renderUnownedVariant();
+  else if (o==='player') renderOwnedVariant();
+}
+
+function updateAffordability() {
+  if (panelState.owner === 'player') renderUpgradeAfford();
+  else                                renderUnownedAfford();
+}
+
+/* ---- Confetti ---------------------------------------------- */
+function triggerConfetti() {
+  const panel = document.querySelector('.panel');
+  if (!panel) return;
+  const colors = ['var(--lot)', 'var(--gain)', 'var(--sky)', '#fff'];
+  const pieces = [];
+  for (let i = 0; i < 24; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (10 + Math.random() * 80) + '%';
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = (Math.random() * 400) + 'ms';
+    panel.appendChild(piece);
+    pieces.push(piece);
+  }
+  setTimeout(() => pieces.forEach(p => p.remove()), 1200);
+}
+
+/* ---- Outbound intents -------------------------------------- */
+function buyLot() {
+  const cost   = resolvedCost();
+  const can    = panelState.checkingBalance >= cost;
+  if (can) {
+    safeIntent('lot', 'purchaseLot', { lotId: panelState.lotId, loanId: 0 });
+  } else {
+    safeIntent('lot', 'exploreLoan', { lotId: panelState.lotId, loanId: 0 });
+  }
+  // Bridge fires HidePanelRequested itself on cash-buy / loan-explore;
+  // we still animate out locally for the standalone preview.
+  closePanel(/* requestHide */ false);
+}
+
+function upgradeLot() {
+  if (panelState.upgradePending) return;
+  const btn = $('#upgrade-btn');
+  if (btn.dataset.disabled === 'true') return;
+
+  // Optimistic local lock so a fast double-click doesn't re-fire before
+  // the bridge's update() pushes upgradePending=true. Bridge clears it
+  // when OnLotTierChanged arrives.
+  panelState.upgradePending = true;
+  applyUpgradeBtnState();
+  safeIntent('lot', 'upgradeLot', { lotId: panelState.lotId, loanId: 0 });
+
+  // Standalone preview only: simulate the bridge response so designers
+  // can see the tier change + confetti without the game running.
+  if (!isEmbedded()) {
+    setTimeout(() => {
+      const next = Math.min(3, panelState.tier + 1);
+      const prev = panelState.tier;
+      panelState.tier = next;
+      panelState.upgradePending = false;
+      panelState.isMaxTier = next >= 3;
+      panelState.incomeAtCurrentTierPerYear = panelState.incomePerYear * [0, 0.5, 1, 2][next];
+      panelState.incomeAtNextTierPerYear = next < 3 ? panelState.incomePerYear * [0, 0.5, 1, 2][next + 1] : 0;
+      if (panelState.owner === 'player') renderOwnedVariant();
+      if (next > prev) triggerConfetti();
+    }, 700);
+  }
+}
+
+function insureLot() {
+  safeIntent('lot', 'insureLot', { lotId: panelState.lotId, loanId: 0 });
+  closePanel(/* requestHide */ false);
+}
+
+function closePanel(requestHide) {
+  // Default to firing the close intent. Outbound action handlers above
+  // pass false because they already trigger HidePanelRequested via their
+  // own intents downstream.
+  if (requestHide !== false) {
+    safeIntent('lot', 'close', {});
+  }
+  // In standalone preview, animate out so the designer sees the close.
+  if (!isEmbedded()) {
+    const panel = document.querySelector('.panel');
+    if (panel) {
+      panel.style.transition = 'opacity 200ms var(--ease), transform 200ms var(--ease)';
+      panel.style.opacity = '0';
+      panel.style.transform = 'translateY(8px) scale(0.99)';
+    }
+  }
+}
+
+function isEmbedded() {
+  try { return window.self !== window.top; } catch (e) { return true; }
+}
+
+/* ---- Inbound bridge (Unity calls window.FV.lot.update) ------
+   The host's dispatchUpdate calls fv.lot.update(payload) for every
+   FVBridge_UpdatePanel("lot", json) push from C#. Payload shape is
+   LotPanelDTO; see Assets/Scripts/Domain/Entities/WebPanels/LotPanelDTO.cs.
+   ----------------------------------------------------------- */
+window.FV = window.FV || {};
+window.FV.lot = {
+  update: function (payload) {
+    if (!payload) return;
+
+    // Capture prior state for tier-delta confetti detection.
+    const priorTier = panelState.tier;
+    const priorOwner = panelState.owner;
+
+    // Merge payload over current state. Bridge ships every field on
+    // every push, so this is a full replacement; the merge is just
+    // defensive for partial-payload pushes during migration.
+    Object.assign(panelState, payload);
+
+    // Confetti trigger: only when an owned lot's tier increased.
+    // Skip when ownership transitioned (e.g., None -> Player) so the
+    // newly-purchased T1 doesn't flash confetti by accident.
+    const ownerUnchanged = priorOwner === panelState.owner;
+    const tierIncreased = panelState.tier > priorTier;
+    if (ownerUnchanged && panelState.owner === 'player' && tierIncreased) {
+      triggerConfetti();
+    }
+
+    renderPanel();
+  }
+};
+
+/* ---- Wire up buttons --------------------------------------- */
+$('#buy-btn').addEventListener('click', () => buyLot());
+$('#close-unowned').addEventListener('click', () => closePanel());
+$('#upgrade-btn').addEventListener('click', () => upgradeLot());
+$('#insurance-btn-footer').addEventListener('click', () => insureLot());
+$('#close-owned').addEventListener('click', () => closePanel());
+$('#lot-close').addEventListener('click', () => closePanel());
+
+/* ---- Dev state switcher ------------------------------------ */
+(function () {
+  const devBar = document.getElementById('dev-bar');
+  if (isEmbedded()) {
+    devBar.style.display = 'none';
+    document.body.classList.add('embedded');
+    return;
+  }
+
+  function setDevState(state) {
+    document.querySelectorAll('.dev-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.state === state);
+    });
+    panelState.upgradePending = false; // reset across switches
+
+    // Tier multipliers mirror CityLotDefinition.GetIncomeAtTier (T1=0.5x, T2=1x, T3=2x).
+    const tierMul = [0, 0.5, 1, 2];
+    function applyTier(t) {
+      panelState.tier = t;
+      panelState.incomeAtCurrentTierPerYear = panelState.incomePerYear * tierMul[t];
+      panelState.incomeAtNextTierPerYear = t < 3 ? panelState.incomePerYear * tierMul[t + 1] : 0;
+      panelState.isMaxTier = t >= 3;
+      // Recompute payback off the tier-relevant figure for owned previews.
+      const yearly = panelState.incomeAtCurrentTierPerYear;
+      panelState.paybackYears = yearly > 0 ? Math.max(0, Math.ceil(panelState.resolvedCost / yearly)) : -1;
+    }
+
+    if (state === 'none')  {
+      panelState.owner = 'none';
+      panelState.tier = 0;
+      panelState.resolvedCost = panelState.baseCost;
+      panelState.isMaxTier = false;
+      panelState.paybackYears = panelState.incomePerYear > 0
+        ? Math.ceil(panelState.baseCost / panelState.incomePerYear) : -1;
+    }
+    if (state === 'rival') {
+      panelState.owner = 'rival';
+      panelState.tier = 0;
+      panelState.resolvedCost = panelState.baseCost * panelState.rivalMultiplier;
+      panelState.isMaxTier = false;
+      panelState.paybackYears = panelState.incomePerYear > 0
+        ? Math.ceil(panelState.resolvedCost / panelState.incomePerYear) : -1;
+    }
+    if (state === 'p1')    { panelState.owner = 'player'; applyTier(1); }
+    if (state === 'p2')    { panelState.owner = 'player'; applyTier(2); }
+    if (state === 'p3')    { panelState.owner = 'player'; applyTier(3); }
+
+    // Restore original panel transform if a previous close animated it out.
+    const panel = document.querySelector('.panel');
+    panel.style.opacity = '';
+    panel.style.transform = '';
+    panel.style.transition = '';
+
+    renderPanel();
+  }
+
+  document.querySelectorAll('.dev-btn').forEach(b => {
+    b.addEventListener('click', () => setDevState(b.dataset.state));
+  });
+})();
+
+/* ---- Boot -------------------------------------------------- */
+renderPanel();
+
+// Signal readiness to host (no-op in standalone preview).
+try {
+  if (window.parent && window.parent !== window && window.parent.FV && typeof window.parent.FV.iframeReady === 'function') {
+    window.parent.FV.iframeReady('lot');
+  }
+} catch (e) {}
+</script>
+
+</body>
+</html>
