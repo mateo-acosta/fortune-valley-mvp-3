@@ -12,26 +12,45 @@ namespace FortuneValley.City
     /// </summary>
     public class BlockController : MonoBehaviour
     {
+        private const int SlotCount = 3;
+
         [Header("Identity")]
         [Tooltip("The single player-ownable lot on this block. Purchasing or upgrading this lot drives block state.")]
         [SerializeField] private CityLotDefinition _ownedLot;
 
+        [Tooltip("Optional seed source for ambient (non-interactive) blocks that have no _ownedLot. Leave blank for normal blocks; LotId is used as the seed.")]
+        [SerializeField] private string _seedOverride;
+
         /// <summary>Lot definition this block owns. Null on ambient (non-interactive) blocks.</summary>
         public CityLotDefinition OwnedLot => _ownedLot;
+
+        /// <summary>3 anchor Transforms where neighbor cosmetic prefabs are seeded.</summary>
+        public Transform[] CosmeticSlots => _cosmeticSlots;
 
         [Header("Glow")]
         [SerializeField] private BlockEdgeGlow _edgeGlow;
 
         [Header("Cosmetic Slots (Phase 2 picker anchors)")]
         [Tooltip("3 anchor Transforms where Phase 2 variant prefabs will spawn. Not used in Phase 1.")]
-        [SerializeField] private Transform[] _cosmeticSlots = new Transform[3];
+        [SerializeField] private Transform[] _cosmeticSlots = new Transform[SlotCount];
 
         [Header("Neighbor Buildings (Phase 1 visibility swap)")]
-        [Tooltip("3 pre-placed cosmetic neighbor buildings on this block. Revealed one per tier as the owned lot upgrades.")]
-        [SerializeField] private GameObject[] _neighborBuildings = new GameObject[3];
+        [Tooltip("3 cosmetic neighbor buildings on this block, populated by the Block Scene Seeder. Revealed one per tier as the owned lot upgrades.")]
+        [SerializeField] private GameObject[] _neighborBuildings = new GameObject[SlotCount];
 
         [Tooltip("3 vacant-lot dirt meshes, one per neighbor slot. Shown when that neighbor's building is still hidden.")]
-        [SerializeField] private GameObject[] _neighborVacantMeshes = new GameObject[3];
+        [SerializeField] private GameObject[] _neighborVacantMeshes = new GameObject[SlotCount];
+
+        /// <summary>
+        /// Seed source for the editor scene seeder. Returns the override if set, else the lot id.
+        /// Returns null for blocks that have neither (the seeder skips those with a warning).
+        /// </summary>
+        public string GetSeedSource()
+        {
+            if (!string.IsNullOrEmpty(_seedOverride)) return _seedOverride;
+            if (_ownedLot != null) return _ownedLot.LotId;
+            return null;
+        }
 
         private void OnEnable()
         {
