@@ -1236,10 +1236,13 @@ function renderGraph(svgEl, data, opts={}) {
     xticks += `<text class="graph-axis" x="${x(0).toFixed(1)}" y="${h-6}" text-anchor="start">Start</text>`;
     xticks += `<text class="graph-axis" x="${x(data.length-1).toFixed(1)}" y="${h-6}" text-anchor="end">Now</text>`;
   } else {
-    for (let i=0; i<data.length; i+=5) {
-      xticks += `<text class="graph-axis" x="${x(i).toFixed(1)}" y="${h-6}" text-anchor="middle">d${i+1}</text>`;
+    // Leftmost = oldest ("N days ago"), rightmost = "Now". Loop stops one short
+    // of the final index so the last tick never collides with the "Now" label.
+    for (let i=0; i<data.length-1; i+=5) {
+      const daysAgo = data.length - i;
+      xticks += `<text class="graph-axis" x="${x(i).toFixed(1)}" y="${h-6}" text-anchor="middle">${daysAgo}</text>`;
     }
-    xticks += `<text class="graph-axis" x="${x(data.length-1).toFixed(1)}" y="${h-6}" text-anchor="middle">d${data.length}</text>`;
+    xticks += `<text class="graph-axis" x="${x(data.length-1).toFixed(1)}" y="${h-6}" text-anchor="middle">Now</text>`;
   }
 
   // Path
