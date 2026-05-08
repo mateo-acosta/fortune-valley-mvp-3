@@ -20,6 +20,8 @@ namespace FortuneValley.UI.HUD
         [SerializeField] private TextMeshProUGUI _valueText;
         [SerializeField] private string _format = "+${0:N0}/year";
 
+        private int _lastRoundedYearly = int.MinValue;
+
         private void OnEnable()
         {
             GameEvents.OnTick += HandleTick;
@@ -51,7 +53,12 @@ namespace FortuneValley.UI.HUD
             float ratePerTick = _restaurantSystem != null ? _restaurantSystem.TotalIncomePerTick : 0f;
             int ticksPerDay = _timeManager != null ? _timeManager.EnginePulsesPerTick : 1;
             float ratePerYear = ratePerTick * ticksPerDay * LifespanConstants.TicksPerYear;
-            _valueText.text = string.Format(_format, ratePerYear);
+
+            int rounded = Mathf.FloorToInt(ratePerYear);
+            if (rounded == _lastRoundedYearly) return;
+            _lastRoundedYearly = rounded;
+
+            _valueText.text = string.Format(_format, rounded);
         }
     }
 }
