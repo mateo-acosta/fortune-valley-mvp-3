@@ -16,6 +16,7 @@ MonoBehaviour:
   _description: A giant industrial company making engines, turbines, and energy equipment.
     Solid performer tied to infrastructure spending and economic cycles.
   _category: 0
+  _industry: 0
   _riskLevel: 1
   _annualReturnRate: 0.08
   _volatilityRange: {x: 0.83, y: 1.17}
@@ -23,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 25
   _basePricePerShare: 120
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

@@ -16,10 +16,12 @@ MonoBehaviour:
   _description: A major online retail company. High growth potential but prices can
     swing wildly.
   _category: 0
+  _industry: 0
   _riskLevel: 1
-  _annualReturnRate: 0.10
+  _annualReturnRate: 0.1
   _volatilityRange: {x: 0.72, y: 1.28}
   _compoundingFrequency: 30
   _compoundsPerYear: 12
   _minimumDeposit: 50
   _basePricePerShare: 150
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

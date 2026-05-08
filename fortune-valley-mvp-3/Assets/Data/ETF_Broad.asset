@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: ETF_Broad
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.InvestmentDefinition
   _displayName: Total Market 500
-  _description: A basket of the 500 largest companies. The default lazy investor pick.
+  _description: A basket of the 500 largest companies. The default lazy investor
+    pick.
   _category: 1
+  _industry: 0
   _riskLevel: 1
   _annualReturnRate: 0.08
   _volatilityRange: {x: 1, y: 1}
@@ -22,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 100
   _basePricePerShare: 110
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

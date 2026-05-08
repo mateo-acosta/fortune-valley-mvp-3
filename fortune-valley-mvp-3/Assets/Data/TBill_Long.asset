@@ -15,6 +15,7 @@ MonoBehaviour:
   _displayName: Treasury 1-Year
   _description: A one-year government bill. Slightly higher yield, money locked longer.
   _category: 3
+  _industry: 0
   _riskLevel: 0
   _annualReturnRate: 0.035
   _volatilityRange: {x: 1, y: 1}
@@ -22,3 +23,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 100
   _basePricePerShare: 100
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

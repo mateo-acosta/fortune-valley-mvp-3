@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: HealthcareETF
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.InvestmentDefinition
   _displayName: Healthcare ETF (XLV)
-  _description: Large healthcare and pharmaceutical companies. Defensive sector that performs well in downturns.
+  _description: Large healthcare and pharmaceutical companies. Defensive sector that
+    performs well in downturns.
+  _category: 0
+  _industry: 0
   _riskLevel: 1
   _annualReturnRate: 0.09
   _volatilityRange: {x: 0.85, y: 1.15}
@@ -21,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 50
   _basePricePerShare: 75
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

@@ -13,10 +13,15 @@ MonoBehaviour:
   m_Name: CryptoETF
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.InvestmentDefinition
   _displayName: Crypto ETF
-  _description: Tracks cryptocurrency prices. The most volatile investment - massive gains or devastating losses are both possible.
+  _description: Tracks cryptocurrency prices. The most volatile investment - massive
+    gains or devastating losses are both possible.
+  _category: 0
+  _industry: 0
   _riskLevel: 2
-  _annualReturnRate: 0.30
-  _volatilityRange: {x: 0.40, y: 1.60}
+  _annualReturnRate: 0.3
+  _volatilityRange: {x: 0.4, y: 1.6}
   _compoundingFrequency: 30
   _compoundsPerYear: 12
   _minimumDeposit: 25
+  _basePricePerShare: 50
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

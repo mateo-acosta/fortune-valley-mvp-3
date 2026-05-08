@@ -64,6 +64,14 @@ namespace FortuneValley.Core
         [Tooltip("Starting price per share")]
         [SerializeField] private float _basePricePerShare = 50f;
 
+        [Tooltip("Shared tuning asset for the stochastic price model. If left null, a runtime default with the same baked-in values is used.")]
+        [SerializeField] private StockPriceModelConfig _priceModelConfig;
+
+        // Lazy fallback so existing instrument assets keep working until the
+        // shared config is wired. Created once per session, shared across all
+        // InvestmentDefinitions that have no explicit config asset.
+        private static StockPriceModelConfig _runtimeDefaultConfig;
+
         // Runtime price state (not serialized, reset at game start via InitializePrice)
         private float _currentPrice;
         private float _trendDirection;  // -1 to +1, persists between ticks for momentum
@@ -243,8 +251,12 @@ namespace FortuneValley.Core
 
         /// <summary>
         /// Single-step price update shared by UpdatePrice and SimulateHistory.
-        /// Advances the price by one day using mean-reverting model with trend momentum.
-        /// All randomness comes from the provided System.Random instance.
+        /// Advances the price by one day. All randomness comes from the provided
+        /// System.Random instance so charts stay deterministic across students.
+        ///
+        /// Model: drift + persistent trend + Gaussian noise + soft cubic mean
+        /// reversion + rare jump events. Designed so low-risk assets look smooth
+        /// and trending, high-risk assets look noisy and short-term mean-reverting.
         /// </summary>
         private void StepPrice(ref float price, ref float trend, int dayCount, System.Random rng)
         {
@@ -258,61 +270,80 @@ namespace FortuneValley.Core
                 return;
             }
 
-            // Step 1: Maybe reverse trend direction
-            float reversalChance = _riskLevel switch
-            {
-                RiskLevel.Low    => 0.20f,
-                RiskLevel.Medium => 0.10f,
-                RiskLevel.High   => 0.05f,
-                _                => 0.10f
-            };
+            StockPriceModelConfig cfg = ResolvedPriceModelConfig;
 
+            // Step 1: Trend reversal. Inverted from the previous table to match
+            // real-market behavior: low-vol assets carry momentum, high-vol assets
+            // revert in the short run.
+            float reversalChance = cfg.GetReversalChance(_riskLevel);
             if (rng.NextDouble() < reversalChance)
                 trend = -Mathf.Sign(trend) * (float)(0.5 + rng.NextDouble() * 0.5);
 
-            // Step 2: Mean-reversion pull toward expected price
-            float mrStrength = _riskLevel switch
-            {
-                RiskLevel.Low    => 0.05f,
-                RiskLevel.Medium => 0.02f,
-                RiskLevel.High   => 0.01f,
-                _                => 0.02f
-            };
-            float meanReversion = price > 0
-                ? (expectedPrice - price) / price * mrStrength
-                : 0f;
+            // Step 2: Soft mean reversion. Linear pull within a tolerance band,
+            // cubic pull outside it. Replaces the old hard Mathf.Clamp so charts
+            // never show a flat ceiling.
+            float deviation = expectedPrice > 0 ? (price - expectedPrice) / expectedPrice : 0f;
+            float mrStrength = cfg.GetMrStrength(_riskLevel);
+            float softBand = cfg.GetSoftBand(_riskLevel);
+            float linearPull = -deviation * mrStrength;
+            float overshoot = Mathf.Max(0f, Mathf.Abs(deviation) - softBand);
+            float cubicPull = -Mathf.Sign(deviation) * overshoot * overshoot * overshoot * cfg.CubicPullCoefficient;
+            float meanReversion = linearPull + cubicPull;
 
             // Step 3: Trend contribution
-            float trendStrength = _riskLevel switch
+            float trendContrib = trend * cfg.GetTrendStrength(_riskLevel);
+
+            // Step 4: Gaussian noise scaled by risk. Replaces the old uniform
+            // ±0.1% so daily moves have a realistic bell-curve distribution.
+            float noise = SampleGaussian(rng) * cfg.GetNoiseSigma(_riskLevel);
+
+            // Step 5: Rare jump events. Configurable daily probability of a
+            // sudden price gap, with negative skew so jumps lean slightly
+            // bearish (mimicking the asymmetry of real equity returns).
+            float jump = 0f;
+            if (rng.NextDouble() < cfg.JumpDailyChance)
             {
-                RiskLevel.Low    => 0.002f,
-                RiskLevel.Medium => 0.006f,
-                RiskLevel.High   => 0.012f,
-                _                => 0.006f
-            };
-            float trendContrib = trend * trendStrength;
+                float range = Mathf.Max(0f, cfg.JumpMaxMagnitude - cfg.JumpMinMagnitude);
+                float magnitude = cfg.JumpMinMagnitude + (float)rng.NextDouble() * range;
+                float direction = rng.NextDouble() < cfg.JumpDownProbability ? -1f : 1f;
+                jump = magnitude * direction;
+            }
 
-            // Step 4: Small random noise
-            float noise = (float)(rng.NextDouble() * 0.002 - 0.001);
-
-            // Step 5: Combine factors
-            float dailyChange = dailyGrowthRate + meanReversion + trendContrib + noise;
+            // Step 6: Combine and apply
+            float dailyChange = dailyGrowthRate + meanReversion + trendContrib + noise + jump;
             price *= (1f + dailyChange);
 
-            // Step 6: Clamp deviation from expected price
-            float maxDeviation = _riskLevel switch
-            {
-                RiskLevel.Low    => 0.30f,
-                RiskLevel.Medium => 0.80f,
-                RiskLevel.High   => 1.50f,
-                _                => 0.80f
-            };
-            float lowerBound = expectedPrice * (1f - maxDeviation);
-            float upperBound = expectedPrice * (1f + maxDeviation);
-            price = Mathf.Clamp(price, lowerBound, upperBound);
+            // Absolute floor as a fraction of base price. The soft cubic pull
+            // above handles upside containment without a hard ceiling.
+            price = Mathf.Max(price, _basePricePerShare * cfg.AbsoluteFloorRatio);
+        }
 
-            // Absolute floor: 20% of base price
-            price = Mathf.Max(price, _basePricePerShare * 0.2f);
+        /// <summary>
+        /// Returns the wired StockPriceModelConfig, or a lazily created
+        /// shared default whose field defaults match the previously baked-in
+        /// constants. Never returns null.
+        /// </summary>
+        private StockPriceModelConfig ResolvedPriceModelConfig
+        {
+            get
+            {
+                if (_priceModelConfig != null) return _priceModelConfig;
+                if (_runtimeDefaultConfig == null)
+                    _runtimeDefaultConfig = ScriptableObject.CreateInstance<StockPriceModelConfig>();
+                return _runtimeDefaultConfig;
+            }
+        }
+
+        /// <summary>
+        /// Sample from a standard normal distribution N(0, 1) using the
+        /// Box-Muller transform. Pure value-type math, no allocations.
+        /// </summary>
+        private static float SampleGaussian(System.Random rng)
+        {
+            double u1 = 1.0 - rng.NextDouble();
+            double u2 = 1.0 - rng.NextDouble();
+            return (float)(System.Math.Sqrt(-2.0 * System.Math.Log(u1)) *
+                           System.Math.Cos(2.0 * System.Math.PI * u2));
         }
     }
 }

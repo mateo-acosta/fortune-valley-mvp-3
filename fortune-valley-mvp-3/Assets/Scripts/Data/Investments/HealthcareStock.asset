@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: HealthcareStock
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.InvestmentDefinition
   _displayName: HealthGroup (JNJ)
-  _description: A healthcare conglomerate making medicines, devices, and consumer
-    products. Holds up well in downturns — people always need healthcare.
+  _description: "A healthcare conglomerate making medicines, devices, and consumer
+    products. Holds up well in downturns \u2014 people always need healthcare."
   _category: 0
+  _industry: 0
   _riskLevel: 0
   _annualReturnRate: 0.06
-  _volatilityRange: {x: 0.90, y: 1.10}
+  _volatilityRange: {x: 0.9, y: 1.1}
   _compoundingFrequency: 30
   _compoundsPerYear: 12
   _minimumDeposit: 50
   _basePricePerShare: 150
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

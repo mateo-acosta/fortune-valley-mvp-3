@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: Bond_HighYield
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.InvestmentDefinition
   _displayName: Junkpile Yield
-  _description: Bonds from companies the rating agencies do not love. Higher coupons, real default risk.
+  _description: Bonds from companies the rating agencies do not love. Higher coupons,
+    real default risk.
   _category: 2
+  _industry: 0
   _riskLevel: 1
   _annualReturnRate: 0.07
   _volatilityRange: {x: 1, y: 1}
@@ -22,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 100
   _basePricePerShare: 100
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

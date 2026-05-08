@@ -13,10 +13,15 @@ MonoBehaviour:
   m_Name: SmallCapETF
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.InvestmentDefinition
   _displayName: Small Cap ETF
-  _description: Invests in smaller companies. Higher growth potential than large companies but more volatile.
+  _description: Invests in smaller companies. Higher growth potential than large
+    companies but more volatile.
+  _category: 0
+  _industry: 0
   _riskLevel: 2
   _annualReturnRate: 0.12
-  _volatilityRange: {x: 0.70, y: 1.30}
+  _volatilityRange: {x: 0.7, y: 1.3}
   _compoundingFrequency: 30
   _compoundsPerYear: 12
   _minimumDeposit: 75
+  _basePricePerShare: 50
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

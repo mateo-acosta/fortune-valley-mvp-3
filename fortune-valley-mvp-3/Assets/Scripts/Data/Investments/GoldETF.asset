@@ -13,10 +13,15 @@ MonoBehaviour:
   m_Name: GoldETF
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.InvestmentDefinition
   _displayName: Gold ETF (GLD)
-  _description: Tracks the price of gold. Acts as a hedge against inflation but no dividends or interest.
+  _description: Tracks the price of gold. Acts as a hedge against inflation but no
+    dividends or interest.
+  _category: 0
+  _industry: 0
   _riskLevel: 1
   _annualReturnRate: 0.05
   _volatilityRange: {x: 0.85, y: 1.15}
   _compoundingFrequency: 30
   _compoundsPerYear: 12
   _minimumDeposit: 50
+  _basePricePerShare: 50
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 188c7fb39d40940fcbee47e11e84a3a5, type: 3}
   m_Name: Stocks
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.InvestmentDefinition
-  _displayName: "S&P 500 ETF (VOO)"
+  _displayName: S&P 500 ETF (VOO)
   _description: Tracks the 500 largest US companies. Historically one of the best
     long-term investments with moderate risk.
   _category: 1
+  _industry: 0
   _riskLevel: 1
-  _annualReturnRate: 0.10
+  _annualReturnRate: 0.1
   _volatilityRange: {x: 0.85, y: 1.15}
   _compoundingFrequency: 30
   _compoundsPerYear: 12
   _minimumDeposit: 100
   _basePricePerShare: 50
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

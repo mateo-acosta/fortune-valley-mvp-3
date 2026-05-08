@@ -16,6 +16,7 @@ MonoBehaviour:
   _description: A large tech company. Can grow fast but more risky than owning many
     companies.
   _category: 0
+  _industry: 0
   _riskLevel: 2
   _annualReturnRate: 0.15
   _volatilityRange: {x: 0.75, y: 1.25}
@@ -23,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 50
   _basePricePerShare: 175
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

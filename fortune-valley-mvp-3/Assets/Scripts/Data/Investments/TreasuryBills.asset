@@ -16,6 +16,7 @@ MonoBehaviour:
   _description: Short-term government bonds. Extremely safe but lowest returns. Great
     for preserving capital.
   _category: 3
+  _industry: 0
   _riskLevel: 0
   _annualReturnRate: 0.04
   _volatilityRange: {x: 0.98, y: 1.02}
@@ -23,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 100
   _basePricePerShare: 100
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}
