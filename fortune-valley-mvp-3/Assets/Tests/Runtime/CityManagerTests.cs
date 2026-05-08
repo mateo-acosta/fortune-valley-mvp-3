@@ -246,5 +246,117 @@ namespace FortuneValley.Tests
             Assert.AreEqual(Owner.Player, _cityManager.GetOwner("lot_0"),
                 "CityManager should purchase lot when OnPurchaseLotRequested fires");
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // RIVAL UPGRADE TESTS
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void TryRivalUpgradeLot_RejectsPlayerOwnedLot()
+        {
+            _cityManager.TryPurchaseLot("lot_0", 0);
+
+            bool result = _cityManager.TryRivalUpgradeLot("lot_0", out float cost);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual(0f, cost);
+        }
+
+        [Test]
+        public void TryRivalUpgradeLot_RejectsUnownedLot()
+        {
+            bool result = _cityManager.TryRivalUpgradeLot("lot_0", out float cost);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual(0f, cost);
+        }
+
+        [Test]
+        public void TryRivalUpgradeLot_RejectsAtMaxTier()
+        {
+            _cityManager.RivalPurchaseLot("lot_0", 0);
+            _cityManager.TryRivalUpgradeLot("lot_0", out _);
+            _cityManager.TryRivalUpgradeLot("lot_0", out _);
+            // Now at T3.
+            bool result = _cityManager.TryRivalUpgradeLot("lot_0", out float cost);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual(0f, cost);
+            Assert.AreEqual(3, _cityManager.GetTier("lot_0"));
+        }
+
+        [Test]
+        public void TryRivalUpgradeLot_ReturnsTier2Cost()
+        {
+            _cityManager.RivalPurchaseLot("lot_0", 0);
+
+            bool result = _cityManager.TryRivalUpgradeLot("lot_0", out float cost);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(_testLots[0].Tier2UpgradeCost, cost);
+            Assert.AreEqual(2, _cityManager.GetTier("lot_0"));
+        }
+
+        [Test]
+        public void TryRivalUpgradeLot_ReturnsTier3Cost()
+        {
+            _cityManager.RivalPurchaseLot("lot_0", 0);
+            _cityManager.TryRivalUpgradeLot("lot_0", out _); // T1 -> T2
+
+            bool result = _cityManager.TryRivalUpgradeLot("lot_0", out float cost);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(_testLots[0].Tier3UpgradeCost, cost);
+            Assert.AreEqual(3, _cityManager.GetTier("lot_0"));
+        }
+
+        [Test]
+        public void TryRivalUpgradeLot_DoesNotTouchPlayerCurrency()
+        {
+            _cityManager.RivalPurchaseLot("lot_0", 0);
+            float beforeChecking = _currencyManager.CheckingBalance;
+
+            _cityManager.TryRivalUpgradeLot("lot_0", out _);
+
+            Assert.AreEqual(beforeChecking, _currencyManager.CheckingBalance);
+        }
+
+        [Test]
+        public void TryRivalUpgradeLot_FiresLotTierChangedEvent()
+        {
+            _cityManager.RivalPurchaseLot("lot_0", 0);
+
+            string receivedLotId = "";
+            int receivedTier = 0;
+            GameEvents.OnLotTierChanged += (lotId, tier) =>
+            {
+                receivedLotId = lotId;
+                receivedTier = tier;
+            };
+
+            _cityManager.TryRivalUpgradeLot("lot_0", out _);
+
+            Assert.AreEqual("lot_0", receivedLotId);
+            Assert.AreEqual(2, receivedTier);
+        }
+
+        [Test]
+        public void TryRivalUpgradeLot_FiresRivalUpgradedLotEvent()
+        {
+            _cityManager.RivalPurchaseLot("lot_0", 0);
+
+            string receivedLotId = "";
+            int receivedTier = 0;
+            GameEvents.OnRivalUpgradedLot += (lotId, tier) =>
+            {
+                receivedLotId = lotId;
+                receivedTier = tier;
+            };
+
+            _cityManager.TryRivalUpgradeLot("lot_0", out _);
+
+            Assert.AreEqual("lot_0", receivedLotId);
+            Assert.AreEqual(2, receivedTier);
+        }
     }
 }
