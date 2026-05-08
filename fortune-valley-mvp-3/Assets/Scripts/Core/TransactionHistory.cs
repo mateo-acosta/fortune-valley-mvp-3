@@ -38,18 +38,34 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Returns all records newest-first.
-        /// Allocates a new list per call; intended for UI refresh, not per-frame use.
+        /// Fills <paramref name="dest"/> with all records newest-first. Reuses
+        /// the supplied list (clears and refills); zero per-call allocation
+        /// when the list capacity is sufficient. Hot-path-safe.
+        /// No-op if dest is null.
         /// </summary>
-        public List<TransactionRecord> GetAll()
+        public void CopyAllInto(List<TransactionRecord> dest)
         {
-            var result = new List<TransactionRecord>(_count);
+            if (dest == null) return;
+            dest.Clear();
+            if (dest.Capacity < _count) dest.Capacity = _count;
             for (int i = 0; i < _count; i++)
             {
                 // Walk backwards from (_head - 1) wrapping around
                 int index = ((_head - 1 - i) % _buffer.Length + _buffer.Length) % _buffer.Length;
-                result.Add(_buffer[index]);
+                dest.Add(_buffer[index]);
             }
+        }
+
+        /// <summary>
+        /// Returns all records newest-first.
+        /// Allocates a new list per call; intended for UI refresh, not per-frame use.
+        /// Re-implemented in terms of CopyAllInto so the ring-walk math has a
+        /// single source of truth.
+        /// </summary>
+        public List<TransactionRecord> GetAll()
+        {
+            var result = new List<TransactionRecord>(_count);
+            CopyAllInto(result);
             return result;
         }
 

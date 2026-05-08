@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FortuneValley.Core;
+using FortuneValley.Domain.Enums;
 using FortuneValley.Domain.Entities.WebPanels;
 
 namespace FortuneValley.Managers.WebPanels
@@ -104,9 +105,9 @@ namespace FortuneValley.Managers.WebPanels
             row.id = def.name;
             row.name = def.DisplayName;
             row.currentPrice = def.CurrentPrice;
-            row.risk = def.RiskLevel.ToString();
-            row.category = def.Category.ToString();
-            row.industry = def.Industry.ToString();
+            row.risk = RiskLabel(def.RiskLevel);
+            row.category = CategoryLabel(def.Category);
+            row.industry = IndustryLabel(def.Industry);
 
             CopyPriceHistory(row, def);
             row.changePercent = ComputeChangePercent(row.priceHistory, def.CurrentPrice);
@@ -114,19 +115,17 @@ namespace FortuneValley.Managers.WebPanels
 
         private void CopyPriceHistory(AvailableInvestmentDTO row, InvestmentDefinition def)
         {
-            IReadOnlyList<float> window = _priceHistoryStore != null
-                ? _priceHistoryStore.GetWindow(def, HistoryWindowSize)
-                : null;
-
-            int windowCount = window != null ? window.Count : 0;
+            int windowCount = _priceHistoryStore != null
+                ? _priceHistoryStore.GetWindowSize(def, HistoryWindowSize)
+                : 0;
 
             if (row.priceHistory == null || row.priceHistory.Length != windowCount)
             {
                 row.priceHistory = new float[windowCount];
             }
-            for (int i = 0; i < windowCount; i++)
+            if (windowCount > 0)
             {
-                row.priceHistory[i] = window[i];
+                _priceHistoryStore.WriteWindowTo(def, row.priceHistory, HistoryWindowSize);
             }
         }
 
@@ -168,29 +167,63 @@ namespace FortuneValley.Managers.WebPanels
             row.totalGain = inv.TotalGain;
             row.avgCost = inv.AveragePurchasePrice;
             row.currentPrice = def.CurrentPrice;
-            row.category = def.Category.ToString();
-            row.industry = def.Industry.ToString();
-            row.risk = def.RiskLevel.ToString();
+            row.category = CategoryLabel(def.Category);
+            row.industry = IndustryLabel(def.Industry);
+            row.risk = RiskLabel(def.RiskLevel);
             CopyHoldingPriceHistory(row, def);
         }
 
         private void CopyHoldingPriceHistory(ActiveHoldingDTO row, InvestmentDefinition def)
         {
-            IReadOnlyList<float> window = _priceHistoryStore != null
-                ? _priceHistoryStore.GetWindow(def, HistoryWindowSize)
-                : null;
-
-            int windowCount = window != null ? window.Count : 0;
+            int windowCount = _priceHistoryStore != null
+                ? _priceHistoryStore.GetWindowSize(def, HistoryWindowSize)
+                : 0;
 
             if (row.priceHistory == null || row.priceHistory.Length != windowCount)
             {
                 row.priceHistory = new float[windowCount];
             }
-            for (int i = 0; i < windowCount; i++)
+            if (windowCount > 0)
             {
-                row.priceHistory[i] = window[i];
+                _priceHistoryStore.WriteWindowTo(def, row.priceHistory, HistoryWindowSize);
             }
         }
+
+        // ───────────────────── Enum → label maps (alloc-free, hot-path) ─────────────────────
+
+        // Switch expressions with nameof() so renames break compile rather than
+        // silently shifting the iframe's display strings. IL2CPP compiles these
+        // to jump tables; zero allocation per call.
+
+        // Public for direct unit testing (matching the StripRiskSuffix precedent below).
+        public static string RiskLabel(RiskLevel r) => r switch
+        {
+            RiskLevel.Low => nameof(RiskLevel.Low),
+            RiskLevel.Medium => nameof(RiskLevel.Medium),
+            RiskLevel.High => nameof(RiskLevel.High),
+            _ => "Unknown",
+        };
+
+        public static string CategoryLabel(InvestmentCategory c) => c switch
+        {
+            InvestmentCategory.Stock => nameof(InvestmentCategory.Stock),
+            InvestmentCategory.ETF => nameof(InvestmentCategory.ETF),
+            InvestmentCategory.Bond => nameof(InvestmentCategory.Bond),
+            InvestmentCategory.TBill => nameof(InvestmentCategory.TBill),
+            _ => "Unknown",
+        };
+
+        public static string IndustryLabel(Industry i) => i switch
+        {
+            Industry.None => nameof(Industry.None),
+            Industry.Technology => nameof(Industry.Technology),
+            Industry.Financials => nameof(Industry.Financials),
+            Industry.Energy => nameof(Industry.Energy),
+            Industry.ConsumerGoods => nameof(Industry.ConsumerGoods),
+            Industry.Healthcare => nameof(Industry.Healthcare),
+            Industry.Industrials => nameof(Industry.Industrials),
+            _ => "Unknown",
+        };
 
         // ───────────────────── Risk label suffix ─────────────────────
 
@@ -200,12 +233,18 @@ namespace FortuneValley.Managers.WebPanels
         /// "Medium" / "High" and appends " risk" itself in the badge label,
         /// so we strip the suffix here. "No Holdings" passes through unchanged.
         /// Public for direct unit testing.
+        ///
+        /// Switch expression maps every known input to a literal so there is
+        /// no per-call Substring allocation. Unknown inputs pass through
+        /// unchanged to match the original behavior.
         /// </summary>
-        public static string StripRiskSuffix(string label)
+        public static string StripRiskSuffix(string label) => label switch
         {
-            if (string.IsNullOrEmpty(label)) return label;
-            if (label.EndsWith(RiskSuffix)) return label.Substring(0, label.Length - RiskSuffix.Length);
-            return label;
-        }
+            "Low Risk" => "Low",
+            "Medium Risk" => "Medium",
+            "High Risk" => "High",
+            null => null,
+            _ => label,
+        };
     }
 }

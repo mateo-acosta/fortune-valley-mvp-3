@@ -1,4 +1,6 @@
+using System;
 using NUnit.Framework;
+using FortuneValley.Domain.Enums;
 using FortuneValley.Domain.Entities.WebPanels;
 using FortuneValley.Managers.WebPanels;
 
@@ -73,6 +75,52 @@ namespace FortuneValley.Tests
             // Defensive: if PortfolioPanelLogic ever returns a bare token,
             // we should not strip an arbitrary suffix.
             Assert.AreEqual("Low", InvestingWebBridgeLogic.StripRiskSuffix("Low"));
+        }
+
+        // ─────────────── Enum → label helpers (B1) ───────────────
+        // Behavior contract: each helper must produce the same string the
+        // legacy enum.ToString() did. Tests enumerate every enum value via
+        // Enum.GetValues so adding a new enum value without updating the
+        // switch fails this test loudly.
+
+        [Test]
+        public void RiskLabel_EveryEnumValue_MatchesEnumToString()
+        {
+            foreach (RiskLevel v in Enum.GetValues(typeof(RiskLevel)))
+            {
+                Assert.AreEqual(v.ToString(), InvestingWebBridgeLogic.RiskLabel(v),
+                    $"RiskLabel({v}) must match {v}.ToString()");
+            }
+        }
+
+        [Test]
+        public void CategoryLabel_EveryEnumValue_MatchesEnumToString()
+        {
+            foreach (InvestmentCategory v in Enum.GetValues(typeof(InvestmentCategory)))
+            {
+                Assert.AreEqual(v.ToString(), InvestingWebBridgeLogic.CategoryLabel(v),
+                    $"CategoryLabel({v}) must match {v}.ToString()");
+            }
+        }
+
+        [Test]
+        public void IndustryLabel_EveryEnumValue_MatchesEnumToString()
+        {
+            foreach (Industry v in Enum.GetValues(typeof(Industry)))
+            {
+                Assert.AreEqual(v.ToString(), InvestingWebBridgeLogic.IndustryLabel(v),
+                    $"IndustryLabel({v}) must match {v}.ToString()");
+            }
+        }
+
+        [Test]
+        public void RiskLabel_OutOfRangeValue_ReturnsUnknown()
+        {
+            // Defensive: cast an int outside the enum range. Switch's
+            // default arm should kick in and return "Unknown" rather than
+            // throwing.
+            var bogus = (RiskLevel)9999;
+            Assert.AreEqual("Unknown", InvestingWebBridgeLogic.RiskLabel(bogus));
         }
     }
 }

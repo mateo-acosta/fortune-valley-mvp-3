@@ -88,9 +88,14 @@ namespace FortuneValley.Managers
 
         private void Awake()
         {
-            // WebGL perf: cap render rate (vSync is off in QualitySettings) and
-            // stop PhysX from running every FixedUpdate for a non-physics game.
-            Application.targetFrameRate = 60;
+            // WebGL perf: cap render rate to 30fps and stop PhysX from running
+            // every FixedUpdate for a non-physics game. 30fps suits an idle
+            // clicker (no twitch input, no smooth-scroll parallax), halves
+            // thermal load on classroom Chromebooks, and doubles the per-frame
+            // time budget so single-frame canvas rebuilds and GC pauses are
+            // less likely to be visible. vSync is off in QualitySettings, so
+            // this cap is respected directly.
+            Application.targetFrameRate = 30;
             Physics.simulationMode = SimulationMode.Script;
 
             ValidateReferences();

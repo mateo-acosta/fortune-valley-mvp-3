@@ -36,6 +36,16 @@ namespace FortuneValley.Managers.WebPanels
         // and clears it so subsequent pushes do not re-fire the selection.
         private string _pendingSelectedLotId;
 
+        // Owned by the bridge. Cleared and refilled on every PopulateDTO call
+        // via TransactionHistory.CopyAllInto. Do NOT retain references across
+        // pushes; iterate immediately within PopulateDTO.
+        private readonly List<TransactionRecord> _historyScratchPerPush = new List<TransactionRecord>(64);
+
+        // Per-day "Day N" string cache. Lazy-populated on first sighting of a
+        // given day number. Steady-state allocation: zero. Lifecycle: bridge
+        // instance (resets on scene reload).
+        private readonly Dictionary<int, string> _dayStringCache = new Dictionary<int, string>(128);
+
         public void SetSelectedLotId(string lotId)
         {
             _pendingSelectedLotId = lotId;
@@ -227,7 +237,9 @@ namespace FortuneValley.Managers.WebPanels
                 return;
             }
 
-            var all = _transactionLog.History.GetAll();
+            // Reuse the scratch list to avoid allocating a List per push.
+            _transactionLog.History.CopyAllInto(_historyScratchPerPush);
+            var all = _historyScratchPerPush;
             int count = 0;
             for (int i = 0; i < all.Count; i++)
             {
@@ -251,14 +263,29 @@ namespace FortuneValley.Managers.WebPanels
             }
         }
 
-        private static void PopulateHistoryEntry(HistoryEntryDTO row, TransactionRecord rec, int displayId, int ticksPerDay)
+        private void PopulateHistoryEntry(HistoryEntryDTO row, TransactionRecord rec, int displayId, int ticksPerDay)
         {
             row.id = displayId;
-            row.date = "Day " + (rec.Tick / ticksPerDay + 1);
+            row.date = ResolveDayString(rec.Tick, ticksPerDay);
             row.type = MapTransactionTypeToHtmlKey(rec.Type);
             row.description = rec.Description;
             row.amount = rec.Amount;
             row.sublabel = null;
+        }
+
+        // Day strings are deterministic in the day number. Cache by day number
+        // so the second-onwards push for any given day is allocation-free.
+        // Negative ticks are clamped to day 1 (defensive; should not occur).
+        // Public for direct unit testing of the cache lifecycle.
+        public string ResolveDayString(int tick, int ticksPerDay)
+        {
+            int dayNumber = tick < 0 ? 1 : tick / ticksPerDay + 1;
+            if (!_dayStringCache.TryGetValue(dayNumber, out var dayStr))
+            {
+                dayStr = "Day " + dayNumber;
+                _dayStringCache[dayNumber] = dayStr;
+            }
+            return dayStr;
         }
 
         private static bool IsCreditPanelType(TransactionType type)

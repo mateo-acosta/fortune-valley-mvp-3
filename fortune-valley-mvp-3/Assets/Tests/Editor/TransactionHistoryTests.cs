@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using FortuneValley.Core;
 
@@ -167,6 +168,114 @@ namespace FortuneValley.Tests
             var all = _history.GetAll();
             Assert.AreEqual("e12", all[0].Description);
             Assert.AreEqual("e8", all[4].Description);
+        }
+
+        // ─────────────── CopyAllInto (alloc-free) ───────────────
+        // GetAll is now implemented in terms of CopyAllInto so the ring-walk
+        // math has a single source of truth. The cases below cover the new
+        // method directly so wrap-around / dest-reuse / null-dest cases are
+        // pinned regardless of how callers compose them.
+
+        [Test]
+        public void CopyAllInto_EmptyHistory_ListIsEmpty()
+        {
+            var dest = new List<TransactionRecord>();
+            _history.CopyAllInto(dest);
+            Assert.AreEqual(0, dest.Count);
+        }
+
+        [Test]
+        public void CopyAllInto_WithRecords_OrderedNewestFirst()
+        {
+            _history.Record(TransactionType.LoanPayment, "first", 10f, 1);
+            _history.Record(TransactionType.LoanPayment, "second", 20f, 2);
+            _history.Record(TransactionType.LoanPayment, "third", 30f, 3);
+
+            var dest = new List<TransactionRecord>();
+            _history.CopyAllInto(dest);
+
+            Assert.AreEqual(3, dest.Count);
+            Assert.AreEqual("third", dest[0].Description);
+            Assert.AreEqual("second", dest[1].Description);
+            Assert.AreEqual("first", dest[2].Description);
+        }
+
+        [Test]
+        public void CopyAllInto_WithExistingItems_ClearsBeforeFilling()
+        {
+            _history.Record(TransactionType.LoanPayment, "rec", 10f, 1);
+
+            var dest = new List<TransactionRecord>();
+            // Pre-populate dest with stale data from a prior push
+            dest.Add(new TransactionRecord(TransactionType.LoanPaidOff, "stale-a", 1f, 0));
+            dest.Add(new TransactionRecord(TransactionType.LoanPaidOff, "stale-b", 2f, 0));
+
+            _history.CopyAllInto(dest);
+
+            Assert.AreEqual(1, dest.Count, "Stale entries must be cleared before filling.");
+            Assert.AreEqual("rec", dest[0].Description);
+        }
+
+        [Test]
+        public void CopyAllInto_DestSmallerCapacity_GrowsCapacity()
+        {
+            for (int i = 0; i < 4; i++)
+                _history.Record(TransactionType.LoanPayment, $"e{i}", i, i);
+
+            // Capacity 1 to force a grow.
+            var dest = new List<TransactionRecord>(1);
+            _history.CopyAllInto(dest);
+
+            Assert.AreEqual(4, dest.Count);
+            Assert.GreaterOrEqual(dest.Capacity, 4);
+        }
+
+        [Test]
+        public void CopyAllInto_AfterWrap_ReturnsCorrectOrder()
+        {
+            // Capacity 5, add 7 entries → indexes 2..6 should remain.
+            for (int i = 0; i < 7; i++)
+                _history.Record(TransactionType.LoanPayment, $"e{i}", i * 10f, i);
+
+            var dest = new List<TransactionRecord>();
+            _history.CopyAllInto(dest);
+
+            Assert.AreEqual(5, dest.Count);
+            Assert.AreEqual("e6", dest[0].Description);
+            Assert.AreEqual("e5", dest[1].Description);
+            Assert.AreEqual("e4", dest[2].Description);
+            Assert.AreEqual("e3", dest[3].Description);
+            Assert.AreEqual("e2", dest[4].Description);
+        }
+
+        [Test]
+        public void CopyAllInto_NullDest_NoOp()
+        {
+            _history.Record(TransactionType.LoanPayment, "rec", 10f, 1);
+
+            // Must not throw.
+            Assert.DoesNotThrow(() => _history.CopyAllInto(null));
+        }
+
+        [Test]
+        public void GetAll_AfterRefactor_MatchesCopyAllInto()
+        {
+            // Sanity: GetAll is now a thin wrapper; both must produce the
+            // exact same sequence of records.
+            _history.Record(TransactionType.LoanPayment, "a", 10f, 1);
+            _history.Record(TransactionType.CreditCardCharge, "b", 20f, 2);
+            _history.Record(TransactionType.LoanPaidOff, "c", 30f, 3);
+
+            var viaGetAll = _history.GetAll();
+            var viaCopy = new List<TransactionRecord>();
+            _history.CopyAllInto(viaCopy);
+
+            Assert.AreEqual(viaGetAll.Count, viaCopy.Count);
+            for (int i = 0; i < viaGetAll.Count; i++)
+            {
+                Assert.AreEqual(viaGetAll[i].Description, viaCopy[i].Description);
+                Assert.AreEqual(viaGetAll[i].Tick, viaCopy[i].Tick);
+            }
         }
     }
 }
