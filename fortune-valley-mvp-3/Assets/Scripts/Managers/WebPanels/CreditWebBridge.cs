@@ -29,7 +29,7 @@ namespace FortuneValley.Managers.WebPanels
 
         [Header("Dependencies")]
         [SerializeField] private LoanSystem _loanSystem;
-        [SerializeField] private CreditCardSystem _creditCardSystem;
+        [SerializeField] private CreditScoreSystem _creditCardSystem;
         [SerializeField] private CurrencyManager _currencyManager;
         [SerializeField] private CityManager _cityManager;
         [SerializeField] private TransactionLog _transactionLog;
@@ -71,7 +71,8 @@ namespace FortuneValley.Managers.WebPanels
             GameEvents.OnLoanPaymentMade += HandleLoanPaymentMade;
             GameEvents.OnLoanPaidOff += HandleLoanPaidOff;
             GameEvents.OnCreditScoreChanged += HandleCreditScoreChanged;
-            GameEvents.OnCreditCardBalanceChanged += HandleBalanceChanged;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardBalanceChanged += HandleBalanceChanged;
             GameEvents.OnCheckingBalanceChanged += HandleBalanceChanged;
         }
 
@@ -82,7 +83,8 @@ namespace FortuneValley.Managers.WebPanels
             GameEvents.OnLoanPaymentMade -= HandleLoanPaymentMade;
             GameEvents.OnLoanPaidOff -= HandleLoanPaidOff;
             GameEvents.OnCreditScoreChanged -= HandleCreditScoreChanged;
-            GameEvents.OnCreditCardBalanceChanged -= HandleBalanceChanged;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardBalanceChanged -= HandleBalanceChanged;
             GameEvents.OnCheckingBalanceChanged -= HandleBalanceChanged;
         }
 

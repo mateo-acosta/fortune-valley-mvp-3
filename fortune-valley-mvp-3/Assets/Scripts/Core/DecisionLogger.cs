@@ -44,7 +44,8 @@ namespace FortuneValley.Core
             GameEvents.OnLotPurchased += HandleLotPurchased;
             GameEvents.OnRivalUpgradedLot += HandleRivalUpgradedLot;
             GameEvents.OnRestaurantUpgraded += HandleRestaurantUpgraded;
-            GameEvents.OnCreditCardPaymentCompleted += HandleCreditCardPayment;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardPaymentCompleted += HandleCreditCardPayment;
             GameEvents.OnInsurancePurchased += HandleInsurancePurchased;
             GameEvents.OnAccidentResolved += HandleAccidentResolved;
             GameEvents.OnLoanOriginated += HandleLoanOriginated;
@@ -56,7 +57,8 @@ namespace FortuneValley.Core
             // Balance tracking for running_balance in line items
             GameEvents.OnCheckingBalanceChanged += HandleCheckingBalanceChanged;
             GameEvents.OnInvestingBalanceChanged += HandleInvestingBalanceChanged;
-            GameEvents.OnCreditCardBalanceChanged += HandleCreditBalanceChanged;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardBalanceChanged += HandleCreditBalanceChanged;
         }
 
         private void OnDisable()
@@ -66,7 +68,8 @@ namespace FortuneValley.Core
             GameEvents.OnLotPurchased -= HandleLotPurchased;
             GameEvents.OnRivalUpgradedLot -= HandleRivalUpgradedLot;
             GameEvents.OnRestaurantUpgraded -= HandleRestaurantUpgraded;
-            GameEvents.OnCreditCardPaymentCompleted -= HandleCreditCardPayment;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardPaymentCompleted -= HandleCreditCardPayment;
             GameEvents.OnInsurancePurchased -= HandleInsurancePurchased;
             GameEvents.OnAccidentResolved -= HandleAccidentResolved;
             GameEvents.OnLoanOriginated -= HandleLoanOriginated;
@@ -77,7 +80,8 @@ namespace FortuneValley.Core
 
             GameEvents.OnCheckingBalanceChanged -= HandleCheckingBalanceChanged;
             GameEvents.OnInvestingBalanceChanged -= HandleInvestingBalanceChanged;
-            GameEvents.OnCreditCardBalanceChanged -= HandleCreditBalanceChanged;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardBalanceChanged -= HandleCreditBalanceChanged;
         }
 
         // ===============================================================

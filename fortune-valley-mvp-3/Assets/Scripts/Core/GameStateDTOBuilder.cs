@@ -15,7 +15,7 @@ namespace FortuneValley.Core
         private readonly CurrencyManager _currencyManager;
         private readonly CityManager _cityManager;
         private readonly RestaurantSystem _restaurantSystem;
-        private readonly CreditCardSystem _creditCardSystem;
+        private readonly CreditScoreSystem _creditCardSystem;
         private readonly LoanSystem _loanSystem;
         private readonly InsuranceSystem _insuranceSystem;
         private readonly InvestmentSystem _investmentSystem;
@@ -27,7 +27,7 @@ namespace FortuneValley.Core
             CurrencyManager currencyManager,
             CityManager cityManager,
             RestaurantSystem restaurantSystem,
-            CreditCardSystem creditCardSystem,
+            CreditScoreSystem creditCardSystem,
             LoanSystem loanSystem,
             InsuranceSystem insuranceSystem,
             InvestmentSystem investmentSystem,

@@ -238,7 +238,7 @@ namespace FortuneValley.Core
         /// <summary>
         /// IBankruptcyResettable. On soft bankruptcy, checking returns to the
         /// starting balance. Investments are zeroed out by InvestmentSystem;
-        /// CC debt by CreditCardSystem. The orchestrating BankruptcyResetService
+        /// CC debt by CreditScoreSystem. The orchestrating BankruptcyResetService
         /// fires OnSoftBankruptcyReset after every IBankruptcyResettable runs.
         /// </summary>
         public void OnBankruptcyReset()

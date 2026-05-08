@@ -5,7 +5,7 @@ namespace FortuneValley.UI
 {
     /// <summary>
     /// Evaluates loan eligibility locally in the UI layer using
-    /// property-read data from LoanSystem and CreditCardSystem.
+    /// property-read data from LoanSystem and CreditScoreSystem.
     /// No cross-layer method calls -- keeps architecture rules intact.
     ///
     /// LEARNING DESIGN: Students see which loans they qualify for
@@ -21,7 +21,7 @@ namespace FortuneValley.UI
         /// (they cannot finance the lot regardless of creditworthiness).
         /// </summary>
         /// <param name="configs">Available loan configs (read from LoanSystem.AvailableLoans property)</param>
-        /// <param name="creditScore">Player's current credit score (read from CreditCardSystem.CreditScore property)</param>
+        /// <param name="creditScore">Player's current credit score (read from CreditScoreSystem.CreditScore property)</param>
         /// <param name="dtiRatio">Current debt-to-income ratio (0.0 to 1.0+)</param>
         /// <param name="requiredPrincipal">Principal needed to finance the target lot. Configs with MaxPrincipal below this are dropped.</param>
         public static List<LoanEligibilityResult> Evaluate(

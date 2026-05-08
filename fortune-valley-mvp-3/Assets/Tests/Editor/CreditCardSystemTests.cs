@@ -6,20 +6,27 @@ using FortuneValley.Domain.Entities;
 namespace FortuneValley.Tests
 {
     /// <summary>
-    /// Tests for CreditCardSystem charge handling, statement generation,
+    /// Tests for CreditScoreSystem charge handling, statement generation,
     /// and payment processing.
     /// </summary>
     [TestFixture]
-    public class CreditCardSystemTests
+    public class CreditScoreSystemTests
     {
         private GameObject _rootGO;
-        private CreditCardSystem _system;
+        private CreditScoreSystem _system;
         private CreditCardConfig _config;
         private CreditScoringConfig _scoringConfig;
+
+        private bool _ccFlagBeforeTest;
 
         [SetUp]
         public void SetUp()
         {
+            // CC charge / statement / payment paths only fire when the
+            // mechanic is enabled. Flip the flag on for the fixture.
+            _ccFlagBeforeTest = FeatureFlags.CreditCardChargesEnabled;
+            FeatureFlags.CreditCardChargesEnabled = true;
+
             GameEvents.ClearAllSubscriptions();
 
             _rootGO = new GameObject("TestRoot");
@@ -34,12 +41,12 @@ namespace FortuneValley.Tests
             _scoringConfig = ScriptableObject.CreateInstance<CreditScoringConfig>();
             // Uses defaults: startingScore=650, min=300, max=850
 
-            _system = _rootGO.AddComponent<CreditCardSystem>();
+            _system = _rootGO.AddComponent<CreditScoreSystem>();
             SetField(_system, "_config", _config);
             SetField(_system, "_scoringConfig", _scoringConfig);
 
             // EditMode tests don't run lifecycle methods automatically
-            var onEnable = typeof(CreditCardSystem).GetMethod("OnEnable",
+            var onEnable = typeof(CreditScoreSystem).GetMethod("OnEnable",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             onEnable.Invoke(_system, null);
 
@@ -50,7 +57,7 @@ namespace FortuneValley.Tests
         [TearDown]
         public void TearDown()
         {
-            var onDisable = typeof(CreditCardSystem).GetMethod("OnDisable",
+            var onDisable = typeof(CreditScoreSystem).GetMethod("OnDisable",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             onDisable.Invoke(_system, null);
 
@@ -58,6 +65,8 @@ namespace FortuneValley.Tests
             Object.DestroyImmediate(_config);
             Object.DestroyImmediate(_scoringConfig);
             GameEvents.ClearAllSubscriptions();
+
+            FeatureFlags.CreditCardChargesEnabled = _ccFlagBeforeTest;
         }
 
         private static void SetField(object target, string fieldName, object value)

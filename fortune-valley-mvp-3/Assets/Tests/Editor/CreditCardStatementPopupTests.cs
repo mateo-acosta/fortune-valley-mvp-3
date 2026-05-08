@@ -14,10 +14,14 @@ namespace FortuneValley.Tests
     {
         private GameObject _go;
         private CreditCardStatementPopupTestable _popup;
+        private bool _ccFlagBeforeTest;
 
         [SetUp]
         public void SetUp()
         {
+            _ccFlagBeforeTest = FeatureFlags.CreditCardChargesEnabled;
+            FeatureFlags.CreditCardChargesEnabled = true;
+
             _go = new GameObject("TestPopup");
             _popup = _go.AddComponent<CreditCardStatementPopupTestable>();
             GameEvents.RaiseGameStart();
@@ -34,6 +38,7 @@ namespace FortuneValley.Tests
         {
             Object.DestroyImmediate(_go);
             GameEvents.ClearAllSubscriptions();
+            FeatureFlags.CreditCardChargesEnabled = _ccFlagBeforeTest;
         }
 
         // ===============================================================

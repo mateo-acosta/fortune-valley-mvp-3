@@ -66,12 +66,19 @@ namespace FortuneValley.UI.Popups
 
         private void OnEnable()
         {
+            // The statement event never fires while the CC mechanic is off,
+            // so the popup stays inert. Subscribe-time gate keeps the dead
+            // path off the event bus entirely.
+            if (!FeatureFlags.CreditCardChargesEnabled) return;
+
             GameEvents.OnCreditCardStatementReady += HandleStatementReady;
             GameEvents.OnCheckingBalanceChanged += HandleCheckingChanged;
         }
 
         private void OnDisable()
         {
+            if (!FeatureFlags.CreditCardChargesEnabled) return;
+
             GameEvents.OnCreditCardStatementReady -= HandleStatementReady;
             GameEvents.OnCheckingBalanceChanged -= HandleCheckingChanged;
         }

@@ -7,12 +7,12 @@ using FortuneValley.Domain.Entities.WebPanels;
 namespace FortuneValley.Managers.WebPanels
 {
     /// <summary>
-    /// Reads credit panel state off the live systems and writes it into
+    /// Reads loan-panel state off the live systems and writes it into
     /// the supplied DTO. Pure C# so EditMode tests can substitute small
     /// fakes for the system references.
     ///
     /// Maps:
-    ///  - CreditCardSystem  -> creditScore + cc{Balance,Limit,Available,Utilization}
+    ///  - CreditScoreSystem -> creditScore (CC fields no longer flow)
     ///  - LoanSystem        -> totalDebt + monthlyDebtPayment + activeLoans + loanProducts
     ///  - CurrencyManager   -> cashOnHand
     ///  - CityManager       -> active loan lot names + availableLots[]
@@ -25,7 +25,7 @@ namespace FortuneValley.Managers.WebPanels
         private const float DecimalToPercent = 100f;
 
         private LoanSystem _loanSystem;
-        private CreditCardSystem _creditCardSystem;
+        private CreditScoreSystem _creditCardSystem;
         private CurrencyManager _currencyManager;
         private CityManager _cityManager;
         private TransactionLog _transactionLog;
@@ -43,7 +43,7 @@ namespace FortuneValley.Managers.WebPanels
 
         public void Initialize(
             LoanSystem loanSystem,
-            CreditCardSystem creditCardSystem,
+            CreditScoreSystem creditCardSystem,
             CurrencyManager currencyManager,
             CityManager cityManager,
             TransactionLog transactionLog,
@@ -60,17 +60,14 @@ namespace FortuneValley.Managers.WebPanels
         public override bool PopulateDTO(CreditPanelDTO target)
         {
             if (target == null) return false;
-            // Hard requirements: loans + cash. CreditCardSystem is optional
+            // Hard requirements: loans + cash. CreditScoreSystem is optional
             // because the CC mechanic is being removed; when null, CC fields
             // emit zero rather than blocking the entire push.
             if (_loanSystem == null || _currencyManager == null) return false;
 
-            // Home tab scalars
+            // Home tab scalars. CC widgets were removed along with the CC
+            // mechanic; only the score (driven by loan behavior + DTI) flows.
             target.creditScore = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0;
-            target.ccBalance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f;
-            target.ccLimit = _creditCardSystem != null ? _creditCardSystem.CreditLimit : 0f;
-            target.ccAvailable = _creditCardSystem != null ? _creditCardSystem.AvailableCredit : 0f;
-            target.ccUtilization = _creditCardSystem != null ? _creditCardSystem.Utilization : 0f;
             target.totalDebt = _loanSystem.TotalOutstandingPrincipal;
             target.monthlyDebtPayment = _loanSystem.TotalYearlyDebt;
             target.cashOnHand = _currencyManager.CheckingBalance;
@@ -272,8 +269,6 @@ namespace FortuneValley.Managers.WebPanels
                 case TransactionType.LoanPayment:
                 case TransactionType.LoanPaidOff:
                 case TransactionType.LoanPaymentMissed:
-                case TransactionType.CreditCardCharge:
-                case TransactionType.CreditCardPayment:
                     return true;
                 default:
                     return false;
@@ -290,8 +285,6 @@ namespace FortuneValley.Managers.WebPanels
                 case TransactionType.LoanPayment:       return "loan-payment";
                 case TransactionType.LoanPaidOff:       return "loan-payment";
                 case TransactionType.LoanPaymentMissed: return "missed-payment";
-                case TransactionType.CreditCardCharge:  return "cc-statement";
-                case TransactionType.CreditCardPayment: return "cc-payment";
                 default:                                return "score-change";
             }
         }

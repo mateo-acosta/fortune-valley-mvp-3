@@ -14,10 +14,15 @@ namespace FortuneValley.Tests
     public class AccountDisplayTests
     {
         private GameObject _go;
+        private bool _ccFlagBeforeTest;
 
         [SetUp]
         public void SetUp()
         {
+            // CreditCard subscription is gated; enable for the fixture.
+            _ccFlagBeforeTest = FeatureFlags.CreditCardChargesEnabled;
+            FeatureFlags.CreditCardChargesEnabled = true;
+
             GameEvents.RaiseGameStart();
         }
 
@@ -27,6 +32,8 @@ namespace FortuneValley.Tests
             if (_go != null)
                 Object.DestroyImmediate(_go);
             GameEvents.ClearAllSubscriptions();
+
+            FeatureFlags.CreditCardChargesEnabled = _ccFlagBeforeTest;
         }
 
         // ===============================================================

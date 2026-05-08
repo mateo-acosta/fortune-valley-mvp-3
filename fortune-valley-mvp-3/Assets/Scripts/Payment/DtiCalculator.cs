@@ -29,12 +29,5 @@ namespace FortuneValley.Core
             return incomePerTick * ticksPerDay * billingCycleDays;
         }
 
-        /// <summary>
-        /// Compute total monthly debt (loan payments + CC minimum payment).
-        /// </summary>
-        public static float ComputeTotalMonthlyDebt(float loanMonthlyPayments, float ccMinimumPayment)
-        {
-            return loanMonthlyPayments + ccMinimumPayment;
-        }
     }
 }

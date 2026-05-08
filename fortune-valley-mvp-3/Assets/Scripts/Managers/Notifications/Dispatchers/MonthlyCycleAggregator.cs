@@ -45,7 +45,8 @@ namespace FortuneValley.Managers.Notifications.Dispatchers
             GameEvents.OnMonthlyPaymentDayStarted += HandleMonthlyPaymentDayStarted;
             GameEvents.OnMonthlyPaymentCycleComplete += HandleMonthlyPaymentCycleComplete;
             GameEvents.OnLoanPaymentMade += HandleLoanPaymentMade;
-            GameEvents.OnCreditCardPaymentCompleted += HandleCreditCardPaymentCompleted;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardPaymentCompleted += HandleCreditCardPaymentCompleted;
             GameEvents.OnInsurancePremiumCharged += HandleInsurancePremiumCharged;
         }
 
@@ -54,7 +55,8 @@ namespace FortuneValley.Managers.Notifications.Dispatchers
             GameEvents.OnMonthlyPaymentDayStarted -= HandleMonthlyPaymentDayStarted;
             GameEvents.OnMonthlyPaymentCycleComplete -= HandleMonthlyPaymentCycleComplete;
             GameEvents.OnLoanPaymentMade -= HandleLoanPaymentMade;
-            GameEvents.OnCreditCardPaymentCompleted -= HandleCreditCardPaymentCompleted;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardPaymentCompleted -= HandleCreditCardPaymentCompleted;
             GameEvents.OnInsurancePremiumCharged -= HandleInsurancePremiumCharged;
         }
 

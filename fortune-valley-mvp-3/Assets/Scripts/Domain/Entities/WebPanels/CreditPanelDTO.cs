@@ -10,13 +10,11 @@ namespace FortuneValley.Domain.Entities.WebPanels
     [Serializable]
     public class CreditPanelDTO
     {
-        // Home tab scalars
+        // Home tab scalars. Loans-only since the credit-card mechanic was
+        // disabled; cc{Balance,Limit,Available,Utilization} were removed
+        // from this payload along with the corresponding HTML widgets.
         public int creditScore;
         public string creditScoreLabel;     // computed bucket label, e.g. "Fair"
-        public float ccBalance;
-        public float ccLimit;
-        public float ccAvailable;
-        public float ccUtilization;         // 0..1
         public float totalDebt;
         public float monthlyDebtPayment;
         public float cashOnHand;            // checking balance

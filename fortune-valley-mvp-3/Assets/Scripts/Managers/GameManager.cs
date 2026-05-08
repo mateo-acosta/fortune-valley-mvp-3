@@ -34,7 +34,7 @@ namespace FortuneValley.Managers
         [SerializeField] private RivalAI _rivalAI;
 
         [Header("Financial Systems")]
-        [SerializeField] private CreditCardSystem _creditCardSystem;
+        [SerializeField] private CreditScoreSystem _creditCardSystem;
         [SerializeField] private LoanSystem _loanSystem;
         [SerializeField] private InsuranceSystem _insuranceSystem;
 
@@ -331,7 +331,7 @@ namespace FortuneValley.Managers
             float ccBalance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f;
             return LiquidNetWorthCalculator.Compute(
                 checking, investing, loanPrincipal, ccBalance,
-                /* ccEnabled */ false);
+                FeatureFlags.CreditCardChargesEnabled);
         }
 
         private float ComputeBusinessAssetValue()

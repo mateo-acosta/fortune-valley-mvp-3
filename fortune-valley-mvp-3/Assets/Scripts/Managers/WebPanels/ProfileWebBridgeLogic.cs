@@ -29,7 +29,7 @@ namespace FortuneValley.Managers.WebPanels
         private CurrencyManager _currencyManager;
         private CityManager _cityManager;
         private TimeManager _timeManager;
-        private CreditCardSystem _creditCardSystem;
+        private CreditScoreSystem _creditCardSystem;
         private QuestionManager _questionManager;
         private RestaurantSystem _restaurantSystem;
         private InvestmentSystem _investmentSystem;
@@ -61,7 +61,7 @@ namespace FortuneValley.Managers.WebPanels
             CurrencyManager currencyManager,
             CityManager cityManager,
             TimeManager timeManager,
-            CreditCardSystem creditCardSystem = null,
+            CreditScoreSystem creditCardSystem = null,
             QuestionManager questionManager = null,
             RestaurantSystem restaurantSystem = null,
             InvestmentSystem investmentSystem = null)

@@ -7,8 +7,9 @@ namespace FortuneValley.Core
     /// insolvent cycles, fires GameEvents.OnBankruptcyTriggered which the
     /// BankruptcyResetService consumes to orchestrate the soft reset.
     ///
-    /// Insolvency formula (locked):
-    ///   (Checking + Investing) &lt; (CC_debt + Outstanding_loan_principal)
+    /// Insolvency = LiquidNetWorth &lt; 0. Both this monitor and NetWorthService
+    /// route through LiquidNetWorthCalculator so the formula stays in one place
+    /// (and the CC term respects FeatureFlags.CreditCardChargesEnabled).
     ///
     /// Each owning system supplies its current value via a Func at construction
     /// so this monitor stays trivially unit-testable.
@@ -67,10 +68,14 @@ namespace FortuneValley.Core
 
         private void HandleCycleComplete()
         {
-            float liquid = _checkingFunc() + _investingFunc();
-            float debt = _creditCardDebtFunc() + _loanPrincipalFunc();
+            float liquidNetWorth = LiquidNetWorthCalculator.Compute(
+                _checkingFunc(),
+                _investingFunc(),
+                _loanPrincipalFunc(),
+                _creditCardDebtFunc(),
+                FeatureFlags.CreditCardChargesEnabled);
 
-            if (liquid < debt)
+            if (liquidNetWorth < 0f)
             {
                 _counter++;
                 if (_counter >= InsolvencyThreshold)

@@ -46,6 +46,11 @@ namespace FortuneValley.Core
 
         private LoanPortfolio _portfolio;
 
+        // Tracks how many loan payments missed during the current monthly cycle.
+        // Reset at the start of ProcessMonthlyPayments. CreditScoreSystem reads
+        // this via AnyLoanMissedThisCycle() to drive the paidOnTime score factor.
+        private int _missedPaymentsThisCycle;
+
         // ===============================================================
         // PUBLIC ACCESSORS
         // ===============================================================
@@ -65,6 +70,13 @@ namespace FortuneValley.Core
             : 0f;
 
         public IReadOnlyList<LoanConfig> AvailableLoans => _availableLoans;
+
+        /// <summary>
+        /// Returns true if any active loan missed its payment in the current
+        /// monthly cycle. Used by CreditScoreSystem to drive the paidOnTime
+        /// factor (no missed payments this cycle = on-time bonus).
+        /// </summary>
+        public bool AnyLoanMissedThisCycle() => _missedPaymentsThisCycle > 0;
 
         // ===============================================================
         // LIFECYCLE
@@ -199,6 +211,11 @@ namespace FortuneValley.Core
         {
             if (_portfolio == null || _currencyManager == null) return;
 
+            // Reset cycle counter: HandlePaymentMissed will increment as the
+            // portfolio iterates each loan. CreditScoreSystem reads the result
+            // after this call returns.
+            _missedPaymentsThisCycle = 0;
+
             float prevBalance = TotalOutstandingPrincipal;
 
             _portfolio.ProcessMonthlyPayments(
@@ -239,6 +256,8 @@ namespace FortuneValley.Core
 
         private void HandlePaymentMissed(ActiveLoan loan)
         {
+            _missedPaymentsThisCycle++;
+
             if (_logTransactions)
             {
                 Debug.Log($"[LoanSystem] MISSED payment on {loan.LoanId}. " +

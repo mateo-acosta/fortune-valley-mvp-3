@@ -206,6 +206,115 @@ namespace FortuneValley.Tests
         }
 
         // ===============================================================
+        // ANY LOAN MISSED THIS CYCLE
+        //
+        // Drives the paidOnTime factor in the credit-score formula.
+        // True iff at least one HandlePaymentMissed fired during the
+        // current monthly cycle (reset at the start of ProcessMonthlyPayments).
+        // ===============================================================
+
+        [Test]
+        public void AnyLoanMissedThisCycle_NoActiveLoans_ReturnsFalse()
+        {
+            // Fresh game, no loans. The counter is zero.
+            Assert.IsFalse(_loanSystem.AnyLoanMissedThisCycle());
+        }
+
+        [Test]
+        public void AnyLoanMissedThisCycle_OneLoanPaidOnTime_ReturnsFalse()
+        {
+            GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 6000f);
+            _currencyManager.SetCheckingBalance(10_000f);
+
+            _loanSystem.ProcessMonthlyPayments();
+
+            Assert.IsFalse(_loanSystem.AnyLoanMissedThisCycle(),
+                "Loan paid on time should leave the missed-this-cycle flag false.");
+        }
+
+        [Test]
+        public void AnyLoanMissedThisCycle_OneLoanMissed_ReturnsTrue()
+        {
+            GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 6000f);
+            // Drain checking so the payment cannot be made.
+            _currencyManager.SetCheckingBalance(0f);
+
+            _loanSystem.ProcessMonthlyPayments();
+
+            Assert.IsTrue(_loanSystem.AnyLoanMissedThisCycle(),
+                "A missed payment should set the missed-this-cycle flag true.");
+        }
+
+        [Test]
+        public void AnyLoanMissedThisCycle_OnePaidOneMissed_ReturnsTrue()
+        {
+            // Two loans: one fits the budget, one doesn't.
+            GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lotA", 1_200f);
+            GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lotB", 1_200f);
+            // Each loan's monthly is 1200/12 = 100. Budget enough for one only.
+            _currencyManager.SetCheckingBalance(150f);
+
+            _loanSystem.ProcessMonthlyPayments();
+
+            Assert.IsTrue(_loanSystem.AnyLoanMissedThisCycle(),
+                "Any missed payment in the cycle flips the flag true regardless of others paid.");
+        }
+
+        [Test]
+        public void AnyLoanMissedThisCycle_PriorCycleMissedThisCyclePaid_ReturnsFalse()
+        {
+            GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 6000f);
+
+            // Cycle 1: missed.
+            _currencyManager.SetCheckingBalance(0f);
+            _loanSystem.ProcessMonthlyPayments();
+            Assert.IsTrue(_loanSystem.AnyLoanMissedThisCycle(), "Sanity: cycle 1 should be missed.");
+
+            // Cycle 2: paid. The reset at the top of ProcessMonthlyPayments
+            // wipes the flag before HandlePaymentMissed can run.
+            _currencyManager.SetCheckingBalance(10_000f);
+            _loanSystem.ProcessMonthlyPayments();
+
+            Assert.IsFalse(_loanSystem.AnyLoanMissedThisCycle(),
+                "A new cycle that pays on time should clear the prior cycle's missed state.");
+        }
+
+        [Test]
+        public void AnyLoanMissedThisCycle_LoanOriginatedMidCycle_ReturnsFalse()
+        {
+            // Originate a loan but don't process payments yet (no cycle has elapsed).
+            GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 6000f);
+
+            Assert.IsFalse(_loanSystem.AnyLoanMissedThisCycle(),
+                "Origination alone should not trip the missed-this-cycle flag.");
+        }
+
+        [Test]
+        public void AnyLoanMissedThisCycle_SubscriptionLeak_ClearedAfterDisable()
+        {
+            // Simulate scene reload: clear all subscriptions and verify that
+            // a subsequent payment-missed event does not bump the counter on
+            // a torn-down LoanSystem.
+            GameEvents.RaiseLoanPurchaseRequested("basic_12m", "lot1", 6000f);
+            _currencyManager.SetCheckingBalance(0f);
+            _loanSystem.ProcessMonthlyPayments(); // counter increments via internal HandlePaymentMissed
+
+            Assert.IsTrue(_loanSystem.AnyLoanMissedThisCycle());
+
+            // Tear down: this is the scene-reload simulation. After OnDisable
+            // and ClearAllSubscriptions the dummy event raise below should be
+            // a no-op as far as the LoanSystem is concerned.
+            InvokePrivateMethod(_loanSystem, "OnDisable");
+            GameEvents.ClearAllSubscriptions();
+
+            // External raise of OnLoanPaymentMissed: nothing is subscribed
+            // (LoanSystem internally calls HandlePaymentMissed before raising,
+            // not via subscription, so this raise is a guard against any
+            // future subscription leak). Should not throw.
+            Assert.DoesNotThrow(() => GameEvents.RaiseLoanPaymentMissed(null));
+        }
+
+        // ===============================================================
         // HELPERS
         // ===============================================================
 

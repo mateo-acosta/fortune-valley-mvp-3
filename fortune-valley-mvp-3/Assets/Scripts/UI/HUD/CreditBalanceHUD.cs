@@ -12,7 +12,7 @@ namespace FortuneValley.UI.HUD
     {
         [Header("Dependencies")]
         [SerializeField] private LoanSystem _loanSystem;
-        [SerializeField] private CreditCardSystem _creditCardSystem;
+        [SerializeField] private CreditScoreSystem _creditCardSystem;
 
         [Header("UI References")]
         [SerializeField] private TextMeshProUGUI _balanceText;
@@ -20,14 +20,16 @@ namespace FortuneValley.UI.HUD
         private void OnEnable()
         {
             GameEvents.OnLoanBalanceChanged += HandleLoanBalanceChanged;
-            GameEvents.OnCreditCardBalanceChanged += HandleCreditCardBalanceChanged;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardBalanceChanged += HandleCreditCardBalanceChanged;
             Refresh();
         }
 
         private void OnDisable()
         {
             GameEvents.OnLoanBalanceChanged -= HandleLoanBalanceChanged;
-            GameEvents.OnCreditCardBalanceChanged -= HandleCreditCardBalanceChanged;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardBalanceChanged -= HandleCreditCardBalanceChanged;
         }
 
         private void HandleLoanBalanceChanged(float total, float delta) => Refresh();
@@ -38,7 +40,9 @@ namespace FortuneValley.UI.HUD
             if (_balanceText == null) return;
 
             float loanDebt = _loanSystem != null ? _loanSystem.TotalOutstandingPrincipal : 0f;
-            float ccDebt = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f;
+            float ccDebt = FeatureFlags.CreditCardChargesEnabled && _creditCardSystem != null
+                ? _creditCardSystem.CurrentBalance
+                : 0f;
             _balanceText.text = FormatCurrency(loanDebt + ccDebt);
         }
 

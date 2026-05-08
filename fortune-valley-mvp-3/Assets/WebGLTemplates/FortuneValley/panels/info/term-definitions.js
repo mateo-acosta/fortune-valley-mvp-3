@@ -209,10 +209,20 @@ export const TERM_DEFINITIONS = {
     what:  "Your credit score is a number from about 300 to 850 that tells lenders how likely you are to pay them back. " +
            "Above 700 is Good, 650 to 699 is Fair, below 650 is Poor.",
     why:   "A higher score unlocks loans with lower APRs, which can save you tens of thousands of dollars over a 30 year loan. " +
-           "A low score means worse loan terms, smaller credit limits, and sometimes no loan offer at all.",
-    how:   "Paying every loan and credit card bill on time pushes your score up over months. " +
-           "Missing a payment, maxing out your card, or going through bankruptcy pulls it down quickly. " +
-           "The score updates in the Credit panel as those events happen."
+           "A low score means worse loan terms or sometimes no loan offer at all.",
+    how:   "Paying every loan on time pushes your score up over months. " +
+           "Missing a loan payment, carrying a high debt load relative to your income, or going through bankruptcy pulls it down quickly. " +
+           "The score updates in the Loans panel as those events happen."
+  },
+
+  "credit_score_drivers": {
+    label: "What Drives Your Credit Score",
+    what:  "Two things move your credit score in this game: your loan-payment history, and your debt-to-income ratio (how much of your income goes to monthly debt payments).",
+    why:   "Lenders use the score to decide whether to lend to you and at what interest rate. " +
+           "On-time payments and a low debt load make you look like a safe bet; missed payments and high debt loads make you look risky.",
+    how:   "Pay every loan on time to earn an on-time bonus each cycle. " +
+           "Keep your monthly debt payments well below your income so your debt-to-income ratio stays low. " +
+           "Miss a payment or let debt climb past about 40 percent of income, and the score drops at the next billing cycle."
   },
 
   "credit_utilization": {

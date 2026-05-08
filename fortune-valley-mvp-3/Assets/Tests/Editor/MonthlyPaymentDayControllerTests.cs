@@ -15,7 +15,7 @@ namespace FortuneValley.Tests
     {
         private GameObject _go;
         private MonthlyPaymentDayController _controller;
-        private CreditCardSystem _creditCardSystem;
+        private CreditScoreSystem _creditCardSystem;
         private LoanSystem _loanSystem;
         private InsuranceSystem _insuranceSystem;
         private RestaurantSystem _restaurantSystem;
@@ -25,20 +25,28 @@ namespace FortuneValley.Tests
         private CreditCardConfig _ccConfig;
         private CreditScoringConfig _scoringConfig;
 
+        private bool _ccFlagBeforeTest;
+
         [SetUp]
         public void SetUp()
         {
+            // These tests exercise the popup-pause-and-pay flow that only
+            // runs when the CC mechanic is enabled. Flip the flag on for
+            // the duration of the fixture; restored in TearDown.
+            _ccFlagBeforeTest = FeatureFlags.CreditCardChargesEnabled;
+            FeatureFlags.CreditCardChargesEnabled = true;
+
             _go = new GameObject("TestController");
 
             _controller = _go.AddComponent<MonthlyPaymentDayController>();
-            _creditCardSystem = _go.AddComponent<CreditCardSystem>();
+            _creditCardSystem = _go.AddComponent<CreditScoreSystem>();
             _loanSystem = _go.AddComponent<LoanSystem>();
             _insuranceSystem = _go.AddComponent<InsuranceSystem>();
             _restaurantSystem = _go.AddComponent<RestaurantSystem>();
             _timeManager = _go.AddComponent<TimeManager>();
             _currencyManager = _go.AddComponent<CurrencyManager>();
 
-            // Wire CreditCardSystem config
+            // Wire CreditScoreSystem config
             _ccConfig = ScriptableObject.CreateInstance<CreditCardConfig>();
             SetField(_ccConfig, "_creditLimit", 5000f);
             SetField(_ccConfig, "_apr", 0.24f);
@@ -102,6 +110,8 @@ namespace FortuneValley.Tests
             Object.DestroyImmediate(_ccConfig);
             Object.DestroyImmediate(_scoringConfig);
             GameEvents.ClearAllSubscriptions();
+
+            FeatureFlags.CreditCardChargesEnabled = _ccFlagBeforeTest;
         }
 
         // ===============================================================
@@ -369,13 +379,6 @@ namespace FortuneValley.Tests
         {
             float income = DtiCalculator.ComputeMonthlyIncome(10f, 10, 30);
             Assert.AreEqual(3000f, income, 0.01f);
-        }
-
-        [Test]
-        public void DtiCalculator_ComputeTotalMonthlyDebt_SumsValues()
-        {
-            float total = DtiCalculator.ComputeTotalMonthlyDebt(500f, 25f);
-            Assert.AreEqual(525f, total, 0.01f);
         }
 
         // ===============================================================

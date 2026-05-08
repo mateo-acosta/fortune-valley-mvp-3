@@ -12,7 +12,7 @@ namespace FortuneValley.Tests
     /// PlayMode tests for CreditWebBridge. Mirrors the InvestingWebBridge
     /// test surface: lifecycle invariants, ObjectName warning, intent
     /// validation paths. Full PopulateDTO integration with real
-    /// LoanSystem/CreditCardSystem state is out of scope for v1.
+    /// LoanSystem/CreditScoreSystem state is out of scope for v1.
     /// </summary>
     [TestFixture]
     public class CreditWebBridgeTests

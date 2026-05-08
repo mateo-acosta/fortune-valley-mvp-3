@@ -11,10 +11,15 @@ namespace FortuneValley.Tests
         private GameObject _rootGO;
         private DecisionLogger _logger;
         private APIClient _apiClient;
+        private bool _ccFlagBeforeTest;
 
         [SetUp]
         public void SetUp()
         {
+            // CC subscriptions in DecisionLogger are gated; enable for the fixture.
+            _ccFlagBeforeTest = FeatureFlags.CreditCardChargesEnabled;
+            FeatureFlags.CreditCardChargesEnabled = true;
+
             GameEvents.ClearAllSubscriptions();
 
             _rootGO = new GameObject("TestRoot");
@@ -31,6 +36,7 @@ namespace FortuneValley.Tests
             InvokePrivate(_logger, "OnDisable");
             Object.DestroyImmediate(_rootGO);
             GameEvents.ClearAllSubscriptions();
+            FeatureFlags.CreditCardChargesEnabled = _ccFlagBeforeTest;
         }
 
         [Test]

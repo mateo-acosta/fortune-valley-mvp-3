@@ -26,7 +26,7 @@ namespace FortuneValley.UI.Panels.Credit
 
         [Header("Dependencies")]
         [SerializeField] private LoanSystem _loanSystem;
-        [SerializeField] private CreditCardSystem _creditCardSystem;
+        [SerializeField] private CreditScoreSystem _creditCardSystem;
         [SerializeField] private CurrencyManager _currencyManager;
         [SerializeField] private CityManager _cityManager;
 

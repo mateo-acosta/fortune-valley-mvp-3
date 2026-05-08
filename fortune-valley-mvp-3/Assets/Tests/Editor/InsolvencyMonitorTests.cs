@@ -11,10 +11,16 @@ namespace FortuneValley.Tests
         private float _ccDebt;
         private float _loanPrincipal;
         private int _bankruptcyFireCount;
+        private bool _ccFlagBeforeTest;
 
         [SetUp]
         public void SetUp()
         {
+            // These tests pass CC debt as part of the insolvency math;
+            // LiquidNetWorthCalculator only counts CC debt when the flag is on.
+            _ccFlagBeforeTest = FeatureFlags.CreditCardChargesEnabled;
+            FeatureFlags.CreditCardChargesEnabled = true;
+
             _checking = 0f;
             _investing = 0f;
             _ccDebt = 0f;
@@ -27,6 +33,7 @@ namespace FortuneValley.Tests
         public void TearDown()
         {
             GameEvents.ClearAllSubscriptions();
+            FeatureFlags.CreditCardChargesEnabled = _ccFlagBeforeTest;
         }
 
         private InsolvencyMonitor BuildMonitor()

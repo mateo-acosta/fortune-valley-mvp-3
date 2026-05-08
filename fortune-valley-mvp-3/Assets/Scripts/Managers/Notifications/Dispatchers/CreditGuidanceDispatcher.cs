@@ -32,14 +32,19 @@ namespace FortuneValley.Managers.Notifications.Dispatchers
 
         private void OnEnable()
         {
+            // Score banner stays unconditional -- the score still flows.
             GameEvents.OnCreditScoreChanged += HandleCreditScoreChanged;
-            GameEvents.OnCreditCardStatementReady += HandleCreditCardStatementReady;
+
+            // Statement banner only when the CC mechanic is enabled.
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardStatementReady += HandleCreditCardStatementReady;
         }
 
         private void OnDisable()
         {
             GameEvents.OnCreditScoreChanged -= HandleCreditScoreChanged;
-            GameEvents.OnCreditCardStatementReady -= HandleCreditCardStatementReady;
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardStatementReady -= HandleCreditCardStatementReady;
         }
 
         public void Initialize(

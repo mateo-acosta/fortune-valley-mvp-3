@@ -8,7 +8,7 @@ namespace FortuneValley.Tests
     /// EditMode tests for CreditWebBridgeLogic. Focuses on the pure-logic
     /// surface that does not require constructing live MonoBehaviour
     /// systems. Full PopulateDTO integration with real LoanSystem /
-    /// CreditCardSystem / CityManager / TimeManager state is exercised
+    /// CreditScoreSystem / CityManager / TimeManager state is exercised
     /// by PlayMode tests.
     /// </summary>
     [TestFixture]

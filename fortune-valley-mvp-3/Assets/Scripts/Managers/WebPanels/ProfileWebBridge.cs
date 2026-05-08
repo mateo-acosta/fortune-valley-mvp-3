@@ -38,7 +38,7 @@ namespace FortuneValley.Managers.WebPanels
         [SerializeField] private CurrencyManager _currencyManager;
         [SerializeField] private CityManager _cityManager;
         [SerializeField] private TimeManager _timeManager;
-        [SerializeField] private CreditCardSystem _creditCardSystem;
+        [SerializeField] private CreditScoreSystem _creditCardSystem;
         [SerializeField] private QuestionManager _questionManager;
         [SerializeField] private RestaurantSystem _restaurantSystem;
         [SerializeField] private InvestmentSystem _investmentSystem;

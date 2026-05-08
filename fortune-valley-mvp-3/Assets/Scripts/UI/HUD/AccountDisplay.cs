@@ -69,7 +69,8 @@ namespace FortuneValley.UI.HUD
                     GameEvents.OnInvestingBalanceChanged += HandleBalanceChanged;
                     break;
                 case AccountType.CreditCard:
-                    GameEvents.OnCreditCardBalanceChanged += HandleBalanceChanged;
+                    if (FeatureFlags.CreditCardChargesEnabled)
+                        GameEvents.OnCreditCardBalanceChanged += HandleBalanceChanged;
                     break;
             }
         }
@@ -85,7 +86,8 @@ namespace FortuneValley.UI.HUD
                     GameEvents.OnInvestingBalanceChanged -= HandleBalanceChanged;
                     break;
                 case AccountType.CreditCard:
-                    GameEvents.OnCreditCardBalanceChanged -= HandleBalanceChanged;
+                    if (FeatureFlags.CreditCardChargesEnabled)
+                        GameEvents.OnCreditCardBalanceChanged -= HandleBalanceChanged;
                     break;
             }
         }

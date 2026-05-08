@@ -6,18 +6,20 @@ using FortuneValley.Domain.Interfaces;
 namespace FortuneValley.Core
 {
     /// <summary>
-    /// Manages the player's credit card account.
-    /// Subscribes to charge requests, tracks balance, generates statements.
+    /// Manages the player's credit score and the (now-disabled) credit card account.
+    /// Subscribes to charge requests, tracks balance, generates statements when the
+    /// CC mechanic is enabled. Owns the credit-score state at all times -- the score
+    /// flows even with the CC mechanic off, driven by loan-payment behavior and DTI.
     ///
-    /// LEARNING DESIGN: Every purchase goes on credit. Students must
-    /// actively decide how much to pay each month. Carrying a balance
-    /// costs real money (interest), making the cost of debt visible.
+    /// LEARNING DESIGN: The credit score is a live signal that responds to the
+    /// player's loan-payment behavior. Pay loans on time and keep DTI low to
+    /// raise the score; missed payments and high debt loads lower it.
     ///
-    /// Implements IBankruptcyResettable: on soft bankruptcy, the active
-    /// card is recreated (zero balance, no history) and credit score
-    /// returns to the configured starting value (650 by default).
+    /// Implements IBankruptcyResettable: on soft bankruptcy, the active card
+    /// is recreated (zero balance, no history) and credit score returns to the
+    /// configured starting value (650 by default).
     /// </summary>
-    public class CreditCardSystem : MonoBehaviour, IBankruptcyResettable
+    public class CreditScoreSystem : MonoBehaviour, IBankruptcyResettable
     {
         // ===============================================================
         // CONFIGURATION
@@ -26,6 +28,10 @@ namespace FortuneValley.Core
         [Header("Config")]
         [SerializeField] private CreditCardConfig _config;
         [SerializeField] private CreditScoringConfig _scoringConfig;
+
+        [Header("Dependencies")]
+        [Tooltip("Used to query loan-payment behavior for the credit-score paidOnTime factor.")]
+        [SerializeField] private LoanSystem _loanSystem;
 
         [Header("Debug")]
         [SerializeField] private bool _logTransactions = false;
@@ -69,7 +75,8 @@ namespace FortuneValley.Core
         public int BillingCycleTicks => BillingCycleDays;
 
         /// <summary>
-        /// Access payment history for credit score calculation.
+        /// Access payment history. Kept for compatibility; the credit-score
+        /// calculation now sources paidOnTime from LoanSystem instead.
         /// </summary>
         public ActiveCreditCard Card => _card;
 
@@ -80,9 +87,15 @@ namespace FortuneValley.Core
         private void OnEnable()
         {
             GameEvents.OnGameStart += HandleGameStart;
-            GameEvents.OnCreditCardChargeRequested += HandleChargeRequested;
-            GameEvents.OnDayEnd += HandleDayEnd;
             GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            // CC charge/day-cycle handling only fires when the CC mechanic is on.
+            // Score-related events flow regardless.
+            if (FeatureFlags.CreditCardChargesEnabled)
+            {
+                GameEvents.OnCreditCardChargeRequested += HandleChargeRequested;
+                GameEvents.OnDayEnd += HandleDayEnd;
+            }
 
             if (GameEvents.LastLoadedSaveDto != null)
             {
@@ -93,23 +106,27 @@ namespace FortuneValley.Core
         private void OnDisable()
         {
             GameEvents.OnGameStart -= HandleGameStart;
-            GameEvents.OnCreditCardChargeRequested -= HandleChargeRequested;
-            GameEvents.OnDayEnd -= HandleDayEnd;
             GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+
+            if (FeatureFlags.CreditCardChargesEnabled)
+            {
+                GameEvents.OnCreditCardChargeRequested -= HandleChargeRequested;
+                GameEvents.OnDayEnd -= HandleDayEnd;
+            }
         }
 
         private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
         {
             try { Hydrate(dto); }
-            catch (Exception e) { Debug.LogError($"[{nameof(CreditCardSystem)}] hydrate failed: {e}"); }
+            catch (Exception e) { Debug.LogError($"[{nameof(CreditScoreSystem)}] hydrate failed: {e}"); }
         }
 
         private void Start()
         {
-            if (_config == null)
-                Debug.LogError("[CreditCardSystem] _config not wired in Inspector.");
             if (_scoringConfig == null)
-                Debug.LogError("[CreditCardSystem] _scoringConfig not wired in Inspector.");
+                Debug.LogError("[CreditScoreSystem] _scoringConfig not wired in Inspector.");
+            if (FeatureFlags.CreditCardChargesEnabled && _config == null)
+                Debug.LogError("[CreditScoreSystem] _config not wired in Inspector (CC mechanic enabled).");
         }
 
         private void HandleGameStart()
@@ -137,7 +154,7 @@ namespace FortuneValley.Core
         }
 
         // ===============================================================
-        // CHARGE HANDLING
+        // CHARGE HANDLING (only active when CC mechanic is enabled)
         // ===============================================================
 
         /// <summary>
@@ -153,7 +170,7 @@ namespace FortuneValley.Core
             if (success)
             {
                 if (_logTransactions)
-                    Debug.Log($"[CreditCardSystem] Charged ${amount:F2} for {reason}. Balance: ${_card.CurrentBalance:F2}");
+                    Debug.Log($"[CreditScoreSystem] Charged ${amount:F2} for {reason}. Balance: ${_card.CurrentBalance:F2}");
 
                 GameEvents.RaiseCreditCardCharged(amount);
                 GameEvents.RaiseCreditCardBalanceChanged(_card.CurrentBalance, amount);
@@ -162,7 +179,7 @@ namespace FortuneValley.Core
             {
                 if (_logTransactions)
                 {
-                    Debug.Log($"[CreditCardSystem] Charge of ${amount:F2} for {reason} DECLINED. " +
+                    Debug.Log($"[CreditScoreSystem] Charge of ${amount:F2} for {reason} DECLINED. " +
                               $"Balance: ${_card.CurrentBalance:F2}, Limit: ${_config.CreditLimit:F2}");
                 }
             }
@@ -185,9 +202,11 @@ namespace FortuneValley.Core
         /// <summary>
         /// Generate a monthly statement. Called by MonthlyPaymentDayController
         /// on payment day. Closes the billing cycle and calculates interest.
+        /// No-op when the CC mechanic is disabled.
         /// </summary>
         public void GenerateStatement()
         {
+            if (!FeatureFlags.CreditCardChargesEnabled) return;
             if (_card == null || _config == null) return;
 
             _card.CloseStatement(
@@ -198,7 +217,7 @@ namespace FortuneValley.Core
 
             if (_logTransactions)
             {
-                Debug.Log($"[CreditCardSystem] Statement generated. " +
+                Debug.Log($"[CreditScoreSystem] Statement generated. " +
                           $"Balance: ${_card.StatementBalance:F2}, " +
                           $"Interest: ${_card.InterestAccrued:F2}, " +
                           $"Min due: ${_card.MinimumPaymentDue:F2}");
@@ -226,7 +245,7 @@ namespace FortuneValley.Core
 
             if (_logTransactions)
             {
-                Debug.Log($"[CreditCardSystem] Payment of ${actualPaid:F2} applied. " +
+                Debug.Log($"[CreditScoreSystem] Payment of ${actualPaid:F2} applied. " +
                           $"Remaining balance: ${_card.CurrentBalance:F2}");
             }
 
@@ -240,21 +259,22 @@ namespace FortuneValley.Core
 
         /// <summary>
         /// Update credit score using the calculator.
-        /// Called by MonthlyPaymentDayController after payment processing.
+        /// Called by MonthlyPaymentDayController after loan payment processing.
+        /// Sources paidOnTime from LoanSystem (loan-payment history).
         /// </summary>
         public void UpdateCreditScore(float dti)
         {
-            if (_card == null || _scoringConfig == null) return;
+            if (_scoringConfig == null) return;
 
-            // Check if the most recent payment was on time
-            bool paidOnTime = _card.PaymentHistory.Count > 0 && _card.PaymentHistory[0];
-            float utilization = _config != null ? _card.Utilization(_config.CreditLimit) : 0f;
+            // No missed loan payments this cycle = on-time bonus.
+            // Any missed payment = penalty. Defaults to true if LoanSystem
+            // is unwired (cannot punish what we cannot measure).
+            bool paidOnTime = _loanSystem == null || !_loanSystem.AnyLoanMissedThisCycle();
 
             int newScore = CreditScoreCalculator.Recalculate(
                 _currentCreditScore,
                 _scoringConfig,
                 paidOnTime,
-                utilization,
                 dti
             );
 

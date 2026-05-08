@@ -33,7 +33,7 @@ namespace FortuneValley.Core
         // ===============================================================
 
         [Header("Financial Systems")]
-        [SerializeField] private CreditCardSystem _creditCardSystem;
+        [SerializeField] private CreditScoreSystem _creditCardSystem;
         [SerializeField] private LoanSystem _loanSystem;
         [SerializeField] private InsuranceSystem _insuranceSystem;
         [SerializeField] private RestaurantSystem _restaurantSystem;
@@ -61,14 +61,20 @@ namespace FortuneValley.Core
         {
             GameEvents.OnGameStart += HandleGameStart;
             GameEvents.OnDayEnd += HandleDayEnd;
-            GameEvents.OnCreditCardPaymentCompleted += HandleCCPaymentCompleted;
+
+            // The CC payment popup never fires when the CC mechanic is off,
+            // so this subscription is dead-but-harmless behind the flag.
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardPaymentCompleted += HandleCCPaymentCompleted;
         }
 
         private void OnDisable()
         {
             GameEvents.OnGameStart -= HandleGameStart;
             GameEvents.OnDayEnd -= HandleDayEnd;
-            GameEvents.OnCreditCardPaymentCompleted -= HandleCCPaymentCompleted;
+
+            if (FeatureFlags.CreditCardChargesEnabled)
+                GameEvents.OnCreditCardPaymentCompleted -= HandleCCPaymentCompleted;
         }
 
         private void Start()
@@ -142,11 +148,11 @@ namespace FortuneValley.Core
             _state = PaymentState.WaitingForCCPayment;
 
             // CreditCardStatementReady event signals the popup to display
-            // (CreditCardSystem.GenerateStatement already fired this above)
+            // (CreditScoreSystem.GenerateStatement already fired this above)
         }
 
         // ===============================================================
-        // CC PAYMENT RECEIVED (fired by CreditCardSystem after player pays)
+        // CC PAYMENT RECEIVED (fired by CreditScoreSystem after player pays)
         // ===============================================================
 
         private void HandleCCPaymentCompleted(float amountPaid)
@@ -163,12 +169,11 @@ namespace FortuneValley.Core
 
         private void RunPostPaymentSteps()
         {
-            // Step 4: update credit score using DTI (debt-to-income ratio)
+            // Step 4: update credit score using DTI (debt-to-income ratio).
+            // Total debt is loan-only now that the CC mechanic is disabled.
             if (_creditCardSystem != null && _restaurantSystem != null && _timeManager != null)
             {
-                float totalDebt = DtiCalculator.ComputeTotalMonthlyDebt(
-                    _loanSystem != null ? _loanSystem.TotalMonthlyDebt : 0f,
-                    _creditCardSystem.MinimumPaymentDue);
+                float totalDebt = _loanSystem != null ? _loanSystem.TotalMonthlyDebt : 0f;
 
                 float monthlyIncome = DtiCalculator.ComputeMonthlyIncome(
                     _restaurantSystem.TotalIncomePerTick,
