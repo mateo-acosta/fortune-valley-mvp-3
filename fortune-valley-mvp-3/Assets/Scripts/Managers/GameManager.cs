@@ -88,6 +88,11 @@ namespace FortuneValley.Managers
 
         private void Awake()
         {
+            // WebGL perf: cap render rate (vSync is off in QualitySettings) and
+            // stop PhysX from running every FixedUpdate for a non-physics game.
+            Application.targetFrameRate = 60;
+            Physics.simulationMode = SimulationMode.Script;
+
             ValidateReferences();
             ConstructLifeGoalsServices();
         }
