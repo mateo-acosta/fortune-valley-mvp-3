@@ -137,6 +137,7 @@ namespace FortuneValley.Tests
             public void HidePanel(string panelId) { CallOrder.Add("HidePanel"); }
             public void UpdatePanel(string panelId, string json) { CallOrder.Add("UpdatePanel"); }
             public void ShowError(string panelId, string message) { CallOrder.Add("ShowError"); }
+            public void ReportEvent(string eventName, string propertiesJson) { CallOrder.Add("ReportEvent"); }
         }
 
         private static void SetField(object target, string fieldName, object value)

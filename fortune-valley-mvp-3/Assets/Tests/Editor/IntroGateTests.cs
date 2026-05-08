@@ -124,5 +124,46 @@ namespace FortuneValley.Tests
             var state = new GamePlayerStateDTO { game_mode = "homebase", tutorial_completed = false };
             Assert.IsFalse(IntroGate.ShouldRunIntro(state, IntroGate.TeacherPreviewRole, store));
         }
+
+        // ─────────────────────────────────────────────────────────────────
+        // Server-confirmed-fresh-user signal: a brand-new student whose
+        // server has no game_player_states row yet must run the tutorial,
+        // even when a stale per-browser PlayerPrefs flag would otherwise
+        // suppress it. Bug fix: previously the bootstrapper's empty-payload
+        // bail-out left state=null, and IntroGate fell back to PlayerPrefs,
+        // letting tutorial completion leak across student accounts on a
+        // shared browser.
+        // ─────────────────────────────────────────────────────────────────
+
+        [Test]
+        public void StateNull_ServerConfirmedFresh_RunsTutorial_EvenIfPrefsFlagSet()
+        {
+            var store = new InMemoryKeyValueStore();
+            store.SetInt(IntroTutorialController.PlayerPrefsKeyPrefix + "homebase", 1);
+
+            Assert.IsTrue(
+                IntroGate.ShouldRunIntro(
+                    state: null,
+                    role: "student",
+                    keyValueStore: store,
+                    serverConfirmedFreshUser: true),
+                "Server-confirmed fresh user must override stale per-browser PlayerPrefs flag");
+        }
+
+        [Test]
+        public void StateNull_ServerNotConfirmedFresh_PrefsFlagSet_DoesNotRun()
+        {
+            // Guest / offline / pre-bootstrapper path: no server signal arrived.
+            // PlayerPrefs is still the only source of truth and must suppress.
+            var store = new InMemoryKeyValueStore();
+            store.SetInt(IntroTutorialController.PlayerPrefsKeyPrefix + "homebase", 1);
+
+            Assert.IsFalse(
+                IntroGate.ShouldRunIntro(
+                    state: null,
+                    role: "student",
+                    keyValueStore: store,
+                    serverConfirmedFreshUser: false));
+        }
     }
 }

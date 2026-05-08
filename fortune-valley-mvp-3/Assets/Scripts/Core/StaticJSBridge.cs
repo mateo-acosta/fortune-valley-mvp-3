@@ -18,5 +18,6 @@ namespace FortuneValley.Core
         public void HidePanel(string panelId) => JSBridge.HidePanel(panelId);
         public void UpdatePanel(string panelId, string json) => JSBridge.UpdatePanel(panelId, json);
         public void ShowError(string panelId, string message) => JSBridge.ShowError(panelId, message);
+        public void ReportEvent(string eventName, string propertiesJson) => JSBridge.ReportEvent(eventName, propertiesJson);
     }
 }

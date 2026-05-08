@@ -34,6 +34,7 @@ namespace FortuneValley.Tests
             public void HidePanel(string panelId) { }
             public void UpdatePanel(string panelId, string json) { }
             public void ShowError(string panelId, string message) { }
+            public void ReportEvent(string eventName, string propertiesJson) { }
         }
 
         [Test]

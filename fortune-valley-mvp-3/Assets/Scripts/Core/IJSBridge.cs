@@ -20,5 +20,10 @@ namespace FortuneValley.Core
         void HidePanel(string panelId);
         void UpdatePanel(string panelId, string json);
         void ShowError(string panelId, string message);
+
+        // Fire-and-forget telemetry. Browser-side reportEvent forwards to the
+        // Rails telemetry endpoint, which captures via Sentry. propertiesJson
+        // is a JSON object of arbitrary attributes attached to the event.
+        void ReportEvent(string eventName, string propertiesJson);
     }
 }

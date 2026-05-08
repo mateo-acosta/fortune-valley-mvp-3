@@ -132,7 +132,16 @@ namespace FortuneValley.Core
 
             if (dto == null || string.IsNullOrEmpty(dto.game_mode))
             {
-                Debug.Log("[GameSaveBootstrapper] empty/first-time payload, skipping restore");
+                // Server confirmed this user has no record yet (brand-new
+                // student). Don't raise OnSaveStateLoaded — other systems
+                // (CityManager, etc.) have already seeded their default state
+                // via GameManager.StartGame() and would wipe it on Hydrate.
+                // Instead, set the explicit "server confirmed fresh user"
+                // flag so IntroGate can stop falling back to the per-browser
+                // PlayerPrefs flag, which leaks tutorial completion across
+                // student accounts on a shared browser.
+                Debug.Log("[GameSaveBootstrapper] empty/first-time payload, marking server-confirmed fresh user");
+                GameEvents.HasServerConfirmedFreshUser = true;
                 return;
             }
 

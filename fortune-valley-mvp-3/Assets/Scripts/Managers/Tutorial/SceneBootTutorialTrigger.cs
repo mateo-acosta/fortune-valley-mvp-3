@@ -80,8 +80,9 @@ namespace FortuneValley.Managers.Tutorial
             GamePlayerStateDTO state = _stateAccessor != null ? _stateAccessor.Current : null;
             string role = _apiClient != null ? _apiClient.GetRole() : null;
             var prefs = new PlayerPrefsKeyValueStore();
+            bool serverConfirmedFresh = GameEvents.HasServerConfirmedFreshUser;
 
-            bool shouldRun = IntroGate.ShouldRunIntro(state, role, prefs);
+            bool shouldRun = IntroGate.ShouldRunIntro(state, role, prefs, serverConfirmedFresh);
 
             string gameMode = state != null && !string.IsNullOrEmpty(state.game_mode) ? state.game_mode : "homebase";
             int prefsFlag = prefs.GetInt(IntroTutorialController.PlayerPrefsKeyPrefix + gameMode, 0);
@@ -90,9 +91,20 @@ namespace FortuneValley.Managers.Tutorial
                       $"state={(state == null ? "null" : "present")} " +
                       $"state.tutorial_completed={(state != null ? state.tutorial_completed.ToString() : "n/a")} " +
                       $"role='{role}' " +
+                      $"serverConfirmedFresh={serverConfirmedFresh} " +
                       $"prefsKey='{IntroTutorialController.PlayerPrefsKeyPrefix + gameMode}' " +
                       $"prefsFlag={prefsFlag} " +
                       $"(stateAccessor null? {_stateAccessor == null}, apiClient null? {_apiClient == null})");
+
+            // Sentry signal: count the cases where a brand-new student would
+            // have been blocked by a stale per-browser PlayerPrefs flag if not
+            // for the server-confirmed-fresh-user override. Lets us see in
+            // production how often this fix is doing its job.
+            if (_apiClient != null && serverConfirmedFresh && prefsFlag == 1)
+            {
+                string props = $"{{\"role\":\"{role}\",\"game_mode\":\"{gameMode}\",\"prefs_flag\":1}}";
+                _apiClient.ReportTelemetry("tutorial_stale_prefs_bypassed", props);
+            }
 
             if (shouldRun)
             {

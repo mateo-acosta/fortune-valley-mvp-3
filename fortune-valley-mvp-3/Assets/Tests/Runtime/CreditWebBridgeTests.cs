@@ -209,6 +209,7 @@ namespace FortuneValley.Tests
             {
                 ShowErrorCalls.Add(new ShowErrorCall { PanelId = panelId, Message = message });
             }
+            public void ReportEvent(string eventName, string propertiesJson) { }
         }
 
         private class UpdatePanelCall

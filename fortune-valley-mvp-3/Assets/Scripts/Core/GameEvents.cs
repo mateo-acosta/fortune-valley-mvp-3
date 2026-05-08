@@ -861,6 +861,17 @@ namespace FortuneValley.Core
         // Intentionally NOT cleared in ClearAllSubscriptions.
         public static bool HasSaveBeenRestored { get; set; }
 
+        // Set by GameSaveBootstrapper.Apply when the server returns an empty
+        // payload for an authenticated user (e.g. brand-new student with no
+        // game_player_states row yet). IntroGate reads this so it can stop
+        // falling back to the per-browser PlayerPrefs flag, which would
+        // otherwise leak tutorial completion across student accounts on a
+        // shared browser. Stays false for guests (bridge JS skips SendMessage
+        // entirely when unauthenticated) so the existing PlayerPrefs fallback
+        // for offline play is preserved.
+        // Intentionally NOT cleared in ClearAllSubscriptions.
+        public static bool HasServerConfirmedFreshUser { get; set; }
+
         // ═══════════════════════════════════════════════════════════════
         // CLEANUP (call when exiting play mode or restarting)
         // ═══════════════════════════════════════════════════════════════

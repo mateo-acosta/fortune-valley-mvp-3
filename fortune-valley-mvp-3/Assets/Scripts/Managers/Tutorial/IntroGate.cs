@@ -26,9 +26,16 @@ namespace FortuneValley.Managers.Tutorial
         public const string TeacherPreviewRole = "teacher_preview";
 
         public static bool ShouldRunIntro(GamePlayerStateDTO state, string role)
-            => ShouldRunIntro(state, role, keyValueStore: null);
+            => ShouldRunIntro(state, role, keyValueStore: null, serverConfirmedFreshUser: false);
 
         public static bool ShouldRunIntro(GamePlayerStateDTO state, string role, IKeyValueStore keyValueStore)
+            => ShouldRunIntro(state, role, keyValueStore, serverConfirmedFreshUser: false);
+
+        public static bool ShouldRunIntro(
+            GamePlayerStateDTO state,
+            string role,
+            IKeyValueStore keyValueStore,
+            bool serverConfirmedFreshUser)
         {
             if (role == TeacherPreviewRole) return false;
 
@@ -38,8 +45,17 @@ namespace FortuneValley.Managers.Tutorial
             // shared browser.
             if (state != null) return !state.tutorial_completed;
 
+            // Server returned an empty payload for an authenticated user
+            // (brand-new student, no game_player_states row yet). That is a
+            // meaningful "first-time" signal, not a missed delivery — the
+            // server has spoken, and we run the tutorial without consulting
+            // the per-browser PlayerPrefs flag.
+            if (serverConfirmedFreshUser) return true;
+
             // Offline / pre-bootstrapper fallback: use the local PlayerPrefs
-            // flag a previous in-browser completion may have written.
+            // flag a previous in-browser completion may have written. This
+            // path also covers guests (bridge JS skips SendMessage when
+            // unauthenticated, so HasServerConfirmedFreshUser stays false).
             if (keyValueStore != null)
             {
                 string key = IntroTutorialController.PlayerPrefsKeyPrefix + "homebase";

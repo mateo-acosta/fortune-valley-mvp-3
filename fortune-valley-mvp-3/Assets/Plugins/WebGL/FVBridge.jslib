@@ -113,5 +113,20 @@ mergeInto(LibraryManager.library, {
         window.FV.showError(panelId, message);
       }
     } catch(e) {}
+  },
+
+  // Fire-and-forget telemetry. Forwards to window.FV.reportEvent which
+  // POSTs to the Rails /api/game/telemetry endpoint, where the server
+  // captures the event via Sentry. Used for low-volume signals (e.g.
+  // tutorial-gate decisions) where we want production observability
+  // without adding a browser SDK to the build.
+  FVBridge_ReportEvent: function(eventNamePtr, jsonPtr) {
+    var eventName = UTF8ToString(eventNamePtr);
+    var json = UTF8ToString(jsonPtr);
+    try {
+      if (window.FV && typeof window.FV.reportEvent === 'function') {
+        window.FV.reportEvent(eventName, json);
+      }
+    } catch(e) {}
   }
 });

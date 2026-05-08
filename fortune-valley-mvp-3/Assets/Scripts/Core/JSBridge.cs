@@ -43,6 +43,9 @@ namespace FortuneValley.Core
 
         [DllImport("__Internal")]
         private static extern void FVBridge_ShowError(string panelId, string message);
+
+        [DllImport("__Internal")]
+        private static extern void FVBridge_ReportEvent(string eventName, string propertiesJson);
 #endif
 
         public static string GetCsrfToken()
@@ -141,6 +144,15 @@ namespace FortuneValley.Core
             FVBridge_ShowError(panelId, message);
 #else
             Debug.Log($"[JSBridge] ShowError (editor) {panelId}: {message}");
+#endif
+        }
+
+        public static void ReportEvent(string eventName, string propertiesJson)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            FVBridge_ReportEvent(eventName, propertiesJson);
+#else
+            Debug.Log($"[JSBridge] ReportEvent (editor) {eventName}: {propertiesJson}");
 #endif
         }
     }

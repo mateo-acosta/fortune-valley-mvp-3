@@ -150,6 +150,18 @@ namespace FortuneValley.Core
         /// </summary>
         public string GetRole() => Bridge.GetRole();
 
+        /// <summary>
+        /// Fire-and-forget telemetry event. Forwarded through the JS bridge
+        /// to the Rails telemetry endpoint, which captures via Sentry. Used
+        /// for low-volume diagnostic signals (e.g. tutorial-gate decisions)
+        /// without adding a browser SDK to the WebGL build.
+        /// </summary>
+        public void ReportTelemetry(string eventName, string propertiesJson)
+        {
+            if (string.IsNullOrEmpty(eventName)) return;
+            Bridge.ReportEvent(eventName, propertiesJson ?? "{}");
+        }
+
 #if UNITY_INCLUDE_TESTS
         /// <summary>
         /// Test spy: stores the last DTO passed to EnqueueDecision.
