@@ -90,3 +90,7 @@ Assets/Screenshots/
 # Unity Test Runner scaffolding (auto-created on PlayMode test runs)
 Assets/InitTestScene*.unity
 Assets/InitTestScene*.unity.meta
+Assets/Resources/PerformanceTestRunInfo.json
+Assets/Resources/PerformanceTestRunInfo.json.meta
+Assets/Resources/PerformanceTestRunSettings.json
+Assets/Resources/PerformanceTestRunSettings.json.meta
