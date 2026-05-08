@@ -15,7 +15,7 @@ namespace FortuneValley.Domain.Entities.WebPanels
         public string id;                   // LoanConfig.LoanId
         public string name;                  // LoanConfig.DisplayName
         public float apr;                    // LoanConfig.APR (e.g. 0.052 = 5.2%)
-        public int termMonths;               // LoanConfig.TermMonths
+        public int termMonths;               // LoanConfig.TermYears (in-game years; field name kept for JS bridge contract)
         public float downPaymentPercent;     // LoanConfig.DownPaymentPercent (0..1)
         public int minCreditScore;           // LoanConfig.MinimumCreditScore
         public string image;                 // not sourced today

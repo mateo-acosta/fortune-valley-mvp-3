@@ -98,12 +98,12 @@ namespace FortuneValley.Tests
                 lotId: "Lot_Block01",
                 principal: 10000f,
                 apr: 0.05f,
-                termMonths: 12,
+                termYears: 12,
                 monthlyPayment: 856.07f,
                 downPayment: 1000f,
                 startDay: 0);
             Assert.AreEqual(loan.MonthlyPayment, loan.YearlyPayment);
-            Assert.AreEqual(loan.TermMonths, loan.TermTicks);
+            Assert.AreEqual(loan.TermYears, loan.TermTicks);
             Assert.AreEqual(loan.StartDay, loan.StartTick);
         }
 
@@ -133,7 +133,7 @@ namespace FortuneValley.Tests
                 lotId: "Lot_Block01",
                 principal: 5000f,
                 apr: 0.06f,
-                termMonths: 12,
+                termYears: 12,
                 monthlyPayment: 430f,
                 downPayment: 0f,
                 startDay: 0));

@@ -27,7 +27,7 @@ namespace FortuneValley.Core
             string lotId,
             float purchasePrice,
             float apr,
-            int termMonths,
+            int termYears,
             float downPaymentPercent,
             int startDay)
         {
@@ -44,10 +44,10 @@ namespace FortuneValley.Core
             // No loan needed if down payment covers full price
             if (principal <= 0f) return null;
 
-            float monthlyPayment = ActiveLoan.CalculateMonthlyPayment(principal, apr, termMonths);
+            float monthlyPayment = ActiveLoan.CalculateMonthlyPayment(principal, apr, termYears);
 
             var loan = new ActiveLoan(
-                loanId, lotId, principal, apr, termMonths,
+                loanId, lotId, principal, apr, termYears,
                 monthlyPayment, downPayment, startDay);
 
             _loans.Add(loan);

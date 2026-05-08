@@ -60,15 +60,17 @@ namespace FortuneValley.Managers.WebPanels
         public override bool PopulateDTO(CreditPanelDTO target)
         {
             if (target == null) return false;
-            // Skip the push silently if any required dependency is missing.
-            if (_loanSystem == null || _creditCardSystem == null || _currencyManager == null) return false;
+            // Hard requirements: loans + cash. CreditCardSystem is optional
+            // because the CC mechanic is being removed; when null, CC fields
+            // emit zero rather than blocking the entire push.
+            if (_loanSystem == null || _currencyManager == null) return false;
 
             // Home tab scalars
-            target.creditScore = _creditCardSystem.CreditScore;
-            target.ccBalance = _creditCardSystem.CurrentBalance;
-            target.ccLimit = _creditCardSystem.CreditLimit;
-            target.ccAvailable = _creditCardSystem.AvailableCredit;
-            target.ccUtilization = _creditCardSystem.Utilization;
+            target.creditScore = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0;
+            target.ccBalance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f;
+            target.ccLimit = _creditCardSystem != null ? _creditCardSystem.CreditLimit : 0f;
+            target.ccAvailable = _creditCardSystem != null ? _creditCardSystem.AvailableCredit : 0f;
+            target.ccUtilization = _creditCardSystem != null ? _creditCardSystem.Utilization : 0f;
             target.totalDebt = _loanSystem.TotalOutstandingPrincipal;
             target.monthlyDebtPayment = _loanSystem.TotalYearlyDebt;
             target.cashOnHand = _currencyManager.CheckingBalance;
@@ -128,7 +130,7 @@ namespace FortuneValley.Managers.WebPanels
             row.originalPrincipal = loan.Principal;
             row.monthlyPayment = loan.YearlyPayment;
             row.monthsPaid = loan.PaymentsMade;
-            row.termMonths = loan.TermMonths;
+            row.termMonths = loan.TermYears;
         }
 
         private string ResolveLotName(string lotId)
@@ -163,7 +165,7 @@ namespace FortuneValley.Managers.WebPanels
             row.id = cfg.LoanId;
             row.name = cfg.DisplayName;
             row.apr = cfg.APR * DecimalToPercent;
-            row.termMonths = cfg.TermMonths;
+            row.termMonths = cfg.TermYears;
             row.downPaymentPercent = cfg.DownPaymentPercent;
             row.minCreditScore = cfg.MinimumCreditScore;
             row.tagline = cfg.Tagline;

@@ -164,11 +164,11 @@ namespace FortuneValley.Core
                     remaining_balance = loan.RemainingBalance,
                     // Legacy fields (Stage 0a alias chain). Removed in Stage 0c.
                     monthly_payment = loan.YearlyPayment,
-                    term_months = loan.TermMonths,
+                    term_months = loan.TermYears,
                     start_day = loan.StartTick,
                     // New tick-vocabulary fields, written in parallel.
                     yearly_payment = loan.YearlyPayment,
-                    term_ticks = loan.TermMonths,
+                    term_ticks = loan.TermYears,
                     start_tick = loan.StartTick,
                     payments_made = loan.PaymentsMade,
                     apr = loan.APR,

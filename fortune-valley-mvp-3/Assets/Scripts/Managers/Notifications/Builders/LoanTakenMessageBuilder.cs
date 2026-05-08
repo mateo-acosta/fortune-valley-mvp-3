@@ -8,7 +8,7 @@ namespace FortuneValley.Managers.Notifications.Builders
     /// (authors must match in their templates):
     ///   {0} = principal, formatted with thousands separators, e.g. "$5,000"
     ///   {1} = lot id (raw)
-    ///   {2} = term in months, e.g. "24"
+    ///   {2} = term in in-game years, e.g. "15"
     ///   {3} = monthly payment, formatted, e.g. "$250"
     /// Uses InvariantCulture so classroom WebGL builds render identical copy
     /// regardless of browser locale.
@@ -24,7 +24,7 @@ namespace FortuneValley.Managers.Notifications.Builders
             {
                 FormatCurrency(context.Principal),
                 context.LotId ?? string.Empty,
-                context.TermMonths.ToString(CultureInfo.InvariantCulture),
+                context.TermYears.ToString(CultureInfo.InvariantCulture),
                 FormatCurrency(context.YearlyPayment)
             };
 

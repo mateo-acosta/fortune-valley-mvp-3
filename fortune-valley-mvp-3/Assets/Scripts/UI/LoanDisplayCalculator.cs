@@ -26,9 +26,9 @@ namespace FortuneValley.UI
             float principal = lotPrice - downPayment;
 
             float monthlyPayment = ActiveLoan.CalculateYearlyPayment(
-                principal, config.APR, config.TermMonths);
+                principal, config.APR, config.TermYears);
 
-            float totalCost = (monthlyPayment * config.TermMonths) + downPayment;
+            float totalCost = (monthlyPayment * config.TermYears) + downPayment;
             float aprPercent = config.APR * PercentMultiplier;
 
             return new LoanDisplayValues(
@@ -38,7 +38,7 @@ namespace FortuneValley.UI
                 totalCost,
                 aprPercent,
                 config.MinimumCreditScore,
-                config.TermMonths);
+                config.TermYears);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace FortuneValley.Tests
         [Test]
         public void Build_FormatsPrincipalWithDollarAndThousandsSeparator()
         {
-            var ctx = new LoanTakenContext(principal: 5000f, lotId: "lot_a", termMonths: 24, monthlyPayment: 250f);
+            var ctx = new LoanTakenContext(principal: 5000f, lotId: "lot_a", termYears: 24, monthlyPayment: 250f);
             var (title, message) = _builder.Build("Took a {0} loan", "Amount {0}", ctx);
             Assert.AreEqual("Took a $5,000 loan", title);
             Assert.AreEqual("Amount $5,000", message);
@@ -30,7 +30,7 @@ namespace FortuneValley.Tests
         }
 
         [Test]
-        public void Build_PassesTermMonthsAsArg2()
+        public void Build_PassesTermYearsAsArg2()
         {
             var ctx = new LoanTakenContext(0, "", 36, 0);
             var (_, message) = _builder.Build("", "over {2} months", ctx);

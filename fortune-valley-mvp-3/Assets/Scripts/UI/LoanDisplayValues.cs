@@ -27,8 +27,8 @@ namespace FortuneValley.UI
         /// <summary>Minimum credit score required by this loan product.</summary>
         public int MinCreditScore { get; }
 
-        /// <summary>Loan term in months.</summary>
-        public int TermMonths { get; }
+        /// <summary>Loan term in in-game years.</summary>
+        public int TermYears { get; }
 
         public LoanDisplayValues(
             float principal,
@@ -37,7 +37,7 @@ namespace FortuneValley.UI
             float totalCost,
             float aprPercent,
             int minCreditScore,
-            int termMonths)
+            int termYears)
         {
             Principal = principal;
             DownPayment = downPayment;
@@ -45,7 +45,7 @@ namespace FortuneValley.UI
             TotalCost = totalCost;
             APRPercent = aprPercent;
             MinCreditScore = minCreditScore;
-            TermMonths = termMonths;
+            TermYears = termYears;
         }
     }
 }

@@ -523,7 +523,7 @@ namespace FortuneValley.Tests
                 .AddMetaString("loan_id", loan.LoanId)
                 .AddMetaString("lot_id", loan.LotId)
                 .AddMetaFloat("original_principal", loan.Principal)
-                .AddMetaInt("term_months", loan.TermMonths)
+                .AddMetaInt("term_months", loan.TermYears)
                 .AddMetaInt("months_to_payoff", loan.PaymentsMade)
                 .Build();
         }

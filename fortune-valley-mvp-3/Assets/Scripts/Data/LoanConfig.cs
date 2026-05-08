@@ -28,8 +28,8 @@ namespace FortuneValley.Core
         [Tooltip("Annual percentage rate (e.g., 0.08 for 8%)")]
         [SerializeField] private float _apr = 0.08f;
 
-        [Tooltip("Loan duration in months")]
-        [SerializeField] private int _termMonths = 12;
+        [Tooltip("Loan duration in in-game years (1 cycle = 1 in-game year = 30 in-game days)")]
+        [SerializeField] private int _termYears = 12;
 
         [Tooltip("Required down payment as fraction of price (e.g., 0.20 for 20%)")]
         [SerializeField] private float _downPaymentPercent = 0.20f;
@@ -54,7 +54,7 @@ namespace FortuneValley.Core
         public string Tagline => _tagline;
         public Sprite LoanImage => _loanImage;
         public float APR => _apr;
-        public int TermMonths => _termMonths;
+        public int TermYears => _termYears;
         public float DownPaymentPercent => _downPaymentPercent;
         public int MinimumCreditScore => _minimumCreditScore;
         public float MaxDtiRatio => _maxDtiRatio;

@@ -16,9 +16,9 @@ MonoBehaviour:
   _displayName: Starter Loan
   _tagline: Easy approval, short term, higher rate
   _apr: 0.15
-  _termMonths: 6
+  _termYears: 5
   _downPaymentPercent: 0.25
   _loanImage: {fileID: 21300000, guid: 63dd75321b8a8487098a524ea16c8097, type: 3}
   _minimumCreditScore: 450
   _maxDtiRatio: 0.5
-  _maxPrincipal: 5000
+  _maxPrincipal: 25000

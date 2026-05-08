@@ -95,7 +95,7 @@ namespace FortuneValley.Tests
             Assert.AreEqual(8000f, loan.Principal, 0.01f); // 10000 - 20% down
             Assert.AreEqual(2000f, loan.DownPayment, 0.01f);
             Assert.AreEqual(0.08f, loan.APR);
-            Assert.AreEqual(12, loan.TermMonths);
+            Assert.AreEqual(12, loan.TermYears);
             Assert.AreEqual(5, loan.StartTick);
             Assert.IsTrue(loan.IsActive);
             Assert.IsFalse(loan.IsPaidOff);
@@ -363,7 +363,7 @@ namespace FortuneValley.Tests
             SetPrivateField(basic, "_loanId", "basic");
             SetPrivateField(basic, "_displayName", "Basic Loan");
             SetPrivateField(basic, "_apr", 0.12f);
-            SetPrivateField(basic, "_termMonths", 12);
+            SetPrivateField(basic, "_termYears", 12);
             SetPrivateField(basic, "_downPaymentPercent", 0.20f);
             SetPrivateField(basic, "_minimumCreditScore", 500);
             SetPrivateField(basic, "_maxDtiRatio", 0.40f);
@@ -372,7 +372,7 @@ namespace FortuneValley.Tests
             SetPrivateField(premium, "_loanId", "premium");
             SetPrivateField(premium, "_displayName", "Premium Loan");
             SetPrivateField(premium, "_apr", 0.06f);
-            SetPrivateField(premium, "_termMonths", 24);
+            SetPrivateField(premium, "_termYears", 24);
             SetPrivateField(premium, "_downPaymentPercent", 0.10f);
             SetPrivateField(premium, "_minimumCreditScore", 650);
             SetPrivateField(premium, "_maxDtiRatio", 0.35f);

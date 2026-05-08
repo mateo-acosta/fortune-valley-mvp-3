@@ -42,7 +42,7 @@ namespace FortuneValley.UI.Components
                 _monthlyPaymentText.text = $"${loan.YearlyPayment:N2}/mo";
 
             if (_progressText != null)
-                _progressText.text = $"{loan.PaymentsMade} of {loan.TermMonths} payments";
+                _progressText.text = $"{loan.PaymentsMade} of {loan.TermYears} payments";
 
             if (_aprText != null)
                 _aprText.text = $"APR: {loan.APR * 100f:F1}%";

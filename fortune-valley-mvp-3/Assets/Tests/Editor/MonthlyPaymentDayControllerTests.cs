@@ -327,7 +327,7 @@ namespace FortuneValley.Tests
             SetField(loanConfig, "_loanId", "test_loan");
             SetField(loanConfig, "_displayName", "Test Loan");
             SetField(loanConfig, "_apr", 0f);
-            SetField(loanConfig, "_termMonths", 12);
+            SetField(loanConfig, "_termYears", 12);
             SetField(loanConfig, "_downPaymentPercent", 0f);
             SetField(loanConfig, "_minimumCreditScore", 0);
             SetField(loanConfig, "_maxDtiRatio", 1f);

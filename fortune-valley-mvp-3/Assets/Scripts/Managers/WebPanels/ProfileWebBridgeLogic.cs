@@ -304,7 +304,7 @@ namespace FortuneValley.Managers.WebPanels
             row.originalPrincipal = loan.Principal;
             row.monthlyPayment = loan.YearlyPayment;
             row.monthsPaid = loan.PaymentsMade;
-            row.termMonths = loan.TermMonths;
+            row.termMonths = loan.TermYears;
         }
 
         private string ResolveLotName(string lotId)

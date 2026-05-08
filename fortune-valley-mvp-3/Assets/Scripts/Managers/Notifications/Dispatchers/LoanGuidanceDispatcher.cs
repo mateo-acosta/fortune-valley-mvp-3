@@ -116,7 +116,7 @@ namespace FortuneValley.Managers.Notifications.Dispatchers
             var context = new LoanTakenContext(
                 principal: loan.Principal,
                 lotId: loan.LotId,
-                termMonths: loan.TermMonths,
+                termYears: loan.TermYears,
                 monthlyPayment: loan.YearlyPayment);
 
             var (title, message) = _takenBuilder.Build(

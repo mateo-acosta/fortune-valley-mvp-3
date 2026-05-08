@@ -163,7 +163,7 @@ namespace FortuneValley.Core
             // into checking; the lot itself is not auto-purchased (player must click Buy again).
             ActiveLoan loan = _portfolio.Originate(
                 config.LoanId, lotId, price,
-                config.APR, config.TermMonths,
+                config.APR, config.TermYears,
                 0f, InitialStartDay);
 
             if (loan == null)

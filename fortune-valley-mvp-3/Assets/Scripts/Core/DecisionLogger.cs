@@ -42,6 +42,7 @@ namespace FortuneValley.Core
             GameEvents.OnInvestmentCreated += HandleInvestmentCreated;
             GameEvents.OnInvestmentWithdrawn += HandleInvestmentWithdrawn;
             GameEvents.OnLotPurchased += HandleLotPurchased;
+            GameEvents.OnRivalUpgradedLot += HandleRivalUpgradedLot;
             GameEvents.OnRestaurantUpgraded += HandleRestaurantUpgraded;
             GameEvents.OnCreditCardPaymentCompleted += HandleCreditCardPayment;
             GameEvents.OnInsurancePurchased += HandleInsurancePurchased;
@@ -63,6 +64,7 @@ namespace FortuneValley.Core
             GameEvents.OnInvestmentCreated -= HandleInvestmentCreated;
             GameEvents.OnInvestmentWithdrawn -= HandleInvestmentWithdrawn;
             GameEvents.OnLotPurchased -= HandleLotPurchased;
+            GameEvents.OnRivalUpgradedLot -= HandleRivalUpgradedLot;
             GameEvents.OnRestaurantUpgraded -= HandleRestaurantUpgraded;
             GameEvents.OnCreditCardPaymentCompleted -= HandleCreditCardPayment;
             GameEvents.OnInsurancePurchased -= HandleInsurancePurchased;
@@ -140,6 +142,17 @@ namespace FortuneValley.Core
                 .Type(decisionType)
                 .Instrument(lotId)
                 .Category(category)
+                .Build());
+        }
+
+        private void HandleRivalUpgradedLot(string lotId, int newTier)
+        {
+            if (!CanLog()) return;
+
+            TryLog(NewBuilder()
+                .Type("rival_lot_upgraded")
+                .Instrument(lotId)
+                .Category("event")
                 .Build());
         }
 
@@ -248,7 +261,7 @@ namespace FortuneValley.Core
                 .AddMetaString("loan_id", loan.LoanId)
                 .AddMetaString("lot_id", loan.LotId)
                 .AddMetaFloat("original_principal", loan.Principal)
-                .AddMetaInt("term_months", loan.TermMonths)
+                .AddMetaInt("term_months", loan.TermYears)
                 .AddMetaInt("months_to_payoff", loan.PaymentsMade)
                 .Build());
         }

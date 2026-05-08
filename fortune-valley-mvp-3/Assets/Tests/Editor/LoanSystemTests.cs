@@ -30,7 +30,7 @@ namespace FortuneValley.Tests
             SetPrivateField(_basicConfig, "_loanId", "basic_12m");
             SetPrivateField(_basicConfig, "_displayName", "Basic 12-Month");
             SetPrivateField(_basicConfig, "_apr", 0.10f);
-            SetPrivateField(_basicConfig, "_termMonths", 12);
+            SetPrivateField(_basicConfig, "_termYears", 12);
             SetPrivateField(_basicConfig, "_downPaymentPercent", 0.20f);
             SetPrivateField(_basicConfig, "_minimumCreditScore", 500);
             SetPrivateField(_basicConfig, "_maxDtiRatio", 0.40f);
@@ -169,7 +169,7 @@ namespace FortuneValley.Tests
             SetPrivateField(shortConfig, "_loanId", "short");
             SetPrivateField(shortConfig, "_displayName", "Short");
             SetPrivateField(shortConfig, "_apr", 0f);
-            SetPrivateField(shortConfig, "_termMonths", 1);
+            SetPrivateField(shortConfig, "_termYears", 1);
             SetPrivateField(shortConfig, "_downPaymentPercent", 0f);
             SetPrivateField(shortConfig, "_minimumCreditScore", 0);
             SetPrivateField(shortConfig, "_maxDtiRatio", 1f);

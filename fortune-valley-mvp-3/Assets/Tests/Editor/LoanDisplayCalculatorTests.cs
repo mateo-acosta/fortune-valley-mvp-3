@@ -16,7 +16,7 @@ namespace FortuneValley.Tests
         {
             _config = CreateLoanConfig(
                 apr: 0.08f,
-                termMonths: 12,
+                termYears: 12,
                 downPaymentPercent: 0.20f,
                 minCreditScore: 650);
         }
@@ -85,13 +85,13 @@ namespace FortuneValley.Tests
         }
 
         [Test]
-        public void Calculate_NormalCase_TermMonthsPassedThrough()
+        public void Calculate_NormalCase_TermYearsPassedThrough()
         {
             float lotPrice = 10000f;
 
             var result = LoanDisplayCalculator.Calculate(lotPrice, _config);
 
-            Assert.AreEqual(12, result.TermMonths);
+            Assert.AreEqual(12, result.TermYears);
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace FortuneValley.Tests
         {
             var zeroAprConfig = CreateLoanConfig(
                 apr: 0f,
-                termMonths: 10,
+                termYears: 10,
                 downPaymentPercent: 0.20f,
                 minCreditScore: 600);
 
@@ -130,7 +130,7 @@ namespace FortuneValley.Tests
         {
             var fullDownConfig = CreateLoanConfig(
                 apr: 0.08f,
-                termMonths: 12,
+                termYears: 12,
                 downPaymentPercent: 1.0f,
                 minCreditScore: 600);
 
@@ -149,7 +149,7 @@ namespace FortuneValley.Tests
         {
             var highAprConfig = CreateLoanConfig(
                 apr: 0.25f,
-                termMonths: 12,
+                termYears: 12,
                 downPaymentPercent: 0.20f,
                 minCreditScore: 600);
 
@@ -169,14 +169,14 @@ namespace FortuneValley.Tests
         // ===============================================================
 
         private static LoanConfig CreateLoanConfig(
-            float apr, int termMonths, float downPaymentPercent, int minCreditScore)
+            float apr, int termYears, float downPaymentPercent, int minCreditScore)
         {
             var config = ScriptableObject.CreateInstance<LoanConfig>();
             config.name = "TestLoan";
 
             var so = new UnityEditor.SerializedObject(config);
             so.FindProperty("_apr").floatValue = apr;
-            so.FindProperty("_termMonths").intValue = termMonths;
+            so.FindProperty("_termYears").intValue = termYears;
             so.FindProperty("_downPaymentPercent").floatValue = downPaymentPercent;
             so.FindProperty("_minimumCreditScore").intValue = minCreditScore;
             so.FindProperty("_displayName").stringValue = "Test Loan";

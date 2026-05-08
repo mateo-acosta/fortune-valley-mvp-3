@@ -20,7 +20,7 @@ namespace FortuneValley.Domain.Entities
         private readonly string _lotId;
         private readonly float _principal;
         private readonly float _apr;
-        private readonly int _termMonths;
+        private readonly int _termYears;
         private readonly float _monthlyPayment;
         private readonly float _downPayment;
         private readonly int _startDay;
@@ -35,7 +35,7 @@ namespace FortuneValley.Domain.Entities
             string lotId,
             float principal,
             float apr,
-            int termMonths,
+            int termYears,
             float monthlyPayment,
             float downPayment,
             int startDay)
@@ -44,7 +44,7 @@ namespace FortuneValley.Domain.Entities
             _lotId = lotId;
             _principal = principal;
             _apr = apr;
-            _termMonths = termMonths;
+            _termYears = termYears;
             _monthlyPayment = monthlyPayment;
             _downPayment = downPayment;
             _startDay = startDay;
@@ -59,13 +59,13 @@ namespace FortuneValley.Domain.Entities
         public string LotId => _lotId;
         public float Principal => _principal;
         public float APR => _apr;
-        public int TermMonths => _termMonths;
+        public int TermYears => _termYears;
         public float MonthlyPayment => _monthlyPayment;
         public float DownPayment => _downPayment;
         public int StartDay => _startDay;
         public float RemainingBalance => _remainingBalance;
         public int PaymentsMade => _paymentsMade;
-        public int PaymentsRemaining => _termMonths - _paymentsMade;
+        public int PaymentsRemaining => _termYears - _paymentsMade;
         public int MissedPayments => _missedPayments;
         public bool IsPaidOff => _isPaidOff;
         public bool IsActive => !_isPaidOff;
@@ -75,13 +75,13 @@ namespace FortuneValley.Domain.Entities
         // effectively a yearly payment. Legacy "monthly" naming is kept for
         // backward compat through the alias chain (removed in Stage 0c).
         public float YearlyPayment => _monthlyPayment;
-        public int TermTicks => _termMonths;
+        public int TermTicks => _termYears;
         public int StartTick => _startDay;
 
         /// <summary>
         /// Total cost of the loan (all payments + down payment).
         /// </summary>
-        public float TotalCost => (_monthlyPayment * _termMonths) + _downPayment;
+        public float TotalCost => (_monthlyPayment * _termYears) + _downPayment;
 
         /// <summary>
         /// Total interest over the life of the loan.
@@ -128,7 +128,7 @@ namespace FortuneValley.Domain.Entities
             string lotId,
             float principal,
             float apr,
-            int termMonths,
+            int termYears,
             float monthlyPayment,
             float downPayment,
             int startDay,
@@ -137,7 +137,7 @@ namespace FortuneValley.Domain.Entities
         {
             var loan = new ActiveLoan(
                 loanId, lotId, principal, apr,
-                termMonths, monthlyPayment, downPayment, startDay);
+                termYears, monthlyPayment, downPayment, startDay);
             loan._remainingBalance = remainingBalance;
             loan._paymentsMade = paymentsMade;
             if (remainingBalance <= PaidOffThreshold)
@@ -153,19 +153,19 @@ namespace FortuneValley.Domain.Entities
         /// Uses double precision for accuracy, returns float for storage.
         /// Zero APR is handled as simple division (principal / term).
         /// </summary>
-        public static float CalculateMonthlyPayment(float principal, float apr, int termMonths)
+        public static float CalculateMonthlyPayment(float principal, float apr, int termYears)
         {
-            if (principal <= 0f || termMonths <= 0) return 0f;
+            if (principal <= 0f || termYears <= 0) return 0f;
 
             // Zero APR: simple equal payments
             if (apr <= 0f)
             {
-                return (float)((double)principal / termMonths);
+                return (float)((double)principal / termYears);
             }
 
             // Standard amortization: P * [r(1+r)^n] / [(1+r)^n - 1]
             double monthlyRate = (double)apr / MonthsPerYear;
-            double compoundFactor = Math.Pow(1.0 + monthlyRate, termMonths);
+            double compoundFactor = Math.Pow(1.0 + monthlyRate, termYears);
             double payment = (double)principal * (monthlyRate * compoundFactor) / (compoundFactor - 1.0);
 
             return (float)payment;
