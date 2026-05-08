@@ -323,17 +323,15 @@ namespace FortuneValley.Managers
 
         private float ComputeLiquidNetWorth()
         {
-            float liquid = 0f;
-            if (_currencyManager != null)
-            {
-                liquid += _currencyManager.CheckingBalance + _currencyManager.InvestingBalance;
-            }
-            if (_creditCardSystem != null) liquid -= _creditCardSystem.CurrentBalance;
-            if (_loanSystem != null && _loanSystem.Portfolio != null)
-            {
-                liquid -= _loanSystem.Portfolio.GetTotalOutstandingPrincipal();
-            }
-            return liquid;
+            float checking = _currencyManager != null ? _currencyManager.CheckingBalance : 0f;
+            float investing = _currencyManager != null ? _currencyManager.InvestingBalance : 0f;
+            float loanPrincipal = (_loanSystem != null && _loanSystem.Portfolio != null)
+                ? _loanSystem.Portfolio.GetTotalOutstandingPrincipal()
+                : 0f;
+            float ccBalance = _creditCardSystem != null ? _creditCardSystem.CurrentBalance : 0f;
+            return LiquidNetWorthCalculator.Compute(
+                checking, investing, loanPrincipal, ccBalance,
+                /* ccEnabled */ false);
         }
 
         private float ComputeBusinessAssetValue()
