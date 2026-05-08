@@ -20,6 +20,7 @@ namespace FortuneValley.Managers.WebPanels
         private IJSBridge _bridge;
         private bool _isVisible;
         private bool _isDirty;
+        private bool _warnedNullPayload;
 
         /// <summary>Panel id passed to JSBridge.ShowPanel/UpdatePanel/etc. Lower-case, e.g. "investing".</summary>
         public abstract string PanelId { get; }
@@ -112,7 +113,17 @@ namespace FortuneValley.Managers.WebPanels
         private void PushNow()
         {
             string json = BuildPayloadJson();
-            if (json == null) return;
+            if (json == null)
+            {
+                // Silent drops leave the iframe stuck on its mockState fallback.
+                // Emit a single warning per bridge instance so the cause is visible.
+                if (!_warnedNullPayload)
+                {
+                    Debug.LogWarning($"[{PanelId}WebBridge] BuildPayloadJson returned null. Iframe will keep showing mockState. Verify SerializeField wiring on '{ExpectedObjectName}'.");
+                    _warnedNullPayload = true;
+                }
+                return;
+            }
             Bridge.UpdatePanel(PanelId, json);
         }
 
