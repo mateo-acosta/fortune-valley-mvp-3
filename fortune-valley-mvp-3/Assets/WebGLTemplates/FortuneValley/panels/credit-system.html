@@ -758,14 +758,15 @@ html, body {
 .collapsed-stats .field .k, .detail-stats .field .k {
   font-size: 9px; font-weight: 800; color: var(--fg-3);
   letter-spacing: 0.02em; text-transform: uppercase;
-  display: flex; align-items: center; gap: 3px;
-  white-space: nowrap;
+  display: flex; align-items: flex-start; gap: 3px;
+  line-height: 1.2;
 }
 .collapsed-stats .field .k .fv-info-btn,
 .detail-stats .field .k .fv-info-btn {
   flex: none;
-  width: 16px; height: 16px;
-  font-size: 10px;
+  width: 14px; height: 14px;
+  font-size: 9px;
+  margin-top: 1px;
 }
 .collapsed-stats .field .v, .detail-stats .field .v {
   font-weight: 900; font-size: 15px; font-variant-numeric: tabular-nums;
@@ -916,7 +917,7 @@ html, body {
 
           <!-- Loans summary line -->
           <div class="loan-summary-row">
-            <span id="home-loan-sentence">You owe <strong>$48,200</strong> across 2 loans, paying <strong>$640</strong>/mo</span>
+            <span id="home-loan-sentence">You owe <strong>$48,200</strong> across 2 loans, paying <strong>$640</strong>/yr</span>
             <span id="home-total-debt" style="display:none">$0.00</span>
             <span id="home-monthly" style="display:none">$0.00</span>
           </div>
@@ -941,7 +942,7 @@ html, body {
           <!-- Pre-pick prompt: visible while ui.selectedLotId === null -->
           <div class="empty pick-prompt" id="pick-prompt" style="display:none">
             <div class="h">Pick a property above to see your loan options</div>
-            <div class="p">Tap one of the lot cards to compare loans, see your monthly payment, and check if you qualify.</div>
+            <div class="p">Tap one of the lot cards to compare loans, see your yearly payment, and check if you qualify.</div>
           </div>
 
           <div class="explore-grid" id="explore-grid">
@@ -966,7 +967,7 @@ html, body {
               </div>
               <div>
                 <div class="carousel-name" id="carousel-name">30-Year Standard</div>
-                <div class="carousel-tagline" id="carousel-tag">Lower monthly payment, longer term</div>
+                <div class="carousel-tagline" id="carousel-tag">Lower yearly payment, longer term</div>
                 <div id="carousel-term-plain">You'll make payments for 30 years.</div>
               </div>
               <div class="carousel-controls">
@@ -997,7 +998,7 @@ html, body {
 
               <!-- Featured monthly payment, full-width -->
               <div class="stats-table">
-                <div class="field featured"><div class="k">Your monthly payment <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About your monthly payment">i</button></div><div class="v" id="stats-monthly">$540</div></div>
+                <div class="field featured"><div class="k">Your yearly payment <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About your yearly payment">i</button></div><div class="v" id="stats-monthly">$540</div></div>
               </div>
 
               <!-- Hidden by default; revealed via the See full details toggle -->
@@ -1059,16 +1060,19 @@ const CREDIT_SCORE_DRIVERS_COPY = "Your credit score is driven by your loan-paym
 
 /* ============================================================
    MOCK STATE
+   Mirrors CreditPanelDTO. If these fields drift from the bridge
+   payload, the standalone preview will render incorrectly.
    ============================================================ */
 const mockState = {
   creditScore: 680,
   creditScoreLabel: "Fair",
   totalDebt: 48200.00,
-  monthlyDebtPayment: 640.00,
-  cashOnHand: 32000.00,
+  yearlyDebtPayment: 0.00,
+  yearlyIncome: 108000.00,
+  cashOnHand: 90000.00,
   activeLoans: [
-    { id: "loan-1", lotName: "Bistro Lot",  balance: 24800, originalPrincipal: 28000, monthlyPayment: 320, monthsPaid: 14, termMonths: 60 },
-    { id: "loan-2", lotName: "Corner Lot",  balance: 23400, originalPrincipal: 25000, monthlyPayment: 320, monthsPaid:  8, termMonths: 60 },
+    { id: "loan-1", lotName: "Bistro Lot", balance: 24800, originalPrincipal: 28000, yearlyPayment: 8350, yearsPaid: 1, termYears: 5 },
+    { id: "loan-2", lotName: "Corner Lot", balance: 23400, originalPrincipal: 25000, yearlyPayment: 7460, yearsPaid: 1, termYears: 5 },
   ],
   availableLots: [
     { id: "bistro", name: "Bistro Lot", price: 124000 },
@@ -1076,17 +1080,17 @@ const mockState = {
     { id: "corner", name: "Corner Lot", price: 156000 },
   ],
   loanProducts: [
-    { id: "30y-standard",   name: "30-Year Standard",  apr: 5.2, termMonths: 360, downPaymentPercent: 0.20, minCreditScore: 650, image: null,
-      tagline: "Lower monthly payment, longer term" },
-    { id: "15y-fast",       name: "15-Year Fast Pay",  apr: 4.4, termMonths: 180, downPaymentPercent: 0.20, minCreditScore: 700, image: null,
-      tagline: "Pay it off twice as fast" },
-    { id: "10y-aggressive", name: "10-Year Aggressive",apr: 3.9, termMonths: 120, downPaymentPercent: 0.25, minCreditScore: 720, image: null,
-      tagline: "Lowest rate, biggest down payment" },
+    { id: "loan_starter",  name: "Starter Loan",  apr: 15, termYears: 5,  downPaymentPercent: 0.25, minCreditScore: 450, maxDtiRatio: 0.50, image: null,
+      tagline: "Easy approval, short term, higher rate" },
+    { id: "loan_standard", name: "Standard Loan", apr: 8,  termYears: 10, downPaymentPercent: 0.15, minCreditScore: 600, maxDtiRatio: 0.50, image: null,
+      tagline: "Lower rate, longer term" },
+    { id: "loan_premium",  name: "Premium Loan",  apr: 4,  termYears: 15, downPaymentPercent: 0.10, minCreditScore: 720, maxDtiRatio: 0.50, image: null,
+      tagline: "Best terms for strong credit" },
   ],
   history: [
-    { id: 1, date: "Year 2, Mar 12", type: "loan-payment",     description: "Bistro Lot loan",         amount:   -320, sublabel: "14 of 60" },
+    { id: 1, date: "Year 2, Mar 12", type: "loan-payment",     description: "Bistro Lot loan",         amount:  -8350, sublabel: "1 of 5" },
     { id: 2, date: "Year 2, Feb 12", type: "score-change",     description: "Credit score updated",    amount:      0, sublabel: "+15 to 680" },
-    { id: 3, date: "Year 2, Jan 14", type: "loan-originated",  description: "Bistro Lot financed",     amount: -28000, sublabel: "30-Year Standard" },
+    { id: 3, date: "Year 2, Jan 14", type: "loan-originated",  description: "Bistro Lot financed",     amount: -28000, sublabel: "Starter Loan" },
   ],
 };
 
@@ -1181,7 +1185,7 @@ function renderHome() {
   // bridge contract stays intact even though the visible UI now reads
   // these numbers via composed sentences.
   $("#home-total-debt").textContent = fmtMoney(mockState.totalDebt);
-  $("#home-monthly").textContent    = fmtMoney(mockState.monthlyDebtPayment);
+  $("#home-monthly").textContent    = fmtMoney(mockState.yearlyDebtPayment);
 
   // Credit score hero + spectrum marker. Replace the label's text content
   // without disturbing the trailing info button child node.
@@ -1206,7 +1210,7 @@ function renderHome() {
   if (loanCount > 0) {
     const noun = loanCount === 1 ? "loan" : "loans";
     $("#home-loan-sentence").innerHTML =
-      `You owe <strong>${fmtMoneyShort(mockState.totalDebt)}</strong> across ${loanCount} ${noun}, paying <strong>${fmtMoneyShort(mockState.monthlyDebtPayment)}</strong>/mo`;
+      `You owe <strong>${fmtMoneyShort(mockState.totalDebt)}</strong> across ${loanCount} ${noun}, paying <strong>${fmtMoneyShort(mockState.yearlyDebtPayment)}</strong>/yr`;
   } else {
     $("#home-loan-sentence").innerHTML = "";
   }
@@ -1232,15 +1236,15 @@ function renderHome() {
           </div>
           <div style="min-width:0">
             <div class="nm">${l.lotName}</div>
-            <div class="sub">${l.monthsPaid} of ${l.termMonths} months paid &middot; ${pct.toFixed(0)}% paid off</div>
+            <div class="sub">${l.yearsPaid} of ${l.termYears} years paid &middot; ${pct.toFixed(0)}% paid off</div>
           </div>
         </div>
         <div class="progress-track"><span style="width:${pct}%"></span></div>
         <div class="narrative">
           Paid ${fmtMoneyShort(paidPrincipal)} of ${fmtMoneyShort(l.originalPrincipal)}
           <button type="button" class="fv-info-btn" data-info-key="loan_paid_off" aria-label="About paid off">i</button>
-          &middot; paying ${fmtMoneyShort(l.monthlyPayment)}/mo
-          <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About monthly payment">i</button>
+          &middot; paying ${fmtMoneyShort(l.yearlyPayment)}/yr
+          <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About yearly payment">i</button>
         </div>
       </div>
     `;
@@ -1250,11 +1254,11 @@ function renderHome() {
 /* ============================================================
    EXPLORE
    ============================================================ */
-// Plain-English term lookup for the carousel sub-line.
+// Plain-English term lookup for the carousel sub-line. Keyed by termYears.
 const TERM_PLAIN = {
-  360: "You'll make payments for 30 years.",
-  180: "You'll make payments for 15 years.",
-  120: "You'll make payments for 10 years.",
+  5:  "You'll make payments for 5 years.",
+  10: "You'll make payments for 10 years.",
+  15: "You'll make payments for 15 years.",
 };
 
 // Replaces buildLotSelect() — renders one button per lot. Uses the 🏠
@@ -1299,9 +1303,9 @@ function getQualifyingProducts(lot) {
 }
 
 function evalQualify(product, lot) {
-  // Always pre-filter by min score? Per brief Apply Now is enabled only if eligible.
-  // But the carousel cycles through *qualifying* loans, so the only failure modes
-  // in-frame are debt-to-income or down-payment cash. Compute them.
+  // The carousel cycles through *qualifying* loans, so credit-score failures
+  // only surface when the panel renders a single product despite a low score.
+  // DTI and cash gates are the more common failure modes.
   const reasons = [];
   if (mockState.creditScore < product.minCreditScore) {
     reasons.push("Credit score too low");
@@ -1311,19 +1315,19 @@ function evalQualify(product, lot) {
     reasons.push("Insufficient cash for down payment");
   }
   const totalLoan = lot.price - downPayment;
-  const monthly = monthlyPayment(totalLoan, product.apr/100/12, product.termMonths);
-  const totalMonthly = mockState.monthlyDebtPayment + monthly;
-  // Mock DTI heuristic — assume player monthly income ~ $4500
-  const monthlyIncome = 4500;
-  if (totalMonthly / monthlyIncome > 0.45) {
+  const yearly = yearlyPayment(totalLoan, product.apr / 100, product.termYears);
+  const totalYearly = mockState.yearlyDebtPayment + yearly;
+  const income = mockState.yearlyIncome > 0 ? mockState.yearlyIncome : 1;
+  const cap = product.maxDtiRatio > 0 ? product.maxDtiRatio : 0.50;
+  if (totalYearly / income > cap) {
     reasons.push("Debt-to-income too high");
   }
   return { ok: reasons.length === 0, reasons };
 }
 
-function monthlyPayment(principal, monthlyRate, n) {
-  if (monthlyRate <= 0) return principal / n;
-  return principal * (monthlyRate * Math.pow(1+monthlyRate, n)) / (Math.pow(1+monthlyRate, n) - 1);
+function yearlyPayment(principal, rate, n) {
+  if (rate <= 0) return principal / n;
+  return principal * (rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1);
 }
 
 function renderExplore() {
@@ -1371,8 +1375,8 @@ function renderExplore() {
   $("#carousel-pos").textContent  = `${ui.carouselIndex+1} / ${qualifying.length}`;
   $("#carousel-name").textContent = product.name;
   $("#carousel-tag").textContent  = product.tagline;
-  $("#carousel-term").textContent = (product.termMonths/12) + " yr";
-  $("#carousel-term-plain").textContent = TERM_PLAIN[product.termMonths] || "";
+  $("#carousel-term").textContent = (Number.isInteger(product.termYears) ? product.termYears : product.termYears.toFixed(1)) + " yr";
+  $("#carousel-term-plain").textContent = TERM_PLAIN[product.termYears] || "";
 
   // Dots
   $("#carousel-dots").innerHTML = qualifying.map((_,i) =>
@@ -1403,18 +1407,18 @@ function renderExplore() {
   // Stats table
   const downPayment = Math.round(lot.price * product.downPaymentPercent);
   const totalLoan = lot.price - downPayment;
-  const monthly = Math.round(monthlyPayment(totalLoan, product.apr/100/12, product.termMonths));
-  const totalCost = downPayment + monthly * product.termMonths;
+  const yearly = Math.round(yearlyPayment(totalLoan, product.apr / 100, product.termYears));
+  const totalCost = downPayment + yearly * product.termYears;
   const interestExtra = totalCost - lot.price;
-  const years = product.termMonths / 12;
+  const years = product.termYears;
 
   $("#stats-lot-name").textContent  = lot.name;
   $("#stats-lot-price").textContent = fmtMoneyShort(lot.price);
   $("#stats-apr").textContent       = product.apr.toFixed(1) + "%";
   $("#stats-min-score").textContent = product.minCreditScore + "+";
   $("#stats-down").textContent      = fmtMoneyShort(downPayment) + " (" + Math.round(product.downPaymentPercent*100) + "%)";
-  $("#stats-term").textContent      = years + " yr";
-  $("#stats-monthly").textContent   = fmtMoneyShort(monthly) + "/mo";
+  $("#stats-term").textContent      = (Number.isInteger(years) ? years : years.toFixed(1)) + " yr";
+  $("#stats-monthly").textContent   = fmtMoneyShort(yearly) + "/yr";
   $("#stats-total").textContent     = fmtMoneyShort(totalLoan);
   $("#stats-cost").textContent      = fmtMoneyShort(totalCost);
 
@@ -1451,7 +1455,7 @@ function renderExplore() {
       "Insufficient cash for down payment":
         `This loan needs ${fmtMoneyShort(Math.round(lot.price * product.downPaymentPercent))} upfront. You have ${fmtMoneyShort(mockState.cashOnHand)}.`,
       "Debt-to-income too high":
-        `Your monthly loan payments take up too much of your income. Pay off some debt first, or choose a smaller property.`,
+        `Your yearly loan payments take up too much of your income. Pay off some debt first, or choose a smaller property.`,
     };
     const reason = q.reasons[0];
     const message = REASON_MESSAGES[reason] || reason;
@@ -1623,11 +1627,12 @@ function boot() {
       if (!payload) return;
 
       // Home-tab scalars
-      if (typeof payload.creditScore === "number")        mockState.creditScore        = payload.creditScore;
-      if (typeof payload.creditScoreLabel === "string")   mockState.creditScoreLabel   = payload.creditScoreLabel;
-      if (typeof payload.totalDebt === "number")          mockState.totalDebt          = payload.totalDebt;
-      if (typeof payload.monthlyDebtPayment === "number") mockState.monthlyDebtPayment = payload.monthlyDebtPayment;
-      if (typeof payload.cashOnHand === "number")         mockState.cashOnHand         = payload.cashOnHand;
+      if (typeof payload.creditScore === "number")        mockState.creditScore       = payload.creditScore;
+      if (typeof payload.creditScoreLabel === "string")   mockState.creditScoreLabel  = payload.creditScoreLabel;
+      if (typeof payload.totalDebt === "number")          mockState.totalDebt         = payload.totalDebt;
+      if (typeof payload.yearlyDebtPayment === "number")  mockState.yearlyDebtPayment = payload.yearlyDebtPayment;
+      if (typeof payload.yearlyIncome === "number")       mockState.yearlyIncome      = payload.yearlyIncome;
+      if (typeof payload.cashOnHand === "number")         mockState.cashOnHand        = payload.cashOnHand;
 
       // Lists
       if (Array.isArray(payload.activeLoans))   mockState.activeLoans = payload.activeLoans;
@@ -1685,6 +1690,48 @@ function boot() {
   }
 }
 document.addEventListener("DOMContentLoaded", boot);
+
+// Lightweight self-test: open credit-system.html?test=1 to run qualification
+// gate cases against evalQualify and log any failures to the console.
+(function maybeRunQualifyTests() {
+  if (typeof location === "undefined") return;
+  if (!new URLSearchParams(location.search).has("test")) return;
+  document.addEventListener("DOMContentLoaded", () => {
+    const lot = { id: "test-lot", name: "Test Lot", price: 60000 };
+    const baseProduct = { id: "p", name: "p", apr: 15, termYears: 5, downPaymentPercent: 0.25, minCreditScore: 450, maxDtiRatio: 0.50 };
+    const cases = [
+      { name: "happy path (108k income, no debt)",            score: 500,  debt: 0,     income: 108000, product: baseProduct,                                               expectOK: true  },
+      { name: "credit score below minimum",                   score: 400,  debt: 0,     income: 108000, product: baseProduct,                                               expectOK: false },
+      { name: "strong credit + ample income",                 score: 800,  debt: 0,     income: 108000, product: baseProduct,                                               expectOK: true  },
+      { name: "premium loan qualified",                       score: 800,  debt: 0,     income: 108000, product: { ...baseProduct, apr: 4, termYears: 15, minCreditScore: 720 }, expectOK: true },
+      { name: "DTI gate (60k yearly debt, 108k income)",      score: 800,  debt: 60000, income: 108000, product: baseProduct,                                               expectOK: false },
+      { name: "down-payment cash gate",                       score: 800,  debt: 0,     income: 108000, product: { ...baseProduct, downPaymentPercent: 1.0 },               expectOK: false, cash: 1000 },
+      { name: "zero income (DTI infinite)",                   score: 500,  debt: 0,     income: 0,      product: baseProduct,                                               expectOK: false },
+      { name: "max DTI cap of zero blocks any debt",          score: 800,  debt: 0,     income: 108000, product: { ...baseProduct, maxDtiRatio: 0.0 },                      expectOK: false },
+    ];
+    const savedScore  = mockState.creditScore;
+    const savedDebt   = mockState.yearlyDebtPayment;
+    const savedIncome = mockState.yearlyIncome;
+    const savedCash   = mockState.cashOnHand;
+    let passed = 0;
+    let failed = 0;
+    for (const c of cases) {
+      mockState.creditScore       = c.score;
+      mockState.yearlyDebtPayment = c.debt;
+      mockState.yearlyIncome      = c.income;
+      mockState.cashOnHand        = (typeof c.cash === "number") ? c.cash : 100000;
+      const got = evalQualify(c.product, lot);
+      const ok = (got.ok === c.expectOK);
+      if (ok) { passed++; console.log(`PASS: ${c.name}`); }
+      else { failed++; console.error(`FAIL: ${c.name} - expected ok=${c.expectOK}, got ok=${got.ok}, reasons=${JSON.stringify(got.reasons)}`); }
+    }
+    mockState.creditScore       = savedScore;
+    mockState.yearlyDebtPayment = savedDebt;
+    mockState.yearlyIncome      = savedIncome;
+    mockState.cashOnHand        = savedCash;
+    console.log(`[evalQualify tests] ${passed} passed, ${failed} failed`);
+  });
+})();
 </script>
 </body>
 </html>

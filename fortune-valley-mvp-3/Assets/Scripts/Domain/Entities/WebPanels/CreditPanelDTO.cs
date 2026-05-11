@@ -16,7 +16,8 @@ namespace FortuneValley.Domain.Entities.WebPanels
         public int creditScore;
         public string creditScoreLabel;     // computed bucket label, e.g. "Fair"
         public float totalDebt;
-        public float monthlyDebtPayment;
+        public float yearlyDebtPayment;     // sum of yearly payments across active loans
+        public float yearlyIncome;          // restaurant income per billing cycle (1 in-game year)
         public float cashOnHand;            // checking balance
 
         // Lists

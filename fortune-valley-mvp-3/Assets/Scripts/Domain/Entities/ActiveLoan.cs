@@ -13,7 +13,6 @@ namespace FortuneValley.Domain.Entities
     /// </summary>
     public class ActiveLoan
     {
-        private const int MonthsPerYear = 12;
         private const float PaidOffThreshold = 0.01f;
 
         private readonly string _loanId;
@@ -148,26 +147,17 @@ namespace FortuneValley.Domain.Entities
             return loan;
         }
 
-        /// <summary>
-        /// Calculate monthly payment using the standard amortization formula.
-        /// Uses double precision for accuracy, returns float for storage.
-        /// Zero APR is handled as simple division (principal / term).
-        /// </summary>
+        // Yearly amortization: P * [r(1+r)^n] / [(1+r)^n - 1]
+        // r = APR (annual), n = termYears. Payments fire once per billing
+        // cycle (1 in-game year = 30 in-game days), so the period is one year.
         public static float CalculateMonthlyPayment(float principal, float apr, int termYears)
         {
             if (principal <= 0f || termYears <= 0) return 0f;
+            if (apr <= 0f) return (float)((double)principal / termYears);
 
-            // Zero APR: simple equal payments
-            if (apr <= 0f)
-            {
-                return (float)((double)principal / termYears);
-            }
-
-            // Standard amortization: P * [r(1+r)^n] / [(1+r)^n - 1]
-            double monthlyRate = (double)apr / MonthsPerYear;
-            double compoundFactor = Math.Pow(1.0 + monthlyRate, termYears);
-            double payment = (double)principal * (monthlyRate * compoundFactor) / (compoundFactor - 1.0);
-
+            double r = apr;
+            double compound = Math.Pow(1.0 + r, termYears);
+            double payment = (double)principal * (r * compound) / (compound - 1.0);
             return (float)payment;
         }
 

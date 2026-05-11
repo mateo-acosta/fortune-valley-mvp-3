@@ -13,7 +13,8 @@ namespace FortuneValley.Managers.WebPanels
     ///
     /// Maps:
     ///  - CreditScoreSystem -> creditScore (CC fields no longer flow)
-    ///  - LoanSystem        -> totalDebt + monthlyDebtPayment + activeLoans + loanProducts
+    ///  - LoanSystem        -> totalDebt + yearlyDebtPayment + activeLoans + loanProducts
+    ///  - RestaurantSystem  -> yearlyIncome (via DtiCalculator)
     ///  - CurrencyManager   -> cashOnHand
     ///  - CityManager       -> active loan lot names + availableLots[]
     /// </summary>
@@ -30,6 +31,7 @@ namespace FortuneValley.Managers.WebPanels
         private CityManager _cityManager;
         private TransactionLog _transactionLog;
         private TimeManager _timeManager;
+        private RestaurantSystem _restaurantSystem;
 
         // One-shot lot pre-selection. The bridge sets this when
         // OnLotLoanExploreRequested fires. PopulateDTO copies it to the DTO
@@ -57,7 +59,8 @@ namespace FortuneValley.Managers.WebPanels
             CurrencyManager currencyManager,
             CityManager cityManager,
             TransactionLog transactionLog,
-            TimeManager timeManager)
+            TimeManager timeManager,
+            RestaurantSystem restaurantSystem)
         {
             _loanSystem = loanSystem;
             _creditCardSystem = creditCardSystem;
@@ -65,6 +68,7 @@ namespace FortuneValley.Managers.WebPanels
             _cityManager = cityManager;
             _transactionLog = transactionLog;
             _timeManager = timeManager;
+            _restaurantSystem = restaurantSystem;
         }
 
         public override bool PopulateDTO(CreditPanelDTO target)
@@ -79,8 +83,9 @@ namespace FortuneValley.Managers.WebPanels
             // mechanic; only the score (driven by loan behavior + DTI) flows.
             target.creditScore = _creditCardSystem != null ? _creditCardSystem.CreditScore : 0;
             target.totalDebt = _loanSystem.TotalOutstandingPrincipal;
-            target.monthlyDebtPayment = _loanSystem.TotalYearlyDebt;
+            target.yearlyDebtPayment = _loanSystem.TotalYearlyDebt;
             target.cashOnHand = _currencyManager.CheckingBalance;
+            target.yearlyIncome = ComputeYearlyIncome();
             // creditScoreLabel left empty; HTML computes its own bucket from creditScore.
 
             // One-shot lot pre-selection: surface pending id then clear so the
@@ -135,9 +140,21 @@ namespace FortuneValley.Managers.WebPanels
             row.lotName = ResolveLotName(loan.LotId);
             row.balance = loan.RemainingBalance;
             row.originalPrincipal = loan.Principal;
-            row.monthlyPayment = loan.YearlyPayment;
-            row.monthsPaid = loan.PaymentsMade;
-            row.termMonths = loan.TermYears;
+            row.yearlyPayment = loan.YearlyPayment;
+            row.yearsPaid = loan.PaymentsMade;
+            row.termYears = loan.TermYears;
+        }
+
+        // Same formula as GameStateDTOBuilder.ComputeMonthlyIncome so the
+        // credit panel's DTI shows the same income the dashboard uses.
+        private float ComputeYearlyIncome()
+        {
+            if (_restaurantSystem == null || _timeManager == null || _creditCardSystem == null)
+                return 0f;
+            return DtiCalculator.ComputeMonthlyIncome(
+                _restaurantSystem.TotalIncomePerTick,
+                _timeManager.EnginePulsesPerTick,
+                _creditCardSystem.BillingCycleTicks);
         }
 
         private string ResolveLotName(string lotId)
@@ -172,9 +189,10 @@ namespace FortuneValley.Managers.WebPanels
             row.id = cfg.LoanId;
             row.name = cfg.DisplayName;
             row.apr = cfg.APR * DecimalToPercent;
-            row.termMonths = cfg.TermYears;
+            row.termYears = cfg.TermYears;
             row.downPaymentPercent = cfg.DownPaymentPercent;
             row.minCreditScore = cfg.MinimumCreditScore;
+            row.maxDtiRatio = cfg.MaxDtiRatio;
             row.tagline = cfg.Tagline;
             // image left null; the iframe handles missing image gracefully.
         }

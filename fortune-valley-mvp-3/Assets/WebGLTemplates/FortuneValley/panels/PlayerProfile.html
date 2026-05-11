@@ -1557,8 +1557,8 @@ html, body {
       setText('prop-total-v', '+' + fmtMoney(payload.yearly_restaurant_income));
     }
 
-    // Active loans rows. monthlyPayment is per-cycle (= 1 game year), so
-    // display the value as-is under the "Yearly" column.
+    // Active loans rows. yearlyPayment fires once per cycle (= 1 game year)
+    // so it renders as-is under the "Yearly" column.
     if (Array.isArray(payload.active_loans)) {
       renderActiveLoans(payload.active_loans);
     }
@@ -1681,8 +1681,8 @@ html, body {
       var loan = loans[i] || {};
       var row = document.createElement('div');
       row.className = 'loan-row';
-      // monthlyPayment is per-cycle (= 1 game year). Render as-is.
-      var yearly = typeof loan.monthlyPayment === 'number' ? loan.monthlyPayment : 0;
+      // yearlyPayment fires once per cycle (= 1 game year). Render as-is.
+      var yearly = typeof loan.yearlyPayment === 'number' ? loan.yearlyPayment : 0;
       var balance = typeof loan.balance === 'number' ? loan.balance : 0;
 
       row.innerHTML =

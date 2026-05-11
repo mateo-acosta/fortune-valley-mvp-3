@@ -302,9 +302,9 @@ namespace FortuneValley.Managers.WebPanels
             row.lotName = ResolveLotName(loan.LotId);
             row.balance = loan.RemainingBalance;
             row.originalPrincipal = loan.Principal;
-            row.monthlyPayment = loan.YearlyPayment;
-            row.monthsPaid = loan.PaymentsMade;
-            row.termMonths = loan.TermYears;
+            row.yearlyPayment = loan.YearlyPayment;
+            row.yearsPaid = loan.PaymentsMade;
+            row.termYears = loan.TermYears;
         }
 
         private string ResolveLotName(string lotId)

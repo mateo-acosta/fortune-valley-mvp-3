@@ -15,8 +15,8 @@ namespace FortuneValley.Domain.Entities.WebPanels
         public string lotName;             // CityLotDefinition.DisplayName
         public float balance;              // remaining principal
         public float originalPrincipal;
-        public float monthlyPayment;
-        public int monthsPaid;
-        public int termMonths;
+        public float yearlyPayment;        // ActiveLoan.YearlyPayment (one payment per in-game year)
+        public int yearsPaid;              // ActiveLoan.PaymentsMade
+        public int termYears;              // ActiveLoan.TermYears (in-game years)
     }
 }

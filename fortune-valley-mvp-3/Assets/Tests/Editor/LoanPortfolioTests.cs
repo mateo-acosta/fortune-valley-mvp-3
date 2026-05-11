@@ -26,10 +26,10 @@ namespace FortuneValley.Tests
         [Test]
         public void CalculateMonthlyPayment_StandardCase_ReturnsCorrectAmount()
         {
-            // $10,000 at 12% APR for 12 months
-            // Expected: ~$888.49 (standard amortization)
+            // $10,000 at 12% APR for 12 in-game years (yearly amortization).
+            // P * (r * (1+r)^n) / ((1+r)^n - 1) = ~$1,614.37/yr.
             float payment = ActiveLoan.CalculateYearlyPayment(10000f, 0.12f, 12);
-            Assert.AreEqual(888.49f, payment, 0.50f);
+            Assert.AreEqual(1614.37f, payment, 0.50f);
         }
 
         [Test]
@@ -43,9 +43,9 @@ namespace FortuneValley.Tests
         [Test]
         public void CalculateMonthlyPayment_OneMonthTerm_ReturnsPrincipalPlusInterest()
         {
-            // $1,000 at 12% for 1 month = $1,000 + ($1,000 * 0.01) = $1,010
+            // $1,000 at 12% for 1 in-game year = principal + 1 year of interest = $1,120.
             float payment = ActiveLoan.CalculateYearlyPayment(1000f, 0.12f, 1);
-            Assert.AreEqual(1010f, payment, 0.50f);
+            Assert.AreEqual(1120f, payment, 0.50f);
         }
 
         [Test]

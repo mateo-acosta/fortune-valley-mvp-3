@@ -29,6 +29,8 @@ namespace FortuneValley.UI.Panels.Credit
         [SerializeField] private CreditScoreSystem _creditCardSystem;
         [SerializeField] private CurrencyManager _currencyManager;
         [SerializeField] private CityManager _cityManager;
+        [SerializeField] private RestaurantSystem _restaurantSystem;
+        [SerializeField] private TimeManager _timeManager;
 
         // ===============================================================
         // LOT DROPDOWN
@@ -65,14 +67,6 @@ namespace FortuneValley.UI.Panels.Credit
         [SerializeField] private TextMeshProUGUI _totalLoanValueText;
         [SerializeField] private TextMeshProUGUI _monthlyPaymentValueText;
         [SerializeField] private TextMeshProUGUI _creditScoreValueText;
-
-        // ===============================================================
-        // INCOME ESTIMATION
-        // ===============================================================
-
-        [Header("Income Estimation")]
-        [Tooltip("Fraction of checking balance used as monthly income proxy for DTI")]
-        [SerializeField] private float _monthlyIncomeFraction = 0.1f;
 
         // ===============================================================
         // STATE (extracted to pure C# class)
@@ -282,12 +276,9 @@ namespace FortuneValley.UI.Panels.Credit
             // Property reads only for eligibility data
             var configs = _loanSystem.AvailableLoans;
             int creditScore = _creditCardSystem.CreditScore;
-            float monthlyDebt = _loanSystem.TotalYearlyDebt;
-            float checkingBalance = _currencyManager.CheckingBalance;
-            float monthlyIncome = CreditExploreIncomeEstimator.EstimateMonthlyIncome(
-                checkingBalance, _monthlyIncomeFraction);
-            float dtiRatio = CreditExploreIncomeEstimator.ComputeDtiRatio(
-                monthlyDebt, monthlyIncome);
+            float yearlyDebt = _loanSystem.TotalYearlyDebt;
+            float yearlyIncome = ComputeYearlyIncome();
+            float dtiRatio = DtiCalculator.Compute(yearlyDebt, yearlyIncome);
 
             float lotPrice = _state.AvailableLots[lotIndex].BaseCost;
             _state.SetFilteredLoans(LoanEligibilityFilter.Evaluate(configs, creditScore, dtiRatio, lotPrice));
@@ -299,6 +290,16 @@ namespace FortuneValley.UI.Panels.Credit
             }
 
             RefreshLoanDisplay();
+        }
+
+        private float ComputeYearlyIncome()
+        {
+            if (_restaurantSystem == null || _timeManager == null || _creditCardSystem == null)
+                return 0f;
+            return DtiCalculator.ComputeMonthlyIncome(
+                _restaurantSystem.TotalIncomePerTick,
+                _timeManager.EnginePulsesPerTick,
+                _creditCardSystem.BillingCycleTicks);
         }
 
         private void RefreshLoanDisplay()

@@ -40366,6 +40366,7 @@ MonoBehaviour:
   _cityManager: {fileID: 2029218248}
   _transactionLog: {fileID: 2029218253}
   _timeManager: {fileID: 2029218250}
+  _restaurantSystem: {fileID: 2029218246}
 --- !u!4 &687236397
 Transform:
   m_ObjectHideFlags: 0
@@ -113015,6 +113016,8 @@ MonoBehaviour:
   _creditCardSystem: {fileID: 2029218242}
   _currencyManager: {fileID: 2029218249}
   _cityManager: {fileID: 2029218248}
+  _restaurantSystem: {fileID: 2029218246}
+  _timeManager: {fileID: 2029218250}
   _lotDropdown: {fileID: 355964447}
   _loanImage: {fileID: 213195599}
   _titleText: {fileID: 494544071}
@@ -113027,7 +113030,6 @@ MonoBehaviour:
   _totalLoanValueText: {fileID: 1245060960}
   _monthlyPaymentValueText: {fileID: 561325903}
   _creditScoreValueText: {fileID: 413915397}
-  _monthlyIncomeFraction: 0.1
 --- !u!114 &1940397493
 MonoBehaviour:
   m_ObjectHideFlags: 0

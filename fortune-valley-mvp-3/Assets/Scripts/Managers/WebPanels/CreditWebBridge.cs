@@ -34,6 +34,7 @@ namespace FortuneValley.Managers.WebPanels
         [SerializeField] private CityManager _cityManager;
         [SerializeField] private TransactionLog _transactionLog;
         [SerializeField] private TimeManager _timeManager;
+        [SerializeField] private RestaurantSystem _restaurantSystem;
 
         // Cached DTO + logic to keep per-push allocation bounded.
         private readonly CreditPanelDTO _dto = new CreditPanelDTO();
@@ -42,7 +43,7 @@ namespace FortuneValley.Managers.WebPanels
         protected override void OnEnable()
         {
             base.OnEnable();
-            _logic.Initialize(_loanSystem, _creditCardSystem, _currencyManager, _cityManager, _transactionLog, _timeManager);
+            _logic.Initialize(_loanSystem, _creditCardSystem, _currencyManager, _cityManager, _transactionLog, _timeManager, _restaurantSystem);
             // Pre-selection intent must subscribe BEFORE Show because the event
             // fires from the lot click that ALSO opens the panel; if we waited
             // until Subscribe (Show), we would miss the event.
