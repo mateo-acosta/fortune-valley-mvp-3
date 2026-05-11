@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f2114e2144a44a45b97f0c15d6c9e03, type: 3}
+  m_Name: IntroScript_Default
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.IntroScriptSO
+  _steps:
+  - {fileID: 11400000, guid: cad201dda7b7474f94c29af84557ef06, type: 2}
+  - {fileID: 11400000, guid: 503f6f8a2f4b490e87a50e87ed864942, type: 2}
+  - {fileID: 11400000, guid: 4e55405765be4d3192774d7af833a0fb, type: 2}
+  - {fileID: 11400000, guid: 788599d069f64e3094b73c3231d71077, type: 2}
+  - {fileID: 11400000, guid: e28a071460a848048f543ee470444fc7, type: 2}
+  - {fileID: 11400000, guid: f79b7b45a6594557b55c66890caf1132, type: 2}
+  - {fileID: 11400000, guid: 919a4b14fb5043239c9522e18900694c, type: 2}
+  - {fileID: 11400000, guid: 959edb40353a4ac18083f113623eefbc, type: 2}
+  - {fileID: 11400000, guid: 0841f79e32e9417d8663aad70bc2ad82, type: 2}
+  - {fileID: 11400000, guid: e0cb35e073a54186b282dc63d7885d4d, type: 2}
+  - {fileID: 11400000, guid: 63892e8963ca45619446bb6e5513cc76, type: 2}
+  - {fileID: 11400000, guid: b0b084c72e494686a4d3b3474522ab34, type: 2}
+  - {fileID: 11400000, guid: 4e5c235c091b4a31a5cfba707d69d851, type: 2}
+  - {fileID: 11400000, guid: ef4b0cc5542c4e95a681afa0142d0863, type: 2}
+  - {fileID: 11400000, guid: 2fc40a834bed4c7c84ffe41ecfa2707c, type: 2}
+  - {fileID: 11400000, guid: bcae18c117434255bcd8c3d77e37cd77, type: 2}

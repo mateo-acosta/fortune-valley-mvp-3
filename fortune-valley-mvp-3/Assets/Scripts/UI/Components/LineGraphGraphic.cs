@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using FortuneValley.Domain;
 using FortuneValley.UI;
 
 // Allow the Editor test assembly to access the internal GraphLayout class.
@@ -68,6 +69,16 @@ namespace FortuneValley.UI.Components
 
         /// <summary>Called by PortfolioPanel to apply a consistent font to all axis labels.</summary>
         public void SetLabelFont(TMP_FontAsset font) { _labelFont = font; }
+
+        /// <summary>
+        /// Override the primary line color. Used by the Home subpanel to render
+        /// the portfolio-value line in green instead of the default red.
+        /// </summary>
+        public void SetLineColor(Color color)
+        {
+            _lineColor = color;
+            SetVerticesDirty();
+        }
 
         /// <summary>
         /// Single-series overload — used by the Invest tab stock graph.
@@ -214,7 +225,7 @@ namespace FortuneValley.UI.Components
             _labelsCreated = true;
             CreateCollectingLabel();
             CreateValueLabels();  // X/Y tick labels
-            CreateTitleLabels();  // "($)" and "Day" axis titles
+            CreateTitleLabels();  // "($)" and "Year" axis titles
         }
 
         /// <summary>"Collecting data…" placeholder shown before 2 data points arrive.</summary>
@@ -274,7 +285,7 @@ namespace FortuneValley.UI.Components
             }
         }
 
-        /// <summary>Create "($)" (Y-axis) and "Day" (X-axis) title labels.</summary>
+        /// <summary>Create "($)" (Y-axis) and "Year" (X-axis) title labels.</summary>
         private void CreateTitleLabels()
         {
             // Compute positions in graph local space (same coordinate space UpdateAxisLabels uses).
@@ -297,7 +308,7 @@ namespace FortuneValley.UI.Components
             yTmp.color = _labelColor;
             yTmp.alignment = TextAlignmentOptions.Center;
 
-            // X-axis title "Day" — centred horizontally, below all X tick labels.
+            // X-axis title "Year" — centred horizontally, below all X tick labels.
             // X tick labels end at ~rect.yMin - 24; placing centre at yMin - 30 avoids overlap.
             var xTitle = MakeLabel("XAxisTitle");
             xTitle.anchorMin = new Vector2(0.5f, 0.5f);
@@ -307,7 +318,7 @@ namespace FortuneValley.UI.Components
             xTitle.anchoredPosition = new Vector2(0f, rect.yMin - 30f);
             var xTmp = xTitle.gameObject.AddComponent<TextMeshProUGUI>();
             if (_labelFont != null) xTmp.font = _labelFont;
-            xTmp.text = "Day";
+            xTmp.text = "Year";
             xTmp.fontSize = 9;
             xTmp.color = _labelColor;
             xTmp.alignment = TextAlignmentOptions.Center;
@@ -331,7 +342,9 @@ namespace FortuneValley.UI.Components
             float paddedMin = _paddedMin;
             float paddedMax = _paddedMax;
 
-            // X labels: 5 evenly spaced across the window (may show negative day numbers)
+            // X labels: 5 evenly spaced across the window. Internal tick is in
+            // days; the label converts to fractional years so the player only
+            // ever sees Year units (matching the "Year" axis title).
             if (_xLabels != null)
             {
                 for (int i = 0; i < _xLabels.Length; i++)
@@ -341,8 +354,9 @@ namespace FortuneValley.UI.Components
                     float frac     = i / (float)(_xLabels.Length - 1);
                     int   dayIndex = Mathf.RoundToInt(frac * (count - 1));
                     int   dayLabel = _startDayLabel + dayIndex;
+                    float yearLabel = dayLabel / (float)LifespanConstants.TicksPerYear;
 
-                    UIBuilderUtils.SetTextIfChanged(_xLabels[i], $"Day {dayLabel}");
+                    UIBuilderUtils.SetTextIfChanged(_xLabels[i], yearLabel.ToString("F1"));
 
                     var rt = _xLabels[i].GetComponent<RectTransform>();
                     rt.anchoredPosition = new Vector2(Mathf.Lerp(rect.xMin, rect.xMax, frac), rect.yMin - 4f);

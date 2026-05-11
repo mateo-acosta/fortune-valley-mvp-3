@@ -51,11 +51,34 @@ namespace FortuneValley.Core
         /// Wire this to a "DBG: Win" button's OnClick event.
         /// Only fires OnGameEndWithSummary (skips OnGameEnd to avoid double-event race).
         /// </summary>
-        public void ForceWin()
-        {
-            UnityEngine.Debug.Log("[DebugGameEnd] ForceWin() called");
+        public void ForceWin() => RaiseMockWin();
 
-            var summary = new GameSummary
+        /// <summary>
+        /// Wire this to a "DBG: Lose" button's OnClick event.
+        /// Only fires OnGameEndWithSummary (skips OnGameEnd to avoid double-event race).
+        /// </summary>
+        public void ForceLose() => RaiseMockLose();
+
+        // Static entry points so other debug surfaces (e.g. DebugGameEndOverlay)
+        // can fire the exact same prod event with the exact same mock payload.
+
+        public static void RaiseMockWin()
+        {
+            UnityEngine.Debug.Log("[DebugGameEnd] RaiseMockWin() called");
+            GameEvents.RaiseGameEndWithSummary(true, BuildMockWinSummary());
+            UnityEngine.Debug.Log("[DebugGameEnd] Forced WIN with sample summary.");
+        }
+
+        public static void RaiseMockLose()
+        {
+            UnityEngine.Debug.Log("[DebugGameEnd] RaiseMockLose() called");
+            GameEvents.RaiseGameEndWithSummary(false, BuildMockLoseSummary());
+            UnityEngine.Debug.Log("[DebugGameEnd] Forced LOSE with sample summary.");
+        }
+
+        public static GameSummary BuildMockWinSummary()
+        {
+            return new GameSummary
             {
                 DaysPlayed = 45,
                 PlayerLots = 3,
@@ -73,28 +96,19 @@ namespace FortuneValley.Core
                 OpportunityCostInsight = "By investing early instead of buying lots immediately, " +
                     "you had more money when it mattered most.",
                 WhatIfMessage = "What if you had invested even earlier? " +
-                    "Compound interest rewards patience — every extra day counts!",
+                    "Compound interest rewards patience, every extra day counts!",
                 KeyDecisions = new List<string>
                 {
-                    "Day 5: Invested $1,000 in Tech Fund — grew 40% by endgame",
-                    "Day 12: Bought Bond at 5% APY — steady, safe income",
+                    "Day 5: Invested $1,000 in Tech Fund, grew 40% by endgame",
+                    "Day 12: Bought Bond at 5% APY, steady safe income",
                     "Day 20: Sold stocks at peak to buy Riverside lot"
                 }
             };
-
-            GameEvents.RaiseGameEndWithSummary(true, summary);
-            UnityEngine.Debug.Log("[DebugGameEnd] Forced WIN with sample summary.");
         }
 
-        /// <summary>
-        /// Wire this to a "DBG: Lose" button's OnClick event.
-        /// Only fires OnGameEndWithSummary (skips OnGameEnd to avoid double-event race).
-        /// </summary>
-        public void ForceLose()
+        public static GameSummary BuildMockLoseSummary()
         {
-            UnityEngine.Debug.Log("[DebugGameEnd] ForceLose() called");
-
-            var summary = new GameSummary
+            return new GameSummary
             {
                 DaysPlayed = 60,
                 PlayerLots = 1,
@@ -115,14 +129,11 @@ namespace FortuneValley.Core
                     "Even small amounts grow significantly with compound interest.",
                 KeyDecisions = new List<string>
                 {
-                    "Day 3: Spent all savings on Downtown lot — no money left to invest",
+                    "Day 3: Spent all savings on Downtown lot, no money left to invest",
                     "Day 25: Bought risky stock that dropped 30%",
                     "Day 40: Rival bought 3 lots in a row while you were short on cash"
                 }
             };
-
-            GameEvents.RaiseGameEndWithSummary(false, summary);
-            UnityEngine.Debug.Log("[DebugGameEnd] Forced LOSE with sample summary.");
         }
     }
 }

@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using FortuneValley.Domain.Enums;
+using FortuneValley.Core;
+using FortuneValley.Managers.WebPanels;
+using FortuneValley.UI.Popups;
+using FortuneValley.UI.Panels;
 
 namespace FortuneValley.UI
 {
@@ -24,6 +28,28 @@ namespace FortuneValley.UI
         [Tooltip("Restaurant panel for upgrades")]
         [SerializeField] private UIPanel _restaurantPanel;
 
+        [Tooltip("Insurance management panel (lot-first view)")]
+        [SerializeField] private UIPanel _insurancePanel;
+
+        [Tooltip("Loan management panel (read-only)")]
+        [SerializeField] private LoanPanel _loanPanel;
+
+        [Header("Web Panel Bridges")]
+        [Tooltip("HTML investing panel bridge. When wired, ShowPanel(Portfolio) routes here instead of activating _portfolioPanel.")]
+        [SerializeField] private InvestingWebBridge _investingWebBridge;
+
+        [Tooltip("HTML credit panel bridge. When wired, ShowPanel(Loan) routes here instead of activating _loanPanel.")]
+        [SerializeField] private CreditWebBridge _creditWebBridge;
+
+        [Tooltip("HTML QuestionMaster panel bridge. When wired, ShowPanel(QuestionMaster) routes here.")]
+        [SerializeField] private QuestionMasterWebBridge _questionMasterWebBridge;
+
+        [Tooltip("HTML PlayerProfile panel bridge. When wired, ShowPanel(Profile) routes here.")]
+        [SerializeField] private ProfileWebBridge _profileWebBridge;
+
+        [Tooltip("HTML lot detail panel bridge. When wired, OnLotInfoRequested routes here instead of opening the legacy LotInfoPopup.")]
+        [SerializeField] private LotWebBridge _lotWebBridge;
+
         [Header("Popup References")]
         [Tooltip("Lot purchase confirmation popup")]
         [SerializeField] private UIPopup _lotPurchasePopup;
@@ -37,6 +63,30 @@ namespace FortuneValley.UI
         [Tooltip("Transfer between accounts popup")]
         [SerializeField] private UIPopup _transferPopup;
 
+        [Tooltip("Monthly credit card statement popup")]
+        [SerializeField] private UIPopup _creditCardStatementPopup;
+
+        [Tooltip("Accident resolution report popup")]
+        [SerializeField] private UIPopup _accidentReportPopup;
+
+        [Tooltip("Per-lot insurance policy selection popup")]
+        [SerializeField] private UIPopup _insuranceSelectionPopup;
+
+        [Tooltip("Loan product selection popup")]
+        [SerializeField] private UIPopup _loanSelectionPopup;
+
+        [Tooltip("Insurance policy detail popup")]
+        [SerializeField] private UIPopup _insuranceDetailPopup;
+
+        [Tooltip("Lot selection popup for insurance purchase")]
+        [SerializeField] private UIPopup _insuranceLotSelectionPopup;
+
+        [Tooltip("Lot info popup opened by world-space LotWorldCanvas click")]
+        [SerializeField] private LotInfoPopup _lotInfoPopup;
+
+        [Tooltip("QuestionMaster popup opened by the HUD button")]
+        [SerializeField] private UIPopup _questionsPopup;
+
         [Header("Overlay")]
         [Tooltip("Dark overlay behind popups")]
         [SerializeField] private GameObject _popupOverlay;
@@ -47,6 +97,17 @@ namespace FortuneValley.UI
 
         private UIPanel _currentPanel;
         private Stack<UIPopup> _popupStack = new Stack<UIPopup>();
+
+        // Tracks which web bridge (if any) is currently visible. UGUI panels
+        // use _currentPanel; bridges live outside the UIPanel hierarchy.
+        private WebPanelBridgeBase _currentWebBridge;
+
+        // Tracks the panel type currently visible (UGUI or web bridge). Lets
+        // OnHidePanelRequested(PanelType) filter stale close requests that
+        // arrive after a different panel has taken over (e.g. lot bridge
+        // raises Hide(Lots) after triggering ShowPanel(Loan), and we must
+        // not close the freshly-opened loan panel).
+        private PanelType? _currentPanelType;
 
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
@@ -63,6 +124,22 @@ namespace FortuneValley.UI
             if (_buyInvestmentPopup != null) _buyInvestmentPopup.OnCloseRequested += HandlePopupCloseRequested;
             if (_sellInvestmentPopup != null) _sellInvestmentPopup.OnCloseRequested += HandlePopupCloseRequested;
             if (_transferPopup != null) _transferPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_creditCardStatementPopup != null) _creditCardStatementPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_accidentReportPopup != null) _accidentReportPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_loanSelectionPopup != null) _loanSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_insuranceDetailPopup != null) _insuranceDetailPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_insurancePanel != null) _insurancePanel.OnCloseRequested += HandlePanelCloseRequested;
+            if (_loanPanel != null) _loanPanel.OnCloseRequested += HandlePanelCloseRequested;
+            if (_lotInfoPopup != null) _lotInfoPopup.OnCloseRequested += HandlePopupCloseRequested;
+            if (_questionsPopup != null) _questionsPopup.OnCloseRequested += HandlePopupCloseRequested;
+
+            GameEvents.OnLotInfoRequested += HandleLotInfoRequested;
+            GameEvents.OnLotInsuranceRequested += HandleLotInsuranceRequested;
+            GameEvents.OnLotLoanExploreRequested += HandleLotLoanExploreRequested;
+            GameEvents.OnTutorialClosePanelsRequested += HandleTutorialClosePanelsRequested;
+            GameEvents.OnHidePanelRequested += HandleHidePanelRequested;
 
             HideAllPanels();
             HideAllPopups();
@@ -77,6 +154,67 @@ namespace FortuneValley.UI
             if (_buyInvestmentPopup != null) _buyInvestmentPopup.OnCloseRequested -= HandlePopupCloseRequested;
             if (_sellInvestmentPopup != null) _sellInvestmentPopup.OnCloseRequested -= HandlePopupCloseRequested;
             if (_transferPopup != null) _transferPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_creditCardStatementPopup != null) _creditCardStatementPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_accidentReportPopup != null) _accidentReportPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_loanSelectionPopup != null) _loanSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_insuranceDetailPopup != null) _insuranceDetailPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_insurancePanel != null) _insurancePanel.OnCloseRequested -= HandlePanelCloseRequested;
+            if (_loanPanel != null) _loanPanel.OnCloseRequested -= HandlePanelCloseRequested;
+            if (_lotInfoPopup != null) _lotInfoPopup.OnCloseRequested -= HandlePopupCloseRequested;
+            if (_questionsPopup != null) _questionsPopup.OnCloseRequested -= HandlePopupCloseRequested;
+
+            GameEvents.OnLotInfoRequested -= HandleLotInfoRequested;
+            GameEvents.OnLotInsuranceRequested -= HandleLotInsuranceRequested;
+            GameEvents.OnLotLoanExploreRequested -= HandleLotLoanExploreRequested;
+            GameEvents.OnTutorialClosePanelsRequested -= HandleTutorialClosePanelsRequested;
+            GameEvents.OnHidePanelRequested -= HandleHidePanelRequested;
+        }
+
+        private void HandleTutorialClosePanelsRequested()
+        {
+            HideAllPopups();
+            HideCurrentPanel();
+        }
+
+        private void HandleLotInfoRequested(string lotId)
+        {
+            // Web bridge takes precedence when wired. Routes through ShowPanel
+            // so the bridge becomes _currentWebBridge and Close (via
+            // OnHidePanelRequested) tears it down through the same path.
+            if (_lotWebBridge != null)
+            {
+                _lotWebBridge.ConfigureForLotId(lotId);
+                ShowPanel(PanelType.Lots);
+                return;
+            }
+            if (_lotInfoPopup == null) return;
+            _lotInfoPopup.ConfigureForLotId(lotId);
+            ShowPopup(_lotInfoPopup);
+        }
+
+        private void HandleLotInsuranceRequested(string lotId)
+        {
+            // POC: insurance disabled. Suppress panel open even if some prior
+            // wiring still raises the event.
+            if (!FeatureFlags.InsuranceEnabled) return;
+
+            // Pre-filter hook: open the panel. Sub-panels can subscribe to OnLotInsuranceRequested
+            // separately to apply a lot-specific filter. HUD-button entry stays unchanged.
+            ShowPanel(PanelType.Insurance);
+        }
+
+        private void HandleLotLoanExploreRequested(string lotId)
+        {
+            if (_loanPanel == null) return;
+            // Stage pre-selection BEFORE the panel activates so the sidebar's OnEnable
+            // picks up the Explore-tab override instead of resetting to Home.
+            _loanPanel.PrepareExploreForLot(lotId);
+            ShowPanel(PanelType.Loan);
+            // Re-entry safety: if the panel was already visible, the activation hook
+            // didn't fire. Force the tab and pre-selection now.
+            _loanPanel.OpenExploreForLot(lotId);
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -84,14 +222,23 @@ namespace FortuneValley.UI
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Show a specific panel by type.
+        /// Show a specific panel by type. Web-bridge-backed types (currently
+        /// PanelType.Portfolio) route through the HTML overlay instead of
+        /// activating the legacy UGUI panel when a bridge is wired.
         /// </summary>
         public void ShowPanel(PanelType panelType)
         {
-            // Hide current panel first
-            if (_currentPanel != null)
+            // Hide whatever's currently visible (UGUI panel OR web bridge).
+            HideCurrentVisible();
+
+            WebPanelBridgeBase bridge = GetWebBridge(panelType);
+            if (bridge != null)
             {
-                _currentPanel.Hide();
+                bridge.Show();
+                _currentWebBridge = bridge;
+                _currentPanelType = panelType;
+                GameEvents.RaisePanelOpened(panelType);
+                return;
             }
 
             UIPanel panel = GetPanel(panelType);
@@ -99,19 +246,17 @@ namespace FortuneValley.UI
             {
                 panel.Show();
                 _currentPanel = panel;
+                _currentPanelType = panelType;
+                GameEvents.RaisePanelOpened(panelType);
             }
         }
 
         /// <summary>
-        /// Hide the currently open panel.
+        /// Hide the currently open panel (UGUI or web bridge).
         /// </summary>
         public void HideCurrentPanel()
         {
-            if (_currentPanel != null)
-            {
-                _currentPanel.Hide();
-                _currentPanel = null;
-            }
+            HideCurrentVisible();
         }
 
         /// <summary>
@@ -119,28 +264,79 @@ namespace FortuneValley.UI
         /// </summary>
         public void TogglePanel(PanelType panelType)
         {
+            WebPanelBridgeBase bridge = GetWebBridge(panelType);
+            if (bridge != null)
+            {
+                if (_currentWebBridge == bridge) HideCurrentPanel();
+                else ShowPanel(panelType);
+                return;
+            }
+
             UIPanel panel = GetPanel(panelType);
             if (panel == null) return;
 
-            if (_currentPanel == panel)
+            if (_currentPanel == panel) HideCurrentPanel();
+            else ShowPanel(panelType);
+        }
+
+        private void HideCurrentVisible()
+        {
+            if (_currentWebBridge != null)
             {
-                HideCurrentPanel();
+                _currentWebBridge.Hide();
+                _currentWebBridge = null;
             }
-            else
+            if (_currentPanel != null)
             {
-                ShowPanel(panelType);
+                _currentPanel.Hide();
+                _currentPanel = null;
             }
+            _currentPanelType = null;
+        }
+
+        private WebPanelBridgeBase GetWebBridge(PanelType type)
+        {
+            return type switch
+            {
+                PanelType.Portfolio => _investingWebBridge,
+                PanelType.Loan => _creditWebBridge,
+                PanelType.QuestionMaster => _questionMasterWebBridge,
+                PanelType.Profile => _profileWebBridge,
+                PanelType.Lots => _lotWebBridge,
+                _ => null
+            };
+        }
+
+        private void HandleHidePanelRequested(PanelType panelType)
+        {
+            // Filter by panelType so a stale Hide request can't close a
+            // panel that has since been replaced. Concrete case: the lot
+            // bridge's "Explore Loan" intent raises both LotLoanExplore
+            // (which triggers ShowPanel(Loan)) and HidePanel(Lots). Without
+            // this filter, the second event closed the freshly-opened loan
+            // panel because the current visible was no longer the lot panel.
+            if (_currentPanelType != panelType) return;
+            HideCurrentPanel();
         }
 
         /// <summary>
-        /// Hide all panels.
+        /// Hide all panels (both UGUI and web bridge).
         /// </summary>
         public void HideAllPanels()
         {
             if (_portfolioPanel != null) _portfolioPanel.Hide();
             if (_lotsPanel != null) _lotsPanel.Hide();
             if (_restaurantPanel != null) _restaurantPanel.Hide();
+            if (_insurancePanel != null) _insurancePanel.Hide();
+            if (_loanPanel != null) _loanPanel.Hide();
+            if (_investingWebBridge != null) _investingWebBridge.Hide();
+            if (_creditWebBridge != null) _creditWebBridge.Hide();
+            if (_questionMasterWebBridge != null) _questionMasterWebBridge.Hide();
+            if (_profileWebBridge != null) _profileWebBridge.Hide();
+            if (_lotWebBridge != null) _lotWebBridge.Hide();
             _currentPanel = null;
+            _currentWebBridge = null;
+            _currentPanelType = null;
         }
 
         private UIPanel GetPanel(PanelType type)
@@ -150,6 +346,8 @@ namespace FortuneValley.UI
                 PanelType.Portfolio => _portfolioPanel,
                 PanelType.Lots => _lotsPanel,
                 PanelType.Restaurant => _restaurantPanel,
+                PanelType.Insurance => _insurancePanel,
+                PanelType.Loan => _loanPanel,
                 _ => null
             };
         }
@@ -252,6 +450,14 @@ namespace FortuneValley.UI
             if (_buyInvestmentPopup != null) _buyInvestmentPopup.Hide();
             if (_sellInvestmentPopup != null) _sellInvestmentPopup.Hide();
             if (_transferPopup != null) _transferPopup.Hide();
+            if (_creditCardStatementPopup != null) _creditCardStatementPopup.Hide();
+            if (_accidentReportPopup != null) _accidentReportPopup.Hide();
+            if (_insuranceSelectionPopup != null) _insuranceSelectionPopup.Hide();
+            if (_loanSelectionPopup != null) _loanSelectionPopup.Hide();
+            if (_insuranceDetailPopup != null) _insuranceDetailPopup.Hide();
+            if (_insuranceLotSelectionPopup != null) _insuranceLotSelectionPopup.Hide();
+            if (_lotInfoPopup != null) _lotInfoPopup.Hide();
+            if (_questionsPopup != null) _questionsPopup.Hide();
 
             if (_popupOverlay != null)
             {
@@ -267,6 +473,14 @@ namespace FortuneValley.UI
                 PopupType.BuyInvestment => _buyInvestmentPopup,
                 PopupType.SellInvestment => _sellInvestmentPopup,
                 PopupType.Transfer => _transferPopup,
+                PopupType.CreditCardStatement => _creditCardStatementPopup,
+                PopupType.AccidentReport => _accidentReportPopup,
+                PopupType.InsuranceSelection => _insuranceSelectionPopup,
+                PopupType.LoanSelection => _loanSelectionPopup,
+                PopupType.InsuranceDetail => _insuranceDetailPopup,
+                PopupType.LotSelection => _insuranceLotSelectionPopup,
+                PopupType.LotInfo => _lotInfoPopup,
+                PopupType.Questions => _questionsPopup,
                 _ => null
             };
         }
@@ -291,9 +505,9 @@ namespace FortuneValley.UI
         public bool IsPopupOpen => _popupStack.Count > 0;
 
         /// <summary>
-        /// Check if any panel is currently open.
+        /// Check if any panel is currently open (UGUI or web bridge).
         /// </summary>
-        public bool IsPanelOpen => _currentPanel != null;
+        public bool IsPanelOpen => _currentPanel != null || _currentWebBridge != null;
 
         /// <summary>
         /// Get the lot purchase popup for configuration.
@@ -314,5 +528,25 @@ namespace FortuneValley.UI
         /// Get the transfer popup for configuration.
         /// </summary>
         public UIPopup TransferPopup => _transferPopup;
+
+        /// <summary>
+        /// Get the insurance selection popup for configuration by InsurancePanel.
+        /// </summary>
+        public UIPopup InsuranceSelectionPopup => _insuranceSelectionPopup;
+
+        /// <summary>
+        /// Get the loan selection popup for configuration by LotPurchasePopup.
+        /// </summary>
+        public UIPopup LoanSelectionPopup => _loanSelectionPopup;
+
+        /// <summary>
+        /// Insurance detail popup for policy/transaction information.
+        /// </summary>
+        public UIPopup InsuranceDetailPopup => _insuranceDetailPopup;
+
+        /// <summary>
+        /// Lot selection popup for insurance purchasing.
+        /// </summary>
+        public UIPopup InsuranceLotSelectionPopup => _insuranceLotSelectionPopup;
     }
 }

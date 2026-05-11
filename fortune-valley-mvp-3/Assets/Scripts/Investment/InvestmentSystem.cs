@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using FortuneValley.Domain.Entities;
+using FortuneValley.Domain.Interfaces;
 
 namespace FortuneValley.Core
 {
@@ -13,8 +15,11 @@ namespace FortuneValley.Core
     /// 3. Experience the time value of money (earlier investments grow more)
     ///
     /// All values are explicit and trackable to support learning reflection.
+    ///
+    /// Implements IBankruptcyResettable: on soft bankruptcy, all holdings,
+    /// realized gains, and sell history are wiped. Prices are re-seeded.
     /// </summary>
-    public class InvestmentSystem : MonoBehaviour, IInvestmentService
+    public class InvestmentSystem : MonoBehaviour, IInvestmentService, IBankruptcyResettable
     {
         // ═══════════════════════════════════════════════════════════════
         // DEPENDENCIES
@@ -135,15 +140,62 @@ namespace FortuneValley.Core
         {
             GameEvents.OnTick += HandleTick;
             GameEvents.OnGameStart += HandleGameStart;
+            GameEvents.OnBuySharesRequested += HandleBuySharesRequested;
+            GameEvents.OnSellSharesRequested += HandleSellSharesRequested;
+            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
+
+            if (GameEvents.LastLoadedSaveDto != null)
+            {
+                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
+            }
         }
 
         private void OnDisable()
         {
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnGameStart -= HandleGameStart;
+            GameEvents.OnBuySharesRequested -= HandleBuySharesRequested;
+            GameEvents.OnSellSharesRequested -= HandleSellSharesRequested;
+            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+        }
+
+        private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
+        {
+            try { Hydrate(dto); }
+            catch (Exception e) { Debug.LogError($"[{nameof(InvestmentSystem)}] hydrate failed: {e}"); }
+        }
+
+        /// <summary>
+        /// Intent event handler: UI requested a share purchase.
+        /// </summary>
+        private void HandleBuySharesRequested(InvestmentDefinition def, int qty)
+        {
+            BuyShares(def, qty);
+        }
+
+        /// <summary>
+        /// Intent event handler: UI requested a share sale.
+        /// </summary>
+        private void HandleSellSharesRequested(ActiveInvestment inv, int qty)
+        {
+            SellShares(inv, qty);
         }
 
         private void HandleGameStart()
+        {
+            ResetPortfolioState();
+        }
+
+        /// <summary>
+        /// IBankruptcyResettable. Soft reset: all holdings + history wiped,
+        /// prices re-seeded so the player starts fresh on the invest side.
+        /// </summary>
+        public void OnBankruptcyReset()
+        {
+            ResetPortfolioState();
+        }
+
+        private void ResetPortfolioState()
         {
             _activeInvestments.Clear();
             _lifetimeRealizedGains = 0f;
@@ -154,9 +206,49 @@ namespace FortuneValley.Core
             InitializePrices();
         }
 
+        /// <summary>
+        /// Rebuild the active investment list from a saved DTO.
+        /// Matches instrument_id to InvestmentDefinition ScriptableObject.name.
+        /// ADVISORY: contains a loop, but runs once at restore (not per-frame).
+        /// Public so EditMode tests can call directly without raising the event.
+        /// </summary>
+        public void Hydrate(GamePlayerStateDTO dto)
+        {
+            if (dto == null) return;
+            _activeInvestments.Clear();
+            if (dto.investment_holdings == null) return;
+
+            for (int i = 0; i < dto.investment_holdings.Length; i++)
+            {
+                var h = dto.investment_holdings[i];
+                if (h == null) continue;
+
+                InvestmentDefinition def = FindDefinitionByInstrumentId(h.instrument_id);
+                if (def == null)
+                {
+                    Debug.LogWarning($"[InvestmentSystem] No definition found for instrument_id '{h.instrument_id}', skipping");
+                    continue;
+                }
+
+                var inv = new ActiveInvestment(def, h.shares, h.avg_price, dto.current_tick);
+                _activeInvestments.Add(inv);
+            }
+        }
+
+        private InvestmentDefinition FindDefinitionByInstrumentId(string instrumentId)
+        {
+            if (_availableInvestments == null) return null;
+            for (int i = 0; i < _availableInvestments.Count; i++)
+            {
+                if (_availableInvestments[i] != null && _availableInvestments[i].name == instrumentId)
+                    return _availableInvestments[i];
+            }
+            return null;
+        }
+
         private void HandleTick(int tickNumber)
         {
-            UpdatePrices();
+            UpdatePrices(tickNumber);
             UpdateAllInvestments(tickNumber);
 
             // Track peak portfolio value for game-end analysis
@@ -177,12 +269,14 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
-        /// Update all investment prices each tick based on volatility.
+        /// Seed and update all investment prices for this tick.
+        /// Seeding ensures all students see the same prices on the same tick.
         /// </summary>
-        private void UpdatePrices()
+        private void UpdatePrices(int tickNumber)
         {
             foreach (var def in _availableInvestments)
             {
+                def.SetDaySeed(tickNumber);
                 def.UpdatePrice();
             }
         }
@@ -209,8 +303,8 @@ namespace FortuneValley.Core
             float pricePerShare = definition.CurrentPrice;
             float totalCost = shareCount * pricePerShare;
 
-            // Try to spend the money
-            if (!_currencyManager.TrySpend(totalCost, $"Buy {shareCount} shares of {definition.DisplayName}"))
+            // Deduct from checking account (students buy directly with checking funds)
+            if (!_currencyManager.TrySpendChecking(totalCost, $"Buy {shareCount} shares of {definition.DisplayName}"))
             {
                 Debug.Log($"[InvestmentSystem] Cannot afford ${totalCost:F0} for {shareCount} shares");
                 return null;
@@ -231,7 +325,7 @@ namespace FortuneValley.Core
             }
 
             // Create new investment
-            var investment = new ActiveInvestment(definition, shareCount, pricePerShare, _timeManager.CurrentTick);
+            var investment = new ActiveInvestment(definition, shareCount, pricePerShare, _timeManager.CurrentEnginePulse);
             _activeInvestments.Add(investment);
 
             GameEvents.RaiseInvestmentCreated(investment);
@@ -279,7 +373,8 @@ namespace FortuneValley.Core
             int removed = investment.RemoveShares(shareCount);
             float payout = removed * pricePerShare;
 
-            _currencyManager.Add(payout, $"Sold {removed} shares of {investment.Definition.DisplayName}");
+            // Sale proceeds go to checking account
+            _currencyManager.AddToChecking(payout, $"Sold {removed} shares of {investment.Definition.DisplayName}");
 
             Debug.Log($"[InvestmentSystem] Partial sell: {removed} shares of {investment.Definition.DisplayName}. " +
                      $"Payout: ${payout:F2}. Remaining: {investment.NumberOfShares} shares");
@@ -305,8 +400,8 @@ namespace FortuneValley.Core
             float payout = investment.CurrentValue;
             _activeInvestments.Remove(investment);
 
-            // Add the money back to balance
-            _currencyManager.Add(payout, $"Sold {investment.NumberOfShares} shares of {investment.Definition.DisplayName}");
+            // Sale proceeds go to checking account
+            _currencyManager.AddToChecking(payout, $"Sold all shares of {investment.Definition.DisplayName}");
 
             GameEvents.RaiseInvestmentWithdrawn(investment, payout);
 
@@ -425,7 +520,7 @@ namespace FortuneValley.Core
                     InvestmentName    = inv.Definition.DisplayName,
                     Category          = inv.Definition.Category.ToString(),
                     SharesSold        = sharesSold,
-                    SellDay           = _timeManager.CurrentTick,
+                    SellDay           = _timeManager.CurrentEnginePulse,
                     SellPricePerShare = sellPrice,
                     CostBasisPerShare = inv.AveragePurchasePrice,
                     GainOrLoss        = gainPerShare * sharesSold,

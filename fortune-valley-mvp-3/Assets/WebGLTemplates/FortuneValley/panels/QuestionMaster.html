@@ -1,0 +1,1122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuestionMaster - Fortune Valley</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- Drop-in info-modal hook (matches Credit / Investing panels). Will 404 in
+     standalone preview; resolved when this file is dropped into
+     Assets/WebGLTemplates/FortuneValley/panels/. -->
+<link rel="stylesheet" href="info/info-modal.css">
+<script type="module" src="info/info-modal.js"></script>
+
+<style>
+/* ============================================================
+   Fortune Valley - QuestionMaster (bonus round) panel
+   Same paper chrome + Nunito + soft shadow vocabulary as the
+   Credit and Investing System panels. Accent: warm violet.
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --paper:        #FFFFFF;
+  --paper-2:      #F4F6FB;
+  --paper-3:      #E8ECF6;
+  --paper-4:      #DBE1F0;
+
+  --ink-900:      #0E1530;
+  --ink-800:      #16204A;
+  --ink-700:      #1F2C5C;
+  --ink-500:      #3A4D8E;
+
+  --fg-1:         #0E1530;
+  --fg-2:         #3A4D8E;
+  --fg-3:         #6B78A8;
+  --fg-4:         #9AA3C2;
+
+  /* Brand - shared across panels */
+  --coral:        #FF7A8A;   /* Investing */
+  --sky:          #4FB8E8;   /* Credit */
+  --cash:         #4CC38A;
+  --coin:         #F2B53B;
+
+  /* QuestionMaster accent - warm violet */
+  --quiz:         #7C5CE6;
+  --quiz-soft:    #ECE6FB;
+  --quiz-ink:     #3A2A8C;
+  --quiz-glow:    rgba(124, 92, 230, 0.45);
+
+  /* Semantic */
+  --gain:         #1FA85E;
+  --gain-soft:    #DCF3E6;
+  --loss:         #E83A50;
+  --loss-soft:    #FCE0E4;
+  --warn:         #D49414;
+  --warn-soft:    #FAEAC4;
+
+  /* Radii */
+  --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* Shadows */
+  --sh-1:  0 1px 2px rgba(14,21,48,0.06), 0 2px 6px rgba(14,21,48,0.08);
+  --sh-2:  0 4px 12px rgba(14,21,48,0.10), 0 12px 28px rgba(14,21,48,0.12);
+  --sh-3:  0 12px 28px rgba(14,21,48,0.18), 0 28px 60px rgba(14,21,48,0.22);
+
+  /* Borders */
+  --bd:    1px solid rgba(14,21,48,0.08);
+  --bd-2:  1px solid rgba(14,21,48,0.14);
+
+  --ease:  cubic-bezier(0.2, 0.8, 0.2, 1);
+  --d-fast: 120ms;
+  --d-base: 220ms;
+
+  --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: var(--font);
+  color: var(--fg-1);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ----------------------------------------------------------
+   World scrim - exactly like the other panels. Live Unity
+   scene shows through, lightly dimmed.
+   ---------------------------------------------------------- */
+.world {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+  z-index: 0;
+}
+
+/* ----------------------------------------------------------
+   Modal
+   ---------------------------------------------------------- */
+.scrim {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  z-index: 30;
+}
+.panel {
+  width: min(720px, 100%);
+  max-height: min(80vh, 760px);
+  background: var(--paper);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-3);
+  border: var(--bd);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: panelIn 280ms var(--ease) both;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Header */
+.panel-header {
+  flex: none;
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 14px 16px 22px;
+  border-bottom: var(--bd);
+  background: linear-gradient(180deg, var(--paper), var(--paper-2));
+}
+.panel-header .crest {
+  width: 44px; height: 44px; border-radius: 13px;
+  background: var(--quiz); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+  box-shadow: 0 4px 14px var(--quiz-glow);
+}
+.panel-header .titles { min-width: 0; flex: 1; }
+.panel-header .titles .kicker {
+  font-size: 11px; font-weight: 800; color: var(--quiz-ink);
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.panel-header .titles .title {
+  font-size: 22px; font-weight: 900; letter-spacing: -0.01em;
+  color: var(--fg-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.streak-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px 7px 10px; border-radius: 999px;
+  background: var(--quiz-soft);
+  color: var(--quiz-ink);
+  border: 1px solid rgba(124, 92, 230, 0.22);
+  font-weight: 900; font-size: 13px;
+  white-space: nowrap;
+  flex: none;
+  transition: transform var(--d-fast) var(--ease), background var(--d-fast) var(--ease);
+}
+.streak-chip .ic {
+  width: 18px; height: 18px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--quiz);
+}
+.streak-chip.bumped { animation: streakBump 360ms var(--ease) both; }
+.streak-chip.hot {
+  background: linear-gradient(135deg, #F2B53B, #FF7A4A);
+  color: #fff; border-color: rgba(255,255,255,0.6);
+}
+.streak-chip.hot .ic { color: #fff; }
+@keyframes streakBump {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+.panel-header .icon-btn {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--paper-2); border: var(--bd);
+  color: var(--fg-2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font); font-weight: 900; font-size: 16px;
+  transition: background var(--d-fast) var(--ease), color var(--d-fast) var(--ease);
+  flex: none;
+}
+.panel-header .icon-btn:hover { background: var(--paper-3); color: var(--fg-1); }
+
+/* Body */
+.panel-body {
+  flex: 1;
+  display: flex; flex-direction: column; gap: 18px;
+  padding: 22px 26px 26px;
+  min-height: 0;
+  overflow: auto;
+  position: relative;
+}
+
+/* ----------------------------------------------------------
+   Timer
+   ---------------------------------------------------------- */
+.timer {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.timer-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.timer-seconds {
+  font-family: var(--font);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px; font-weight: 900; color: var(--quiz-ink);
+  letter-spacing: 0.02em;
+}
+.timer-track {
+  height: 12px; border-radius: 999px;
+  background: var(--paper-3);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(14,21,48,0.06);
+}
+.timer-fill {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--quiz) 0%, #9F82F0 100%);
+  border-radius: 999px;
+  transition: width 1s linear, background 200ms var(--ease);
+  box-shadow: 0 0 12px var(--quiz-glow);
+  width: 100%;
+}
+.timer-fill.urgent {
+  background: linear-gradient(90deg, var(--warn) 0%, #F2B53B 100%);
+  box-shadow: 0 0 12px rgba(212,148,20,0.55);
+  animation: timerPulse 600ms var(--ease) infinite alternate;
+}
+.timer-fill.critical {
+  background: linear-gradient(90deg, var(--loss) 0%, #FF6F7E 100%);
+  box-shadow: 0 0 14px rgba(232,58,80,0.55);
+  animation: timerPulse 380ms var(--ease) infinite alternate;
+}
+@keyframes timerPulse {
+  from { filter: brightness(1); }
+  to   { filter: brightness(1.18); }
+}
+
+/* ----------------------------------------------------------
+   Question prompt
+   ---------------------------------------------------------- */
+.prompt-card {
+  background: var(--paper-2);
+  border: var(--bd);
+  border-radius: var(--r-lg);
+  padding: 22px 22px 20px;
+  box-shadow: var(--sh-1);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.prompt {
+  font-size: 22px; font-weight: 900; line-height: 1.3;
+  color: var(--fg-1); letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+.category-chip {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--quiz-soft);
+  color: var(--quiz-ink);
+  border: 1px solid rgba(124, 92, 230, 0.18);
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.category-chip.investing { background: #FFE2E6; color: #B4001A; border-color: rgba(255,122,138,0.25); }
+.category-chip.credit    { background: #DDF1FB; color: #0B5076; border-color: rgba(79,184,232,0.25); }
+.category-chip.insurance { background: #DCF3E6; color: #126E3F; border-color: rgba(31,168,94,0.25); }
+.category-chip.budget    { background: #FAEAC4; color: #7A5500; border-color: rgba(212,148,20,0.25); }
+.category-chip.taxes     { background: #ECE6FB; color: #3A2A8C; border-color: rgba(124,92,230,0.25); }
+.category-chip .dot {
+  width: 7px; height: 7px; border-radius: 7px; background: currentColor;
+}
+
+/* ----------------------------------------------------------
+   Answer grid
+   ---------------------------------------------------------- */
+.answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.answer {
+  position: relative;
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px;
+  background: var(--paper);
+  border: 2px solid var(--paper-3);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font);
+  color: var(--fg-1);
+  transition: transform var(--d-fast) var(--ease),
+              background var(--d-fast) var(--ease),
+              border-color var(--d-fast) var(--ease),
+              box-shadow var(--d-fast) var(--ease);
+  min-height: 78px;
+}
+.answer:hover:not(:disabled):not(.locked) {
+  border-color: var(--quiz);
+  background: var(--quiz-soft);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124,92,230,0.18);
+}
+.answer:active:not(:disabled):not(.locked) { transform: translateY(1px); }
+.answer .letter {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--paper-2);
+  color: var(--quiz-ink);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 16px; flex: none;
+  border: var(--bd);
+  transition: background var(--d-fast) var(--ease), color var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease);
+}
+.answer:hover:not(:disabled):not(.locked) .letter {
+  background: var(--quiz); color: #fff; border-color: var(--quiz);
+}
+.answer .label {
+  flex: 1; min-width: 0;
+  font-weight: 800; font-size: 15px; line-height: 1.4;
+  text-wrap: pretty;
+}
+.answer .state-ic {
+  width: 24px; height: 24px; border-radius: 999px;
+  display: none; flex: none;
+  align-items: center; justify-content: center;
+  color: #fff;
+}
+.answer.correct {
+  background: var(--gain-soft);
+  border-color: var(--gain);
+  color: var(--gain);
+}
+.answer.correct .letter { background: var(--gain); color: #fff; border-color: var(--gain); }
+.answer.correct .label { color: #126E3F; }
+.answer.correct .state-ic { display: flex; background: var(--gain); }
+.answer.correct {
+  animation: correctPulse 700ms var(--ease) both;
+}
+@keyframes correctPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(31,168,94,0.45); }
+  70%  { box-shadow: 0 0 0 12px rgba(31,168,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(31,168,94,0); }
+}
+.answer.wrong {
+  background: var(--loss-soft);
+  border-color: var(--loss);
+}
+.answer.wrong .letter { background: var(--loss); color: #fff; border-color: var(--loss); }
+.answer.wrong .label { color: #8A0E1C; }
+.answer.wrong .state-ic { display: flex; background: var(--loss); }
+.answer.locked { cursor: default; }
+.answer.locked.idle {
+  opacity: 0.5; filter: saturate(0.5);
+}
+.answer:disabled { cursor: default; }
+
+/* ----------------------------------------------------------
+   Result overlays
+   ---------------------------------------------------------- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+  z-index: 5;
+}
+.overlay.show { opacity: 1; transform: none; pointer-events: auto; }
+
+.overlay-card {
+  min-width: 280px;
+  max-width: calc(100% - 48px);
+  padding: 26px 30px;
+  border-radius: var(--r-xl);
+  background: var(--paper);
+  box-shadow: var(--sh-3);
+  border: var(--bd-2);
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.overlay.correct .overlay-card {
+  background: linear-gradient(180deg, #FDFFF8, #F0FBE9);
+  border-color: rgba(31,168,94,0.35);
+}
+.overlay.incorrect .overlay-card {
+  background: linear-gradient(180deg, #FFFAFB, #FCEEF0);
+  border-color: rgba(232,58,80,0.30);
+}
+
+.overlay .stamp {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 999px;
+  font-size: 11px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase;
+}
+
+/* Per-question explanation rendered during the reveal phase. The bridge
+   ships QuestionData.explanation as payload.explanation; receiver writes
+   into both #qm-explanation-correct and #qm-explanation-incorrect so
+   whichever overlay shows already has the right copy. */
+.qm-explanation {
+  margin-top: 14px;
+  max-width: 480px;
+  padding: 10px 16px;
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.6);
+  font-size: 14px; line-height: 1.5; font-weight: 600;
+  color: var(--ink-700);
+  text-align: left;
+}
+.qm-explanation[hidden] { display: none; }
+.overlay.correct .stamp { background: var(--gain); color: #fff; }
+.overlay.incorrect .stamp { background: var(--loss); color: #fff; }
+
+.overlay .reward {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: 56px; letter-spacing: -0.02em;
+  color: var(--gain);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.overlay .reward .coin {
+  width: 48px; height: 48px; border-radius: 999px;
+  background: var(--coin);
+  color: #6B4F00;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 22px;
+  border: 2px solid #C9921F;
+  box-shadow: 0 4px 0 #B07F18, 0 6px 14px rgba(242,181,59,0.35);
+}
+.overlay .streak-line {
+  font-size: 14px; font-weight: 800;
+  color: var(--quiz-ink);
+}
+.overlay.incorrect .streak-line { color: var(--fg-2); }
+.overlay .correct-letter {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--gain); color: #fff;
+  font-weight: 900; font-size: 22px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.overlay .answer-line {
+  font-size: 16px; font-weight: 800; color: var(--fg-1);
+  display: flex; align-items: center; gap: 4px;
+  text-wrap: pretty;
+}
+
+/* ----------------------------------------------------------
+   Loading shell
+   ---------------------------------------------------------- */
+.loading-shell {
+  display: flex; flex-direction: column; gap: 14px;
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--paper-2) 0%, var(--paper-3) 50%, var(--paper-2) 100%);
+  background-size: 200% 100%;
+  animation: skel 1.4s linear infinite;
+  border-radius: var(--r-md);
+}
+@keyframes skel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* ----------------------------------------------------------
+   Footer hint
+   ---------------------------------------------------------- */
+.footer-hint {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 4px;
+  font-size: 12px; font-weight: 700; color: var(--fg-3);
+}
+.footer-hint .next-reward {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--quiz-ink); font-weight: 800;
+}
+.footer-hint .next-reward .coin-mini {
+  width: 14px; height: 14px; border-radius: 999px;
+  background: var(--coin); border: 1px solid #C9921F;
+  display: inline-block;
+}
+
+/* ----------------------------------------------------------
+   Inline info modal (fallback for standalone preview;
+   when info-modal.js loads in-game it can replace this).
+   ---------------------------------------------------------- */
+.info-modal {
+  position: fixed; inset: 0;
+  background: rgba(8,12,30,0.55);
+  display: none; align-items: center; justify-content: center;
+  padding: 24px;
+  z-index: 60;
+  animation: fade 200ms var(--ease) both;
+}
+.info-modal.open { display: flex; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.info-card {
+  width: min(520px, 100%);
+  background: var(--paper);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-3);
+  border: var(--bd);
+  padding: 26px 28px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+  animation: panelIn 240ms var(--ease) both;
+}
+.info-card .info-head {
+  display: flex; align-items: center; gap: 12px;
+}
+.info-card .info-head .ic {
+  width: 38px; height: 38px; border-radius: 11px;
+  background: var(--quiz-soft); color: var(--quiz);
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+}
+.info-card .info-head h2 {
+  margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -0.01em;
+}
+.info-card p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--fg-2); }
+.info-card ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.info-card ul li { font-size: 14px; line-height: 1.5; color: var(--fg-2); }
+.info-card ul li strong { color: var(--fg-1); }
+.info-card .info-cta {
+  align-self: flex-end;
+  margin-top: 4px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: var(--quiz);
+  color: #fff;
+  border: none; cursor: pointer;
+  font-family: var(--font); font-weight: 800; font-size: 14px;
+  transition: background var(--d-fast) var(--ease);
+}
+.info-card .info-cta:hover { background: #6748D4; }
+
+/* ----------------------------------------------------------
+   Narrow / mobile
+   ---------------------------------------------------------- */
+@media (max-width: 540px) {
+  .panel-body { padding: 18px 18px 22px; gap: 14px; }
+  .panel-header { padding: 14px 12px 14px 16px; }
+  .panel-header .titles .title { font-size: 18px; }
+  .streak-chip { padding: 6px 11px 6px 8px; font-size: 12px; }
+  .prompt-card { padding: 18px; border-radius: var(--r-md); }
+  .prompt { font-size: 18px; }
+  .answers { grid-template-columns: 1fr; gap: 10px; }
+  .answer { min-height: 64px; padding: 13px 14px; }
+  .answer .letter { width: 32px; height: 32px; font-size: 14px; border-radius: 8px; }
+  .answer .label { font-size: 14px; }
+  .timer-track { height: 10px; }
+  .overlay .reward { font-size: 42px; }
+  .overlay .reward .coin { width: 38px; height: 38px; font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Live Unity scene shows through this dim layer -->
+<div class="world" aria-hidden="true"></div>
+
+<!-- Centered modal -->
+<div class="scrim">
+  <div class="panel" role="dialog" aria-labelledby="qm-title">
+
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="crest" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 9 a3 3 0 1 1 4.5 2.6 c-1 .6 -1.5 1.2 -1.5 2.4"/>
+          <circle cx="12" cy="18" r="1.1" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <div class="titles">
+        <div class="kicker">Bonus round</div>
+        <div class="title" id="qm-title">QuestionMaster</div>
+      </div>
+
+      <div class="streak-chip" id="qm-streak-chip" title="Current streak">
+        <span class="ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M12 2 C13 6 16 7 16 11 C16 13.5 14.2 15 12 15 C9.8 15 8 13.5 8 11 C8 9 9 8 9 8 C9 9.5 10 10 10.5 10 C10.5 8 11 5 12 2 Z M7.5 12 C7 13 6.5 14.2 6.5 15.5 C6.5 18.5 9 21 12 21 C15 21 17.5 18.5 17.5 15.5 C17.5 14 16.8 12.6 16 11.5 C16 14 14.4 16 12 16 C9.6 16 8 14 7.5 12 Z"/>
+          </svg>
+        </span>
+        Streak: <span id="qm-streak-value">0</span>
+      </div>
+
+      <button class="icon-btn" id="qm-info" aria-label="How QuestionMaster works" title="How it works">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16 V11"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button class="icon-btn" id="qm-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="panel-body">
+
+      <!-- Timer -->
+      <div class="timer">
+        <div class="timer-head">
+          <span>Time left</span>
+          <span class="timer-seconds" id="qm-timer-seconds">15s</span>
+        </div>
+        <div class="timer-track" aria-hidden="true">
+          <span class="timer-fill" id="qm-timer-fill"></span>
+        </div>
+      </div>
+
+      <!-- Question prompt -->
+      <div class="prompt-card">
+        <span class="category-chip investing" id="qm-category">
+          <span class="dot"></span><span id="qm-category-label">Investing</span>
+        </span>
+        <div class="prompt" id="qm-prompt">What is compound interest?</div>
+      </div>
+
+      <!-- Answers -->
+      <div class="answers" id="qm-answers" role="radiogroup" aria-label="Answers">
+        <button class="answer" id="qm-answer-0" type="button" data-index="0" role="radio" aria-checked="false">
+          <span class="letter">A</span>
+          <span class="label">Interest paid only on the original amount</span>
+          <span class="state-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>
+          </span>
+        </button>
+        <button class="answer" id="qm-answer-1" type="button" data-index="1" role="radio" aria-checked="false">
+          <span class="letter">B</span>
+          <span class="label">Interest earned on both the principal and prior interest</span>
+          <span class="state-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>
+          </span>
+        </button>
+        <button class="answer" id="qm-answer-2" type="button" data-index="2" role="radio" aria-checked="false">
+          <span class="letter">C</span>
+          <span class="label">A fee the bank charges for holding your money</span>
+          <span class="state-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>
+          </span>
+        </button>
+        <button class="answer" id="qm-answer-3" type="button" data-index="3" role="radio" aria-checked="false">
+          <span class="letter">D</span>
+          <span class="label">The interest rate on a loan</span>
+          <span class="state-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>
+          </span>
+        </button>
+      </div>
+
+      <!-- Footer hint -->
+      <div class="footer-hint">
+        <span>Tap an answer before time runs out.</span>
+        <span class="next-reward">
+          <span class="coin-mini" aria-hidden="true"></span>
+          Next reward: <span id="qm-next-reward">$25</span>
+        </span>
+      </div>
+
+      <!-- Correct overlay -->
+      <div class="overlay correct" id="qm-correct-overlay" aria-live="polite" aria-hidden="true">
+        <div class="overlay-card">
+          <div class="stamp">Correct</div>
+          <div class="reward">
+            <span class="coin">$</span>
+            <span id="qm-correct-reward">+$25</span>
+          </div>
+          <div class="streak-line">Streak: <span id="qm-correct-streak">1</span></div>
+          <div class="qm-explanation" id="qm-explanation-correct" hidden></div>
+        </div>
+      </div>
+
+      <!-- Incorrect overlay -->
+      <div class="overlay incorrect" id="qm-incorrect-overlay" aria-live="polite" aria-hidden="true">
+        <div class="overlay-card">
+          <div class="stamp">Not quite</div>
+          <div class="answer-line">
+            <span class="correct-letter" id="qm-incorrect-letter">B</span>
+            was correct
+          </div>
+          <div class="streak-line" id="qm-incorrect-streak">Streak reset to 0</div>
+          <div class="qm-explanation" id="qm-explanation-incorrect" hidden></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Inline info modal (fallback). info/info-modal.js may replace this in-game. -->
+<div class="info-modal" id="qm-info-modal" role="dialog" aria-labelledby="qm-info-title" aria-hidden="true">
+  <div class="info-card">
+    <div class="info-head">
+      <div class="ic" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16 V11"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <h2 id="qm-info-title">How QuestionMaster works</h2>
+    </div>
+    <p>Answer correctly to earn cash. Each correct answer in a row pays more than the last. A wrong answer or timeout resets your streak.</p>
+    <ul>
+      <li><strong>Timer.</strong> You have 15 seconds per question.</li>
+      <li><strong>Streak.</strong> Rewards grow with every correct answer in a row.</li>
+      <li><strong>Reset.</strong> A wrong answer or running out of time sends your streak back to zero.</li>
+      <li><strong>Categories.</strong> Questions cover Investing, Credit, Insurance, Budget, and Taxes.</li>
+    </ul>
+    <button class="info-cta" id="qm-info-close" type="button">Got it</button>
+  </div>
+</div>
+
+<script type="module">
+/* ============================================================
+   QuestionMaster - bridges to Unity via parent.FV when embedded.
+   Falls back to a self-contained demo cycle when opened standalone.
+   The element IDs and classes below are the public contract.
+   ============================================================ */
+
+let QUESTION_TIME = 15; // seconds (overridden by payload.timeLimitSeconds when embedded)
+
+// True when this iframe is embedded inside the WebGL host. The host wires
+// FV.iframeReady / FV.requestIntent and pushes state via FV.questionMaster.update.
+const IS_EMBEDDED = !!(window.parent && window.parent !== window && window.parent.FV
+                       && typeof window.parent.FV.requestIntent === "function");
+
+// ---- helpers --------------------------------------------------------------
+const $ = (id) => document.getElementById(id);
+const fmtMoney = (n) => "$" + Math.round(n).toLocaleString("en-US");
+
+// Reward formula (standalone demo only). Embedded mode reads nextReward
+// directly off the payload computed by the C# StreakRewardCalculator.
+function rewardForStreak(streak1Based) {
+  const raw = 25 * Math.pow(1.15, Math.max(0, streak1Based - 1));
+  return Math.max(5, Math.round(raw / 5) * 5);
+}
+
+// ---- state ----------------------------------------------------------------
+let streak = 0;
+let timerEl = $("qm-timer-fill");
+let timerSec = $("qm-timer-seconds");
+let timerHandle = null;
+let secondsLeft = QUESTION_TIME;
+let currentQ = null;
+let answered = false;
+let lastQuestionId = null;
+
+// ---- demo question bank (replaced by bridge in production) ---------------
+const DEMO_QUESTIONS = [
+  {
+    category: "Investing",
+    prompt: "What is compound interest?",
+    choices: [
+      "Interest paid only on the original amount",
+      "Interest earned on both the principal and prior interest",
+      "A fee the bank charges for holding your money",
+      "The interest rate on a loan",
+    ],
+    correct: 1,
+  },
+  {
+    category: "Credit",
+    prompt: "Which action helps your credit score the most?",
+    choices: [
+      "Maxing out a credit card every month",
+      "Paying every bill on time",
+      "Closing every old account",
+      "Applying for many cards at once",
+    ],
+    correct: 1,
+  },
+];
+let demoIndex = 0;
+
+// ---- presentation ---------------------------------------------------------
+function setCategory(cat) {
+  const chip = $("qm-category");
+  const label = $("qm-category-label");
+  label.textContent = cat;
+  chip.classList.remove("investing","credit","insurance","budget","taxes");
+  chip.classList.add(cat.toLowerCase());
+}
+
+function present(q) {
+  currentQ = q;
+  answered = false;
+
+  $("qm-prompt").textContent = q.prompt;
+  setCategory(q.category);
+
+  const buttons = [0,1,2,3].map(i => $("qm-answer-" + i));
+  buttons.forEach((btn, i) => {
+    btn.classList.remove("correct","wrong","locked","idle");
+    btn.disabled = false;
+    btn.setAttribute("aria-checked", "false");
+    btn.querySelector(".label").textContent = q.choices[i];
+  });
+
+  hideOverlays();
+  setExplanation("");
+  resetTimer();
+}
+
+function hideOverlays() {
+  $("qm-correct-overlay").classList.remove("show");
+  $("qm-correct-overlay").setAttribute("aria-hidden","true");
+  $("qm-incorrect-overlay").classList.remove("show");
+  $("qm-incorrect-overlay").setAttribute("aria-hidden","true");
+}
+
+// ---- timer ----------------------------------------------------------------
+function setTimerVisual(pct) {
+  timerEl.style.width = (pct * 100).toFixed(2) + "%";
+  timerEl.classList.toggle("urgent",   pct <= 0.40 && pct > 0.20);
+  timerEl.classList.toggle("critical", pct <= 0.20);
+}
+
+function resetTimer() {
+  clearInterval(timerHandle);
+  secondsLeft = QUESTION_TIME;
+  timerEl.style.transition = "none";
+  setTimerVisual(1);
+  timerSec.textContent = secondsLeft + "s";
+  // Force reflow so the next transition takes effect
+  void timerEl.offsetWidth;
+  timerEl.style.transition = "";
+
+  // Embedded mode: the C# bridge owns the timer and pushes ticks via
+  // FV.questionMaster.update. Don't run a local interval (would race).
+  if (IS_EMBEDDED) return;
+
+  // Standalone demo: drain via 1s ticks so the numeric readout updates with the bar.
+  timerHandle = setInterval(() => {
+    if (answered) return;
+    secondsLeft -= 1;
+    setTimerVisual(Math.max(0, secondsLeft / QUESTION_TIME));
+    timerSec.textContent = Math.max(0, secondsLeft) + "s";
+    if (secondsLeft <= 0) {
+      clearInterval(timerHandle);
+      handleTimeout();
+    }
+  }, 1000);
+}
+
+// ---- streak chip ----------------------------------------------------------
+function updateStreakChip() {
+  const v = $("qm-streak-value");
+  v.textContent = streak;
+  const chip = $("qm-streak-chip");
+  chip.classList.toggle("hot", streak >= 5);
+}
+
+function bumpStreakChip() {
+  const chip = $("qm-streak-chip");
+  chip.classList.remove("bumped");
+  void chip.offsetWidth;
+  chip.classList.add("bumped");
+}
+
+// ---- next reward hint -----------------------------------------------------
+function updateNextRewardHint() {
+  $("qm-next-reward").textContent = fmtMoney(rewardForStreak(streak + 1));
+}
+
+// ---- answer flow ----------------------------------------------------------
+function lockAnswers(pickedIdx, correctIdx) {
+  const buttons = [0,1,2,3].map(i => $("qm-answer-" + i));
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    btn.classList.add("locked");
+    btn.setAttribute("aria-checked", i === pickedIdx ? "true" : "false");
+    if (i === correctIdx) {
+      btn.classList.add("correct");
+    } else if (i === pickedIdx) {
+      btn.classList.add("wrong");
+    } else {
+      btn.classList.add("idle");
+    }
+  });
+}
+
+function showCorrectOverlay(reward) {
+  const ov = $("qm-correct-overlay");
+  $("qm-correct-reward").textContent = "+" + fmtMoney(reward);
+  $("qm-correct-streak").textContent = streak;
+  ov.classList.add("show");
+  ov.setAttribute("aria-hidden","false");
+}
+
+function showIncorrectOverlay(correctIdx, timedOut) {
+  const ov = $("qm-incorrect-overlay");
+  $("qm-incorrect-letter").textContent = "ABCD"[correctIdx];
+  $("qm-incorrect-streak").textContent = timedOut
+    ? "Time's up. Streak reset to 0."
+    : "Streak reset to 0";
+  ov.classList.add("show");
+  ov.setAttribute("aria-hidden","false");
+}
+
+function handlePick(idx) {
+  if (answered) return;
+
+  if (IS_EMBEDDED) {
+    // Send the intent up; Unity's QuestionManager is authoritative. The
+    // resulting answered/reward state arrives back via FV.questionMaster.update,
+    // which calls applyEmbeddedPayload to render lock + overlay.
+    answered = true; // soft lock so a second click in the same frame is ignored
+    window.parent.FV.requestIntent("questionMaster", "answer", { idx: idx });
+    return;
+  }
+
+  // Standalone demo path
+  answered = true;
+  clearInterval(timerHandle);
+
+  const correctIdx = currentQ.correct;
+  const isCorrect = idx === correctIdx;
+
+  lockAnswers(idx, correctIdx);
+
+  if (isCorrect) {
+    streak += 1;
+    const reward = rewardForStreak(streak);
+    updateStreakChip();
+    bumpStreakChip();
+    showCorrectOverlay(reward);
+  } else {
+    streak = 0;
+    updateStreakChip();
+    showIncorrectOverlay(correctIdx, false);
+  }
+  updateNextRewardHint();
+  scheduleNext();
+}
+
+function handleTimeout() {
+  if (answered) return;
+  answered = true;
+  const correctIdx = currentQ ? currentQ.correct : -1;
+  lockAnswers(-1, correctIdx);
+  streak = 0;
+  updateStreakChip();
+  showIncorrectOverlay(correctIdx, true);
+  updateNextRewardHint();
+
+  if (IS_EMBEDDED) {
+    // Notify Unity so the C# session can resolve as a timeout if it
+    // hasn't already. Idempotent on the C# side -- a second timeout
+    // resolution is ignored.
+    window.parent.FV.requestIntent("questionMaster", "answer", { idx: -1 });
+    return;
+  }
+  scheduleNext();
+}
+
+function scheduleNext() {
+  // Embedded mode: Unity drives the next question via the next "asking" payload.
+  if (IS_EMBEDDED) return;
+  setTimeout(() => {
+    demoIndex = (demoIndex + 1) % DEMO_QUESTIONS.length;
+    present(DEMO_QUESTIONS[demoIndex]);
+  }, 2000);
+}
+
+// ---- wiring ---------------------------------------------------------------
+[0,1,2,3].forEach(i => {
+  $("qm-answer-" + i).addEventListener("click", () => handlePick(i));
+});
+
+$("qm-close").addEventListener("click", () => {
+  if (IS_EMBEDDED) {
+    window.parent.FV.requestIntent("questionMaster", "close", {});
+    return;
+  }
+  console.log("[QuestionMaster] close requested");
+});
+
+// Info button: prefer the shared info-modal API if present, else open inline.
+$("qm-info").addEventListener("click", () => {
+  if (window.InfoModal && typeof window.InfoModal.open === "function") {
+    window.InfoModal.open("question-master");
+    return;
+  }
+  const m = $("qm-info-modal");
+  m.classList.add("open");
+  m.setAttribute("aria-hidden","false");
+});
+$("qm-info-close").addEventListener("click", () => {
+  const m = $("qm-info-modal");
+  m.classList.remove("open");
+  m.setAttribute("aria-hidden","true");
+});
+$("qm-info-modal").addEventListener("click", (e) => {
+  if (e.target.id === "qm-info-modal") {
+    e.currentTarget.classList.remove("open");
+    e.currentTarget.setAttribute("aria-hidden","true");
+  }
+});
+
+// ---- embed bridge ---------------------------------------------------------
+// Map a Unity payload -> visible state. Called by the host whenever the C#
+// QuestionMasterWebBridge pushes an updated DTO. Idempotent: re-pushing the
+// same questionId during "asking" only refreshes streak / timer / reward hint.
+function applyEmbeddedPayload(payload) {
+  if (!payload) return;
+
+  // Adopt timer config from the C# side (15s default but configurable).
+  if (typeof payload.timeLimitSeconds === "number" && payload.timeLimitSeconds > 0) {
+    QUESTION_TIME = payload.timeLimitSeconds;
+  }
+
+  // New question: treat questionId as the change signal so re-pushes during
+  // an unchanged ASKING phase don't reset the answer buttons mid-think.
+  const isNewQuestion = payload.questionId && payload.questionId !== lastQuestionId;
+  if (isNewQuestion) {
+    lastQuestionId = payload.questionId;
+    present({
+      category: payload.category || "Investing",
+      prompt:   payload.prompt   || "",
+      choices:  payload.choices  || ["", "", "", ""],
+      // We don't know the correct index until the reveal payload arrives,
+      // so leave it as -1 and let the reveal phase paint correct/wrong.
+      correct: -1
+    });
+  }
+
+  // Streak chip + next-reward hint always reflect the latest payload.
+  if (typeof payload.streak === "number") {
+    const prevStreak = streak;
+    streak = payload.streak;
+    updateStreakChip();
+    if (streak > prevStreak) bumpStreakChip();
+  }
+  if (typeof payload.nextReward === "number") {
+    $("qm-next-reward").textContent = fmtMoney(payload.nextReward);
+  }
+
+  // Timer: drive the bar + numeric readout straight from the payload.
+  if (typeof payload.timeRemainingSeconds === "number" && QUESTION_TIME > 0) {
+    setTimerVisual(Math.max(0, payload.timeRemainingSeconds / QUESTION_TIME));
+    timerSec.textContent = Math.max(0, Math.ceil(payload.timeRemainingSeconds)) + "s";
+  }
+
+  // Phase transitions
+  if (payload.phase === "asking") {
+    answered = false;
+    hideOverlays();
+    setExplanation("");
+  } else if (payload.phase === "revealing") {
+    answered = true;
+    if (typeof payload.correctIndex === "number" && payload.correctIndex >= 0) {
+      lockAnswers(typeof payload.chosenIndex === "number" ? payload.chosenIndex : -1, payload.correctIndex);
+    }
+    setExplanation(typeof payload.explanation === "string" ? payload.explanation : "");
+    if (payload.wasCorrect) {
+      showCorrectOverlay(payload.rewardEarned || 0);
+    } else {
+      showIncorrectOverlay(
+        typeof payload.correctIndex === "number" ? payload.correctIndex : 0,
+        !!payload.wasTimeout
+      );
+    }
+  } else if (payload.phase === "idle") {
+    // No-op: the panel is closing or has not started yet.
+  }
+}
+
+// Mirror the explanation into both overlay copies (whichever ends up shown
+// already carries the right text). Empty string hides via [hidden] so the
+// asking phase shows no stale explanation.
+function setExplanation(text) {
+  const trimmed = (text || "").trim();
+  const ids = ["qm-explanation-correct", "qm-explanation-incorrect"];
+  for (let i = 0; i < ids.length; i++) {
+    const el = $(ids[i]);
+    if (!el) continue;
+    el.textContent = trimmed;
+    if (trimmed) el.removeAttribute("hidden");
+    else el.setAttribute("hidden", "");
+  }
+}
+
+if (IS_EMBEDDED) {
+  // Expose the host-callable update() and signal readiness so any
+  // pre-ready pushes get replayed once we're listening.
+  window.FV = window.FV || {};
+  window.FV.questionMaster = {
+    update(payload) {
+      try { applyEmbeddedPayload(payload); }
+      catch (e) { console.error("[FV.questionMaster.update] threw", e); }
+    },
+    showError(message) {
+      console.warn("[FV.questionMaster.showError]", message);
+    }
+  };
+
+  if (typeof window.parent.FV.iframeReady === "function") {
+    window.parent.FV.iframeReady("questionMaster");
+  }
+}
+
+// ---- boot -----------------------------------------------------------------
+updateStreakChip();
+updateNextRewardHint();
+
+if (!IS_EMBEDDED) {
+  // Standalone preview: kick the demo cycle. In embedded mode we wait for
+  // the first "asking" payload from Unity instead.
+  present(DEMO_QUESTIONS[0]);
+}
+</script>
+
+</body>
+</html>

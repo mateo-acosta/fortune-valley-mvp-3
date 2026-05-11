@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32e0ac6e759034dfa840a2c975eb04ab, type: 3}
+  m_Name: LifeGoalCatalog
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.LifeGoalCatalog
+  _goals:
+  - {fileID: 11400000, guid: 2c5e5999b60984a3196354a12ff1b365, type: 2}
+  - {fileID: 11400000, guid: f8e9631d4f6b947f0b893345ef800fd2, type: 2}
+  - {fileID: 11400000, guid: 021417fddd677467b849273c1549c275, type: 2}
+  - {fileID: 11400000, guid: 32c79ba27de90409ea43731f9ee1ae64, type: 2}
+  - {fileID: 11400000, guid: b317502315d4c46049694e56c29b17e9, type: 2}
+  - {fileID: 11400000, guid: fd965da65e08245e9bbd7e5faf7dd994, type: 2}
+  - {fileID: 11400000, guid: 5c0388a6c8d474f8ebdb765abaea0c8a, type: 2}
+  - {fileID: 11400000, guid: ddec4bbd524a04f7fa38cf21ce987d04, type: 2}
+  - {fileID: 11400000, guid: c5caeb3baf7604ac39c652e4b1f5f167, type: 2}
+  _designNote: Within-tier thresholds are intentionally identical so the within-tier
+    choice is narrative identity, not mechanical optimization.

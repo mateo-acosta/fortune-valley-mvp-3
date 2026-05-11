@@ -1,0 +1,1726 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Player Profile - Fortune Valley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- Drop-in info-modal hook (matches Credit / Investing). 404s in standalone preview;
+     resolves when this file is dropped into Assets/WebGLTemplates/FortuneValley/panels/. -->
+<link rel="stylesheet" href="info/info-modal.css">
+<script type="module" src="info/info-modal.js"></script>
+
+<style>
+/* ============================================================
+   Fortune Valley - Player Profile panel
+   Read-only one-stop "how am I doing?" snapshot.
+
+   Style key
+     Panel accent:       --cash #4CC38A (green)
+                         --cash-soft #DCF3E6, --cash-ink #126E3F (new tokens)
+     Health zones:       0-39  loss   "Building"
+                         40-69 warn   "Steady"
+                         70-100 gain  "Strong"
+     Insurance:          intentionally absent. Do not add.
+     New tokens:         --cash-soft, --cash-ink, --tier-1/2/3 surface tints.
+     Chrome:             reused from credit-system.html / investing-system.html
+                         (.world, .scrim, .panel, .panel-header, .sidebar, .content).
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --paper:        #FFFFFF;
+  --paper-2:      #F4F6FB;
+  --paper-3:      #E8ECF6;
+  --paper-4:      #DBE1F0;
+
+  --ink-900:      #0E1530;
+  --ink-800:      #16204A;
+  --ink-700:      #1F2C5C;
+  --ink-500:      #3A4D8E;
+
+  --fg-1:         #0E1530;
+  --fg-2:         #3A4D8E;
+  --fg-3:         #6B78A8;
+  --fg-4:         #9AA3C2;
+
+  /* Brand */
+  --coral:        #FF7A8A;     /* Investing */
+  --sky:          #4FB8E8;     /* Credit */
+  --cash:         #4CC38A;     /* Profile (this panel) */
+  --cash-soft:    #DCF3E6;     /* new */
+  --cash-ink:     #126E3F;     /* new */
+  --coin:         #F2B53B;
+  --tan:          #C99A5C;
+
+  /* Semantic */
+  --gain:         #1FA85E;
+  --gain-soft:    #DCF3E6;
+  --loss:         #E83A50;
+  --loss-soft:    #FCE0E4;
+  --warn:         #D49414;
+  --warn-soft:    #FAEAC4;
+
+  /* Tier surface tints (new) */
+  --tier-1-bg:    #F4F6FB;     --tier-1-fg: var(--fg-2);
+  --tier-2-bg:    #E8ECF6;     --tier-2-fg: var(--ink-700);
+  --tier-3-bg:    var(--gain-soft); --tier-3-fg: var(--gain);
+
+  /* Radii */
+  --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* Shadows */
+  --sh-1:  0 1px 2px rgba(14,21,48,0.06), 0 2px 6px rgba(14,21,48,0.08);
+  --sh-2:  0 4px 12px rgba(14,21,48,0.10), 0 12px 28px rgba(14,21,48,0.12);
+  --sh-3:  0 12px 28px rgba(14,21,48,0.18), 0 28px 60px rgba(14,21,48,0.22);
+
+  /* Borders */
+  --bd:    1px solid rgba(14,21,48,0.08);
+  --bd-2:  1px solid rgba(14,21,48,0.14);
+
+  --ease:  cubic-bezier(0.2, 0.8, 0.2, 1);
+  --d-fast: 120ms;
+  --d-base: 200ms;
+
+  --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: var(--font);
+  color: var(--fg-1);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ----------------------------------------------------------
+   World - dimmed live game backdrop (matches other panels).
+   ---------------------------------------------------------- */
+.world {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+}
+
+/* ----------------------------------------------------------
+   Scrim + panel modal
+   ---------------------------------------------------------- */
+.scrim {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 30;
+}
+.panel {
+  width: min(1180px, calc(100vw - 110px));
+  height: min(720px, calc(100vh - 56px));
+  background: var(--paper);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-3);
+  border: var(--bd);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: panelIn 280ms var(--ease) both;
+}
+@keyframes panelIn { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: none; } }
+
+/* Header */
+.panel-header {
+  height: 64px; flex: none;
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 14px 0 22px;
+  border-bottom: var(--bd);
+  background: linear-gradient(180deg, var(--paper), var(--paper-2));
+}
+.panel-header .avatar {
+  width: 44px; height: 44px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--cash), #2E9D6A);
+  color: #fff; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 17px; letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(76,195,138,0.35);
+  border: 2px solid #fff;
+}
+.panel-header .titles { flex: 1; min-width: 0; }
+.panel-header .titles .kicker { font-size: 11px; font-weight: 800; color: var(--cash-ink); letter-spacing: 0.14em; text-transform: uppercase; }
+.panel-header .titles .title { font-size: 20px; font-weight: 900; letter-spacing: -0.01em; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.panel-header .close {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--paper-2); border: var(--bd);
+  color: var(--fg-2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--d-fast) var(--ease);
+}
+.panel-header .close:hover { background: var(--paper-3); }
+
+/* Body */
+.panel-body { flex: 1; display: flex; min-height: 0; }
+.sidebar { width: 200px; flex: none; background: var(--paper-2); border-right: var(--bd); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; }
+.sidebar .label { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; padding: 0 12px 8px; }
+.sidebar button {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border-radius: 10px;
+  background: transparent; border: 1px solid transparent;
+  color: var(--fg-2); cursor: pointer; text-align: left;
+  font-family: var(--font); font-weight: 700; font-size: 14px;
+  transition: all var(--d-fast) var(--ease);
+  position: relative;
+}
+.sidebar button:hover { background: rgba(76,195,138,0.10); color: var(--fg-1); }
+.sidebar button.active {
+  background: var(--cash-soft);
+  border-color: rgba(76,195,138,0.35);
+  color: var(--cash-ink); font-weight: 800;
+}
+.sidebar button.active::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; border-radius: 3px; background: var(--cash);
+}
+.sidebar button .ic { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; color: currentColor; opacity: 0.85; }
+
+.content { flex: 1; overflow: auto; padding: 22px 26px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.content::-webkit-scrollbar { width: 10px; }
+.content::-webkit-scrollbar-thumb { background: var(--paper-4); border-radius: 10px; }
+
+/* ----------------------------------------------------------
+   Shared primitives
+   ---------------------------------------------------------- */
+.kicker { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+.num { font-variant-numeric: tabular-nums; font-weight: 800; }
+.gain { color: var(--gain); }
+.loss { color: var(--loss); }
+
+.zone-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 900;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+.zone-pill.zone-good { background: var(--gain-soft); color: var(--gain); }
+.zone-pill.zone-fair { background: var(--warn-soft); color: var(--warn); }
+.zone-pill.zone-poor { background: var(--loss-soft); color: var(--loss); }
+.zone-pill .dot { width: 6px; height: 6px; border-radius: 6px; background: currentColor; }
+
+/* Tabs */
+.tab { display: none; flex-direction: column; gap: 16px; }
+.tab.active { display: flex; animation: tabIn 200ms var(--ease) both; }
+@keyframes tabIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ============================================================
+   TAB 1 - OVERVIEW
+   ============================================================ */
+/* (Removed: .hero-net 56px hero, .stat-grid/.stat-card, .tease-strip/.tease-card.
+   The Overview tab is rebuilt around .goal-constellation + .nw-strip + .vitals-strip.) */
+
+/* ============================================================
+   TAB 2 - FINANCES
+   ============================================================ */
+.fin-section {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.fin-section .head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 14px 18px;
+  border-bottom: var(--bd);
+  background: var(--paper-2);
+}
+.fin-section .head .kicker { margin-bottom: 0; }
+.fin-section .body {
+  display: flex; flex-direction: column;
+}
+.fin-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-top: 1px solid rgba(14,21,48,0.04);
+}
+.fin-row:first-child { border-top: none; }
+.fin-row .lbl { font-size: 14px; font-weight: 700; color: var(--fg-2); }
+.fin-row .val {
+  font-weight: 900; font-size: 16px; letter-spacing: -0.005em;
+  text-align: right; font-variant-numeric: tabular-nums; color: var(--fg-1);
+}
+.fin-row.total {
+  background: var(--paper-2);
+  border-top: var(--bd);
+}
+.fin-row.total .lbl { color: var(--fg-1); font-weight: 900; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+.fin-row.total .val { font-size: 20px; }
+
+/* Net Worth Calculation card: subheads + subtotals + final equality row */
+.nw-calc .head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+}
+.nw-calc-formula {
+  font-size: 11px; font-weight: 800; color: var(--cash-ink);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.nw-subhead {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.10em; text-transform: uppercase;
+  padding: 14px 18px 4px;
+  border-top: 1px solid rgba(14,21,48,0.04);
+}
+.nw-calc .body > .nw-subhead:first-child { border-top: none; }
+.fin-row.nw-subtotal {
+  background: var(--paper-2);
+}
+.fin-row.nw-subtotal .lbl {
+  font-weight: 800; color: var(--fg-2);
+  font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
+}
+.fin-row.nw-subtotal .val { font-size: 16px; }
+.fin-row.nw-total {
+  background: var(--cash-soft);
+  border-top: 2px solid var(--cash);
+}
+.fin-row.nw-total .lbl { color: var(--cash-ink); }
+.fin-row.nw-total .val { color: var(--cash-ink); font-size: 22px; }
+
+.util-block { padding: 14px 18px; border-top: 1px solid rgba(14,21,48,0.04); display: flex; flex-direction: column; gap: 28px; }
+.util-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.util-head .lbl { font-size: 14px; font-weight: 700; color: var(--fg-2); }
+.util-head .val { font-weight: 900; font-size: 14px; font-variant-numeric: tabular-nums; }
+.util-track {
+  height: 8px; border-radius: 999px;
+  background: var(--paper-3);
+  overflow: hidden;
+  position: relative;
+}
+.util-track .fill { display: block; height: 100%; border-radius: 999px; transition: width var(--d-base) var(--ease), background var(--d-fast) var(--ease); }
+.util-track.zone-good .fill { background: var(--gain); }
+.util-track.zone-fair .fill { background: var(--warn); }
+.util-track.zone-poor .fill { background: var(--loss); }
+
+.loan-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 18px;
+  border-top: 1px solid rgba(14,21,48,0.04);
+}
+.loan-row .name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.loan-row .name .ic {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--paper-2); border: var(--bd);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--tan); flex: none;
+}
+.loan-row .name .nm {
+  display: flex; flex-direction: column; min-width: 0;
+}
+.loan-row .name .nm .h { font-size: 14px; font-weight: 800; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loan-row .name .nm .s { font-size: 11px; font-weight: 700; color: var(--fg-3); }
+.loan-row .col-meta {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+  min-width: 100px;
+}
+.loan-row .col-meta .k { font-size: 10px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.08em; text-transform: uppercase; }
+.loan-row .col-meta .v { font-weight: 900; font-size: 15px; font-variant-numeric: tabular-nums; color: var(--fg-1); }
+
+/* ============================================================
+   TAB 3 - PROPERTIES
+   ============================================================ */
+.prop-list {
+  display: flex; flex-direction: column;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: var(--bd);
+  background: var(--paper);
+  box-shadow: var(--sh-1);
+}
+.prop-row {
+  display: grid;
+  grid-template-columns: 38px 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-top: 1px solid rgba(14,21,48,0.04);
+}
+.prop-row:first-child { border-top: none; }
+.prop-row .lot-ic {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--paper-2); border: var(--bd);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--fg-2);
+}
+.prop-row .lot-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.prop-row .lot-meta .nm { font-size: 15px; font-weight: 800; color: var(--fg-1); }
+.prop-row .lot-meta .co { font-size: 11px; font-weight: 700; color: var(--fg-3); letter-spacing: 0.04em; }
+.tier-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 900;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.tier-pill.t1 { background: var(--tier-1-bg); color: var(--tier-1-fg); border: var(--bd); }
+.tier-pill.t2 { background: var(--tier-2-bg); color: var(--tier-2-fg); }
+.tier-pill.t3 { background: var(--tier-3-bg); color: var(--tier-3-fg); }
+.tier-pill .dot { width: 6px; height: 6px; border-radius: 6px; background: currentColor; }
+.prop-row .income {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+  min-width: 110px;
+}
+.prop-row .income .k { font-size: 10px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.08em; text-transform: uppercase; }
+.prop-row .income .v {
+  font-weight: 900; font-size: 16px; letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums; color: var(--gain);
+}
+
+.empty {
+  background: var(--paper-2); border: 1px dashed var(--paper-4);
+  border-radius: var(--r-md); padding: 44px 24px;
+  text-align: center; color: var(--fg-2);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.empty .spot {
+  width: 88px; height: 88px; border-radius: 18px;
+  background: var(--paper-3); color: var(--fg-4);
+  display: flex; align-items: center; justify-content: center;
+}
+.empty .h { font-weight: 900; font-size: 16px; color: var(--fg-1); }
+.empty .p { font-size: 13px; max-width: 360px; line-height: 1.5; }
+
+/* ============================================================
+   TAB 4 - LEARNING
+   ============================================================ */
+.learning-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.learning-grid .full { grid-column: 1 / -1; }
+.lc-card {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  padding: 18px 20px;
+  box-shadow: var(--sh-1);
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 132px;
+}
+.lc-card .kicker { margin-bottom: 0; }
+.lc-card .big {
+  display: flex; align-items: baseline; gap: 8px;
+  font-weight: 900; font-size: 44px; letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums; color: var(--fg-1); line-height: 1.0;
+}
+.lc-card .big small { font-size: 16px; font-weight: 800; color: var(--fg-3); letter-spacing: 0; }
+.lc-card .streak-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.lc-card .flame {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #FFB54A, #FF7A4A);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+  box-shadow: 0 4px 10px rgba(255,122,74,0.30);
+}
+
+.level-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.level-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--paper-2);
+  border-radius: 10px;
+  border: var(--bd);
+}
+.level-row .check {
+  width: 22px; height: 22px; border-radius: 999px;
+  background: var(--gain); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+}
+.level-row .nm { font-weight: 800; font-size: 13px; color: var(--fg-1); flex: 1; min-width: 0; }
+.level-row .cat {
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+.lifetime {
+  display: flex; align-items: center; gap: 14px;
+}
+.lifetime .coin {
+  width: 44px; height: 44px; border-radius: 999px;
+  background: var(--coin); color: #6B4F00;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 18px;
+  border: 2px solid #C9921F;
+  box-shadow: 0 4px 0 #B07F18;
+  flex: none;
+}
+
+/* ============================================================
+   Header bankruptcy chip (right side, beside close button)
+   ============================================================ */
+.panel-header .header-flag {
+  align-self: center;
+  margin-right: 6px;
+}
+.panel-header .header-flag[hidden] { display: none; }
+
+/* Goals caption: the small "judged at retirement" note shown beneath
+   the constellation on the Overview tab. */
+.goals-footer {
+  font-size: 12px; color: var(--fg-3); font-weight: 700;
+  line-height: 1.5;
+  padding: 0 4px;
+}
+
+/* ============================================================
+   Redesign additions: narrative blocks, plain-language helpers,
+   progress affordances, and info-button chrome.
+   ============================================================ */
+
+/* Overview hero sentence (kept; used above the constellation) */
+.overview-sentence {
+  font-size: 16px; font-weight: 800; color: var(--fg-1);
+  line-height: 1.4; padding: 0 4px;
+}
+
+/* Investment story sentence */
+.invest-story {
+  font-size: 13px; font-weight: 700; color: var(--fg-2);
+  background: var(--gain-soft); padding: 12px 18px;
+  line-height: 1.5; border-bottom: 1px solid rgba(14,21,48,0.04);
+}
+.invest-story .gain { color: var(--gain); font-weight: 900; }
+
+/* Properties total row */
+.prop-total-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px; background: var(--paper-2); border-top: var(--bd);
+}
+.prop-total-k {
+  font-size: 12px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.prop-total-v {
+  font-weight: 900; font-size: 18px; color: var(--gain);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+}
+
+/* (Removed: per-card goal progress bar styles. Replaced by the goal constellation
+   ring on both Overview and Life Goals tabs.) */
+
+/* Activity narrative */
+.activity-hero { background: var(--cash-soft) !important; border-color: rgba(76,195,138,0.30) !important; }
+.activity-sentence {
+  font-size: 17px; font-weight: 700; line-height: 1.55; color: var(--fg-2);
+}
+.activity-sentence strong { font-weight: 900; color: var(--fg-1); }
+
+/* Util target label - override util-track overflow so the label can sit above the bar */
+.util-track { position: relative; overflow: visible; }
+.util-track .fill { overflow: hidden; display: block; height: 100%; border-radius: 999px; }
+.util-target-label {
+  position: absolute; top: -16px; left: 30%;
+  transform: translateX(-50%);
+  font-size: 10px; font-weight: 800; color: var(--fg-3);
+  white-space: nowrap; pointer-events: none;
+}
+
+/* Info buttons - secondary but discoverable; cash-green hover accent for this panel */
+.fv-info-btn {
+  font-size: 11px; width: 18px; height: 18px;
+  border-radius: 50%; padding: 0;
+  background: var(--paper-2); border: 1px solid var(--paper-4);
+  color: var(--fg-3); font-weight: 900;
+  vertical-align: middle;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; line-height: 1;
+  transition: background var(--d-fast) var(--ease), color var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease);
+}
+.fv-info-btn:hover {
+  background: var(--cash-soft); color: var(--cash-ink); border-color: var(--cash);
+}
+
+/* ============================================================
+   GOAL CONSTELLATION (Overview + Life Goals tabs hero)
+   Three per-pick badges + a thin retirement-trail axis.
+   Visual answer to "how close am I to my Life Goals?"
+   ============================================================ */
+.goal-constellation {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-lg);
+  padding: 22px 24px 18px;
+  box-shadow: var(--sh-1);
+  display: flex; flex-direction: column; gap: 18px;
+}
+.gc-stamps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.goal-stamp {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; min-width: 0; text-align: center;
+}
+.gs-ring {
+  position: relative;
+  width: 88px; height: 88px; flex: none;
+}
+.gs-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.gs-ring-track { fill: none; stroke: var(--paper-3); stroke-width: 8; }
+.gs-ring-fill  {
+  fill: none; stroke: var(--cash); stroke-width: 8; stroke-linecap: round;
+  transition: stroke-dasharray 600ms var(--ease), stroke 200ms var(--ease);
+}
+.gs-glyph {
+  position: absolute; inset: 10px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 999px;
+  background: var(--paper-2);
+  color: var(--fg-2);
+  transition: background 200ms var(--ease), color 200ms var(--ease), transform 600ms var(--ease);
+}
+.gs-emoji {
+  font-size: 36px; line-height: 1;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  user-select: none;
+}
+@media (max-width: 760px) { .gs-emoji { font-size: 30px; } }
+.gs-check {
+  position: absolute; right: -2px; bottom: -2px;
+  width: 26px; height: 26px; border-radius: 999px;
+  background: var(--gain); color: #fff;
+  border: 2px solid var(--paper);
+  display: none; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px rgba(31,168,94,0.30);
+  opacity: 0;
+  transition: opacity 200ms var(--ease);
+}
+.gs-check::after {
+  content: ''; width: 10px; height: 6px;
+  border-left: 2.4px solid currentColor;
+  border-bottom: 2.4px solid currentColor;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.gs-meta {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0; max-width: 180px;
+}
+.gs-tier {
+  font-size: 10px; font-weight: 900; color: var(--fg-3);
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.gs-name {
+  font-size: 14px; font-weight: 800; color: var(--fg-1);
+  letter-spacing: -0.005em; line-height: 1.25;
+  white-space: normal; overflow: hidden; text-overflow: ellipsis;
+}
+.gs-pct {
+  font-size: 12px; font-weight: 800; color: var(--cash-ink);
+  font-variant-numeric: tabular-nums;
+}
+.gs-threshold {
+  font-size: 12px; font-weight: 700; color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stamp state: placeholder (no pick yet) */
+.goal-stamp[data-picked="false"] .gs-ring-fill { stroke-dasharray: 0 264; }
+.goal-stamp[data-picked="false"] .gs-glyph {
+  background: var(--paper-3); color: var(--fg-4);
+}
+.goal-stamp[data-picked="false"] .gs-pct { display: none; }
+
+/* Stamp state: realized (gold + check) */
+.goal-stamp[data-realized="true"] .gs-glyph {
+  background: linear-gradient(135deg, var(--coin), #C9921F);
+  color: #6B4F00;
+  box-shadow: 0 4px 12px rgba(242,181,59,0.30);
+}
+.goal-stamp[data-realized="true"] .gs-ring-fill { stroke: var(--gain); }
+.goal-stamp[data-realized="true"] .gs-check { display: flex; opacity: 1; }
+.goal-stamp[data-realized="true"] .gs-pct { color: var(--gain); }
+
+/* Realize bloom (one-shot, 600ms) */
+@keyframes goalStampBloom {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes goalStampGoldFade {
+  0%   { background: var(--paper-2); color: var(--fg-2); box-shadow: none; }
+  50%  { background: linear-gradient(135deg, #FFD976, #E0A52A); color: #6B4F00; }
+  100% { background: linear-gradient(135deg, var(--coin), #C9921F); color: #6B4F00; box-shadow: 0 4px 12px rgba(242,181,59,0.30); }
+}
+.goal-stamp.is-blooming .gs-glyph { animation: goalStampBloom 600ms var(--ease) 1, goalStampGoldFade 600ms var(--ease) 1; }
+.goal-stamp.is-blooming .gs-check { animation: goalStampBloom 600ms var(--ease) 1; }
+
+/* Retirement trail (age axis under the stamps) */
+.gc-trail {
+  position: relative;
+  height: 18px; margin: 4px 8px 0;
+}
+.gct-axis-line {
+  position: absolute; left: 0; right: 0; top: 8px; height: 2px;
+  background: var(--paper-3); border-radius: 2px;
+}
+.gct-marker {
+  position: absolute; top: 3px;
+  width: 12px; height: 12px; border-radius: 999px;
+  background: var(--cash); border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(76,195,138,0.40);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.gct-tick {
+  position: absolute; top: 16px;
+  font-size: 10px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.gct-tick-start { left: 0; }
+.gct-tick-end   { right: 0; }
+.gct-realize {
+  position: absolute; top: 4px;
+  width: 8px; height: 10px; border-radius: 2px;
+  background: var(--gain);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+.gc-trail-caption {
+  font-size: 12px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.04em; text-align: center;
+}
+
+/* ============================================================
+   Net worth strip (demoted hero)
+   ============================================================ */
+.nw-strip {
+  display: flex; align-items: baseline; gap: 18px;
+  padding: 12px 18px;
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  flex-wrap: wrap;
+}
+.nw-strip .nw-k {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.10em; text-transform: uppercase;
+}
+.nw-strip .nw-v {
+  font-weight: 900; font-size: 24px; letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums; color: var(--fg-1);
+}
+.nw-strip .nw-divider {
+  width: 1px; height: 22px; background: var(--paper-4);
+  margin: 0 4px;
+}
+
+/* ============================================================
+   Vitals strip (4-pill compact stat row)
+   ============================================================ */
+.vitals-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.vital {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px; min-height: 56px;
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+}
+.vital-k {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.vital-v {
+  font-weight: 900; font-size: 16px;
+  font-variant-numeric: tabular-nums; color: var(--fg-1);
+  letter-spacing: -0.005em;
+}
+.vital-dot {
+  width: 8px; height: 8px; border-radius: 999px; flex: none;
+}
+.vital-dot.zone-good { background: var(--gain); }
+.vital-dot.zone-fair { background: var(--warn); }
+.vital-dot.zone-poor { background: var(--loss); }
+
+/* ============================================================
+   Narrow layout
+   ============================================================ */
+@media (max-width: 760px) {
+  .panel { width: 100%; height: 100%; border-radius: 0; }
+  .learning-grid { grid-template-columns: 1fr; }
+  .gs-ring { width: 72px; height: 72px; }
+  .gs-name { font-size: 13px; }
+  .gc-stamps { gap: 12px; }
+  .nw-strip .nw-v { font-size: 20px; }
+  .vital-v { font-size: 14px; }
+  .vital-k { font-size: 10px; }
+  .sidebar { width: 56px; padding: 10px 6px; }
+  .sidebar .label { display: none; }
+  .sidebar button { padding: 10px; justify-content: center; }
+  .sidebar button .nm { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Live game world dim -->
+<div class="world" aria-hidden="true"></div>
+
+<!-- Panel modal -->
+<div class="scrim">
+  <div class="panel" role="dialog" aria-labelledby="profile-title">
+
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="avatar" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="3.6"/><path d="M5 20 c0 -3.6 3 -6 7 -6 c4 0 7 2.4 7 6"/></svg>
+      </div>
+      <div class="titles">
+        <div class="kicker">Profile &middot; Age <span id="age-display">25</span></div>
+        <div class="title" id="profile-title">Player Profile</div>
+      </div>
+      <span class="zone-pill zone-poor header-flag" id="bankruptcy-chip" hidden>
+        <span class="dot"></span>Bankruptcy on Record
+      </span>
+      <button class="close" id="profile-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="panel-body">
+
+      <!-- Sidebar -->
+      <div class="sidebar" role="tablist" aria-label="Profile sections">
+        <div class="label">Profile</div>
+
+        <button data-tab="overview" class="tab-btn active" role="tab" aria-selected="true">
+          <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg></span>
+          <span class="nm">Overview</span>
+        </button>
+
+        <button data-tab="finances" class="tab-btn" role="tab" aria-selected="false">
+          <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7 V17"/><path d="M15 9.5 C15 8 13.7 7.2 12 7.2 C10.3 7.2 9 7.9 9 9.2 C9 12.5 15 11.5 15 14.8 C15 16.1 13.7 16.8 12 16.8 C10.3 16.8 9 16 9 14.5"/></svg></span>
+          <span class="nm">Finances</span>
+        </button>
+
+        <button data-tab="properties" class="tab-btn" role="tab" aria-selected="false">
+          <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/><path d="M10 20 V14 H14 V20"/></svg></span>
+          <span class="nm">Properties</span>
+        </button>
+
+        <button data-tab="learning" class="tab-btn" role="tab" aria-selected="false">
+          <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 C13 6 16 7 16 11 C16 13.5 14.2 15 12 15 C9.8 15 8 13.5 8 11 C8 9 9 8 9 8 C9 9.5 10 10 10.5 10 C10.5 8 11 5 12 2 Z"/><path d="M7.5 12 C7 13 6.5 14.2 6.5 15.5 C6.5 18.5 9 21 12 21 C15 21 17.5 18.5 17.5 15.5 C17.5 14 16.8 12.6 16 11.5"/></svg></span>
+          <span class="nm">Activity</span>
+        </button>
+
+        <div style="margin-top:auto; padding-top:12px; border-top: var(--bd);">
+          <button id="replay-tutorial-btn" class="tab-btn" type="button" style="color: var(--cash-ink);">
+            <span class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 A9 9 0 1 0 6 5.5"/><path d="M3 4 V8 H7"/></svg></span>
+            <span class="nm">Replay Tutorial</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content area -->
+      <div class="content">
+
+        <!-- ===== TAB 1: OVERVIEW ===== -->
+        <section class="tab active" data-tab-body="overview" role="tabpanel">
+
+          <div class="overview-sentence" id="overview-sentence">
+            1 of 3 life goals achieved. Your next stop is the Family Home.
+          </div>
+
+          <!-- Goal Constellation: three per-pick badges + age-axis trail.
+               Bridge writes data-goal-id, data-picked, data-realized, data-realized-age,
+               and (one-shot) data-just-realized to drive the visuals + bloom. -->
+          <section class="goal-constellation" id="goal-constellation"
+                   data-current-age="25" data-retirement-age="65">
+            <div class="gc-stamps">
+              <div class="goal-stamp" id="goal-stamp-1"
+                   data-tier="starter" data-goal-id="first_apartment"
+                   data-threshold="100000" data-picked="true"
+                   data-realized="false" data-realized-age="">
+                <div class="gs-ring" aria-hidden="true">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="gs-ring-track" cx="50" cy="50" r="44"/>
+                    <circle class="gs-ring-fill"  cx="50" cy="50" r="44"
+                            pathLength="264" stroke-dasharray="0 264"/>
+                  </svg>
+                  <div class="gs-glyph"><span class="gs-emoji"></span></div>
+                  <div class="gs-check" aria-hidden="true"></div>
+                </div>
+                <div class="gs-meta">
+                  <span class="gs-tier">Starter</span>
+                  <span class="gs-name" id="goal-stamp-1-name">First Apartment</span>
+                  <span class="gs-pct"  id="goal-stamp-1-pct">0% there</span>
+                </div>
+              </div>
+
+              <div class="goal-stamp" id="goal-stamp-2"
+                   data-tier="mid" data-goal-id="family_home"
+                   data-threshold="500000" data-picked="true"
+                   data-realized="false" data-realized-age="">
+                <div class="gs-ring" aria-hidden="true">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="gs-ring-track" cx="50" cy="50" r="44"/>
+                    <circle class="gs-ring-fill"  cx="50" cy="50" r="44"
+                            pathLength="264" stroke-dasharray="0 264"/>
+                  </svg>
+                  <div class="gs-glyph"><span class="gs-emoji"></span></div>
+                  <div class="gs-check" aria-hidden="true"></div>
+                </div>
+                <div class="gs-meta">
+                  <span class="gs-tier">Mid</span>
+                  <span class="gs-name" id="goal-stamp-2-name">Family Home</span>
+                  <span class="gs-pct"  id="goal-stamp-2-pct">0% there</span>
+                </div>
+              </div>
+
+              <div class="goal-stamp" id="goal-stamp-3"
+                   data-tier="ambitious" data-goal-id="retire_early"
+                   data-threshold="2000000" data-picked="true"
+                   data-realized="false" data-realized-age="">
+                <div class="gs-ring" aria-hidden="true">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="gs-ring-track" cx="50" cy="50" r="44"/>
+                    <circle class="gs-ring-fill"  cx="50" cy="50" r="44"
+                            pathLength="264" stroke-dasharray="0 264"/>
+                  </svg>
+                  <div class="gs-glyph"><span class="gs-emoji"></span></div>
+                  <div class="gs-check" aria-hidden="true"></div>
+                </div>
+                <div class="gs-meta">
+                  <span class="gs-tier">Ambitious</span>
+                  <span class="gs-name" id="goal-stamp-3-name">Retire Early</span>
+                  <span class="gs-pct"  id="goal-stamp-3-pct">0% there</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="gc-trail" aria-hidden="true">
+              <span class="gct-axis-line"></span>
+              <span class="gct-marker" id="gc-trail-marker" style="left: 0%"></span>
+              <span class="gct-tick gct-tick-start">25</span>
+              <span class="gct-tick gct-tick-end">65</span>
+            </div>
+            <div class="gc-trail-caption" id="gc-trail-caption">
+              you are here &middot; 40 years to retirement
+            </div>
+          </section>
+
+          <div class="goals-footer">
+            These goals unlock automatically when your net worth hits the target.
+            All three are judged at retirement (age 65).
+          </div>
+
+          <div class="nw-strip">
+            <span class="nw-k">Net worth</span>
+            <span class="nw-v" id="total-nw">$50,260</span>
+            <span class="nw-divider" aria-hidden="true"></span>
+            <span class="nw-k">Cash you can use right now</span>
+            <span class="nw-v" id="liquid-nw">$31,290</span>
+          </div>
+
+          <div class="vitals-strip">
+            <div class="vital" id="vital-cash">
+              <span class="vital-k">Cash</span>
+              <span class="vital-v" id="vital-cash-v">$12,340</span>
+              <span class="vital-dot zone-good" id="vital-cash-dot" aria-hidden="true"></span>
+            </div>
+            <div class="vital" id="vital-credit">
+              <span class="vital-k">Credit</span>
+              <span class="vital-v" id="vital-credit-v">684</span>
+              <span class="vital-dot zone-fair" id="vital-credit-dot" aria-hidden="true"></span>
+            </div>
+            <div class="vital" id="vital-income">
+              <span class="vital-k">Income / yr</span>
+              <span class="vital-v" id="vital-income-v">$39,000</span>
+              <span class="vital-dot zone-good" id="vital-income-dot" aria-hidden="true"></span>
+            </div>
+            <div class="vital" id="vital-dti">
+              <span class="vital-k">DTI</span>
+              <span class="vital-v" id="vital-dti-v">32%</span>
+              <span class="vital-dot zone-fair" id="vital-dti-dot" aria-hidden="true"></span>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ===== TAB 2: FINANCES ===== -->
+        <section class="tab" data-tab-body="finances" role="tabpanel">
+
+          <!-- Net Worth Calculation: live equation. Bridge writes the leaves
+               (cash / investments / property / loans / card); JS recomputes
+               totals + propagates the result to #total-nw on the Overview
+               (which the constellation rings then refresh from). -->
+          <div class="fin-section nw-calc">
+            <div class="head">
+              <span class="kicker">Net Worth Calculation</span>
+              <span class="nw-calc-formula">Assets &minus; Debts = Net Worth</span>
+            </div>
+            <div class="body">
+
+              <div class="nw-subhead">Things you own (assets)</div>
+              <div class="fin-row"><span class="lbl">Cash in checking</span><span class="val gain" id="nw-calc-cash-v">+$12,340</span></div>
+              <div class="fin-row"><span class="lbl">Investment value</span><span class="val gain" id="nw-calc-invest-v">+$18,950</span></div>
+              <div class="fin-row"><span class="lbl">Restaurant assets</span><span class="val gain" id="nw-calc-property-v">+$29,620</span></div>
+              <div class="fin-row nw-subtotal"><span class="lbl">Total assets</span><span class="val" id="nw-calc-total-assets">$60,910</span></div>
+
+              <div class="nw-subhead">Things you owe (debts)</div>
+              <div class="fin-row"><span class="lbl">Loans</span><span class="val loss" id="nw-calc-loans-v">&minus;$10,650</span></div>
+              <div class="fin-row nw-subtotal"><span class="lbl">Total debts</span><span class="val" id="nw-calc-total-debts">&minus;$10,650</span></div>
+
+              <div class="fin-row total nw-total"><span class="lbl">Your net worth</span><span class="val" id="nw-calc-total">$50,260</span></div>
+            </div>
+          </div>
+
+          <!-- Investments -->
+          <div class="fin-section">
+            <div class="head"><span class="kicker">Your investments</span></div>
+            <div class="body">
+              <div class="invest-story" id="invest-story">
+                You put in <span id="invest-story-principal">$16,200</span> and it grew to <span id="invest-story-current">$18,950</span>. Your investments made you an extra <span class="gain" id="invest-story-growth">$2,750</span>.
+              </div>
+              <div class="fin-row"><span class="lbl">Current investment value</span><span class="val" id="invest-current-v">$18,950</span></div>
+              <div class="fin-row"><span class="lbl">Amount you originally put in</span><span class="val" id="invest-principal-v">$16,200</span></div>
+              <div class="fin-row"><span class="lbl">Growth so far (not yet cashed out)</span><span class="val gain" id="invest-growth-v">+$2,750</span></div>
+              <div class="fin-row"><span class="lbl">Investments you hold</span><span class="val" id="invest-count-v">5</span></div>
+            </div>
+          </div>
+
+          <!-- Liabilities (loans only; no credit card in this build) -->
+          <div class="fin-section">
+            <div class="head"><span class="kicker">What you owe</span></div>
+            <div class="body">
+
+              <div style="padding: 14px 18px 6px;">
+                <span class="kicker" style="margin-bottom:0;">Your loans</span>
+              </div>
+
+              <!-- Dynamic: receiver replaces children with payload.active_loans
+                   when the bridge sends data. Static rows below are the
+                   standalone-preview fallback. -->
+              <div id="loans-rows">
+                <div class="loan-row">
+                  <div class="name">
+                    <div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg></div>
+                    <div class="nm"><span class="h">Lot 6 - Build Loan</span><span class="s">Valley Trust Bank</span></div>
+                  </div>
+                  <div class="col-meta"><span class="k">Remaining</span><span class="v">$8,250</span></div>
+                  <div class="col-meta"><span class="k">Yearly</span><span class="v">$2,640</span></div>
+                </div>
+
+                <div class="loan-row">
+                  <div class="name">
+                    <div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg></div>
+                    <div class="nm"><span class="h">Lot 3 - Equipment Loan</span><span class="s">Founders Credit Union</span></div>
+                  </div>
+                  <div class="col-meta"><span class="k">Remaining</span><span class="v">$2,400</span></div>
+                  <div class="col-meta"><span class="k">Yearly</span><span class="v">$1,140</span></div>
+                </div>
+              </div>
+
+              <!-- Empty state shown when no loans (receiver toggles via [hidden]). -->
+              <div id="loans-empty" class="empty" hidden style="margin: 8px 18px 14px;">
+                <div class="h">No loans</div>
+                <div class="p">You have no outstanding loans. Buying a lot you can't afford outright opens a loan.</div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ===== TAB 3: PROPERTIES ===== -->
+        <section class="tab" data-tab-body="properties" role="tabpanel">
+
+          <!-- Dynamic: receiver replaces #prop-rows children with
+               payload.restaurants when the bridge sends data. Static rows
+               below are the standalone-preview fallback. -->
+          <div class="prop-list" id="prop-list">
+            <div id="prop-rows">
+
+              <div class="prop-row">
+                <div class="lot-ic">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+                </div>
+                <div class="lot-meta">
+                  <span class="nm">Lot 6 - Bayside Bistro</span>
+                  <span class="co">Grid C-3</span>
+                </div>
+                <span class="tier-pill t2"><span class="dot"></span>Tier 2</span>
+                <div class="income">
+                  <span class="k">per year</span>
+                  <span class="v">+$67,525</span>
+                </div>
+              </div>
+
+              <div class="prop-row">
+                <div class="lot-ic">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+                </div>
+                <div class="lot-meta">
+                  <span class="nm">Lot 3 - Corner Cafe</span>
+                  <span class="co">Grid B-2</span>
+                </div>
+                <span class="tier-pill t1"><span class="dot"></span>Tier 1</span>
+                <div class="income">
+                  <span class="k">per year</span>
+                  <span class="v">+$34,675</span>
+                </div>
+              </div>
+
+              <div class="prop-row">
+                <div class="lot-ic">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>
+                </div>
+                <div class="lot-meta">
+                  <span class="nm">Lot 7 - Harbor House</span>
+                  <span class="co">Grid D-4</span>
+                </div>
+                <span class="tier-pill t3"><span class="dot"></span>Tier 3</span>
+                <div class="income">
+                  <span class="k">per year</span>
+                  <span class="v">+$113,150</span>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="prop-total-row" id="prop-total-row">
+              <span class="prop-total-k">Total income per year</span>
+              <span class="prop-total-v" id="prop-total-v">+$215,350</span>
+            </div>
+
+          </div>
+
+          <!-- Empty-state container; receiver toggles between #prop-list and
+               #prop-empty depending on whether the player owns any lots. -->
+          <div id="prop-empty" class="empty" hidden>
+            <div class="spot">
+              <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/><path d="M10 20 V14 H14 V20"/></svg>
+            </div>
+            <div class="h">No properties yet</div>
+            <div class="p">Buy a lot in town to start a restaurant. Owned properties and their tier will appear here.</div>
+          </div>
+
+          <!-- Empty state markup is rendered by JS when ownedLots is 0; left here as reference fallback (hidden). -->
+          <template id="prop-empty-template">
+            <div class="empty">
+              <div class="spot">
+                <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/><path d="M10 20 V14 H14 V20"/></svg>
+              </div>
+              <div class="h">No properties yet</div>
+              <div class="p">Buy a lot in town to start a restaurant. Owned properties and their tier will appear here.</div>
+            </div>
+          </template>
+
+        </section>
+
+        <!-- ===== TAB 5: ACTIVITY ===== -->
+        <section class="tab" data-tab-body="learning" role="tabpanel">
+
+          <div class="learning-grid">
+
+            <div class="lc-card full activity-hero" id="activity-narrative">
+              <span class="kicker">Your learning story</span>
+              <div class="activity-sentence" id="activity-sentence">
+                Your <strong id="activity-streak-strong">7-question streak</strong> is boosting your restaurants, which have earned you <strong id="activity-lifetime-strong">$84,560</strong> lifetime.
+              </div>
+            </div>
+
+            <div class="lc-card">
+              <span class="kicker">Quiz streak</span>
+              <div class="streak-row">
+                <span class="flame">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2 C13 6 16 7 16 11 C16 13.5 14.2 15 12 15 C9.8 15 8 13.5 8 11 C8 9 9 8 9 8 C9 9.5 10 10 10.5 10 C10.5 8 11 5 12 2 Z M7.5 12 C7 13 6.5 14.2 6.5 15.5 C6.5 18.5 9 21 12 21 C15 21 17.5 18.5 17.5 15.5 C17.5 14 16.8 12.6 16 11.5 C16 14 14.4 16 12 16 C9.6 16 8 14 7.5 12 Z"/></svg>
+                </span>
+                <div class="big" style="font-size:32px;"><span id="activity-streak-num">7</span><small>in a row</small></div>
+              </div>
+              <div style="font-size:13px; color: var(--fg-3); font-weight:700;">Correct answers from the active QuestionMaster session.</div>
+            </div>
+
+            <div class="lc-card">
+              <span class="kicker">Lifetime restaurant earnings</span>
+              <div class="lifetime">
+                <span class="coin">$</span>
+                <div class="big" style="font-size:32px;" id="activity-lifetime-num">$84,560</div>
+              </div>
+              <div style="font-size:13px; color: var(--fg-3); font-weight:700;">Cumulative income from every restaurant tick since the first day.</div>
+            </div>
+
+          </div>
+
+        </section>
+
+      </div><!-- /.content -->
+    </div><!-- /.panel-body -->
+  </div><!-- /.panel -->
+</div><!-- /.scrim -->
+
+<!--
+  ============================================================
+  Implemented in v2 (this pass):
+  - Goal tracker pill on the Overview hero (next-cheapest unrealized goal)
+  - Total + Liquid net worth split on the hero
+  - Header age display + bankruptcy chip
+  - Dedicated Life Goals tab with 3 goal cards + badge state
+
+  Still held back for v3:
+  - Health score breakdown: tap-to-expand reveal of the four sub-scores
+    (net worth percentile, credit band, DTI band, savings rate) so
+    students can see WHY the number is what it is. Still read-only.
+  - Per-property mini sparkline of last N ticks. Out of scope per
+    the snapshot-only constraint; revisit if students ask for it.
+  - Learning levels and accuracy %, once those systems exist in the game.
+  ============================================================
+-->
+
+<script>
+/* Tab switching - the ONLY interactive behavior in this panel
+   (besides the close button). All metrics are read-only snapshots. */
+(function () {
+  const buttons = document.querySelectorAll('.sidebar .tab-btn');
+  const bodies  = document.querySelectorAll('.content [data-tab-body]');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.tab;
+      buttons.forEach(b => {
+        const on = b === btn;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      bodies.forEach(s => s.classList.toggle('active', s.dataset.tabBody === id));
+    });
+  });
+
+  // Helper: route a request through the WebGL template's FV bridge, falling
+  // back to a postMessage for standalone-preview hosts. Mirrors the pattern
+  // used by credit-system.html / investing-system.html.
+  function fvRequest(intentName, payload, fallbackType) {
+    try {
+      if (window.parent && window.parent.FV && typeof window.parent.FV.requestIntent === 'function') {
+        window.parent.FV.requestIntent('profile', intentName, payload || {});
+        return;
+      }
+    } catch (e) {}
+    if (window.parent && window.parent !== window && fallbackType) {
+      try { window.parent.postMessage({ type: fallbackType }, '*'); } catch (e) {}
+    }
+  }
+
+  // Close button.
+  const close = document.getElementById('profile-close');
+  close && close.addEventListener('click', () => {
+    fvRequest('close', {}, 'profile:close');
+  });
+
+  // Replay Tutorial button. Routes through ProfileWebBridge.RequestReplayTutorial
+  // which raises GameEvents.OnTutorialStartRequested(true).
+  const replay = document.getElementById('replay-tutorial-btn');
+  replay && replay.addEventListener('click', () => {
+    fvRequest('replayTutorial', {}, 'tutorial:replay');
+  });
+
+  // ----------------------------------------------------------------
+  // Goal Constellation: progress paint + age-trail + realize bloom.
+  // Operates on every .goal-constellation block (Overview + Life Goals).
+  // Reads data-attributes the bridge writes; no panel-internal state.
+  // ----------------------------------------------------------------
+  const RING_LEN = 264; // matches pathLength on .gs-ring-fill
+
+  // Goal-id to emoji map. One char per goal for instant recognizability.
+  // Browsers fall back to the system emoji font automatically.
+  const GOAL_EMOJI = {
+    first_apartment:     '\u{1F3E2}',                 // building
+    reliable_used_car:   '\u{1F697}',                 // car
+    wedding_fund:        '\u{1F48D}',                 // ring
+    family_home:         '\u{1F3E0}',                 // house
+    college_one_kid:     '\u{1F393}',                 // grad cap
+    travel_10_countries: '\u{1F30D}',                 // globe
+    dream_car:           '\u{1F3CE}\u{FE0F}',         // racing car
+    college_two_kids:    '\u{1F3DB}\u{FE0F}',         // classical building
+    retire_early:        '\u{1F3D6}\u{FE0F}',         // beach
+    placeholder:         '?'
+  };
+
+  function setStampEmoji(stamp) {
+    const el = stamp.querySelector('.gs-emoji');
+    if (!el) return;
+    const picked = stamp.getAttribute('data-picked') === 'true';
+    const id = stamp.getAttribute('data-goal-id') || '';
+    el.textContent = (!picked) ? GOAL_EMOJI.placeholder : (GOAL_EMOJI[id] || GOAL_EMOJI.placeholder);
+  }
+
+  function parseDollar(s) {
+    if (!s) return 0;
+    const n = parseFloat(String(s).replace(/[^0-9.\-]/g, ''));
+    return isNaN(n) ? 0 : n;
+  }
+  function clamp01(x) { return x < 0 ? 0 : (x > 1 ? 1 : x); }
+
+  function paintStamp(stamp, totalNetWorth) {
+    const picked   = stamp.getAttribute('data-picked')   === 'true';
+    const realized = stamp.getAttribute('data-realized') === 'true';
+    const threshold = parseFloat(stamp.getAttribute('data-threshold')) || 0;
+    const ringFill  = stamp.querySelector('.gs-ring-fill');
+    const pctEl     = stamp.querySelector('.gs-pct');
+    const realizedAge = stamp.getAttribute('data-realized-age');
+
+    setStampEmoji(stamp);
+
+    if (!picked) {
+      // Placeholder state; CSS handles muting + hiding the pct label.
+      if (ringFill) ringFill.setAttribute('stroke-dasharray', '0 ' + RING_LEN);
+      return;
+    }
+    if (realized) {
+      if (ringFill) ringFill.setAttribute('stroke-dasharray', RING_LEN + ' ' + RING_LEN);
+      if (pctEl)    pctEl.textContent = realizedAge
+        ? ('Achieved at age ' + realizedAge)
+        : 'Achieved';
+      return;
+    }
+    // In progress.
+    const progress = threshold > 0 ? clamp01(totalNetWorth / threshold) : 0;
+    if (ringFill) ringFill.setAttribute('stroke-dasharray', (progress * RING_LEN).toFixed(2) + ' ' + RING_LEN);
+    if (pctEl)    pctEl.textContent = Math.round(progress * 100) + '% there';
+  }
+
+  function paintTrail(constellation, currentAge, retirementAge) {
+    const span = retirementAge - currentAge;
+    const totalSpan = retirementAge - parseFloat(constellation.querySelector('.gct-tick-start')?.textContent || currentAge);
+    // Marker sits at "you are here" in the start-to-retirement run.
+    const startAge = parseFloat(constellation.querySelector('.gct-tick-start')?.textContent || currentAge);
+    const denom = (retirementAge - startAge) || 1;
+    const markerPct = clamp01((currentAge - startAge) / denom) * 100;
+    const marker = constellation.querySelector('.gct-marker');
+    if (marker) marker.style.left = markerPct + '%';
+
+    // Refresh realize ticks (clear stale + replant).
+    constellation.querySelectorAll('.gct-realize').forEach(n => n.remove());
+    constellation.querySelectorAll('.goal-stamp[data-realized="true"]').forEach(stamp => {
+      const ra = parseFloat(stamp.getAttribute('data-realized-age'));
+      if (!isNaN(ra)) {
+        const tick = document.createElement('span');
+        tick.className = 'gct-realize';
+        tick.setAttribute('data-goal-id', stamp.getAttribute('data-goal-id') || '');
+        tick.style.left = (clamp01((ra - startAge) / denom) * 100) + '%';
+        const trail = constellation.querySelector('.gc-trail');
+        if (trail) trail.appendChild(tick);
+      }
+    });
+
+    const caption = constellation.querySelector('.gc-trail-caption');
+    if (caption) {
+      caption.innerHTML = span > 0
+        ? ('you are here · ' + span + ' years to retirement')
+        : 'Retirement reached';
+    }
+  }
+
+  function bloomStamp(stamp) {
+    if (!stamp || stamp.classList.contains('is-blooming')) return;
+    stamp.classList.add('is-blooming');
+    setTimeout(() => stamp.classList.remove('is-blooming'), 600);
+  }
+
+  function paintConstellation(constellation) {
+    const totalEl  = document.getElementById('total-nw');
+    const totalNW  = parseDollar(totalEl ? totalEl.textContent : '0');
+    const currentAge    = parseFloat(constellation.getAttribute('data-current-age')) || 25;
+    const retirementAge = parseFloat(constellation.getAttribute('data-retirement-age')) || 65;
+    constellation.querySelectorAll('.goal-stamp').forEach(s => paintStamp(s, totalNW));
+    paintTrail(constellation, currentAge, retirementAge);
+  }
+
+  document.querySelectorAll('.goal-constellation').forEach(constellation => {
+    paintConstellation(constellation);
+
+    // First-open bloom for any stamp the bridge flagged off-panel.
+    constellation.querySelectorAll('.goal-stamp[data-just-realized="true"]').forEach(stamp => {
+      bloomStamp(stamp);
+      stamp.removeAttribute('data-just-realized');
+    });
+
+    // Live transitions: bloom on data-realized false -> true.
+    const obs = new MutationObserver(muts => {
+      muts.forEach(m => {
+        if (m.type === 'attributes' && m.attributeName === 'data-realized') {
+          const stamp = m.target.closest('.goal-stamp');
+          if (stamp && stamp.getAttribute('data-realized') === 'true') {
+            bloomStamp(stamp);
+          }
+          // Repaint so ring + tick reflect the new state.
+          paintConstellation(constellation);
+        }
+        if (m.type === 'attributes' && (m.attributeName === 'data-picked' || m.attributeName === 'data-threshold' || m.attributeName === 'data-realized-age' || m.attributeName === 'data-goal-id')) {
+          paintConstellation(constellation);
+        }
+      });
+    });
+    obs.observe(constellation, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['data-realized', 'data-picked', 'data-threshold', 'data-realized-age', 'data-goal-id']
+    });
+  });
+
+  // ----------------------------------------------------------------
+  // Net Worth Calculation: recompute totals from leaf values, mirror
+  // the result onto #total-nw so the constellation rings update too.
+  // Bridge writes any of the 5 leaves and calls window.fvRecomputeNetWorth();
+  // a MutationObserver on the leaves also catches text replacements.
+  // ----------------------------------------------------------------
+  function fmtUnsigned(n) {
+    return '$' + Math.abs(Math.round(n)).toLocaleString('en-US');
+  }
+  function fmtSigned(n, isDebt) {
+    const sign = isDebt ? '−' : '+';
+    return sign + fmtUnsigned(n);
+  }
+
+  function recomputeNetWorth() {
+    // All leaf values are read as magnitudes; the formula applies the sign.
+    // This is robust to bridges that write "+$X", "−$X", "$X", or plain numbers.
+    const abs = id => Math.abs(parseDollar((document.getElementById(id) || {}).textContent));
+    const cash     = abs('nw-calc-cash-v');
+    const invest   = abs('nw-calc-invest-v');
+    const property = abs('nw-calc-property-v');
+    const loans    = abs('nw-calc-loans-v');
+
+    const totalAssets = cash + invest + property;
+    const totalDebts  = loans;
+    const netWorth    = totalAssets - totalDebts;
+
+    const tA = document.getElementById('nw-calc-total-assets');
+    const tD = document.getElementById('nw-calc-total-debts');
+    const tN = document.getElementById('nw-calc-total');
+    if (tA) tA.textContent = fmtUnsigned(totalAssets);
+    if (tD) tD.textContent = '−' + fmtUnsigned(totalDebts);
+    if (tN) tN.textContent = fmtUnsigned(netWorth);
+
+    // Mirror onto the Overview hero so the constellation rings refresh.
+    const overviewNW = document.getElementById('total-nw');
+    if (overviewNW) overviewNW.textContent = fmtUnsigned(netWorth);
+
+    document.querySelectorAll('.goal-constellation').forEach(c => {
+      // paintConstellation lives in the outer scope; reference it directly.
+      paintConstellation(c);
+    });
+  }
+  window.fvRecomputeNetWorth = recomputeNetWorth;
+
+  // Watch the 5 leaves for text replacements so a bridge that just sets
+  // textContent (without calling fvRecomputeNetWorth) still triggers update.
+  ['nw-calc-cash-v', 'nw-calc-invest-v', 'nw-calc-property-v',
+   'nw-calc-loans-v'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    new MutationObserver(recomputeNetWorth).observe(el, { childList: true, characterData: true, subtree: true });
+  });
+
+  recomputeNetWorth();
+
+  // ----------------------------------------------------------------
+  // Bridge contract: window.FV.profile.update(payload)
+  // The WebGL template's FV.updatePanel("profile", json) forwards the
+  // parsed JSON here. We translate the ProfilePanelDTO shape into the
+  // existing IDs and data-attributes the IIFEs above already handle.
+  // ----------------------------------------------------------------
+  function fmtMoney(n) {
+    if (n == null || isNaN(n)) return '$0';
+    var sign = n < 0 ? '-' : '';
+    var abs = Math.abs(Math.round(n)).toLocaleString('en-US');
+    return sign + '$' + abs;
+  }
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  // Apply one of the three zone classes (good / fair / poor) to a vital-dot
+  // element, replacing any prior zone. Used by the vitals strip to color
+  // each pill's dot from the value's bucket.
+  function applyVitalZone(id, zone) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('zone-good', 'zone-fair', 'zone-poor');
+    el.classList.add('zone-' + zone);
+  }
+
+  function applyProfileUpdate(payload) {
+    if (!payload) return;
+
+    // Net Worth Calculation leaves (recomputeNetWorth picks up the totals via
+    // its MutationObserver, which also propagates to #total-nw + constellation).
+    if (typeof payload.cash_in_checking          === 'number') setText('nw-calc-cash-v',     '+' + fmtMoney(payload.cash_in_checking));
+    if (typeof payload.investment_value          === 'number') setText('nw-calc-invest-v',   '+' + fmtMoney(payload.investment_value));
+    if (typeof payload.restaurant_assets_value   === 'number') setText('nw-calc-property-v', '+' + fmtMoney(payload.restaurant_assets_value));
+    if (typeof payload.loans_total               === 'number') setText('nw-calc-loans-v',    '−' + fmtMoney(payload.loans_total));
+
+    // Liquid net worth strip.
+    if (typeof payload.liquid_net_worth === 'number') setText('liquid-nw', fmtMoney(payload.liquid_net_worth));
+
+    // Lifespan: age display + constellation trail metadata.
+    var ageDisplay = document.getElementById('age-display');
+    if (ageDisplay && typeof payload.current_age === 'number') ageDisplay.textContent = String(payload.current_age);
+    var overviewConstellation = document.getElementById('goal-constellation');
+    if (overviewConstellation) {
+      if (typeof payload.current_age    === 'number') overviewConstellation.setAttribute('data-current-age',    String(payload.current_age));
+      if (typeof payload.retirement_age === 'number') overviewConstellation.setAttribute('data-retirement-age', String(payload.retirement_age));
+    }
+
+    // Goals: per-stamp data-* attributes drive the constellation IIFE's
+    // MutationObserver, which repaints rings + labels + bloom flags.
+    var goals = Array.isArray(payload.selected_goals) ? payload.selected_goals : [];
+    for (var i = 0; i < 3; i++) {
+      var stamp = document.getElementById('goal-stamp-' + (i + 1));
+      if (!stamp) continue;
+      var g = goals[i];
+      if (g) {
+        stamp.setAttribute('data-picked', 'true');
+        if (g.goal_id) stamp.setAttribute('data-goal-id', g.goal_id);
+        if (typeof g.threshold === 'number') stamp.setAttribute('data-threshold', String(g.threshold));
+        stamp.setAttribute('data-realized-age', g.realized_age != null && g.realized_age >= 0 ? String(g.realized_age) : '');
+        if (g.just_realized) stamp.setAttribute('data-just-realized', 'true');
+        // Set data-realized last so the MutationObserver sees the final state on the same tick.
+        stamp.setAttribute('data-realized', g.realized ? 'true' : 'false');
+        var nameEl = document.getElementById('goal-stamp-' + (i + 1) + '-name');
+        if (nameEl && typeof g.goal_id === 'string') {
+          // The stamp emoji map looks up data-goal-id directly; the visible
+          // name is populated server-side via a separate label dictionary on
+          // the iframe side. For now, mirror the goal_id as the label so the
+          // panel works without a label catalog round-trip.
+          // (Bridge can override later by adding goal display_name to the DTO.)
+        }
+      } else {
+        stamp.setAttribute('data-picked', 'false');
+      }
+    }
+
+    // Vitals strip: Cash, Credit, Income/yr, DTI from the bridge.
+    if (typeof payload.cash_in_checking === 'number') {
+      setText('vital-cash-v', fmtMoney(payload.cash_in_checking));
+      applyVitalZone('vital-cash-dot', payload.cash_in_checking >= 5000 ? 'good' : (payload.cash_in_checking >= 1000 ? 'fair' : 'poor'));
+    }
+    if (typeof payload.yearly_restaurant_income === 'number') {
+      setText('vital-income-v', fmtMoney(payload.yearly_restaurant_income));
+      applyVitalZone('vital-income-dot', payload.yearly_restaurant_income >= 50000 ? 'good' : (payload.yearly_restaurant_income >= 15000 ? 'fair' : 'poor'));
+    }
+    if (typeof payload.credit_score === 'number') {
+      setText('vital-credit-v', String(payload.credit_score));
+      // FICO bands: 670+ Good, 580-669 Fair, <580 Poor.
+      var creditZone = payload.credit_score >= 670 ? 'good' : (payload.credit_score >= 580 ? 'fair' : 'poor');
+      applyVitalZone('vital-credit-dot', creditZone);
+    }
+    if (typeof payload.dti_ratio === 'number') {
+      // DTI is 0..1 -> render as integer percent.
+      var pct = Math.round(payload.dti_ratio * 100);
+      setText('vital-dti-v', pct + '%');
+      // Lower is better: <=20% Good, <=40% Fair, otherwise Poor.
+      var dtiZone = payload.dti_ratio <= 0.20 ? 'good' : (payload.dti_ratio <= 0.40 ? 'fair' : 'poor');
+      applyVitalZone('vital-dti-dot', dtiZone);
+    }
+
+    // Properties tab: rebuild prop-rows from payload.restaurants. Toggle
+    // empty state if the player owns nothing.
+    if (Array.isArray(payload.restaurants)) {
+      renderRestaurants(payload.restaurants);
+    }
+    // Total income synced from yearly_restaurant_income (already summed server-side).
+    if (typeof payload.yearly_restaurant_income === 'number') {
+      setText('prop-total-v', '+' + fmtMoney(payload.yearly_restaurant_income));
+    }
+
+    // Active loans rows. yearlyPayment fires once per cycle (= 1 game year)
+    // so it renders as-is under the "Yearly" column.
+    if (Array.isArray(payload.active_loans)) {
+      renderActiveLoans(payload.active_loans);
+    }
+
+    // Activity tab: streak count + lifetime restaurant earnings, plus the
+    // narrative sentence at the top of the tab.
+    var hasStreak = typeof payload.current_quiz_streak === 'number';
+    var hasLifetime = typeof payload.lifetime_restaurant_earnings === 'number';
+    if (hasStreak) {
+      setText('activity-streak-num', String(payload.current_quiz_streak));
+      setText('activity-streak-strong',
+        payload.current_quiz_streak === 1
+          ? '1-question streak'
+          : (payload.current_quiz_streak + '-question streak'));
+    }
+    if (hasLifetime) {
+      var lifetimeFmt = fmtMoney(payload.lifetime_restaurant_earnings);
+      setText('activity-lifetime-num', lifetimeFmt);
+      setText('activity-lifetime-strong', lifetimeFmt);
+    }
+
+    // Header bankruptcy chip: sticky-true once flagged. Toggle via [hidden].
+    var bankChip = document.getElementById('bankruptcy-chip');
+    if (bankChip && typeof payload.has_bankruptcy_flag === 'boolean') {
+      if (payload.has_bankruptcy_flag) bankChip.removeAttribute('hidden');
+      else bankChip.setAttribute('hidden', '');
+    }
+
+    // Investments breakdown (Finances tab "Your investments" section).
+    var hasInvest = typeof payload.investment_value === 'number';
+    var hasPrincipal = typeof payload.investment_principal === 'number';
+    var hasGrowth = typeof payload.investment_growth === 'number';
+    var hasCount = typeof payload.investment_count === 'number';
+    if (hasInvest) {
+      setText('invest-current-v', fmtMoney(payload.investment_value));
+      setText('invest-story-current', fmtMoney(payload.investment_value));
+    }
+    if (hasPrincipal) {
+      setText('invest-principal-v', fmtMoney(payload.investment_principal));
+      setText('invest-story-principal', fmtMoney(payload.investment_principal));
+    }
+    if (hasGrowth) {
+      // Growth can be negative (loss). fmtMoney already handles sign.
+      var sign = payload.investment_growth >= 0 ? '+' : '';
+      setText('invest-growth-v', sign + fmtMoney(payload.investment_growth));
+      setText('invest-story-growth', fmtMoney(payload.investment_growth));
+    }
+    if (hasCount) {
+      setText('invest-count-v', String(payload.investment_count));
+    }
+  }
+
+  function renderRestaurants(restaurants) {
+    var rowsHost = document.getElementById('prop-rows');
+    var listHost = document.getElementById('prop-list');
+    var emptyHost = document.getElementById('prop-empty');
+    if (!rowsHost || !listHost || !emptyHost) return;
+
+    if (!restaurants || restaurants.length === 0) {
+      // Empty state: hide list, show empty.
+      listHost.setAttribute('hidden', '');
+      emptyHost.removeAttribute('hidden');
+      return;
+    }
+
+    listHost.removeAttribute('hidden');
+    emptyHost.setAttribute('hidden', '');
+
+    // Build all rows once into a fragment to minimize layout thrash.
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < restaurants.length; i++) {
+      var r = restaurants[i] || {};
+      var row = document.createElement('div');
+      row.className = 'prop-row';
+      var tier = (typeof r.tier === 'number' ? r.tier : 1);
+      var tierClass = tier === 3 ? 't3' : (tier === 2 ? 't2' : 't1');
+
+      row.innerHTML =
+        '<div class="lot-ic">' +
+          '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg>' +
+        '</div>' +
+        '<div class="lot-meta">' +
+          '<span class="nm"></span>' +
+          '<span class="co"></span>' +
+        '</div>' +
+        '<span class="tier-pill ' + tierClass + '"><span class="dot"></span>Tier ' + tier + '</span>' +
+        '<div class="income">' +
+          '<span class="k">per year</span>' +
+          '<span class="v"></span>' +
+        '</div>';
+
+      // Set text content via DOM so any names with HTML-special chars don't break out.
+      row.querySelector('.lot-meta .nm').textContent = r.lot_name || r.lot_id || '';
+      row.querySelector('.lot-meta .co').textContent = r.lot_id || '';
+      row.querySelector('.income .v').textContent = '+' + fmtMoney(r.yearly_income);
+      frag.appendChild(row);
+    }
+
+    // Atomic replace: clear children then append fragment.
+    while (rowsHost.firstChild) rowsHost.removeChild(rowsHost.firstChild);
+    rowsHost.appendChild(frag);
+  }
+
+  function renderActiveLoans(loans) {
+    var rowsHost = document.getElementById('loans-rows');
+    var emptyHost = document.getElementById('loans-empty');
+    if (!rowsHost || !emptyHost) return;
+
+    if (!loans || loans.length === 0) {
+      while (rowsHost.firstChild) rowsHost.removeChild(rowsHost.firstChild);
+      rowsHost.setAttribute('hidden', '');
+      emptyHost.removeAttribute('hidden');
+      return;
+    }
+    rowsHost.removeAttribute('hidden');
+    emptyHost.setAttribute('hidden', '');
+
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < loans.length; i++) {
+      var loan = loans[i] || {};
+      var row = document.createElement('div');
+      row.className = 'loan-row';
+      // yearlyPayment fires once per cycle (= 1 game year). Render as-is.
+      var yearly = typeof loan.yearlyPayment === 'number' ? loan.yearlyPayment : 0;
+      var balance = typeof loan.balance === 'number' ? loan.balance : 0;
+
+      row.innerHTML =
+        '<div class="name">' +
+          '<div class="ic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/></svg></div>' +
+          '<div class="nm"><span class="h"></span><span class="s"></span></div>' +
+        '</div>' +
+        '<div class="col-meta"><span class="k">Remaining</span><span class="v"></span></div>' +
+        '<div class="col-meta"><span class="k">Yearly</span><span class="v"></span></div>';
+
+      row.querySelector('.name .nm .h').textContent = loan.lotName || loan.id || 'Loan';
+      row.querySelector('.name .nm .s').textContent = loan.id ? ('Loan ID: ' + loan.id) : '';
+      var metaVals = row.querySelectorAll('.col-meta .v');
+      if (metaVals.length >= 2) {
+        metaVals[0].textContent = fmtMoney(balance);
+        metaVals[1].textContent = fmtMoney(yearly);
+      }
+      frag.appendChild(row);
+    }
+    while (rowsHost.firstChild) rowsHost.removeChild(rowsHost.firstChild);
+    rowsHost.appendChild(frag);
+  }
+
+  // Iframe-local FV namespace. parent.FV.updatePanel routes here via
+  // iframe.contentWindow.FV.profile.update(payload).
+  window.FV = window.FV || {};
+  window.FV.profile = { update: applyProfileUpdate };
+
+  // Signal the host that this iframe is ready to receive updates. The host
+  // replays any pending payload it buffered before this listener was wired.
+  try {
+    if (window.parent && window.parent !== window
+        && window.parent.FV && typeof window.parent.FV.iframeReady === 'function') {
+      window.parent.FV.iframeReady('profile');
+    }
+  } catch (e) { /* standalone preview: no-op */ }
+})();
+</script>
+
+</body>
+</html>

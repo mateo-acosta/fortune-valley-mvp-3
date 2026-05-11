@@ -16,16 +16,37 @@ This is NOT a production build.
 ---
 
 ## 1. Game Summary
-Genre: 2.5D idle-clicker / strategy
+Genre: 2.5D idle-clicker / light city-builder
 Perspective: Isometric / 2.5D
-Player Role: Restaurant owner expanding into the city
+Player Role: Restaurant chain owner expanding into a small city
 Core Tension: Spend money now vs invest to grow money over time
 
-Win Condition:
-- Player acquires all city lots before rival AI
+Progression Model:
+- The city is a fixed grid of 19 interactive building lots plus ambient scenery (roads, park, background buildings). The rival is soft-capped at 12 lots so the player always has at least 7 expandable or owned.
+- The player starts with one Tier 2 restaurant on one lot (their established starter location). A rival AI starts with one Tier 2 restaurant on another lot. The remaining lots start empty.
+- Empty lots are purchase signals only. A "For Sale" sign marks them. There is no elaborate empty-lot visual.
+- When the player purchases an empty lot, it spawns a **Tier 1 dilapidated restaurant** on that lot (a rundown version of the same silhouette as T2). The player then upgrades it through the three tiers: **Tier 1 = dilapidated, Tier 2 = finished/normal, Tier 3 = thriving/standout**.
+- The narrative arc is "you bought a rundown property and restored it into a neighborhood favorite, then into the best restaurant in town."
+- The rival expands in parallel using the same three-tier silhouette with a corporate franchise skin (different materials and props, same silhouette per tier).
 
-Lose Condition:
-- Rival AI acquires all city lots first
+Soft Pressure (NOT a hard win/lose):
+- Lots are finite. If the player does not buy a lot, the rival can, and it is locked to the rival from then on. This creates opportunity cost without a hard ending.
+- Monthly obligations (loan payments, credit card statements, insurance premiums) create cash-flow pressure.
+
+Hard End Condition:
+- The life ends at retirement (age 65, ~80-100 minutes of play). At retirement the player sees a scorecard of which Life Goals were realized vs missed.
+
+Soft Bankruptcy (mid-life reset, NOT a hard lose):
+- Five consecutive insolvent billing cycles triggers a soft reset. Balances, all non-starter lots, active loans, insurance policies, investments, pending income, and credit score (back to 650) are wiped. The starter lot stays owned but is forced to T1 dilapidated. Age, selected Life Goals (and any already-realized states), and the bankruptcy_flag (now permanently true for this life) all persist. The rival keeps everything. The life clock keeps ticking toward retirement.
+
+Win Condition:
+- The Life Goals system frames the win. Players pick exactly three Life Goals (one per tier: Starter / Mid / Ambitious) during the intro tutorial. Each goal is a Total Net Worth threshold ($100k / $500k / $2M defaults). Goals realize automatically when net worth crosses the threshold and stay realized (sticky) even if net worth later drops. The retirement scorecard shows X/3 realized.
+
+Explicitly Out of Scope for POC:
+- No decay during play. Buildings do not degrade over time. A Tier 2 restaurant does not revert to Tier 1. The player must actively upgrade, but never has to "maintain" against decay.
+- No intermediate sub-tiers between the three main tiers. Three tiers only: dilapidated, normal, thriving.
+- Investing has no world-visible effect. Portfolio value changes numbers in the UI only. A skyline-linked investing visual is a post-POC stretch goal.
+- All 19 `CityLotDefinition` assets are named `Lot_Block01` through `Lot_Block19` and display as "Block 1" through "Block 19" in-game. They are generic numbered lots with no district flavor. All use the same hero restaurant mesh with the same three tiers.
 
 ---
 
@@ -61,10 +82,11 @@ The player should be able to verbally explain:
 - Outcomes must be explainable in plain language
 
 ### 3.3 Rival Expansion System
-- AI competitor buying city lots
-- Applies time pressure
-- Difficulty increases per level
-- Forces meaningful trade-offs
+- AI competitor buying city lots and upgrading restaurants in parallel with the player
+- Provides soft time pressure via lot scarcity: lots the rival buys are permanently lost to the player
+- Rival uses the same restaurant base model with a corporate franchise skin (material and prop variants)
+- Rival is a pacing mechanism, not a lose condition. The rival cannot end the game.
+- Forces meaningful trade-offs about which lots to prioritize and when to borrow vs save
 
 ---
 
@@ -154,9 +176,9 @@ Every rule passes this test: compliance is determined by searching for a specifi
 ## 7. POC Success Criteria (Anchor All Decisions)
 
 This POC is successful if:
-1. A student can explain opportunity cost using the game
-2. A student can describe compound interest effects they observed
-3. Winning or losing clearly correlates with financial decisions
+1. A student can explain opportunity cost using the game (usually by pointing at a lot the rival took because the student spent cash elsewhere).
+2. A student can describe compound interest effects they observed in the investing panel.
+3. The student's financial decisions clearly correlate with the visible state of their chain: more profitable or more careful play produces more restaurants, higher tiers, and a healthier balance sheet than the rival. Bankruptcy (the only hard lose state) is clearly attributable to specific over-spending or under-investing decisions.
 
 If a feature does not support these outcomes, it should be excluded.
 

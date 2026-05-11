@@ -198,7 +198,7 @@ namespace FortuneValley.UI.Popups
             // Update slider to match
             if (_amountSlider != null && _currencyManager != null)
             {
-                float maxAmount = _currencyManager.GetBalance(_fromAccount);
+                float maxAmount = GetBalance(_fromAccount);
                 _amountSlider.SetValueWithoutNotify(maxAmount > 0 ? _transferAmount / maxAmount : 0);
             }
 
@@ -209,7 +209,7 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null) return;
 
-            float maxAmount = _currencyManager.GetBalance(_fromAccount);
+            float maxAmount = GetBalance(_fromAccount);
             _transferAmount = maxAmount * value;
 
             // Update input to match
@@ -225,7 +225,7 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null) return;
 
-            _transferAmount = _currencyManager.GetBalance(_fromAccount);
+            _transferAmount = GetBalance(_fromAccount);
 
             if (_amountInput != null)
             {
@@ -244,18 +244,22 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null || _transferAmount <= 0) return;
 
-            bool success = _currencyManager.Transfer(_transferAmount, _fromAccount, _toAccount);
+            // Fire intent event; CurrencyManager handles the actual transfer.
+            // Balance-changed events (already subscribed) refresh the display.
+            GameEvents.RaiseTransferRequested(_fromAccount, _toAccount, _transferAmount);
+            _transferAmount = 0;
+            UpdateDisplay();
+        }
 
-            if (success)
-            {
-                UnityEngine.Debug.Log($"[TransferPopup] Transferred ${_transferAmount:F2} from {_fromAccount} to {_toAccount}");
-                _uiManager.HidePopup(this);
-            }
-            else
-            {
-                UnityEngine.Debug.LogWarning($"[TransferPopup] Transfer failed");
-                UpdateDisplay();
-            }
+        /// <summary>
+        /// Get balance for the specified account type.
+        /// </summary>
+        private float GetBalance(AccountType account)
+        {
+            if (_currencyManager == null) return 0f;
+            return account == AccountType.Investing
+                ? _currencyManager.InvestingBalance
+                : _currencyManager.CheckingBalance;
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -266,8 +270,8 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null) return;
 
-            float fromBalance = _currencyManager.GetBalance(_fromAccount);
-            float toBalance = _currencyManager.GetBalance(_toAccount);
+            float fromBalance = GetBalance(_fromAccount);
+            float toBalance = GetBalance(_toAccount);
 
             // Update balance texts
             if (_fromBalanceText != null)
@@ -293,8 +297,8 @@ namespace FortuneValley.UI.Popups
         {
             if (_currencyManager == null) return;
 
-            float fromBalance = _currencyManager.GetBalance(_fromAccount);
-            float toBalance = _currencyManager.GetBalance(_toAccount);
+            float fromBalance = GetBalance(_fromAccount);
+            float toBalance = GetBalance(_toAccount);
 
             bool isValid = _transferAmount > 0 && _transferAmount <= fromBalance;
 

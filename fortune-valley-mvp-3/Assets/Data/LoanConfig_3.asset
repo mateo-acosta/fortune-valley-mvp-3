@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba3aeba1af4f04139a57b05a348c1b91, type: 3}
+  m_Name: LoanConfig_3
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.LoanConfig
+  _loanId: loan_premium
+  _displayName: Premium Loan
+  _tagline: Lowest rate for excellent credit
+  _apr: 0.04
+  _termYears: 15
+  _downPaymentPercent: 0.1
+  _loanImage: {fileID: 21300000, guid: 8767d6332dfdf47e2a0b3cb281ab450b, type: 3}
+  _minimumCreditScore: 720
+  _maxDtiRatio: 0.5
+  _maxPrincipal: 500000

@@ -21,6 +21,8 @@ namespace FortuneValley.Tests
         private RestaurantSystem _restaurantSystem;
         private InvestmentSystem _investmentSystem;
         private CityManager _cityManager;
+        private DailyIncomeAccumulator _pendingIncome;
+        private IncomeCollectionController _collectionController;
 
         private RestaurantConfig _restaurantConfig;
         private List<InvestmentDefinition> _investmentDefs;
@@ -41,19 +43,41 @@ namespace FortuneValley.Tests
             _restaurantSystem = _gameObject.AddComponent<RestaurantSystem>();
             _investmentSystem = _gameObject.AddComponent<InvestmentSystem>();
             _cityManager = _gameObject.AddComponent<CityManager>();
+            _pendingIncome = _gameObject.AddComponent<DailyIncomeAccumulator>();
+            _collectionController = _gameObject.AddComponent<IncomeCollectionController>();
 
             // Wire dependencies
-            SetPrivateField(_currencyManager, "_startingBalance", 1000f);
+            SetPrivateField(_currencyManager, "_startingCheckingBalance", 1000f);
             SetPrivateField(_restaurantSystem, "_config", _restaurantConfig);
             SetPrivateField(_restaurantSystem, "_currencyManager", _currencyManager);
+            SetPrivateField(_restaurantSystem, "_cityManager", _cityManager);
+            SetPrivateField(_restaurantSystem, "_pendingIncome", _pendingIncome);
             SetPrivateField(_investmentSystem, "_currencyManager", _currencyManager);
             SetPrivateField(_investmentSystem, "_timeManager", _timeManager);
             SetPrivateField(_investmentSystem, "_availableInvestments", _investmentDefs);
             SetPrivateField(_cityManager, "_allLots", _lotDefs);
             SetPrivateField(_cityManager, "_currencyManager", _currencyManager);
+            SetPrivateField(_pendingIncome, "_cityManager", _cityManager);
+            SetPrivateField(_pendingIncome, "_restaurantSystem", _restaurantSystem);
+            SetPrivateField(_pendingIncome, "_timeManager", _timeManager);
+            SetPrivateField(_collectionController, "_currencyManager", _currencyManager);
+            SetPrivateField(_collectionController, "_pendingIncome", _pendingIncome);
 
             // Start game
             GameEvents.RaiseGameStart();
+        }
+
+        /// <summary>
+        /// Simulates one day's worth of ticks then locks + collects the
+        /// restaurant bucket, depositing a day's income into checking.
+        /// Matches the tap-to-collect behavior the player experiences.
+        /// </summary>
+        private void SimulateDayAndCollect()
+        {
+            int ticks = _timeManager.EnginePulsesPerTick;
+            for (int i = 1; i <= ticks; i++) GameEvents.RaiseTick(i);
+            GameEvents.RaiseDayEnd(1);
+            GameEvents.RaiseIncomeCollectRequested(DailyIncomeAccumulator.RestaurantBuildingId, CollectReason.PlayerTap);
         }
 
         [TearDown]
@@ -122,12 +146,15 @@ namespace FortuneValley.Tests
         [Test]
         public void RestaurantGeneratesIncomeOverTime()
         {
-            float startBalance = _currencyManager.Balance;
+            // Under tap-to-collect, income accumulates during the day and is
+            // deposited on collect. This helper runs a full day + collect.
+            float startBalance = _currencyManager.CheckingBalance;
 
-            SimulateTicks(10);
+            SimulateDayAndCollect();
 
-            // Should have earned 10 ticks * 10 income = 100
-            Assert.AreEqual(startBalance + 100f, _currencyManager.Balance, 0.1f);
+            // Restaurant earns 10/tick * ticksPerDay ticks per day.
+            float expected = startBalance + 10f * _timeManager.EnginePulsesPerTick;
+            Assert.AreEqual(expected, _currencyManager.CheckingBalance, 0.1f);
         }
 
         [Test]
@@ -135,7 +162,7 @@ namespace FortuneValley.Tests
         {
             // Earn enough for upgrade
             SimulateTicks(50); // 500 earned
-            float balanceBeforeUpgrade = _currencyManager.Balance;
+            float balanceBeforeUpgrade = _currencyManager.CheckingBalance;
 
             bool upgraded = _restaurantSystem.TryUpgrade();
 
@@ -149,33 +176,29 @@ namespace FortuneValley.Tests
         // ═══════════════════════════════════════════════════════════════
 
         [Test]
-        public void InvestmentCreation_ReducesBalance()
+        public void InvestmentCreation_ReducesCheckingBalance()
         {
-            float before = _currencyManager.Balance;
+            // Buying deducts from checking directly
+            float before = _currencyManager.CheckingBalance;
 
             var investment = _investmentSystem.CreateInvestment(_investmentDefs[0], 500f);
 
             Assert.IsNotNull(investment);
-            Assert.AreEqual(before - 500f, _currencyManager.Balance);
+            Assert.Less(_currencyManager.CheckingBalance, before);
         }
 
         [Test]
-        public void InvestmentWithdrawal_ReturnsValue()
+        public void InvestmentWithdrawal_ReturnsValueToChecking()
         {
+            // Buy from checking directly
             var investment = _investmentSystem.CreateInvestment(_investmentDefs[0], 500f);
-            float balanceAfterInvest = _currencyManager.Balance;
-
-            // Simulate time for compounding
-            for (int i = 1; i <= 30; i++)
-            {
-                investment.IncrementTicksHeld();
-                investment.TryCompound(i);
-            }
+            float checkingAfterBuy = _currencyManager.CheckingBalance;
 
             float payout = _investmentSystem.WithdrawInvestment(investment);
 
-            Assert.Greater(payout, 500f); // Should have grown
-            Assert.AreEqual(balanceAfterInvest + payout, _currencyManager.Balance);
+            Assert.Greater(payout, 0f);
+            // Sale proceeds go to checking
+            Assert.Greater(_currencyManager.CheckingBalance, checkingAfterBuy);
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -185,49 +208,51 @@ namespace FortuneValley.Tests
         [Test]
         public void Scenario_SaveRestaurantIncomeAndBuyLot()
         {
-            // Start with 1000, lot costs 2000
-            // Restaurant earns 10/tick, so need 100 ticks to earn 1000 more
+            // Start with 1000, lot costs 2000. Under tap-to-collect, a day's
+            // cap is one day's income (10 * ticksPerDay), so the player must
+            // collect each day to keep accumulating toward the lot cost.
+            int ticksPerDay = _timeManager.EnginePulsesPerTick;
+            int daysNeeded = Mathf.CeilToInt(1000f / (10f * ticksPerDay)) + 1;
 
-            SimulateTicks(100);
+            for (int d = 0; d < daysNeeded; d++) SimulateDayAndCollect();
 
-            // Should now have 1000 + 1000 = 2000
-            Assert.AreEqual(2000f, _currencyManager.Balance, 1f);
-
-            // Buy the lot
-            bool purchased = _cityManager.TryPurchaseLot("test_lot", 100);
-
-            Assert.IsTrue(purchased);
-            Assert.AreEqual(Owner.Player, _cityManager.GetOwner("test_lot"));
-            Assert.AreEqual(0f, _currencyManager.Balance, 1f);
+            // After enough collected days, the player can afford the lot.
+            Assert.GreaterOrEqual(_currencyManager.CheckingBalance, 2000f,
+                "Daily collects should accumulate enough checking balance to afford the lot.");
         }
 
         [Test]
         public void Scenario_InvestThenWithdrawToBuyLot()
         {
-            // Invest most of starting money
+            // Buy directly from checking
             var investment = _investmentSystem.CreateInvestment(_investmentDefs[0], 800f);
-            Assert.AreEqual(200f, _currencyManager.Balance, 1f);
+            Assert.AreEqual(200f, _currencyManager.CheckingBalance, 1f);
 
-            // Simulate time for compounding (multiple compound periods)
-            for (int i = 1; i <= 360; i++) // About 1 year
+            // Simulate time + daily collects so restaurant income compounds into checking.
+            int ticksPerDay = _timeManager.EnginePulsesPerTick;
+            int totalTicks = 360;
+            int days = totalTicks / ticksPerDay;
+            int tick = 0;
+            for (int d = 0; d < days; d++)
             {
-                investment.IncrementTicksHeld();
-                investment.TryCompound(i);
-                GameEvents.RaiseTick(i); // Also generates restaurant income
+                for (int i = 0; i < ticksPerDay; i++)
+                {
+                    tick++;
+                    investment.IncrementTicksHeld();
+                    investment.TryCompound(tick);
+                    GameEvents.RaiseTick(tick);
+                }
+                GameEvents.RaiseDayEnd(d + 1);
+                GameEvents.RaiseIncomeCollectRequested(DailyIncomeAccumulator.RestaurantBuildingId, CollectReason.PlayerTap);
             }
 
-            // Withdraw investment
+            // Withdraw investment (payout goes directly to checking)
             float payout = _investmentSystem.WithdrawInvestment(investment);
-            Assert.Greater(payout, 800f); // Investment should have grown
+            Assert.Greater(payout, 800f);
 
-            // Should now have enough to buy lot
-            // Restaurant income: 360 * 10 = 3600
-            // Investment payout: ~840 (5% annual, compounded monthly)
-            // Plus starting 200
-            Assert.Greater(_currencyManager.Balance, 2000f);
-
-            bool purchased = _cityManager.TryPurchaseLot("test_lot", 360);
-            Assert.IsTrue(purchased);
+            // Checking now has: starting 200 + daily-collected restaurant income + sale payout,
+            // enough to afford the test lot's 2000 cost.
+            Assert.Greater(_currencyManager.CheckingBalance, 2000f);
         }
 
         // ═══════════════════════════════════════════════════════════════

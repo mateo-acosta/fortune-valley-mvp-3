@@ -42,6 +42,9 @@ namespace FortuneValley.Core
         private int _warningIssuedTick = -1;
         private Renderer _buildingRenderer;
 
+        // Cached available lots -- refreshed on ownership change, not per tick
+        private List<CityLotDefinition> _cachedAvailableLots = new List<CityLotDefinition>();
+
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
         // ═══════════════════════════════════════════════════════════════
@@ -60,6 +63,19 @@ namespace FortuneValley.Core
         /// Ticks until rival attempts next purchase.
         /// </summary>
         public int TicksUntilPurchase { get; private set; }
+
+        /// <summary>
+        /// Rival's cumulative per-tick income: base config rate + tier-scaled lot bonuses.
+        /// </summary>
+        public float TotalIncomePerTick
+        {
+            get
+            {
+                float lotBonus = _cityManager != null ? _cityManager.RivalLotIncomeBonus : 0f;
+                float baseRate = _config != null ? _config.IncomePerTick : 0f;
+                return baseRate + lotBonus;
+            }
+        }
 
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
@@ -95,10 +111,14 @@ namespace FortuneValley.Core
             _targetedLotId = null;
             _warningIssuedTick = -1;
             TicksUntilPurchase = _config.PurchaseInterval;
+            RefreshAvailableLotsCache();
         }
 
         private void HandleLotPurchased(string lotId, Owner owner)
         {
+            // Refresh cache whenever any lot changes ownership
+            RefreshAvailableLotsCache();
+
             // If the player bought the lot we were targeting, pick a new target
             if (owner == Owner.Player && lotId == _targetedLotId)
             {
@@ -118,7 +138,7 @@ namespace FortuneValley.Core
 
                     if (_logBehavior)
                     {
-                        Debug.Log($"[RivalAI] New target: {newTarget} in {TicksUntilPurchase} ticks");
+                        Debug.Log($"[RivalAI] New target: {newTarget} in {TicksUntilPurchase} ticks ({TicksUntilPurchase / 10} days)");
                     }
                 }
                 else
@@ -203,7 +223,7 @@ namespace FortuneValley.Core
 
                         if (_logBehavior)
                         {
-                            Debug.Log($"[RivalAI] Warning: Targeting {_targetedLotId} in {ticksRemaining} ticks");
+                            Debug.Log($"[RivalAI] Warning: Targeting {_targetedLotId} in {ticksRemaining} ticks ({ticksRemaining / 10} days)");
                         }
                     }
                 }
@@ -215,14 +235,45 @@ namespace FortuneValley.Core
             _lastPurchaseTick = tickNumber;
             _targetedLotId = null;
 
-            // Find a lot we can afford
+            // Branch 1: upgrade an owned lot if one is below T3 and affordable.
+            // Upgrade-before-buy gate: visible expansion arc + cash drag that
+            // keeps the rival from snowballing on cheap T1 lots.
+            string lotToUpgrade = PickLotToUpgrade(out float upgradeCost);
+            if (lotToUpgrade != null)
+            {
+                if (_cityManager.TryRivalUpgradeLot(lotToUpgrade, out float spent))
+                {
+                    _money -= spent;
+                    GameEvents.RaiseRivalBalanceChanged(_money);
+
+                    if (_logBehavior)
+                    {
+                        var upgradedLot = _cityManager.GetLot(lotToUpgrade);
+                        int newTier = _cityManager.GetTier(lotToUpgrade);
+                        Debug.Log($"[RivalAI] Upgraded {upgradedLot.DisplayName} to T{newTier} for ${spent:F0}. Remaining: ${_money:F0}");
+                    }
+                }
+                return;
+            }
+
+            // Branch 2: soft cap check before considering a buy.
+            if (_cityManager != null && _cityManager.RivalAtSoftCap)
+            {
+                if (_logBehavior)
+                {
+                    Debug.Log("[RivalAI] At MAX_RIVAL_LOTS soft cap; skipping purchase.");
+                }
+                return;
+            }
+
+            // Branch 3: buy the cheapest affordable available lot.
             string lotToBuy = PickAffordableLot();
 
             if (lotToBuy == null)
             {
                 if (_logBehavior)
                 {
-                    Debug.Log("[RivalAI] No affordable lot found, skipping purchase");
+                    Debug.Log("[RivalAI] No affordable upgrade or lot, skipping cycle");
                 }
                 return;
             }
@@ -230,12 +281,10 @@ namespace FortuneValley.Core
             var lot = _cityManager.GetLot(lotToBuy);
             float cost = lot.BaseCost;
 
-            // Spend money and purchase
             _money -= cost;
             GameEvents.RaiseRivalBalanceChanged(_money);
             _cityManager.RivalPurchaseLot(lotToBuy, tickNumber);
 
-            // Raise event for UI feedback (overlay, etc.)
             GameEvents.RaiseRivalPurchasedLot(lotToBuy);
 
             if (_logBehavior)
@@ -245,23 +294,76 @@ namespace FortuneValley.Core
         }
 
         /// <summary>
+        /// Pick the cheapest-to-upgrade rival-owned lot below T3 that we can
+        /// afford. Returns null if no rival lot needs upgrading or none are
+        /// affordable. Iterates AllLots once per decision cycle (every
+        /// _purchaseInterval ticks), not per tick.
+        /// </summary>
+        private string PickLotToUpgrade(out float cheapestCost)
+        {
+            cheapestCost = 0f;
+            string cheapestLotId = null;
+
+            if (_cityManager == null)
+            {
+                return null;
+            }
+
+            foreach (var lot in _cityManager.AllLots)
+            {
+                if (_cityManager.GetOwner(lot.LotId) != Owner.Rival)
+                {
+                    continue;
+                }
+
+                int currentTier = _cityManager.GetTier(lot.LotId);
+                if (currentTier >= 3)
+                {
+                    continue;
+                }
+
+                float costForNextTier = currentTier == 1 ? lot.Tier2UpgradeCost : lot.Tier3UpgradeCost;
+
+                if (_money < costForNextTier + _config.PurchaseBuffer)
+                {
+                    continue;
+                }
+
+                if (cheapestLotId == null || costForNextTier < cheapestCost)
+                {
+                    cheapestLotId = lot.LotId;
+                    cheapestCost = costForNextTier;
+                }
+            }
+
+            return cheapestLotId;
+        }
+
+        /// <summary>
+        /// Refresh the cached available lots list from CityManager.
+        /// Called on game start and whenever lot ownership changes.
+        /// Pre-sorted by cost so PickTargetLot/PickAffordableLot avoid per-tick allocations.
+        /// </summary>
+        private void RefreshAvailableLotsCache()
+        {
+            _cachedAvailableLots = _cityManager.GetAvailableLots();
+            _cachedAvailableLots.Sort((a, b) => a.BaseCost.CompareTo(b.BaseCost));
+        }
+
+        /// <summary>
         /// Pick which lot to target (for warnings).
         /// Strategy: Target cheapest lot we might be able to afford.
         /// </summary>
         private string PickTargetLot()
         {
-            var availableLots = _cityManager.GetAvailableLots();
-            if (availableLots.Count == 0)
+            if (_cachedAvailableLots.Count == 0)
                 return null;
-
-            // Sort by cost
-            availableLots.Sort((a, b) => a.BaseCost.CompareTo(b.BaseCost));
 
             // Return cheapest that we might afford by purchase time
             // (rough estimate: current money + income * warning ticks)
             float estimatedMoney = _money + (_config.IncomePerTick * _config.WarningTicks);
 
-            foreach (var lot in availableLots)
+            foreach (var lot in _cachedAvailableLots)
             {
                 if (lot.BaseCost <= estimatedMoney + _config.PurchaseBuffer)
                 {
@@ -270,7 +372,7 @@ namespace FortuneValley.Core
             }
 
             // If we can't afford any, target the cheapest anyway
-            return availableLots[0].LotId;
+            return _cachedAvailableLots[0].LotId;
         }
 
         /// <summary>
@@ -279,15 +381,11 @@ namespace FortuneValley.Core
         /// </summary>
         private string PickAffordableLot()
         {
-            var availableLots = _cityManager.GetAvailableLots();
-            if (availableLots.Count == 0)
+            if (_cachedAvailableLots.Count == 0)
                 return null;
 
-            // Sort by cost
-            availableLots.Sort((a, b) => a.BaseCost.CompareTo(b.BaseCost));
-
             // Find cheapest we can afford with buffer
-            foreach (var lot in availableLots)
+            foreach (var lot in _cachedAvailableLots)
             {
                 if (_money >= lot.BaseCost + _config.PurchaseBuffer)
                 {
@@ -312,7 +410,7 @@ namespace FortuneValley.Core
 
             return $"Rival Status:\n" +
                    $"• Money: ${_money:F0}\n" +
-                   $"• Next purchase in: {TicksUntilPurchase} days" +
+                   $"• Next decision in: {TicksUntilPurchase / 10} days" +
                    targetInfo;
         }
     }

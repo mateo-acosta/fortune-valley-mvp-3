@@ -43,23 +43,9 @@ namespace FortuneValley.UI.Panels
         // ═══════════════════════════════════════════════════════════════
 
         private List<LotListItem> _listItems = new List<LotListItem>();
-        private FilterMode _currentFilter = FilterMode.All;
-        private SortMode _currentSort = SortMode.Price;
+        private LotsFilterMode _currentFilter = LotsFilterMode.All;
+        private LotsSortMode _currentSort = LotsSortMode.Price;
         private int _currentTick;
-
-        private enum FilterMode
-        {
-            All,
-            Available,
-            Owned
-        }
-
-        private enum SortMode
-        {
-            Price,
-            Income,
-            Name
-        }
 
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
@@ -105,21 +91,21 @@ namespace FortuneValley.UI.Panels
             if (_showAllToggle != null)
             {
                 _showAllToggle.onValueChanged.AddListener(isOn => {
-                    if (isOn) SetFilter(FilterMode.All);
+                    if (isOn) SetFilter(LotsFilterMode.All);
                 });
             }
 
             if (_showAvailableToggle != null)
             {
                 _showAvailableToggle.onValueChanged.AddListener(isOn => {
-                    if (isOn) SetFilter(FilterMode.Available);
+                    if (isOn) SetFilter(LotsFilterMode.Available);
                 });
             }
 
             if (_showOwnedToggle != null)
             {
                 _showOwnedToggle.onValueChanged.AddListener(isOn => {
-                    if (isOn) SetFilter(FilterMode.Owned);
+                    if (isOn) SetFilter(LotsFilterMode.Owned);
                 });
             }
 
@@ -129,7 +115,7 @@ namespace FortuneValley.UI.Panels
                 _sortDropdown.ClearOptions();
                 _sortDropdown.AddOptions(new List<string> { "Price", "Income", "Name" });
                 _sortDropdown.onValueChanged.AddListener(index => {
-                    SetSort((SortMode)index);
+                    SetSort((LotsSortMode)index);
                 });
             }
         }
@@ -177,13 +163,13 @@ namespace FortuneValley.UI.Panels
         // PRIVATE METHODS
         // ═══════════════════════════════════════════════════════════════
 
-        private void SetFilter(FilterMode filter)
+        private void SetFilter(LotsFilterMode filter)
         {
             _currentFilter = filter;
             if (IsVisible) RefreshList();
         }
 
-        private void SetSort(SortMode sort)
+        private void SetSort(LotsSortMode sort)
         {
             _currentSort = sort;
             if (IsVisible) RefreshList();
@@ -200,14 +186,14 @@ namespace FortuneValley.UI.Panels
 
                 switch (_currentFilter)
                 {
-                    case FilterMode.All:
+                    case LotsFilterMode.All:
                         filtered.Add(lot);
                         break;
-                    case FilterMode.Available:
+                    case LotsFilterMode.Available:
                         if (owner == Owner.None)
                             filtered.Add(lot);
                         break;
-                    case FilterMode.Owned:
+                    case LotsFilterMode.Owned:
                         if (owner == Owner.Player)
                             filtered.Add(lot);
                         break;
@@ -221,13 +207,13 @@ namespace FortuneValley.UI.Panels
         {
             switch (_currentSort)
             {
-                case SortMode.Price:
+                case LotsSortMode.Price:
                     lots.Sort((a, b) => a.BaseCost.CompareTo(b.BaseCost));
                     break;
-                case SortMode.Income:
+                case LotsSortMode.Income:
                     lots.Sort((a, b) => b.IncomeBonus.CompareTo(a.IncomeBonus));
                     break;
-                case SortMode.Name:
+                case LotsSortMode.Name:
                     lots.Sort((a, b) => string.Compare(a.DisplayName, b.DisplayName));
                     break;
             }

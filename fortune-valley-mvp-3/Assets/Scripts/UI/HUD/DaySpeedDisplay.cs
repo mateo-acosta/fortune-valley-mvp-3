@@ -2,11 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using FortuneValley.Core;
+using FortuneValley.Domain;
 
 namespace FortuneValley.UI.HUD
 {
     /// <summary>
-    /// Displays the current day and game speed controls.
+    /// Displays the player's current age and game speed controls. The
+    /// underlying tick advances daily, but the UI label is age in years
+    /// so the player never sees the in-game day counter.
     /// </summary>
     public class DaySpeedDisplay : MonoBehaviour
     {
@@ -95,14 +98,14 @@ namespace FortuneValley.UI.HUD
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Update the day display.
+        /// Update the player's age display from the current day count.
         /// </summary>
         public void UpdateDay(int day)
         {
             _currentDay = day;
             if (_dayText != null)
             {
-                _dayText.text = $"Day {day}";
+                _dayText.text = $"Age {LifespanConstants.AgeFromTick(day)}";
             }
         }
 

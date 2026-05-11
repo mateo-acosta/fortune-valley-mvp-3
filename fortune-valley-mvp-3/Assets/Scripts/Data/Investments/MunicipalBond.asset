@@ -16,6 +16,7 @@ MonoBehaviour:
   _description: Bonds issued by local governments. Very safe with tax advantages.
     Lower returns but nearly guaranteed income.
   _category: 2
+  _industry: 0
   _riskLevel: 0
   _annualReturnRate: 0.035
   _volatilityRange: {x: 0.97, y: 1.03}
@@ -23,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 50
   _basePricePerShare: 100
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

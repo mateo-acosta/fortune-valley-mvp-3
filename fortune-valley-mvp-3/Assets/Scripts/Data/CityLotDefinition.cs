@@ -38,6 +38,15 @@ namespace FortuneValley.Core
         [Tooltip("Bonus income per tick if player owns this lot (passive benefit)")]
         [SerializeField] private float _incomeBonus = 5f;
 
+        [Tooltip("Cost to upgrade from Tier 1 to Tier 2")]
+        [SerializeField] private float _tier2UpgradeCost = 5000f;
+
+        [Tooltip("Cost to upgrade from Tier 2 to Tier 3")]
+        [SerializeField] private float _tier3UpgradeCost = 15000f;
+
+        [Tooltip("Multiplier applied to BaseCost when the player buys this lot out from the rival")]
+        [SerializeField] private float _rivalBuyoutMultiplier = 3f;
+
         // ═══════════════════════════════════════════════════════════════
         // VISUAL PLACEMENT (for Editor wiring)
         // ═══════════════════════════════════════════════════════════════
@@ -55,6 +64,22 @@ namespace FortuneValley.Core
         public string Description => _description;
         public float BaseCost => _baseCost;
         public float IncomeBonus => _incomeBonus;
+
+        private const float TierOneIncomeMultiplier = 0.5f;
+        private const float TierTwoIncomeMultiplier = 1f;
+        private const float TierThreeIncomeMultiplier = 2f;
+
+        // Per-tick income scaled by tier. _incomeBonus is treated as the T2 baseline.
+        public float GetIncomeAtTier(int tier)
+        {
+            if (tier == 1) return _incomeBonus * TierOneIncomeMultiplier;
+            if (tier == 2) return _incomeBonus * TierTwoIncomeMultiplier;
+            if (tier == 3) return _incomeBonus * TierThreeIncomeMultiplier;
+            return 0f;
+        }
+        public float Tier2UpgradeCost => _tier2UpgradeCost;
+        public float Tier3UpgradeCost => _tier3UpgradeCost;
+        public float RivalBuyoutMultiplier => _rivalBuyoutMultiplier;
         public Vector2Int GridPosition => _gridPosition;
 
         // ═══════════════════════════════════════════════════════════════

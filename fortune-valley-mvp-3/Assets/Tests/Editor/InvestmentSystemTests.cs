@@ -43,9 +43,13 @@ namespace FortuneValley.Tests
             var list = new System.Collections.Generic.List<InvestmentDefinition> { _stockDef };
             SetField(_system, "_availableInvestments", list);
 
-            // Set balance directly (avoid relying on event chain)
-            SetField(_currency, "_balance", 10000f);
-            SetField(_currency, "_startingBalance", 10000f);
+            // Set balance directly (avoid relying on event chain). Investment
+            // buys deduct from checking via TrySpendChecking; the InvestingBalance
+            // is now a computed property over InvestmentSystem.TotalPortfolioValue,
+            // so the legacy _investingBalance / _startingInvestingBalance backing
+            // fields no longer exist on CurrencyManager and don't need seeding.
+            SetField(_currency, "_checkingBalance", 10000f);
+            SetField(_currency, "_startingCheckingBalance", 10000f);
         }
 
         [TearDown]
@@ -293,6 +297,56 @@ namespace FortuneValley.Tests
 
             Assert.AreEqual(0, _system.SellHistory.Count, "SellHistory should be empty after game restart");
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // INTENT EVENT HANDLER TESTS
+        // ═══════════════════════════════════════════════════════════════
+
+        [Test]
+        public void RaiseBuySharesRequested_BuysShares()
+        {
+            GameEvents.ClearAllSubscriptions();
+            // Use reflection instead of SendMessage to avoid ShouldRunBehaviour assertion
+            var onEnable = typeof(InvestmentSystem).GetMethod("OnEnable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnable.Invoke(_system, null);
+
+            int countBefore = _system.ActiveInvestments.Count;
+            GameEvents.RaiseBuySharesRequested(_stockDef, 3);
+
+            Assert.AreEqual(countBefore + 1, _system.ActiveInvestments.Count,
+                "InvestmentSystem should buy shares when OnBuySharesRequested fires");
+
+            var onDisable = typeof(InvestmentSystem).GetMethod("OnDisable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onDisable.Invoke(_system, null);
+        }
+
+        [Test]
+        public void RaiseSellSharesRequested_SellsShares()
+        {
+            // Buy first so we have something to sell
+            var inv = _system.BuyShares(_stockDef, 5);
+            Assert.IsNotNull(inv, "BuyShares returned null");
+
+            GameEvents.ClearAllSubscriptions();
+            var onEnable = typeof(InvestmentSystem).GetMethod("OnEnable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onEnable.Invoke(_system, null);
+
+            GameEvents.RaiseSellSharesRequested(inv, 2);
+
+            Assert.AreEqual(3, inv.NumberOfShares,
+                "InvestmentSystem should sell shares when OnSellSharesRequested fires");
+
+            var onDisable = typeof(InvestmentSystem).GetMethod("OnDisable",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onDisable.Invoke(_system, null);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SELL TRANSACTION HISTORY TESTS (continued)
+        // ═══════════════════════════════════════════════════════════════
 
         [Test]
         public void SellTransactionRecord_ZeroCostBasis_PercentageReturnIsZero()

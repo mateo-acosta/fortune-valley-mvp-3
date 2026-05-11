@@ -56,12 +56,53 @@ namespace FortuneValley.UI.HUD
         // LIFECYCLE
         // ═══════════════════════════════════════════════════════════════
 
+        private void OnEnable()
+        {
+            // Self-subscribe to the correct balance event based on account type.
+            // Each AccountDisplay instance is responsible for its own updates.
+            switch (_accountType)
+            {
+                case AccountType.Checking:
+                    GameEvents.OnCheckingBalanceChanged += HandleBalanceChanged;
+                    break;
+                case AccountType.Investing:
+                    GameEvents.OnInvestingBalanceChanged += HandleBalanceChanged;
+                    break;
+                case AccountType.CreditCard:
+                    if (FeatureFlags.CreditCardChargesEnabled)
+                        GameEvents.OnCreditCardBalanceChanged += HandleBalanceChanged;
+                    break;
+            }
+        }
+
+        private void OnDisable()
+        {
+            switch (_accountType)
+            {
+                case AccountType.Checking:
+                    GameEvents.OnCheckingBalanceChanged -= HandleBalanceChanged;
+                    break;
+                case AccountType.Investing:
+                    GameEvents.OnInvestingBalanceChanged -= HandleBalanceChanged;
+                    break;
+                case AccountType.CreditCard:
+                    if (FeatureFlags.CreditCardChargesEnabled)
+                        GameEvents.OnCreditCardBalanceChanged -= HandleBalanceChanged;
+                    break;
+            }
+        }
+
+        private void HandleBalanceChanged(float balance, float delta)
+        {
+            UpdateBalance(balance, delta);
+        }
+
         private void Start()
         {
-            // Set label based on account type (unless overridden)
-            if (_labelText != null && string.IsNullOrEmpty(_customLabel))
+            // Label is intentionally hidden: HUD shows balance only.
+            if (_labelText != null)
             {
-                _labelText.text = _accountType == AccountType.Checking ? "Checking" : "Investing";
+                _labelText.gameObject.SetActive(false);
             }
 
             // Hide delta initially
@@ -147,7 +188,6 @@ namespace FortuneValley.UI.HUD
         {
             _currentBalance = newBalance;
 
-            // Update balance text
             if (_balanceText != null)
             {
                 _balanceText.text = FormatCurrency(newBalance);
@@ -192,7 +232,7 @@ namespace FortuneValley.UI.HUD
             _deltaTimer = _deltaDisplayDuration;
         }
 
-        private string FormatCurrency(float amount)
+private string FormatCurrency(float amount)
         {
             if (Mathf.Abs(amount) >= 1000)
             {

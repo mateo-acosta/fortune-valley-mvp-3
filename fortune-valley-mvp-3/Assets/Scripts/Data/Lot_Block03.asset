@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcb0a45f9abd14fd1875d02deaa05010, type: 3}
+  m_Name: Lot_Block03
+  m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.CityLotDefinition
+  _lotId: lot_block03
+  _displayName: Block 3
+  _description: "A cozy cafe spot in a charming neighborhood \u2014 solid income for the price."
+  _baseCost: 35000
+  _incomeBonus: 25
+  _gridPosition: {x: 0, y: 0}

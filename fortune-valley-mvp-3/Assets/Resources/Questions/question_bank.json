@@ -1,0 +1,4554 @@
+{
+  "questions": [
+    {
+      "id": "inv_001",
+      "category": "Investing",
+      "prompt": "Investing means:",
+      "choices": [
+        "Putting money to work in assets that you expect will grow in value or pay income",
+        "Hiding cash where no one can find it",
+        "Borrowing money from friends",
+        "Buying things that lose value the moment you own them"
+      ],
+      "correctIndex": 0,
+      "explanation": "Investing puts your money into things that produce more money over time, instead of staying idle."
+    },
+    {
+      "id": "inv_002",
+      "category": "Investing",
+      "prompt": "The relationship between risk and expected return is generally:",
+      "choices": [
+        "Risk and return are unrelated",
+        "Higher expected return usually requires accepting higher risk",
+        "Lower risk always pays a higher return",
+        "Risk-free investments outperform stocks long term"
+      ],
+      "correctIndex": 1,
+      "explanation": "Investors only accept extra risk when they expect extra reward, but the reward is not guaranteed."
+    },
+    {
+      "id": "inv_003",
+      "category": "Investing",
+      "prompt": "Saving and investing differ mainly in that:",
+      "choices": [
+        "Investing has no risk",
+        "Saving always earns more than investing",
+        "Saving aims to preserve money for the short term; investing aims to grow it over the long term",
+        "Saving is illegal for adults"
+      ],
+      "correctIndex": 2,
+      "explanation": "Use savings for money you might need soon. Invest money you can leave alone for years."
+    },
+    {
+      "id": "inv_004",
+      "category": "Investing",
+      "prompt": "If something promises 'guaranteed 30% returns with no risk,' it is most likely:",
+      "choices": [
+        "A savings account",
+        "A normal bond",
+        "An index fund",
+        "A scam"
+      ],
+      "correctIndex": 3,
+      "explanation": "Real markets do not pay high returns without risk. Guaranteed high returns are a classic fraud signal."
+    },
+    {
+      "id": "inv_005",
+      "category": "Investing",
+      "prompt": "An asset is:",
+      "choices": [
+        "Something you own that has economic value",
+        "Money you owe to someone else",
+        "A type of bill",
+        "A government tax"
+      ],
+      "correctIndex": 0,
+      "explanation": "Stocks, bonds, real estate, and cash are all assets. Liabilities are the opposite."
+    },
+    {
+      "id": "inv_006",
+      "category": "Investing",
+      "prompt": "A liability is:",
+      "choices": [
+        "Something you own that grows in value",
+        "Something you owe, like a loan or unpaid bill",
+        "A government bond",
+        "A type of insurance policy"
+      ],
+      "correctIndex": 1,
+      "explanation": "Liabilities reduce your net worth. Loans, credit card balances, and unpaid bills are all liabilities."
+    },
+    {
+      "id": "inv_007",
+      "category": "Investing",
+      "prompt": "Compound interest is:",
+      "choices": [
+        "A bank fee",
+        "Interest paid only on the original amount",
+        "Interest earned on both your principal and on the interest you have already earned",
+        "A type of tax"
+      ],
+      "correctIndex": 2,
+      "explanation": "Compound interest grows faster than simple interest because past interest also earns interest."
+    },
+    {
+      "id": "inv_008",
+      "category": "Investing",
+      "prompt": "If you invest $100 at 10% compounded annually, after two years you have approximately:",
+      "choices": [
+        "$200",
+        "$120",
+        "$110",
+        "$121"
+      ],
+      "correctIndex": 3,
+      "explanation": "Year 1: $110. Year 2: $110 + 10% = $121. The extra $1 over simple interest is from compounding."
+    },
+    {
+      "id": "inv_009",
+      "category": "Investing",
+      "prompt": "The Rule of 72 estimates:",
+      "choices": [
+        "About how many years it takes for money to double at a given annual rate",
+        "How much tax you owe each year",
+        "The minimum credit score for a loan",
+        "How much insurance to buy"
+      ],
+      "correctIndex": 0,
+      "explanation": "Divide 72 by the annual return. At 8%, money doubles in roughly 9 years."
+    },
+    {
+      "id": "inv_010",
+      "category": "Investing",
+      "prompt": "At a 6% annual return, the Rule of 72 says money doubles in about:",
+      "choices": [
+        "6 years",
+        "12 years",
+        "60 years",
+        "100 years"
+      ],
+      "correctIndex": 1,
+      "explanation": "72 / 6 = 12. The Rule of 72 is a quick mental shortcut, not a precise formula."
+    },
+    {
+      "id": "inv_011",
+      "category": "Investing",
+      "prompt": "Why does starting to invest 10 years earlier matter so much?",
+      "choices": [
+        "Brokers waive fees for teens",
+        "Younger investors get higher interest rates",
+        "Those early years compound on top of every later year of growth",
+        "Older investors are not allowed to invest"
+      ],
+      "correctIndex": 2,
+      "explanation": "Time is the most powerful ingredient in compounding. Early dollars grow the longest."
+    },
+    {
+      "id": "inv_012",
+      "category": "Investing",
+      "prompt": "The 'time value of money' principle says:",
+      "choices": [
+        "Money has no time component",
+        "A future dollar is always worth more than a today dollar",
+        "Money loses value only when you spend it",
+        "A dollar today is worth more than a dollar in the future, because today's dollar can be invested"
+      ],
+      "correctIndex": 3,
+      "explanation": "A dollar in your hand can earn interest. A future dollar cannot earn interest until it arrives."
+    },
+    {
+      "id": "inv_013",
+      "category": "Investing",
+      "prompt": "If two students invest the same $1,000 but one starts at age 18 and the other at 28, the early starter usually ends up:",
+      "choices": [
+        "With significantly more money at retirement, even with no extra deposits",
+        "With about the same amount",
+        "With less, because newer investors get better rates",
+        "With nothing at all"
+      ],
+      "correctIndex": 0,
+      "explanation": "Ten extra years of compounding can outpace much larger deposits made later."
+    },
+    {
+      "id": "inv_014",
+      "category": "Investing",
+      "prompt": "Simple interest is:",
+      "choices": [
+        "Interest paid on principal and prior interest",
+        "Interest paid only on the original principal",
+        "Interest that grows exponentially",
+        "A government program"
+      ],
+      "correctIndex": 1,
+      "explanation": "Simple interest stays linear. Compound interest accelerates because past interest also earns interest."
+    },
+    {
+      "id": "inv_015",
+      "category": "Investing",
+      "prompt": "If a savings account pays 4% per year, $1,000 left there for 1 year earns:",
+      "choices": [
+        "$400",
+        "$4",
+        "$40",
+        "$1,040"
+      ],
+      "correctIndex": 2,
+      "explanation": "Interest = principal x rate = $1,000 x 0.04 = $40. After a year you have $1,040 total."
+    },
+    {
+      "id": "inv_016",
+      "category": "Investing",
+      "prompt": "Compounding works against you when:",
+      "choices": [
+        "You earn dividends",
+        "You invest in an index fund",
+        "You leave money in a CD",
+        "You carry credit card debt at high interest"
+      ],
+      "correctIndex": 3,
+      "explanation": "Unpaid credit card interest compounds in the issuer's favor, ballooning what you owe."
+    },
+    {
+      "id": "inv_017",
+      "category": "Investing",
+      "prompt": "Owning a share of stock means you:",
+      "choices": [
+        "Own a small piece of the company",
+        "Have lent money to the company",
+        "Are an employee of the company",
+        "Have insured the company"
+      ],
+      "correctIndex": 0,
+      "explanation": "Stockholders are partial owners and benefit when the company grows."
+    },
+    {
+      "id": "inv_018",
+      "category": "Investing",
+      "prompt": "A bond is:",
+      "choices": [
+        "A share of ownership in a company",
+        "A loan you make to a company or government in exchange for interest",
+        "An insurance policy",
+        "A type of credit card"
+      ],
+      "correctIndex": 1,
+      "explanation": "Bondholders are lenders. They receive interest and the principal back at maturity."
+    },
+    {
+      "id": "inv_019",
+      "category": "Investing",
+      "prompt": "An ETF (exchange-traded fund) is:",
+      "choices": [
+        "A government bond only",
+        "A type of insurance",
+        "A basket of investments traded on an exchange like a stock",
+        "A cryptocurrency"
+      ],
+      "correctIndex": 2,
+      "explanation": "ETFs let you buy a diversified pool of assets in one trade, often at very low cost."
+    },
+    {
+      "id": "inv_020",
+      "category": "Investing",
+      "prompt": "A mutual fund typically:",
+      "choices": [
+        "Pays no fees ever",
+        "Is a single individual stock",
+        "Is a type of credit card",
+        "Pools money from many investors and is managed as one portfolio"
+      ],
+      "correctIndex": 3,
+      "explanation": "Mutual funds give small investors instant diversification. Some are actively managed; some track an index."
+    },
+    {
+      "id": "inv_021",
+      "category": "Investing",
+      "prompt": "A Treasury bill (T-bill) is:",
+      "choices": [
+        "A short-term loan to the U.S. government",
+        "A share of stock",
+        "A real estate contract",
+        "A type of mutual fund"
+      ],
+      "correctIndex": 0,
+      "explanation": "T-bills mature in a year or less and are considered very low risk because the U.S. government backs them."
+    },
+    {
+      "id": "inv_022",
+      "category": "Investing",
+      "prompt": "A certificate of deposit (CD) is:",
+      "choices": [
+        "A type of stock",
+        "A savings product that locks your money up for a set term in exchange for higher interest",
+        "A government bond",
+        "A health insurance plan"
+      ],
+      "correctIndex": 1,
+      "explanation": "CDs trade liquidity for a slightly better rate than a regular savings account."
+    },
+    {
+      "id": "inv_023",
+      "category": "Investing",
+      "prompt": "Stocks generally have which return profile compared to bonds, over the long run?",
+      "choices": [
+        "Identical returns to bonds",
+        "Lower returns and less volatility",
+        "Higher average returns but more volatility",
+        "Guaranteed losses"
+      ],
+      "correctIndex": 2,
+      "explanation": "Stocks bounce around more day to day, but historically out-earn bonds across decades."
+    },
+    {
+      "id": "inv_024",
+      "category": "Investing",
+      "prompt": "Cryptocurrency is best described as:",
+      "choices": [
+        "A type of bond",
+        "A guaranteed savings vehicle",
+        "Always insured by the government",
+        "A high-volatility asset whose value depends on supply, demand, and confidence"
+      ],
+      "correctIndex": 3,
+      "explanation": "Crypto can swing wildly. Treat it as speculative, not as savings."
+    },
+    {
+      "id": "inv_025",
+      "category": "Investing",
+      "prompt": "An index fund:",
+      "choices": [
+        "Tracks a broad market index like the S&P 500 at low cost",
+        "Is hand-picked to beat the market",
+        "Is a type of insurance",
+        "Pays no returns"
+      ],
+      "correctIndex": 0,
+      "explanation": "Index funds win on cost and diversification. They are a common default for long-term investors."
+    },
+    {
+      "id": "inv_026",
+      "category": "Investing",
+      "prompt": "Real estate as an investment can earn money through:",
+      "choices": [
+        "Only government subsidies",
+        "Rent income and property appreciation",
+        "Only short-term flips",
+        "Only foreign currency conversion"
+      ],
+      "correctIndex": 1,
+      "explanation": "Real estate investors typically earn from a mix of rent (cash flow) and rising property value."
+    },
+    {
+      "id": "inv_027",
+      "category": "Investing",
+      "prompt": "Diversification means:",
+      "choices": [
+        "Investing only in one industry",
+        "Putting everything into one hot stock",
+        "Spreading your money across different investments to reduce risk",
+        "Avoiding investing entirely"
+      ],
+      "correctIndex": 2,
+      "explanation": "If one investment drops, others may hold up, smoothing your overall result."
+    },
+    {
+      "id": "inv_028",
+      "category": "Investing",
+      "prompt": "A portfolio with 95% in one stock is:",
+      "choices": [
+        "Risk free",
+        "Well diversified",
+        "Guaranteed to outperform",
+        "Concentrated and high risk"
+      ],
+      "correctIndex": 3,
+      "explanation": "A single stock failure can wipe out most of your portfolio. Concentration cuts both ways."
+    },
+    {
+      "id": "inv_029",
+      "category": "Investing",
+      "prompt": "Diversification works because different assets:",
+      "choices": [
+        "Often do not move in the same direction at the same time",
+        "Always move together",
+        "Are illegal to combine",
+        "All have identical returns"
+      ],
+      "correctIndex": 0,
+      "explanation": "When stocks fall, bonds may hold steady. Mixing assets dampens swings."
+    },
+    {
+      "id": "inv_030",
+      "category": "Investing",
+      "prompt": "An investor who only buys airline stocks is exposed to:",
+      "choices": [
+        "Only inflation risk",
+        "Industry-specific risk",
+        "No risk at all",
+        "Pure market risk only"
+      ],
+      "correctIndex": 1,
+      "explanation": "If fuel spikes or travel slumps, the whole portfolio drops together."
+    },
+    {
+      "id": "inv_031",
+      "category": "Investing",
+      "prompt": "Diversification CANNOT eliminate:",
+      "choices": [
+        "Industry-specific risk",
+        "Single-company risk",
+        "Market-wide risk that affects all stocks",
+        "Geographic risk"
+      ],
+      "correctIndex": 2,
+      "explanation": "Even a fully diversified portfolio falls in a broad market crash. That residual risk is unavoidable."
+    },
+    {
+      "id": "inv_032",
+      "category": "Investing",
+      "prompt": "Adding international investments to a U.S. portfolio is mainly a way to:",
+      "choices": [
+        "Reduce returns to zero",
+        "Increase concentration",
+        "Eliminate all risk",
+        "Diversify across economies and currencies"
+      ],
+      "correctIndex": 3,
+      "explanation": "Different countries face different cycles, which can smooth your overall portfolio."
+    },
+    {
+      "id": "inv_033",
+      "category": "Investing",
+      "prompt": "Market risk refers to:",
+      "choices": [
+        "The chance that broad markets fall and pull most assets down with them",
+        "The risk that one company goes bankrupt",
+        "The chance you forget your password",
+        "The risk of not having insurance"
+      ],
+      "correctIndex": 0,
+      "explanation": "Market risk hits diversified and concentrated portfolios alike."
+    },
+    {
+      "id": "inv_034",
+      "category": "Investing",
+      "prompt": "Inflation risk is the danger that:",
+      "choices": [
+        "Prices fall and your money buys more",
+        "Your money buys less in the future even if its dollar value stays the same",
+        "Your bank goes out of business",
+        "You owe more taxes"
+      ],
+      "correctIndex": 1,
+      "explanation": "Cash under the mattress loses purchasing power over time even if the number stays the same."
+    },
+    {
+      "id": "inv_035",
+      "category": "Investing",
+      "prompt": "Liquidity risk is the chance that:",
+      "choices": [
+        "Markets only go up",
+        "An investment pays dividends",
+        "You cannot sell an asset quickly without taking a big price cut",
+        "You earn too much interest"
+      ],
+      "correctIndex": 2,
+      "explanation": "Real estate is a classic example. It can take months to sell at a fair price."
+    },
+    {
+      "id": "inv_036",
+      "category": "Investing",
+      "prompt": "Concentration risk is when:",
+      "choices": [
+        "You only invest internationally",
+        "You diversify across many assets",
+        "You only own bonds",
+        "Most of your money sits in one investment or sector"
+      ],
+      "correctIndex": 3,
+      "explanation": "Concentration amplifies both gains and losses. A single bad outcome dominates the portfolio."
+    },
+    {
+      "id": "inv_037",
+      "category": "Investing",
+      "prompt": "Sequence-of-returns risk most affects:",
+      "choices": [
+        "Retirees withdrawing during a downturn early in retirement",
+        "Teenagers starting their first investment",
+        "Lottery winners",
+        "Bond issuers"
+      ],
+      "correctIndex": 0,
+      "explanation": "Bad early-retirement returns plus withdrawals can permanently shrink the portfolio."
+    },
+    {
+      "id": "inv_038",
+      "category": "Investing",
+      "prompt": "Volatility refers to:",
+      "choices": [
+        "How much an asset costs to buy",
+        "How much an asset's price swings up and down",
+        "How many shares are issued",
+        "The annual dividend"
+      ],
+      "correctIndex": 1,
+      "explanation": "More volatile assets have wider swings. They can be uncomfortable to hold even if they perform well long term."
+    },
+    {
+      "id": "inv_039",
+      "category": "Investing",
+      "prompt": "Holding only U.S. tech stocks exposes you to:",
+      "choices": [
+        "No risk at all",
+        "Only inflation risk",
+        "Both market and industry concentration risk",
+        "Pure currency risk"
+      ],
+      "correctIndex": 2,
+      "explanation": "If tech sells off, the entire portfolio falls together."
+    },
+    {
+      "id": "inv_040",
+      "category": "Investing",
+      "prompt": "Cash held under the mattress for 30 years primarily faces:",
+      "choices": [
+        "Interest rate risk only",
+        "Stock market risk",
+        "Currency hedging risk",
+        "Inflation risk eroding its real value"
+      ],
+      "correctIndex": 3,
+      "explanation": "Even at modest inflation, cash loses meaningful purchasing power across decades."
+    },
+    {
+      "id": "inv_041",
+      "category": "Investing",
+      "prompt": "A dividend is:",
+      "choices": [
+        "A portion of a company's profits paid out to shareholders",
+        "A fee charged by a broker",
+        "A government bond",
+        "A loan to a company"
+      ],
+      "correctIndex": 0,
+      "explanation": "Some companies share profits with shareholders through cash dividends."
+    },
+    {
+      "id": "inv_042",
+      "category": "Investing",
+      "prompt": "A capital gain occurs when:",
+      "choices": [
+        "You receive a dividend",
+        "You sell an investment for more than you paid for it",
+        "You buy an insurance policy",
+        "You take out a loan"
+      ],
+      "correctIndex": 1,
+      "explanation": "Until you sell, gains are 'unrealized.' The IRS taxes realized gains."
+    },
+    {
+      "id": "inv_043",
+      "category": "Investing",
+      "prompt": "If you buy a stock at $50 and sell at $60, your percent return is:",
+      "choices": [
+        "60%",
+        "10%",
+        "20%",
+        "12%"
+      ],
+      "correctIndex": 2,
+      "explanation": "Gain $10 on $50 = 10/50 = 20%."
+    },
+    {
+      "id": "inv_044",
+      "category": "Investing",
+      "prompt": "100 basis points equals:",
+      "choices": [
+        "100%",
+        "0.01%",
+        "10%",
+        "1.00%"
+      ],
+      "correctIndex": 3,
+      "explanation": "A basis point is 1/100th of a percent. 25 basis points = 0.25%."
+    },
+    {
+      "id": "inv_045",
+      "category": "Investing",
+      "prompt": "Total return on a stock includes:",
+      "choices": [
+        "Both price changes and dividends",
+        "Only the price change",
+        "Only dividends",
+        "Only fees"
+      ],
+      "correctIndex": 0,
+      "explanation": "A stock that pays dividends can deliver positive total return even if the price is flat."
+    },
+    {
+      "id": "inv_046",
+      "category": "Investing",
+      "prompt": "Realized vs. unrealized gain: a realized gain is:",
+      "choices": [
+        "Any paper gain you currently have",
+        "A gain that exists only after you sell the asset",
+        "A type of insurance payout",
+        "A tax-free bonus"
+      ],
+      "correctIndex": 1,
+      "explanation": "Paper gains can disappear before you sell. Realized gains lock in the profit and trigger any tax owed."
+    },
+    {
+      "id": "inv_047",
+      "category": "Investing",
+      "prompt": "Dollar-cost averaging is:",
+      "choices": [
+        "Buying only when prices crash",
+        "Trying to time the market peak",
+        "Investing a fixed amount on a regular schedule regardless of price",
+        "A type of margin trading"
+      ],
+      "correctIndex": 2,
+      "explanation": "Regular contributions buy more shares when prices are low and fewer when high, reducing timing risk."
+    },
+    {
+      "id": "inv_048",
+      "category": "Investing",
+      "prompt": "Market timing is:",
+      "choices": [
+        "Reading dividend reports",
+        "Investing the same amount every month",
+        "Holding for the long term",
+        "Trying to buy at lows and sell at highs predictably"
+      ],
+      "correctIndex": 3,
+      "explanation": "Consistent market timing is extremely hard. Most investors who try underperform a steady plan."
+    },
+    {
+      "id": "inv_049",
+      "category": "Investing",
+      "prompt": "A long time horizon usually allows an investor to:",
+      "choices": [
+        "Take more risk because they have time to recover from downturns",
+        "Take less risk because losses become permanent",
+        "Avoid all stocks",
+        "Invest only in short-term cash"
+      ],
+      "correctIndex": 0,
+      "explanation": "More time means more chances to ride out a bad year and let compounding do its work."
+    },
+    {
+      "id": "inv_050",
+      "category": "Investing",
+      "prompt": "Why is selling everything in a market crash often a costly choice?",
+      "choices": [
+        "It always saves money in taxes",
+        "You lock in losses and miss the rebound",
+        "It eliminates inflation risk",
+        "Markets never recover"
+      ],
+      "correctIndex": 1,
+      "explanation": "Markets historically recover from downturns. Selling at the bottom converts a temporary loss into a permanent one."
+    },
+    {
+      "id": "inv_051",
+      "category": "Investing",
+      "prompt": "A common saying among long-term investors is:",
+      "choices": [
+        "Pick one stock and never sell",
+        "Trade more, earn more",
+        "Time in the market beats timing the market",
+        "Borrow to buy stocks always"
+      ],
+      "correctIndex": 2,
+      "explanation": "Steady, long-term participation tends to beat clever-sounding short-term plays."
+    },
+    {
+      "id": "inv_052",
+      "category": "Investing",
+      "prompt": "Holding period for 'long-term capital gains' tax treatment in the U.S. is generally:",
+      "choices": [
+        "Less than one month",
+        "More than one week",
+        "More than ten years",
+        "More than one year"
+      ],
+      "correctIndex": 3,
+      "explanation": "Long-term gains are taxed at lower rates than short-term gains in most cases."
+    },
+    {
+      "id": "inv_053",
+      "category": "Investing",
+      "prompt": "FOMO investing means:",
+      "choices": [
+        "Buying because everyone else seems to be making money on it",
+        "Carefully reviewing fundamentals",
+        "Holding bonds for 30 years",
+        "Refusing to invest at all"
+      ],
+      "correctIndex": 0,
+      "explanation": "Fear-of-missing-out usually shows up near peaks, right before a correction."
+    },
+    {
+      "id": "inv_054",
+      "category": "Investing",
+      "prompt": "Panic selling typically:",
+      "choices": [
+        "Always saves an investor money",
+        "Locks in losses at the worst possible time",
+        "Eliminates risk",
+        "Is required by law"
+      ],
+      "correctIndex": 1,
+      "explanation": "Selling during a crash converts temporary drops into permanent losses."
+    },
+    {
+      "id": "inv_055",
+      "category": "Investing",
+      "prompt": "Herd behavior in markets means:",
+      "choices": [
+        "Buying only government bonds",
+        "Studying historical data carefully",
+        "Investors copying others rather than thinking independently",
+        "Staying out of the market entirely"
+      ],
+      "correctIndex": 2,
+      "explanation": "Crowds amplify both bubbles and crashes. Independent thought is part of an investor's edge."
+    },
+    {
+      "id": "inv_056",
+      "category": "Investing",
+      "prompt": "Confirmation bias in investing is when you:",
+      "choices": [
+        "Only buy bonds",
+        "Read research from many sides before deciding",
+        "Sell based on a coin flip",
+        "Only seek out information that supports an opinion you already hold"
+      ],
+      "correctIndex": 3,
+      "explanation": "Confirmation bias keeps people in losing positions long after the facts have changed."
+    },
+    {
+      "id": "inv_057",
+      "category": "Investing",
+      "prompt": "Overconfidence often causes investors to:",
+      "choices": [
+        "Trade too often and underperform",
+        "Stick to a long-term plan",
+        "Diversify more carefully",
+        "Avoid all risk"
+      ],
+      "correctIndex": 0,
+      "explanation": "Studies show frequent traders typically lag buy-and-hold investors after fees."
+    },
+    {
+      "id": "inv_058",
+      "category": "Investing",
+      "prompt": "Loss aversion describes the tendency to:",
+      "choices": [
+        "Enjoy losses more than gains",
+        "Feel losses more strongly than equivalent gains",
+        "Treat gains and losses identically",
+        "Refuse to sell at a profit"
+      ],
+      "correctIndex": 1,
+      "explanation": "A $100 loss usually hurts more than a $100 gain pleases. Awareness helps you act rationally."
+    },
+    {
+      "id": "inv_059",
+      "category": "Investing",
+      "prompt": "Inflation generally means:",
+      "choices": [
+        "Money becomes worth more",
+        "Prices fall across the economy",
+        "Prices rise across the economy over time",
+        "Wages always rise faster than prices"
+      ],
+      "correctIndex": 2,
+      "explanation": "At 3% inflation, $100 today buys what about $97 will buy next year."
+    },
+    {
+      "id": "inv_060",
+      "category": "Investing",
+      "prompt": "Purchasing power is:",
+      "choices": [
+        "Your annual salary",
+        "How many shares you own",
+        "Your credit limit",
+        "What your money can actually buy in goods and services"
+      ],
+      "correctIndex": 3,
+      "explanation": "If prices rise faster than your savings grow, your purchasing power falls."
+    },
+    {
+      "id": "inv_061",
+      "category": "Investing",
+      "prompt": "An investment must beat inflation in the long run to:",
+      "choices": [
+        "Preserve real purchasing power",
+        "Avoid taxes",
+        "Qualify as insurance",
+        "Become a bond"
+      ],
+      "correctIndex": 0,
+      "explanation": "If inflation is 3% and you earn 2%, you are losing real ground each year."
+    },
+    {
+      "id": "inv_062",
+      "category": "Investing",
+      "prompt": "A nominal return of 5% with 3% inflation produces a real return of about:",
+      "choices": [
+        "8%",
+        "2%",
+        "5%",
+        "0%"
+      ],
+      "correctIndex": 1,
+      "explanation": "Real return ~ nominal return - inflation. The real return is what really grows your purchasing power."
+    },
+    {
+      "id": "inv_063",
+      "category": "Investing",
+      "prompt": "An actively managed fund:",
+      "choices": [
+        "Is the same as a savings account",
+        "Always tracks an index",
+        "Tries to beat the market through stock picks, usually at higher cost",
+        "Pays no manager"
+      ],
+      "correctIndex": 2,
+      "explanation": "Most active funds underperform low-cost index funds after fees, though some do beat the market."
+    },
+    {
+      "id": "inv_064",
+      "category": "Investing",
+      "prompt": "Expense ratio measures:",
+      "choices": [
+        "How much insurance the fund carries",
+        "The total dividends paid",
+        "The fund's interest rate",
+        "The yearly cost of owning a fund as a percentage of assets"
+      ],
+      "correctIndex": 3,
+      "explanation": "A 0.05% expense ratio is cheap; 1.5% is expensive. Costs compound just like returns."
+    },
+    {
+      "id": "inv_065",
+      "category": "Investing",
+      "prompt": "Most professional active managers, over long periods, tend to:",
+      "choices": [
+        "Underperform a low-cost index fund after fees",
+        "Always beat the market",
+        "Outperform by 50% per year",
+        "Never charge any fees"
+      ],
+      "correctIndex": 0,
+      "explanation": "Beating the market consistently is hard, especially after the costs of trying to beat it."
+    },
+    {
+      "id": "inv_066",
+      "category": "Investing",
+      "prompt": "An index fund's main edge over most active funds is:",
+      "choices": [
+        "Higher fees",
+        "Low cost and broad diversification",
+        "Better insurance coverage",
+        "Government tax exemption"
+      ],
+      "correctIndex": 1,
+      "explanation": "Lower cost, kept up over decades, is a major advantage."
+    },
+    {
+      "id": "inv_067",
+      "category": "Investing",
+      "prompt": "You have $1,500 in checking. You can buy a city lot now or invest the cash. The cost of NOT investing it is:",
+      "choices": [
+        "The lot's purchase price",
+        "Always zero",
+        "The investment growth you give up while the money sits idle",
+        "Your credit limit"
+      ],
+      "correctIndex": 2,
+      "explanation": "Opportunity cost is the value of the next-best choice you skipped."
+    },
+    {
+      "id": "inv_068",
+      "category": "Investing",
+      "prompt": "If a lot upgrade adds $50/day in income but costs $1,000, the simple payback is roughly:",
+      "choices": [
+        "20 years",
+        "20 weeks",
+        "20 months",
+        "20 days"
+      ],
+      "correctIndex": 3,
+      "explanation": "$1,000 / $50 per day = 20 days to break even ignoring time value."
+    },
+    {
+      "id": "inv_069",
+      "category": "Investing",
+      "prompt": "A restaurant upgrade returning $50/day vs. an investment paying $0.30 per dollar per year, $1,000 in. Which earns more in year one?",
+      "choices": [
+        "The upgrade, by a lot",
+        "The investment, by a lot",
+        "Both are equal",
+        "Neither earns money"
+      ],
+      "correctIndex": 0,
+      "explanation": "Upgrade: $50 x 365 ~ $18,250. Investment: $1,000 x 0.30 = $300. The upgrade dominates short term."
+    },
+    {
+      "id": "inv_070",
+      "category": "Investing",
+      "prompt": "If a rival can buy the only remaining lot, the urgency cost of NOT buying it is:",
+      "choices": [
+        "Always zero",
+        "High, because lost lots are permanently unavailable to you",
+        "Negative",
+        "Identical to a regular lot purchase"
+      ],
+      "correctIndex": 1,
+      "explanation": "Scarcity raises opportunity cost. The lost lot cannot come back."
+    },
+    {
+      "id": "inv_071",
+      "category": "Investing",
+      "prompt": "Your portfolio shows a 'lifetime gain' of $400 even though current holdings are flat. That means:",
+      "choices": [
+        "You owe $400 in taxes",
+        "Today's holdings are worth $400 more than yesterday",
+        "You realized $400 of gains by selling investments earlier",
+        "Your dividends are guaranteed"
+      ],
+      "correctIndex": 2,
+      "explanation": "Lifetime gain accumulates realized profits across all past trades."
+    },
+    {
+      "id": "inv_072",
+      "category": "Investing",
+      "prompt": "Choosing to invest $500 in a stock instead of upgrading a Tier 2 restaurant means:",
+      "choices": [
+        "Lowering your credit score",
+        "Earning both at the same time",
+        "Eliminating all risk",
+        "Giving up the upgrade's faster cash flow for the chance of higher long-term portfolio growth"
+      ],
+      "correctIndex": 3,
+      "explanation": "Each dollar can only do one job. The choice you make is the choice you give up."
+    },
+    {
+      "id": "inv_073",
+      "category": "Investing",
+      "prompt": "If your investing balance is $0 but checking is $5,000, you currently have:",
+      "choices": [
+        "No investment exposure -- all your value is in cash",
+        "Full investment exposure",
+        "Negative net worth",
+        "A diversified portfolio"
+      ],
+      "correctIndex": 0,
+      "explanation": "Cash is safe but earns little. Putting some to work is what creates compounding."
+    },
+    {
+      "id": "inv_074",
+      "category": "Investing",
+      "prompt": "Selling a stock at a profit to fund a lot purchase is best evaluated by:",
+      "choices": [
+        "Whether you like the lot's color",
+        "Comparing the lot's expected return to the stock's expected return after taxes and fees",
+        "How many other lots you already own",
+        "Whether the stock is famous"
+      ],
+      "correctIndex": 1,
+      "explanation": "Both choices are real returns. Pick the one with the better risk-adjusted payoff."
+    },
+    {
+      "id": "inv_075",
+      "category": "Investing",
+      "prompt": "Unrealized gain refers to:",
+      "choices": [
+        "A tax refund",
+        "Profit on an investment you have already sold",
+        "Profit on an investment you still own and have not sold",
+        "A type of dividend"
+      ],
+      "correctIndex": 2,
+      "explanation": "Unrealized gain can rise or fall before you sell. Only realized gains are locked in."
+    },
+    {
+      "id": "inv_076",
+      "category": "Investing",
+      "prompt": "Total portfolio value typically equals:",
+      "choices": [
+        "Your credit limit",
+        "The amount you originally invested",
+        "Your checking balance",
+        "The current market price of all holdings combined"
+      ],
+      "correctIndex": 3,
+      "explanation": "Portfolio value reflects today's prices, not what you paid."
+    },
+    {
+      "id": "inv_077",
+      "category": "Investing",
+      "prompt": "Principal invested means:",
+      "choices": [
+        "The original money you put in, not counting any gains",
+        "The current value of the portfolio",
+        "Your checking balance",
+        "The dividend total"
+      ],
+      "correctIndex": 0,
+      "explanation": "Subtract principal from total value to estimate gain."
+    },
+    {
+      "id": "inv_078",
+      "category": "Investing",
+      "prompt": "If your portfolio's risk profile reads 'High,' the panel is telling you:",
+      "choices": [
+        "You will earn the highest possible return",
+        "Your holdings tend to swing more in value, up or down",
+        "You cannot lose money",
+        "You hold only bonds"
+      ],
+      "correctIndex": 1,
+      "explanation": "Higher risk usually means higher expected return AND wider price swings."
+    },
+    {
+      "id": "inv_079",
+      "category": "Investing",
+      "prompt": "A flat portfolio chart over a week mostly means:",
+      "choices": [
+        "Your account was closed",
+        "You owe taxes",
+        "Prices have not moved much in either direction",
+        "A dividend was paid"
+      ],
+      "correctIndex": 2,
+      "explanation": "Some weeks are quiet. Long-term growth is built over years, not single weeks."
+    },
+    {
+      "id": "inv_080",
+      "category": "Investing",
+      "prompt": "Cumulative dividends earned shows:",
+      "choices": [
+        "Your tax bill",
+        "The maximum you can ever earn",
+        "Your remaining principal",
+        "The total cash payouts from all your investments since you started"
+      ],
+      "correctIndex": 3,
+      "explanation": "Dividends are real returns even if the underlying price has not moved."
+    },
+    {
+      "id": "cre_001",
+      "category": "CreditAndLoans",
+      "prompt": "APR stands for:",
+      "choices": [
+        "Annual Percentage Rate",
+        "Actual Payment Required",
+        "Average Personal Return",
+        "Adjustable Principal Ratio"
+      ],
+      "correctIndex": 0,
+      "explanation": "APR is the yearly cost of borrowing, expressed as a percent of the balance."
+    },
+    {
+      "id": "cre_002",
+      "category": "CreditAndLoans",
+      "prompt": "APY (annual percentage yield) differs from APR mainly because APY:",
+      "choices": [
+        "Excludes all interest",
+        "Includes the effect of compounding within the year",
+        "Applies only to savings accounts",
+        "Is always lower than APR"
+      ],
+      "correctIndex": 1,
+      "explanation": "APY captures interest-on-interest. For loans, APR is the more common quote."
+    },
+    {
+      "id": "cre_003",
+      "category": "CreditAndLoans",
+      "prompt": "An 18% APR credit card balance carried for a year owes about:",
+      "choices": [
+        "0% in interest",
+        "1.8% in interest",
+        "18% of the balance in interest, before compounding",
+        "180% in interest"
+      ],
+      "correctIndex": 2,
+      "explanation": "APR roughly approximates yearly interest cost. Daily compounding pushes the effective cost slightly higher."
+    },
+    {
+      "id": "cre_004",
+      "category": "CreditAndLoans",
+      "prompt": "Simple interest on a loan is calculated:",
+      "choices": [
+        "Based on the lender's mood",
+        "On the principal plus prior interest",
+        "Based on your credit score",
+        "On the original principal only"
+      ],
+      "correctIndex": 3,
+      "explanation": "Simple interest stays linear. Most credit cards use compound interest, which grows faster."
+    },
+    {
+      "id": "cre_005",
+      "category": "CreditAndLoans",
+      "prompt": "Most credit cards calculate interest:",
+      "choices": [
+        "Daily on the average balance, then compound it",
+        "Once per year, simply",
+        "Only when you ask",
+        "Only on purchases over $1,000"
+      ],
+      "correctIndex": 0,
+      "explanation": "Daily compounding makes small balances quietly grow if you don't pay them off."
+    },
+    {
+      "id": "cre_006",
+      "category": "CreditAndLoans",
+      "prompt": "If a savings account pays 4% APY, $1,000 sitting for a year grows to about:",
+      "choices": [
+        "$1,400",
+        "$1,040",
+        "$1,004",
+        "$1,000"
+      ],
+      "correctIndex": 1,
+      "explanation": "APY gives the actual ending balance after one year of compounding."
+    },
+    {
+      "id": "cre_007",
+      "category": "CreditAndLoans",
+      "prompt": "A 0% intro APR offer typically:",
+      "choices": [
+        "Requires no minimum payment",
+        "Means the card is free forever",
+        "Charges no interest for a promo period, then jumps to a normal high APR",
+        "Earns you cash back"
+      ],
+      "correctIndex": 2,
+      "explanation": "Intro offers are useful if you pay off the balance before the promo ends. Otherwise interest snaps back."
+    },
+    {
+      "id": "cre_008",
+      "category": "CreditAndLoans",
+      "prompt": "A loan APR of 24% paid over 5 years costs much more than an APR of 6% mostly because:",
+      "choices": [
+        "Higher APR loans are tax free",
+        "24% loans have shorter terms",
+        "6% loans charge fees",
+        "Interest charges grow with both rate and time"
+      ],
+      "correctIndex": 3,
+      "explanation": "Both rate and length of borrowing drive total cost."
+    },
+    {
+      "id": "cre_009",
+      "category": "CreditAndLoans",
+      "prompt": "A credit card statement shows:",
+      "choices": [
+        "Charges, payments, balance, minimum due, and the due date",
+        "Only your credit limit",
+        "Your tax return",
+        "Your investment portfolio"
+      ],
+      "correctIndex": 0,
+      "explanation": "Read every statement to catch errors and stay on top of due dates."
+    },
+    {
+      "id": "cre_010",
+      "category": "CreditAndLoans",
+      "prompt": "The billing cycle on a credit card is:",
+      "choices": [
+        "The grace period only",
+        "The period of charges between two statements",
+        "Your credit score reset day",
+        "The interest-free hour"
+      ],
+      "correctIndex": 1,
+      "explanation": "Billing cycles are usually about a month and end on the same date each cycle."
+    },
+    {
+      "id": "cre_011",
+      "category": "CreditAndLoans",
+      "prompt": "Paying only the minimum due on a credit card every month usually:",
+      "choices": [
+        "Eliminates interest",
+        "Pays the balance off in one month",
+        "Stretches repayment over many years and costs huge interest",
+        "Improves your credit by maximizing payments"
+      ],
+      "correctIndex": 2,
+      "explanation": "Minimums barely cover interest. The balance shrinks slowly while interest piles up."
+    },
+    {
+      "id": "cre_012",
+      "category": "CreditAndLoans",
+      "prompt": "A grace period on a credit card is:",
+      "choices": [
+        "Interest paid back to you",
+        "A free month with no payments",
+        "An automatic raise of your credit limit",
+        "Time between purchase and due date during which no interest is charged on new purchases if the prior balance was paid in full"
+      ],
+      "correctIndex": 3,
+      "explanation": "Pay the statement balance in full to keep the grace period and avoid interest."
+    },
+    {
+      "id": "cre_013",
+      "category": "CreditAndLoans",
+      "prompt": "If you charge $1,000 and pay $25/month at 22% APR, paying off the balance takes:",
+      "choices": [
+        "Many years and roughly doubles what you originally borrowed",
+        "About one month",
+        "Six months exactly",
+        "Two weeks"
+      ],
+      "correctIndex": 0,
+      "explanation": "Minimum-payment math is brutal. Even modest interest stretches a year of spending into a decade."
+    },
+    {
+      "id": "cre_014",
+      "category": "CreditAndLoans",
+      "prompt": "Cash advances on a credit card typically:",
+      "choices": [
+        "Are interest-free",
+        "Charge fees and start accruing interest immediately, with no grace period",
+        "Improve your credit score",
+        "Reduce your APR"
+      ],
+      "correctIndex": 1,
+      "explanation": "Cash advances are one of the most expensive ways to borrow."
+    },
+    {
+      "id": "cre_015",
+      "category": "CreditAndLoans",
+      "prompt": "A late credit card payment can result in:",
+      "choices": [
+        "Free cash back",
+        "An automatic refund",
+        "Late fees, a higher penalty APR, and a hit to your credit score",
+        "Interest reversal"
+      ],
+      "correctIndex": 2,
+      "explanation": "One missed payment can outweigh a year of good behavior on your score."
+    },
+    {
+      "id": "cre_016",
+      "category": "CreditAndLoans",
+      "prompt": "A balance transfer is:",
+      "choices": [
+        "Buying a stock",
+        "Sending money to your savings account",
+        "Refunding a purchase",
+        "Moving debt from one card to another, often with a temporary low APR"
+      ],
+      "correctIndex": 3,
+      "explanation": "Useful if you actually pay it off. Watch for transfer fees and the post-promo APR."
+    },
+    {
+      "id": "cre_017",
+      "category": "CreditAndLoans",
+      "prompt": "The biggest single factor in most U.S. credit scores is:",
+      "choices": [
+        "Payment history",
+        "How much money you earn",
+        "Your age",
+        "How many bank accounts you have"
+      ],
+      "correctIndex": 0,
+      "explanation": "On-time payments matter more than any other single factor."
+    },
+    {
+      "id": "cre_018",
+      "category": "CreditAndLoans",
+      "prompt": "Credit utilization in a score formula is:",
+      "choices": [
+        "Your total income",
+        "The portion of your available credit you are currently using",
+        "The number of years you have been alive",
+        "The interest rate on your card"
+      ],
+      "correctIndex": 1,
+      "explanation": "Lower utilization (often under 30%) generally helps the score."
+    },
+    {
+      "id": "cre_019",
+      "category": "CreditAndLoans",
+      "prompt": "Length of credit history affects scores by:",
+      "choices": [
+        "Lowering scores for older accounts",
+        "Rewarding closing old accounts",
+        "Rewarding longer-established accounts on average",
+        "Having no effect"
+      ],
+      "correctIndex": 2,
+      "explanation": "Closing your oldest card can shorten history and dent your score."
+    },
+    {
+      "id": "cre_020",
+      "category": "CreditAndLoans",
+      "prompt": "Credit mix in a score formula refers to:",
+      "choices": [
+        "How often you change jobs",
+        "Whether you mix bank accounts",
+        "Mixing investments",
+        "Whether you handle different kinds of credit (cards, loans) responsibly"
+      ],
+      "correctIndex": 3,
+      "explanation": "Variety helps a small amount, but only if you handle each type well."
+    },
+    {
+      "id": "cre_021",
+      "category": "CreditAndLoans",
+      "prompt": "Hard credit inquiries occur when:",
+      "choices": [
+        "You apply for new credit and a lender pulls your full report",
+        "You check your own score on a free site",
+        "You log into your bank app",
+        "You get an offer in the mail"
+      ],
+      "correctIndex": 0,
+      "explanation": "Many hard pulls in a short time can dent your score and signal risk."
+    },
+    {
+      "id": "cre_022",
+      "category": "CreditAndLoans",
+      "prompt": "Soft credit inquiries:",
+      "choices": [
+        "Lower your score by 100 points",
+        "Do not affect your score",
+        "Cancel your credit accounts",
+        "Always come from lenders"
+      ],
+      "correctIndex": 1,
+      "explanation": "Self-checks and pre-screen offers are soft pulls. They are safe to do."
+    },
+    {
+      "id": "cre_023",
+      "category": "CreditAndLoans",
+      "prompt": "A typical 'good' FICO score range is roughly:",
+      "choices": [
+        "850-900",
+        "300-400",
+        "670-739",
+        "200-300"
+      ],
+      "correctIndex": 2,
+      "explanation": "FICO scores run 300-850. Higher is better; 670+ generally qualifies for fair-to-good rates."
+    },
+    {
+      "id": "cre_024",
+      "category": "CreditAndLoans",
+      "prompt": "Identity theft can hurt your credit because:",
+      "choices": [
+        "It only affects your taxes",
+        "It always increases your score",
+        "It removes your bank account",
+        "Thieves can open accounts and rack up debt in your name"
+      ],
+      "correctIndex": 3,
+      "explanation": "Monitor your reports and freeze them if you suspect theft."
+    },
+    {
+      "id": "cre_025",
+      "category": "CreditAndLoans",
+      "prompt": "Closing a credit card with a long history can:",
+      "choices": [
+        "Hurt your score by reducing average age of accounts and total available credit",
+        "Always boost your score",
+        "Increase your APR",
+        "Erase your debt"
+      ],
+      "correctIndex": 0,
+      "explanation": "Sometimes it is worth keeping an old card open with light use."
+    },
+    {
+      "id": "cre_026",
+      "category": "CreditAndLoans",
+      "prompt": "Repairing damaged credit usually involves:",
+      "choices": [
+        "Buying a stock",
+        "Paying every bill on time, lowering balances, and waiting",
+        "Filing many new applications quickly",
+        "Closing all accounts immediately"
+      ],
+      "correctIndex": 1,
+      "explanation": "There are no shortcuts. Time and consistent on-time payments do most of the work."
+    },
+    {
+      "id": "cre_027",
+      "category": "CreditAndLoans",
+      "prompt": "If your card has a $1,000 limit and a $500 balance, your utilization is:",
+      "choices": [
+        "100%",
+        "5%",
+        "50%",
+        "200%"
+      ],
+      "correctIndex": 2,
+      "explanation": "$500 / $1,000 = 50%. Aim well below 30% to support a strong score."
+    },
+    {
+      "id": "cre_028",
+      "category": "CreditAndLoans",
+      "prompt": "Maxing out a credit card usually:",
+      "choices": [
+        "Earns you a refund",
+        "Always boosts your score",
+        "Lowers your APR",
+        "Hurts your score and signals financial stress to lenders"
+      ],
+      "correctIndex": 3,
+      "explanation": "High utilization is a major drag on credit scores."
+    },
+    {
+      "id": "cre_029",
+      "category": "CreditAndLoans",
+      "prompt": "Your credit limit is:",
+      "choices": [
+        "The maximum you are allowed to borrow on the card",
+        "The amount you owe",
+        "Your monthly minimum payment",
+        "Your interest rate"
+      ],
+      "correctIndex": 0,
+      "explanation": "Spending above the limit is usually declined or triggers fees."
+    },
+    {
+      "id": "cre_030",
+      "category": "CreditAndLoans",
+      "prompt": "Asking your issuer for a higher credit limit, with no extra spending, usually:",
+      "choices": [
+        "Always lowers your score",
+        "Lowers your utilization and can help your score",
+        "Cancels your card",
+        "Is illegal"
+      ],
+      "correctIndex": 1,
+      "explanation": "Same balance / bigger limit = lower utilization. Just don't spend up to the new limit."
+    },
+    {
+      "id": "cre_031",
+      "category": "CreditAndLoans",
+      "prompt": "A 'utilization spike' near your statement closing date can:",
+      "choices": [
+        "Erase your debt",
+        "Always raise your score",
+        "Temporarily lower your score even if you pay it off later",
+        "Cause your card to close"
+      ],
+      "correctIndex": 2,
+      "explanation": "Bureaus often see the statement-day balance. Pay down before the cycle ends to keep utilization low."
+    },
+    {
+      "id": "cre_032",
+      "category": "CreditAndLoans",
+      "prompt": "Spreading a $300 expense across three cards rather than one:",
+      "choices": [
+        "Cancels the most-used card",
+        "Increases utilization on each card",
+        "Always lowers your total available credit",
+        "Lowers utilization on each card individually"
+      ],
+      "correctIndex": 3,
+      "explanation": "Total balance is the same, but per-card utilization improves."
+    },
+    {
+      "id": "cre_033",
+      "category": "CreditAndLoans",
+      "prompt": "Principal of a loan refers to:",
+      "choices": [
+        "The amount originally borrowed",
+        "The interest rate",
+        "The down payment",
+        "The lender's name"
+      ],
+      "correctIndex": 0,
+      "explanation": "Each payment splits between principal (lowering what you owe) and interest (the cost of borrowing)."
+    },
+    {
+      "id": "cre_034",
+      "category": "CreditAndLoans",
+      "prompt": "Loan term is:",
+      "choices": [
+        "The interest rate",
+        "The length of time you have to repay the loan",
+        "The lender's policy fee",
+        "The loan limit"
+      ],
+      "correctIndex": 1,
+      "explanation": "A 30-year mortgage and a 5-year loan have very different total interest costs at the same APR."
+    },
+    {
+      "id": "cre_035",
+      "category": "CreditAndLoans",
+      "prompt": "Amortization is:",
+      "choices": [
+        "A penalty for late payment",
+        "A type of insurance",
+        "A schedule of equal payments that gradually pay down a loan",
+        "A tax deduction"
+      ],
+      "correctIndex": 2,
+      "explanation": "Early payments are mostly interest; later payments are mostly principal."
+    },
+    {
+      "id": "cre_036",
+      "category": "CreditAndLoans",
+      "prompt": "On a typical mortgage, early payments go mostly to:",
+      "choices": [
+        "Insurance only",
+        "Principal only",
+        "Property taxes only",
+        "Interest, with a small portion to principal"
+      ],
+      "correctIndex": 3,
+      "explanation": "As principal shrinks, more of each payment goes to principal and less to interest."
+    },
+    {
+      "id": "cre_037",
+      "category": "CreditAndLoans",
+      "prompt": "A 30-year mortgage vs. a 15-year mortgage at the same APR usually has:",
+      "choices": [
+        "A lower monthly payment but more total interest paid",
+        "A higher monthly payment and less interest",
+        "Identical total interest",
+        "No difference"
+      ],
+      "correctIndex": 0,
+      "explanation": "Stretching the term lowers each payment but multiplies the total interest."
+    },
+    {
+      "id": "cre_038",
+      "category": "CreditAndLoans",
+      "prompt": "A balloon payment is:",
+      "choices": [
+        "A small monthly fee",
+        "A large lump sum due at the end of certain loan structures",
+        "A type of insurance",
+        "A credit score factor"
+      ],
+      "correctIndex": 1,
+      "explanation": "Always know how a balloon payment will be handled before signing."
+    },
+    {
+      "id": "cre_039",
+      "category": "CreditAndLoans",
+      "prompt": "Paying extra toward a loan's principal usually:",
+      "choices": [
+        "Cancels the loan",
+        "Increases your APR",
+        "Reduces total interest paid and shortens the payoff time",
+        "Has no effect"
+      ],
+      "correctIndex": 2,
+      "explanation": "Even small extra principal payments early on save a lot of interest."
+    },
+    {
+      "id": "cre_040",
+      "category": "CreditAndLoans",
+      "prompt": "Two loans with the same monthly payment but different terms usually have:",
+      "choices": [
+        "No difference",
+        "Identical total interest",
+        "The same APR by definition",
+        "Different total interest costs"
+      ],
+      "correctIndex": 3,
+      "explanation": "Compare APR AND total interest, not just the monthly payment."
+    },
+    {
+      "id": "cre_041",
+      "category": "CreditAndLoans",
+      "prompt": "A mortgage is:",
+      "choices": [
+        "A long-term loan secured by real estate",
+        "A type of credit card",
+        "A bond",
+        "A short-term consumer loan"
+      ],
+      "correctIndex": 0,
+      "explanation": "If you stop paying, the lender can foreclose and sell the property."
+    },
+    {
+      "id": "cre_042",
+      "category": "CreditAndLoans",
+      "prompt": "An auto loan is typically secured by:",
+      "choices": [
+        "Your bank account",
+        "The vehicle itself",
+        "Your phone",
+        "Nothing"
+      ],
+      "correctIndex": 1,
+      "explanation": "Miss enough payments and the lender can repossess the car."
+    },
+    {
+      "id": "cre_043",
+      "category": "CreditAndLoans",
+      "prompt": "Student loans differ from most consumer debt because:",
+      "choices": [
+        "They never need to be repaid",
+        "They are always interest-free",
+        "Many cannot be discharged in bankruptcy",
+        "They build no credit history"
+      ],
+      "correctIndex": 2,
+      "explanation": "Federal student loans have unique repayment, deferment, and forgiveness rules."
+    },
+    {
+      "id": "cre_044",
+      "category": "CreditAndLoans",
+      "prompt": "A business loan is generally evaluated based on:",
+      "choices": [
+        "The owner's hobbies",
+        "Only the owner's age",
+        "The brand of computer used",
+        "The business's revenue, plan, and the owner's credit"
+      ],
+      "correctIndex": 3,
+      "explanation": "Lenders want confidence the business can pay back the loan from its cash flow."
+    },
+    {
+      "id": "cre_045",
+      "category": "CreditAndLoans",
+      "prompt": "A personal loan is usually:",
+      "choices": [
+        "An unsecured loan with a fixed term and fixed monthly payment",
+        "A type of credit card",
+        "Always secured by a house",
+        "Tax-free"
+      ],
+      "correctIndex": 0,
+      "explanation": "Personal loans can consolidate higher-rate debt if you actually stop using the credit cards."
+    },
+    {
+      "id": "cre_046",
+      "category": "CreditAndLoans",
+      "prompt": "Compared to credit cards, personal loans often have:",
+      "choices": [
+        "Higher APRs always",
+        "Lower APRs but require qualifying based on credit",
+        "No interest",
+        "No fees ever"
+      ],
+      "correctIndex": 1,
+      "explanation": "Personal loans can be cheaper but require approval based on income and credit."
+    },
+    {
+      "id": "cre_047",
+      "category": "CreditAndLoans",
+      "prompt": "Default on a loan happens when:",
+      "choices": [
+        "You refinance",
+        "You pay early",
+        "You fail to make payments according to the contract for a long enough period",
+        "You change banks"
+      ],
+      "correctIndex": 2,
+      "explanation": "Defaults cause major credit damage and can trigger collateral seizure."
+    },
+    {
+      "id": "cre_048",
+      "category": "CreditAndLoans",
+      "prompt": "Late fees are:",
+      "choices": [
+        "Always illegal",
+        "Rebates for early payment",
+        "A type of dividend",
+        "Penalty charges for missing or paying after the due date"
+      ],
+      "correctIndex": 3,
+      "explanation": "Even a single late fee plus interest can cancel a year of cash-back rewards."
+    },
+    {
+      "id": "cre_049",
+      "category": "CreditAndLoans",
+      "prompt": "When a debt is sent to collections, it usually means:",
+      "choices": [
+        "The original lender gave up trying and sold or assigned the debt to a collector",
+        "The debt was forgiven",
+        "Your credit improved",
+        "You no longer owe anything"
+      ],
+      "correctIndex": 0,
+      "explanation": "Collections accounts hit your credit hard and can stay on your report for years."
+    },
+    {
+      "id": "cre_050",
+      "category": "CreditAndLoans",
+      "prompt": "A 'charge-off' on your credit report means:",
+      "choices": [
+        "The debt was forgiven and you owe nothing",
+        "The lender wrote off the debt as a loss, but you may still owe it",
+        "You earned cash back",
+        "Your credit limit was raised"
+      ],
+      "correctIndex": 1,
+      "explanation": "Charge-offs are a major negative mark and can be sold to collectors."
+    },
+    {
+      "id": "cre_051",
+      "category": "CreditAndLoans",
+      "prompt": "Bankruptcy can:",
+      "choices": [
+        "Be done without any cost",
+        "Always eliminate all debts forever with no record",
+        "Discharge some debts but stays on your credit report for years",
+        "Improve your credit immediately"
+      ],
+      "correctIndex": 2,
+      "explanation": "Bankruptcy is a last resort with major long-term impact on credit and access to loans."
+    },
+    {
+      "id": "cre_052",
+      "category": "CreditAndLoans",
+      "prompt": "Negative items on a credit report typically remain for:",
+      "choices": [
+        "Until your next birthday",
+        "30 days only",
+        "Forever, with no exceptions",
+        "About 7 years for most accounts (longer for some)"
+      ],
+      "correctIndex": 3,
+      "explanation": "Time helps. Continued positive behavior gradually outweighs old negatives."
+    },
+    {
+      "id": "cre_053",
+      "category": "CreditAndLoans",
+      "prompt": "Refinancing a loan means:",
+      "choices": [
+        "Replacing it with a new loan, often at better terms",
+        "Defaulting on it",
+        "Asking for a higher credit limit",
+        "Filing for bankruptcy"
+      ],
+      "correctIndex": 0,
+      "explanation": "Refinancing can lower payments or total interest if rates have dropped or your credit improved."
+    },
+    {
+      "id": "cre_054",
+      "category": "CreditAndLoans",
+      "prompt": "Refinancing is most useful when:",
+      "choices": [
+        "You want to add fees with no benefit",
+        "The new APR plus fees costs less than continuing the old loan",
+        "Your income has dropped",
+        "Your credit score collapsed"
+      ],
+      "correctIndex": 1,
+      "explanation": "Compare total cost AFTER fees, not just the new monthly payment."
+    },
+    {
+      "id": "cre_055",
+      "category": "CreditAndLoans",
+      "prompt": "Debt consolidation combines multiple debts into:",
+      "choices": [
+        "An investment account",
+        "Several new credit cards",
+        "A single new loan, ideally at a lower APR",
+        "An insurance policy"
+      ],
+      "correctIndex": 2,
+      "explanation": "Consolidation only helps if you stop adding new debt to the old cards."
+    },
+    {
+      "id": "cre_056",
+      "category": "CreditAndLoans",
+      "prompt": "Consolidating credit card debt into a personal loan usually backfires when:",
+      "choices": [
+        "Total monthly payments drop",
+        "The new APR is lower",
+        "You make every payment on time",
+        "You run the cards back up after consolidating"
+      ],
+      "correctIndex": 3,
+      "explanation": "If old habits stay, you end up with both the loan and new card debt."
+    },
+    {
+      "id": "cre_057",
+      "category": "CreditAndLoans",
+      "prompt": "A payday loan is best described as:",
+      "choices": [
+        "A short-term, very high-cost loan due on your next paycheck",
+        "A government grant",
+        "A long-term mortgage",
+        "An interest-free advance"
+      ],
+      "correctIndex": 0,
+      "explanation": "Annualized rates can run several hundred percent. Avoid except in genuine emergencies."
+    },
+    {
+      "id": "cre_058",
+      "category": "CreditAndLoans",
+      "prompt": "A title loan uses your vehicle title as:",
+      "choices": [
+        "Insurance",
+        "Collateral the lender can take if you cannot repay",
+        "A discount coupon",
+        "A way to lower your APR"
+      ],
+      "correctIndex": 1,
+      "explanation": "Defaulting on a title loan can mean losing the car you depend on."
+    },
+    {
+      "id": "cre_059",
+      "category": "CreditAndLoans",
+      "prompt": "Rent-to-own purchases typically:",
+      "choices": [
+        "Are interest-free",
+        "Save customers money compared to buying outright",
+        "End up costing far more than buying the item outright",
+        "Are insured automatically"
+      ],
+      "correctIndex": 2,
+      "explanation": "Total rent-to-own payments usually multiply the sticker price."
+    },
+    {
+      "id": "cre_060",
+      "category": "CreditAndLoans",
+      "prompt": "A common red flag of a predatory lender is:",
+      "choices": [
+        "Letting you leave to think it over",
+        "Clear written disclosures",
+        "Comparing offers from multiple lenders",
+        "High pressure to sign quickly without disclosing all fees"
+      ],
+      "correctIndex": 3,
+      "explanation": "Slow down. Reputable lenders give you time and clear paperwork."
+    },
+    {
+      "id": "cre_061",
+      "category": "CreditAndLoans",
+      "prompt": "Secured debt is:",
+      "choices": [
+        "Backed by collateral the lender can seize if you default",
+        "Always interest-free",
+        "Available only to corporations",
+        "Impossible to default on"
+      ],
+      "correctIndex": 0,
+      "explanation": "Mortgages and auto loans are secured. The asset itself backs the loan."
+    },
+    {
+      "id": "cre_062",
+      "category": "CreditAndLoans",
+      "prompt": "Unsecured debt:",
+      "choices": [
+        "Is always cheaper than secured debt",
+        "Has no specific collateral attached",
+        "Cannot affect your credit",
+        "Is always tax-free"
+      ],
+      "correctIndex": 1,
+      "explanation": "Credit cards and most personal loans are unsecured, so APRs are usually higher."
+    },
+    {
+      "id": "cre_063",
+      "category": "CreditAndLoans",
+      "prompt": "Why do secured loans usually have lower APRs?",
+      "choices": [
+        "Government regulation requires it",
+        "Lenders prefer riskier loans",
+        "The lender's risk is lower because they can recover the asset",
+        "Borrowers always have more income"
+      ],
+      "correctIndex": 2,
+      "explanation": "Less risk for the lender = a better deal for the borrower."
+    },
+    {
+      "id": "cre_064",
+      "category": "CreditAndLoans",
+      "prompt": "Collateral is:",
+      "choices": [
+        "A government bond",
+        "A type of insurance only",
+        "An interest rate cap",
+        "An asset pledged to back a loan"
+      ],
+      "correctIndex": 3,
+      "explanation": "If you fail to repay, the lender can take and sell the collateral."
+    },
+    {
+      "id": "cre_065",
+      "category": "CreditAndLoans",
+      "prompt": "Debt-to-income ratio (DTI) is:",
+      "choices": [
+        "Monthly debt payments divided by monthly gross income",
+        "Annual income divided by net worth",
+        "Total debt divided by your age",
+        "Investments divided by checking balance"
+      ],
+      "correctIndex": 0,
+      "explanation": "Lenders use DTI to estimate how much new debt you can comfortably handle."
+    },
+    {
+      "id": "cre_066",
+      "category": "CreditAndLoans",
+      "prompt": "A lower DTI generally:",
+      "choices": [
+        "Hurts your loan approval",
+        "Helps you qualify for loans on better terms",
+        "Means you have more debt",
+        "Has no effect on lending"
+      ],
+      "correctIndex": 1,
+      "explanation": "More room in your budget = less risk for the lender."
+    },
+    {
+      "id": "cre_067",
+      "category": "CreditAndLoans",
+      "prompt": "Pre-qualifying for a loan typically:",
+      "choices": [
+        "Locks in your final APR",
+        "Always uses a hard inquiry",
+        "Gives an estimate without a hard credit pull",
+        "Disqualifies you for other loans"
+      ],
+      "correctIndex": 2,
+      "explanation": "Pre-qualification is a useful first look. Final approval still requires full underwriting."
+    },
+    {
+      "id": "cre_068",
+      "category": "CreditAndLoans",
+      "prompt": "Co-signing a loan means:",
+      "choices": [
+        "Earning the borrower's interest",
+        "Becoming an employee of the bank",
+        "Owning the asset jointly",
+        "Agreeing to repay if the primary borrower does not"
+      ],
+      "correctIndex": 3,
+      "explanation": "Co-signing is real risk. The debt shows on your credit and a default can hurt your score."
+    },
+    {
+      "id": "cre_069",
+      "category": "CreditAndLoans",
+      "prompt": "Lenders evaluate borrowers using a mix of:",
+      "choices": [
+        "Credit score, income, debt levels, and assets",
+        "Only credit score",
+        "Only income",
+        "Only collateral"
+      ],
+      "correctIndex": 0,
+      "explanation": "All four factors matter. Strength in one can offset weakness in another."
+    },
+    {
+      "id": "cre_070",
+      "category": "CreditAndLoans",
+      "prompt": "Stated income that can't be verified is generally:",
+      "choices": [
+        "The standard way to apply",
+        "A red flag and disqualifying for most loans today",
+        "Better than verified income",
+        "A bonus to your credit score"
+      ],
+      "correctIndex": 1,
+      "explanation": "After 2008, most lenders require documented income."
+    },
+    {
+      "id": "cre_071",
+      "category": "CreditAndLoans",
+      "prompt": "You want a $1,500 lot with $700 in checking. You can borrow $800 at 12% APR for 12 months. The total interest is roughly:",
+      "choices": [
+        "About $400",
+        "About $0",
+        "About $52 over the life of the loan",
+        "About $96 (the full year of 12% on the original)"
+      ],
+      "correctIndex": 2,
+      "explanation": "Amortizing $800 at 12% for 12 months has a ~$71 monthly payment, ~$52 total interest."
+    },
+    {
+      "id": "cre_072",
+      "category": "CreditAndLoans",
+      "prompt": "Two lots are available. Lot A is $1,000; Lot B is $2,500 financed at 10% over 5 years. The smarter pick depends on:",
+      "choices": [
+        "Whether the rival likes Lot A",
+        "Which lot has a prettier picture",
+        "How many friends you have",
+        "Expected income from each lot relative to its all-in cost"
+      ],
+      "correctIndex": 3,
+      "explanation": "Always compare expected ROI to total financed cost, not just the price tag."
+    },
+    {
+      "id": "cre_073",
+      "category": "CreditAndLoans",
+      "prompt": "If a 20% APR credit card debt and a 10% expected investment return both demand $500, the higher 'return' usually comes from:",
+      "choices": [
+        "Paying down the 20% debt -- a guaranteed savings of 20%",
+        "Investing in the 10% asset",
+        "Splitting evenly with no preference",
+        "Buying lottery tickets"
+      ],
+      "correctIndex": 0,
+      "explanation": "Eliminating a 20% interest cost is like earning a guaranteed 20%, hard to beat."
+    },
+    {
+      "id": "cre_074",
+      "category": "CreditAndLoans",
+      "prompt": "Maxing your credit card to buy a lot is risky mainly because:",
+      "choices": [
+        "Cards have no interest",
+        "Card APRs can devour any income the lot generates",
+        "Lots cannot be financed",
+        "Banks always refund big purchases"
+      ],
+      "correctIndex": 1,
+      "explanation": "Use cheaper financing for big purchases when possible. High APR debt eats returns."
+    },
+    {
+      "id": "cre_075",
+      "category": "CreditAndLoans",
+      "prompt": "If a rival is about to buy your last available lot, the cost of waiting one more day could be:",
+      "choices": [
+        "A small interest savings",
+        "Always zero",
+        "The permanent loss of the lot's lifetime income",
+        "An automatic discount"
+      ],
+      "correctIndex": 2,
+      "explanation": "Scarce assets can be lost forever. Sometimes the right move is to act, even with imperfect info."
+    },
+    {
+      "id": "cre_076",
+      "category": "CreditAndLoans",
+      "prompt": "A loan whose monthly payment exceeds your daily restaurant income is:",
+      "choices": [
+        "Required to maximize lots",
+        "A great deal in every case",
+        "Risk-free",
+        "Likely too aggressive without a buffer of savings or other income"
+      ],
+      "correctIndex": 3,
+      "explanation": "If a single bad month bankrupts you, the leverage was too high."
+    },
+    {
+      "id": "cre_077",
+      "category": "CreditAndLoans",
+      "prompt": "Refinancing a 15% loan to 9% on the same balance:",
+      "choices": [
+        "Reduces interest cost over the remaining term",
+        "Increases interest cost",
+        "Is illegal",
+        "Triggers an automatic upgrade"
+      ],
+      "correctIndex": 0,
+      "explanation": "Lower APR + same principal = less interest. Watch for refinance fees."
+    },
+    {
+      "id": "cre_078",
+      "category": "CreditAndLoans",
+      "prompt": "Stacking a loan on top of high credit card balances usually:",
+      "choices": [
+        "Always cancels out the cards",
+        "Strains your monthly cash flow more than each debt did alone",
+        "Lowers your APR automatically",
+        "Has no effect on cash flow"
+      ],
+      "correctIndex": 1,
+      "explanation": "Total monthly payments climb. A bad month can tip you into missed payments."
+    },
+    {
+      "id": "cre_079",
+      "category": "CreditAndLoans",
+      "prompt": "Choosing a 15-year loan over a 30-year loan on the same lot purchase usually:",
+      "choices": [
+        "Is identical to the 30-year",
+        "Costs less per month and less in total interest",
+        "Costs more per month but far less in total interest",
+        "Has no impact on total cost"
+      ],
+      "correctIndex": 2,
+      "explanation": "Higher monthly payments build equity faster and save tens of thousands in interest."
+    },
+    {
+      "id": "cre_080",
+      "category": "CreditAndLoans",
+      "prompt": "Paying off a 22% APR credit card with checking funds when investing returns 8% is usually:",
+      "choices": [
+        "Illegal in most states",
+        "A bad move because investing always wins",
+        "Pointless because rates are equal",
+        "A good move because the guaranteed 22% savings beats the uncertain 8% return"
+      ],
+      "correctIndex": 3,
+      "explanation": "Pay down expensive debt first when its rate is higher than expected investment returns."
+    },
+    {
+      "id": "ins_001",
+      "category": "Insurance",
+      "prompt": "Insurance is fundamentally a way to:",
+      "choices": [
+        "Trade a small, predictable cost for protection against a large, unpredictable loss",
+        "Make guaranteed profit each month",
+        "Replace the need to save money",
+        "Avoid all paperwork"
+      ],
+      "correctIndex": 0,
+      "explanation": "You pay a premium so a single bad event does not wipe out your finances."
+    },
+    {
+      "id": "ins_002",
+      "category": "Insurance",
+      "prompt": "Risk pooling means:",
+      "choices": [
+        "All insurers must charge the same price",
+        "Many people pay small premiums so the few who suffer losses can be covered",
+        "Only wealthy people can buy insurance",
+        "Insurers swim together for discounts"
+      ],
+      "correctIndex": 1,
+      "explanation": "Insurance works because losses happen to a small fraction of policyholders each period."
+    },
+    {
+      "id": "ins_003",
+      "category": "Insurance",
+      "prompt": "Self-insuring means:",
+      "choices": [
+        "Filing a claim",
+        "Buying multiple policies",
+        "Setting aside your own money instead of buying coverage",
+        "Skipping savings entirely"
+      ],
+      "correctIndex": 2,
+      "explanation": "Self-insuring works for small risks you can absorb. It is dangerous for catastrophic losses."
+    },
+    {
+      "id": "ins_004",
+      "category": "Insurance",
+      "prompt": "Risk transfer in insurance means:",
+      "choices": [
+        "Charging the loss to a credit card",
+        "Splitting risk with your neighbor",
+        "Avoiding any insurance",
+        "Shifting the financial impact of a loss from you to the insurer"
+      ],
+      "correctIndex": 3,
+      "explanation": "You transfer the financial uncertainty in exchange for a premium."
+    },
+    {
+      "id": "ins_005",
+      "category": "Insurance",
+      "prompt": "Why does insurance protect savings?",
+      "choices": [
+        "A single covered event would not have to come out of your savings",
+        "It pays interest on your savings",
+        "It replaces savings entirely",
+        "It charges your savings monthly"
+      ],
+      "correctIndex": 0,
+      "explanation": "Without insurance, a fire or accident can wipe out years of savings overnight."
+    },
+    {
+      "id": "ins_006",
+      "category": "Insurance",
+      "prompt": "Choosing to skip insurance entirely is mainly:",
+      "choices": [
+        "A guaranteed money saver",
+        "A bet that you will not face a large loss during the period",
+        "Required by law for most adults",
+        "An investment strategy"
+      ],
+      "correctIndex": 1,
+      "explanation": "Going uninsured can be cheap for years and devastating once."
+    },
+    {
+      "id": "ins_007",
+      "category": "Insurance",
+      "prompt": "A premium is:",
+      "choices": [
+        "The fee a doctor charges",
+        "The amount the insurer pays you",
+        "The amount you pay regularly to keep coverage active",
+        "A tax refund"
+      ],
+      "correctIndex": 2,
+      "explanation": "Stop paying premiums and the policy lapses, leaving you exposed."
+    },
+    {
+      "id": "ins_008",
+      "category": "Insurance",
+      "prompt": "A deductible is:",
+      "choices": [
+        "An interest rate",
+        "Your monthly premium",
+        "A discount on premiums",
+        "The amount you pay out of pocket before insurance starts paying"
+      ],
+      "correctIndex": 3,
+      "explanation": "Higher deductibles mean lower premiums but more out of pocket if something happens."
+    },
+    {
+      "id": "ins_009",
+      "category": "Insurance",
+      "prompt": "A copay is:",
+      "choices": [
+        "A fixed dollar amount you pay for a covered service, like a doctor visit",
+        "Your annual premium",
+        "The full cost of the service",
+        "A type of investment"
+      ],
+      "correctIndex": 0,
+      "explanation": "Copays let you know your share up front, especially in health insurance."
+    },
+    {
+      "id": "ins_010",
+      "category": "Insurance",
+      "prompt": "Coinsurance is:",
+      "choices": [
+        "Insurance for two homes at once",
+        "A percentage of the cost you pay after meeting the deductible",
+        "A flat monthly fee",
+        "Free coverage"
+      ],
+      "correctIndex": 1,
+      "explanation": "After your deductible, you might pay 20% coinsurance until you hit the out-of-pocket max."
+    },
+    {
+      "id": "ins_011",
+      "category": "Insurance",
+      "prompt": "An out-of-pocket maximum on a health plan is:",
+      "choices": [
+        "Your deductible only",
+        "Your premium",
+        "The yearly cap on what you pay for covered care after which the plan pays 100%",
+        "The hospital's bill total"
+      ],
+      "correctIndex": 2,
+      "explanation": "Hitting the OOP max protects you from catastrophic health bills in a single year."
+    },
+    {
+      "id": "ins_012",
+      "category": "Insurance",
+      "prompt": "If a loss is less than your deductible, insurance typically:",
+      "choices": [
+        "Refunds your premium",
+        "Pays the full amount",
+        "Pays half",
+        "Pays nothing -- you cover it"
+      ],
+      "correctIndex": 3,
+      "explanation": "Insurance is for losses too big to easily absorb. Small losses come out of your pocket."
+    },
+    {
+      "id": "ins_013",
+      "category": "Insurance",
+      "prompt": "Raising your deductible usually:",
+      "choices": [
+        "Lowers your premium",
+        "Raises your premium",
+        "Cancels your policy",
+        "Requires a credit check"
+      ],
+      "correctIndex": 0,
+      "explanation": "You take on more of the small-loss risk, so the insurer charges less."
+    },
+    {
+      "id": "ins_014",
+      "category": "Insurance",
+      "prompt": "Lower deductibles usually mean:",
+      "choices": [
+        "Lower monthly premiums",
+        "Higher monthly premiums",
+        "No coverage",
+        "Required investments"
+      ],
+      "correctIndex": 1,
+      "explanation": "Trade-off: less out-of-pocket pain when you claim, but more cost every month."
+    },
+    {
+      "id": "ins_015",
+      "category": "Insurance",
+      "prompt": "If your deductible is $1,000 and you have a $700 covered loss, you receive:",
+      "choices": [
+        "$300",
+        "The full $700",
+        "Nothing -- the loss is below the deductible",
+        "$1,000"
+      ],
+      "correctIndex": 2,
+      "explanation": "Below the deductible, the insurer is not on the hook."
+    },
+    {
+      "id": "ins_016",
+      "category": "Insurance",
+      "prompt": "If your deductible is $500 and you have a $2,000 covered loss, the insurer pays roughly:",
+      "choices": [
+        "$0",
+        "$2,000 plus deductible",
+        "$500",
+        "$1,500 (loss minus deductible), up to policy limits"
+      ],
+      "correctIndex": 3,
+      "explanation": "You pay the deductible; the insurer pays the rest of the covered loss up to limits."
+    },
+    {
+      "id": "ins_017",
+      "category": "Insurance",
+      "prompt": "A coverage limit is:",
+      "choices": [
+        "The maximum the insurer will pay on a covered claim",
+        "The amount of your premium",
+        "The legal age to buy insurance",
+        "The number of policies you can own"
+      ],
+      "correctIndex": 0,
+      "explanation": "Losses above the limit come out of your pocket."
+    },
+    {
+      "id": "ins_018",
+      "category": "Insurance",
+      "prompt": "An exclusion in a policy is:",
+      "choices": [
+        "A bonus add-on",
+        "Something the policy specifically does not cover",
+        "A required claim form",
+        "A type of premium"
+      ],
+      "correctIndex": 1,
+      "explanation": "Floods and earthquakes are commonly excluded from standard property policies."
+    },
+    {
+      "id": "ins_019",
+      "category": "Insurance",
+      "prompt": "A rider on a policy is:",
+      "choices": [
+        "A type of deductible",
+        "A driver of an insured vehicle only",
+        "An optional add-on that expands or modifies coverage",
+        "A claim form"
+      ],
+      "correctIndex": 2,
+      "explanation": "Riders let you tailor coverage, like adding jewelry or business equipment."
+    },
+    {
+      "id": "ins_020",
+      "category": "Insurance",
+      "prompt": "If your home value rises but coverage stays the same, you may be:",
+      "choices": [
+        "Disqualified from filing claims",
+        "Over-insured",
+        "Due a refund",
+        "Under-insured -- a total loss would not be fully reimbursed"
+      ],
+      "correctIndex": 3,
+      "explanation": "Review limits as values change so a major loss is fully covered."
+    },
+    {
+      "id": "ins_021",
+      "category": "Insurance",
+      "prompt": "Over-insuring means:",
+      "choices": [
+        "Paying premiums for coverage that exceeds the realistic potential loss",
+        "Insuring two homes",
+        "Skipping insurance entirely",
+        "Filing too many claims"
+      ],
+      "correctIndex": 0,
+      "explanation": "Match coverage to risk. Paying for protection you can't actually use is wasted premium."
+    },
+    {
+      "id": "ins_022",
+      "category": "Insurance",
+      "prompt": "Replacement cost vs. actual cash value (ACV) coverage:",
+      "choices": [
+        "Both are identical",
+        "Replacement cost pays the cost to replace; ACV pays current depreciated value",
+        "ACV always pays more than replacement cost",
+        "Neither covers actual losses"
+      ],
+      "correctIndex": 1,
+      "explanation": "ACV pays less for older items because they have depreciated."
+    },
+    {
+      "id": "ins_023",
+      "category": "Insurance",
+      "prompt": "A claim is:",
+      "choices": [
+        "An annual review",
+        "A monthly premium",
+        "A request for the insurer to pay for a covered loss",
+        "A government tax"
+      ],
+      "correctIndex": 2,
+      "explanation": "File promptly with documentation, photos, and any required reports."
+    },
+    {
+      "id": "ins_024",
+      "category": "Insurance",
+      "prompt": "A claims adjuster:",
+      "choices": [
+        "Always pays claims in full",
+        "Sells policies door to door",
+        "Sets premiums for new customers",
+        "Investigates the claim and helps determine what the insurer will pay"
+      ],
+      "correctIndex": 3,
+      "explanation": "Cooperate fully; keep records of every interaction with the adjuster."
+    },
+    {
+      "id": "ins_025",
+      "category": "Insurance",
+      "prompt": "Filing many small claims can:",
+      "choices": [
+        "Cause your premiums to rise or non-renewal of the policy",
+        "Always lower your premium",
+        "Eliminate deductibles",
+        "Have no effect on the policy"
+      ],
+      "correctIndex": 0,
+      "explanation": "Insurers track claim history. Use insurance for the big stuff, not nuisance damage."
+    },
+    {
+      "id": "ins_026",
+      "category": "Insurance",
+      "prompt": "After a covered total loss, the insurer typically pays:",
+      "choices": [
+        "Three times the property value",
+        "The lesser of your replacement value and the policy limit, minus the deductible",
+        "Only your annual premium",
+        "Nothing at all"
+      ],
+      "correctIndex": 1,
+      "explanation": "Coverage limits cap payouts, so size your limits to your actual exposure."
+    },
+    {
+      "id": "ins_027",
+      "category": "Insurance",
+      "prompt": "If you disagree with a claim payout, you can typically:",
+      "choices": [
+        "Cancel your savings",
+        "Sue your neighbor",
+        "Appeal the decision and request a re-evaluation",
+        "Demand a new bank account"
+      ],
+      "correctIndex": 2,
+      "explanation": "Most insurers have an appeal process. Keep records and ask for the policy clauses cited."
+    },
+    {
+      "id": "ins_028",
+      "category": "Insurance",
+      "prompt": "Lying on a claim is:",
+      "choices": [
+        "Always rewarded with bonus payments",
+        "A common practice",
+        "Required by law",
+        "Insurance fraud, which can result in denial of the claim and legal consequences"
+      ],
+      "correctIndex": 3,
+      "explanation": "Document the truth. Fraud is a serious offense."
+    },
+    {
+      "id": "ins_029",
+      "category": "Insurance",
+      "prompt": "Auto insurance liability coverage pays for:",
+      "choices": [
+        "Damage or injuries you cause to others while driving",
+        "Damage to your own car only",
+        "Your gas costs",
+        "Your driver's license fee"
+      ],
+      "correctIndex": 0,
+      "explanation": "Most states require minimum liability coverage."
+    },
+    {
+      "id": "ins_030",
+      "category": "Insurance",
+      "prompt": "Auto comprehensive coverage covers things like:",
+      "choices": [
+        "Only at-fault collisions",
+        "Theft, vandalism, hail, and animal collisions",
+        "Routine maintenance",
+        "Tickets and fines"
+      ],
+      "correctIndex": 1,
+      "explanation": "Comprehensive is broad but optional unless required by a lender."
+    },
+    {
+      "id": "ins_031",
+      "category": "Insurance",
+      "prompt": "Collision coverage on auto pays for:",
+      "choices": [
+        "Speeding tickets",
+        "Damage to others' cars only",
+        "Damage to your car from a crash, regardless of fault",
+        "Fuel costs"
+      ],
+      "correctIndex": 2,
+      "explanation": "Lenders typically require collision while you owe on the car."
+    },
+    {
+      "id": "ins_032",
+      "category": "Insurance",
+      "prompt": "Homeowners insurance typically covers:",
+      "choices": [
+        "Mortgage interest",
+        "Routine maintenance",
+        "Property tax payments",
+        "The structure, your belongings, liability, and additional living expenses"
+      ],
+      "correctIndex": 3,
+      "explanation": "Read the policy. Floods and earthquakes are often separate."
+    },
+    {
+      "id": "ins_033",
+      "category": "Insurance",
+      "prompt": "Renters insurance covers:",
+      "choices": [
+        "A renter's belongings and personal liability, but not the building itself",
+        "The landlord's structure only",
+        "Property taxes",
+        "Mortgage payments"
+      ],
+      "correctIndex": 0,
+      "explanation": "Renters insurance is cheap and a smart buy for almost every renter."
+    },
+    {
+      "id": "ins_034",
+      "category": "Insurance",
+      "prompt": "Health insurance generally protects you from:",
+      "choices": [
+        "Lost wages from a layoff",
+        "Large medical bills, in exchange for premiums and cost-sharing",
+        "Lawsuits from neighbors",
+        "Auto repair bills"
+      ],
+      "correctIndex": 1,
+      "explanation": "Health policies vary widely. Network and OOP max are key details."
+    },
+    {
+      "id": "ins_035",
+      "category": "Insurance",
+      "prompt": "An HMO health plan typically:",
+      "choices": [
+        "Has no network at all",
+        "Lets you see any provider with no referral",
+        "Requires you to use in-network providers and a primary care physician",
+        "Covers no preventive care"
+      ],
+      "correctIndex": 2,
+      "explanation": "HMOs trade flexibility for lower premiums."
+    },
+    {
+      "id": "ins_036",
+      "category": "Insurance",
+      "prompt": "A PPO health plan typically:",
+      "choices": [
+        "Has no premiums",
+        "Forbids any out-of-network care",
+        "Always has zero deductible",
+        "Allows out-of-network care, often at higher cost"
+      ],
+      "correctIndex": 3,
+      "explanation": "PPOs cost more but offer more provider choice."
+    },
+    {
+      "id": "ins_037",
+      "category": "Insurance",
+      "prompt": "Term life insurance:",
+      "choices": [
+        "Pays a death benefit if the insured dies during the term",
+        "Builds cash value like a savings account",
+        "Lasts forever",
+        "Refunds all premiums automatically"
+      ],
+      "correctIndex": 0,
+      "explanation": "Term life is cheap pure insurance. Most young families need it more than whole life."
+    },
+    {
+      "id": "ins_038",
+      "category": "Insurance",
+      "prompt": "Whole life insurance:",
+      "choices": [
+        "Is cheaper than term",
+        "Lasts your lifetime and builds cash value, at a much higher premium than term",
+        "Covers cars only",
+        "Pays no death benefit"
+      ],
+      "correctIndex": 1,
+      "explanation": "Whole life is more complex. Consider term plus separate investing for most needs."
+    },
+    {
+      "id": "ins_039",
+      "category": "Insurance",
+      "prompt": "Disability insurance covers:",
+      "choices": [
+        "Liability lawsuits",
+        "Damage to your house",
+        "A portion of your income if you cannot work due to illness or injury",
+        "Routine doctor visits"
+      ],
+      "correctIndex": 2,
+      "explanation": "Many people are more likely to be disabled than to die during their working years."
+    },
+    {
+      "id": "ins_040",
+      "category": "Insurance",
+      "prompt": "Liability insurance covers:",
+      "choices": [
+        "Your gas tank",
+        "Damage to your own property",
+        "Routine medical care",
+        "Harm or losses you cause to others"
+      ],
+      "correctIndex": 3,
+      "explanation": "Liability protects your assets if you're found responsible for someone else's loss."
+    },
+    {
+      "id": "ins_041",
+      "category": "Insurance",
+      "prompt": "Umbrella insurance:",
+      "choices": [
+        "Adds extra liability coverage above your auto and home policy limits",
+        "Protects against rain damage only",
+        "Replaces health insurance",
+        "Covers only car repairs"
+      ],
+      "correctIndex": 0,
+      "explanation": "Useful for households with assets to protect or higher-risk activities."
+    },
+    {
+      "id": "ins_042",
+      "category": "Insurance",
+      "prompt": "Business interruption insurance covers:",
+      "choices": [
+        "Theft of cash from the register",
+        "Lost income while a covered event prevents normal operations",
+        "Bad customer reviews",
+        "Routine inventory restocking"
+      ],
+      "correctIndex": 1,
+      "explanation": "Helps a business survive while it rebuilds after a covered disaster."
+    },
+    {
+      "id": "ins_043",
+      "category": "Insurance",
+      "prompt": "A young parent buying life insurance most often needs:",
+      "choices": [
+        "An annuity",
+        "A small whole life policy",
+        "A large term policy to protect dependents during working years",
+        "No insurance at all"
+      ],
+      "correctIndex": 2,
+      "explanation": "Term gives the largest death benefit per premium dollar -- often the right fit."
+    },
+    {
+      "id": "ins_044",
+      "category": "Insurance",
+      "prompt": "Cash value in a whole life policy:",
+      "choices": [
+        "Pays out as a tax credit",
+        "Disappears each year",
+        "Always grows faster than the stock market",
+        "Builds slowly and can be borrowed against in some policies"
+      ],
+      "correctIndex": 3,
+      "explanation": "Cash value grows tax-deferred but with fees. Compare to other savings options."
+    },
+    {
+      "id": "ins_045",
+      "category": "Insurance",
+      "prompt": "If you outlive a term life policy:",
+      "choices": [
+        "You get nothing back but were protected during the term",
+        "You get all your premiums back automatically",
+        "The insurer owes you double",
+        "The policy converts to a credit card"
+      ],
+      "correctIndex": 0,
+      "explanation": "Pure term is protection, not savings. That trade-off keeps premiums low."
+    },
+    {
+      "id": "ins_046",
+      "category": "Insurance",
+      "prompt": "Permanent life insurance is often oversold to:",
+      "choices": [
+        "Parents with several dependents",
+        "Young, single people who don't need a death benefit",
+        "People with no assets",
+        "Retirees with grown kids"
+      ],
+      "correctIndex": 1,
+      "explanation": "Match the product to the actual financial need rather than to a sales pitch."
+    },
+    {
+      "id": "ins_047",
+      "category": "Insurance",
+      "prompt": "Underwriting is:",
+      "choices": [
+        "A claims dispute step",
+        "A type of life insurance",
+        "The process insurers use to decide whether and at what price to insure you",
+        "A government tax form"
+      ],
+      "correctIndex": 2,
+      "explanation": "Information about your risk -- driving record, health, credit -- shapes your premium."
+    },
+    {
+      "id": "ins_048",
+      "category": "Insurance",
+      "prompt": "Why do younger drivers usually pay higher auto premiums?",
+      "choices": [
+        "Younger drivers always own newer cars",
+        "They are punished for being young",
+        "They drive less",
+        "Their crash rates are statistically higher"
+      ],
+      "correctIndex": 3,
+      "explanation": "Premiums reflect expected losses for the risk class."
+    },
+    {
+      "id": "ins_049",
+      "category": "Insurance",
+      "prompt": "Insurers charge smokers higher life premiums because:",
+      "choices": [
+        "Smokers, on average, have higher mortality risk",
+        "Smokers are healthier",
+        "Smokers buy more insurance",
+        "It is required by federal law"
+      ],
+      "correctIndex": 0,
+      "explanation": "Better risk class = lower premium. Quitting can sometimes lower future rates."
+    },
+    {
+      "id": "ins_050",
+      "category": "Insurance",
+      "prompt": "Pre-existing condition rules vary by line of insurance and have become:",
+      "choices": [
+        "Less protective in U.S. health markets",
+        "More protective for consumers in many U.S. health markets after the ACA",
+        "Identical across all insurance types",
+        "Irrelevant to underwriting"
+      ],
+      "correctIndex": 1,
+      "explanation": "Health insurance protections differ from life or disability insurance pre-existing rules."
+    },
+    {
+      "id": "ins_051",
+      "category": "Insurance",
+      "prompt": "An HSA (Health Savings Account) is:",
+      "choices": [
+        "A type of credit card",
+        "Free coverage from the government",
+        "A tax-advantaged account paired with a high-deductible health plan",
+        "A retirement annuity"
+      ],
+      "correctIndex": 2,
+      "explanation": "HSAs offer triple tax benefits and roll over each year if you don't spend it."
+    },
+    {
+      "id": "ins_052",
+      "category": "Insurance",
+      "prompt": "An FSA (Flexible Spending Account) typically:",
+      "choices": [
+        "Always rolls over forever",
+        "Builds a retirement balance",
+        "Pays cash dividends",
+        "Lets you pay for qualified expenses with pre-tax dollars, often use-it-or-lose-it yearly"
+      ],
+      "correctIndex": 3,
+      "explanation": "Estimate carefully. Most FSAs require you to use funds within the plan year."
+    },
+    {
+      "id": "ins_053",
+      "category": "Insurance",
+      "prompt": "HSAs require:",
+      "choices": [
+        "Pairing with an HSA-eligible high-deductible health plan",
+        "Any health insurance plan",
+        "No insurance at all",
+        "An employer match"
+      ],
+      "correctIndex": 0,
+      "explanation": "Not everyone qualifies for an HSA. Eligibility hinges on the type of plan you have."
+    },
+    {
+      "id": "ins_054",
+      "category": "Insurance",
+      "prompt": "Money in an HSA can be invested to:",
+      "choices": [
+        "Earn nothing forever",
+        "Grow tax-deferred for future medical expenses or retirement",
+        "Lose its tax advantage immediately",
+        "Replace homeowners insurance"
+      ],
+      "correctIndex": 1,
+      "explanation": "Some people treat HSAs as a stealth retirement account."
+    },
+    {
+      "id": "ins_055",
+      "category": "Insurance",
+      "prompt": "A good rule of thumb is to insure:",
+      "choices": [
+        "Only things you don't own",
+        "Every small risk you can imagine",
+        "Losses too big to absorb out of savings",
+        "Only after a loss happens"
+      ],
+      "correctIndex": 2,
+      "explanation": "Use insurance for catastrophes; absorb small losses with an emergency fund."
+    },
+    {
+      "id": "ins_056",
+      "category": "Insurance",
+      "prompt": "Insuring an old, low-value car for collision often:",
+      "choices": [
+        "Increases your liability limits",
+        "Saves money in every case",
+        "Is required by federal law",
+        "Costs more in premiums than the car is worth to replace"
+      ],
+      "correctIndex": 3,
+      "explanation": "Match coverage to actual value. For older cars, dropping collision can make sense."
+    },
+    {
+      "id": "ins_057",
+      "category": "Insurance",
+      "prompt": "An emergency fund:",
+      "choices": [
+        "Lets you self-insure smaller losses without filing claims",
+        "Replaces all insurance forever",
+        "Earns guaranteed 10% returns",
+        "Is the same as life insurance"
+      ],
+      "correctIndex": 0,
+      "explanation": "Cash buffer + good insurance = a strong defensive base."
+    },
+    {
+      "id": "ins_058",
+      "category": "Insurance",
+      "prompt": "Choosing a higher deductible to lower premiums makes sense when:",
+      "choices": [
+        "You have no savings",
+        "You have enough savings to absorb the higher deductible if a claim happens",
+        "You file claims constantly",
+        "You hate paperwork"
+      ],
+      "correctIndex": 1,
+      "explanation": "Without savings, a high deductible can become a crisis."
+    },
+    {
+      "id": "ins_059",
+      "category": "Insurance",
+      "prompt": "Skipping liability insurance to save money is risky because:",
+      "choices": [
+        "Lawsuits never happen",
+        "Premium savings always offset lawsuit risk",
+        "A single lawsuit could exceed years of premium savings",
+        "Liability is always free"
+      ],
+      "correctIndex": 2,
+      "explanation": "Liability events can wipe out savings, retirement, and assets."
+    },
+    {
+      "id": "ins_060",
+      "category": "Insurance",
+      "prompt": "Bundling auto and home insurance with one carrier often:",
+      "choices": [
+        "Disqualifies you from claims",
+        "Always increases premiums",
+        "Cancels both policies",
+        "Earns a multi-policy discount"
+      ],
+      "correctIndex": 3,
+      "explanation": "Bundling is one of the easiest premium discounts available."
+    },
+    {
+      "id": "ins_061",
+      "category": "Insurance",
+      "prompt": "A declarations page summarizes:",
+      "choices": [
+        "Your coverage limits, deductibles, premiums, and named insureds",
+        "Your tax bracket",
+        "Your investment returns",
+        "Your credit score"
+      ],
+      "correctIndex": 0,
+      "explanation": "Keep the dec page handy. It is the quick reference for your policy."
+    },
+    {
+      "id": "ins_062",
+      "category": "Insurance",
+      "prompt": "When buying insurance, comparing only premiums misses:",
+      "choices": [
+        "Brand reputation",
+        "Differences in coverage, deductibles, exclusions, and limits",
+        "Color of the marketing",
+        "The font of the policy"
+      ],
+      "correctIndex": 1,
+      "explanation": "A cheap policy with bad limits can leave you exposed. Compare apples to apples."
+    },
+    {
+      "id": "ins_063",
+      "category": "Insurance",
+      "prompt": "Reading the exclusions section tells you:",
+      "choices": [
+        "How to file a claim",
+        "What the premium will be next year",
+        "What the policy will NOT cover",
+        "Your bank balance"
+      ],
+      "correctIndex": 2,
+      "explanation": "Surprises usually come from exclusions you never read."
+    },
+    {
+      "id": "ins_064",
+      "category": "Insurance",
+      "prompt": "Endorsements on a policy:",
+      "choices": [
+        "Are unrelated marketing materials",
+        "Are required signatures",
+        "Are tax forms",
+        "Modify or expand coverage in specific ways"
+      ],
+      "correctIndex": 3,
+      "explanation": "Adding a rider for high-value items is a common endorsement."
+    },
+    {
+      "id": "ins_065",
+      "category": "Insurance",
+      "prompt": "If a fire damages your insured restaurant, the policy typically pays:",
+      "choices": [
+        "The repair cost minus your deductible, up to the coverage limit",
+        "Three times the property value",
+        "Nothing because fires are excluded by default",
+        "Only the amount of last month's revenue"
+      ],
+      "correctIndex": 0,
+      "explanation": "Property policies pay the covered loss, minus the deductible, capped at the limit."
+    },
+    {
+      "id": "ins_066",
+      "category": "Insurance",
+      "prompt": "Business liability insurance for a restaurant covers:",
+      "choices": [
+        "Routine inventory restocking",
+        "Lawsuits from customers harmed on the property",
+        "Employee bonuses",
+        "Owner vacation costs"
+      ],
+      "correctIndex": 1,
+      "explanation": "A single slip-and-fall lawsuit can dwarf years of premiums."
+    },
+    {
+      "id": "ins_067",
+      "category": "Insurance",
+      "prompt": "If a Tier 3 restaurant earns more income but you keep Tier 1 coverage limits:",
+      "choices": [
+        "Coverage updates itself",
+        "You are automatically over-insured",
+        "You may be under-insured if losses exceed the old limits",
+        "The insurer pays double"
+      ],
+      "correctIndex": 2,
+      "explanation": "Update coverage as your business grows or you'll face funding gaps."
+    },
+    {
+      "id": "ins_068",
+      "category": "Insurance",
+      "prompt": "Insurance premiums for an upgraded, busier restaurant typically:",
+      "choices": [
+        "Are refunded to the owner",
+        "Always fall",
+        "Stay exactly the same",
+        "Rise because the asset and liability exposure are larger"
+      ],
+      "correctIndex": 3,
+      "explanation": "Larger and busier operations carry larger expected losses."
+    },
+    {
+      "id": "ins_069",
+      "category": "Insurance",
+      "prompt": "A small fire that costs $400 to repair, with a $1,000 deductible, results in:",
+      "choices": [
+        "You paying the full $400; insurance pays nothing",
+        "Insurance paying $1,000",
+        "A refund of your premium",
+        "Coverage being canceled"
+      ],
+      "correctIndex": 0,
+      "explanation": "Below-deductible losses are yours. Save your claims for big stuff."
+    },
+    {
+      "id": "ins_070",
+      "category": "Insurance",
+      "prompt": "A liability lawsuit settled for $50,000 with a $10,000 limit means you owe:",
+      "choices": [
+        "Nothing -- the insurer pays it all",
+        "The $40,000 above the limit out of pocket",
+        "Only the deductible",
+        "Twice the limit automatically"
+      ],
+      "correctIndex": 1,
+      "explanation": "Limits are walls. Big risks deserve big limits or umbrella coverage."
+    },
+    {
+      "id": "ins_071",
+      "category": "Insurance",
+      "prompt": "Skipping insurance on your only restaurant is risky because:",
+      "choices": [
+        "Restaurants never burn",
+        "Insurance always loses money",
+        "A single fire could end the business and erase your income",
+        "Self-insurance is automatic"
+      ],
+      "correctIndex": 2,
+      "explanation": "Self-insuring catastrophic risk only works if you can replace what's lost."
+    },
+    {
+      "id": "ins_072",
+      "category": "Insurance",
+      "prompt": "If a covered theft removes $2,000 of equipment with a $500 deductible:",
+      "choices": [
+        "You receive nothing",
+        "You receive $2,000 plus your premium back",
+        "You receive only $500",
+        "You receive $1,500 from the insurer"
+      ],
+      "correctIndex": 3,
+      "explanation": "Loss minus deductible, up to the limit, is the typical formula."
+    },
+    {
+      "id": "ins_073",
+      "category": "Insurance",
+      "prompt": "Liability coverage on a busy restaurant is most important because:",
+      "choices": [
+        "Customer injuries are statistically more common with higher foot traffic",
+        "Busy restaurants have lower exposure",
+        "Liability is unrelated to traffic",
+        "Liability claims are always tiny"
+      ],
+      "correctIndex": 0,
+      "explanation": "More guests = more chances for a claim."
+    },
+    {
+      "id": "ins_074",
+      "category": "Insurance",
+      "prompt": "Property insurance combined with business interruption:",
+      "choices": [
+        "Pays only repair costs",
+        "Pays to repair AND replaces lost income while you rebuild",
+        "Pays only lost income, never repairs",
+        "Refunds all premiums on a claim"
+      ],
+      "correctIndex": 1,
+      "explanation": "Two related coverages that together protect both the asset and its cash flow."
+    },
+    {
+      "id": "ins_075",
+      "category": "Insurance",
+      "prompt": "Over-insuring a $1,000 phone for a $300 loss:",
+      "choices": [
+        "Eliminates all risk",
+        "Always saves money",
+        "Wastes premium relative to the realistic loss",
+        "Required by law"
+      ],
+      "correctIndex": 2,
+      "explanation": "Insure outcomes too big to absorb, not every small mishap."
+    },
+    {
+      "id": "ins_076",
+      "category": "Insurance",
+      "prompt": "Under-insurance becomes obvious when:",
+      "choices": [
+        "You change banks",
+        "Your premium is too high",
+        "You file no claims for years",
+        "A real loss exceeds the policy limit"
+      ],
+      "correctIndex": 3,
+      "explanation": "Periodic policy reviews prevent painful surprises."
+    },
+    {
+      "id": "ins_077",
+      "category": "Insurance",
+      "prompt": "A common cause of under-insurance is:",
+      "choices": [
+        "Failing to update coverage as assets grow in value",
+        "Bundling with another carrier",
+        "Paying premiums on time",
+        "Increasing the deductible"
+      ],
+      "correctIndex": 0,
+      "explanation": "Set a calendar reminder to review limits annually."
+    },
+    {
+      "id": "ins_078",
+      "category": "Insurance",
+      "prompt": "Adding too many tiny optional coverages is sometimes called:",
+      "choices": [
+        "Smart layering",
+        "Junk insurance -- nice to have but rarely worth the premium",
+        "Required underwriting",
+        "An emergency fund"
+      ],
+      "correctIndex": 1,
+      "explanation": "Spend premium on the big risks first."
+    },
+    {
+      "id": "ins_079",
+      "category": "Insurance",
+      "prompt": "If insuring a small low-value risk costs nearly as much as the worst-case loss:",
+      "choices": [
+        "Insurance is always cheaper",
+        "You are forced by law to insure it",
+        "Self-insuring through savings is usually a better deal",
+        "Premiums refund automatically"
+      ],
+      "correctIndex": 2,
+      "explanation": "Risk transfer only makes sense when the premium is small relative to the loss."
+    },
+    {
+      "id": "ins_080",
+      "category": "Insurance",
+      "prompt": "Reviewing your coverage every year mainly helps you:",
+      "choices": [
+        "Increase your taxes",
+        "Cancel useful policies",
+        "Lower your credit score",
+        "Avoid both over- and under-insuring as life changes"
+      ],
+      "correctIndex": 3,
+      "explanation": "Households change. Policies should change with them."
+    },
+    {
+      "id": "bud_001",
+      "category": "Budgeting",
+      "prompt": "Gross pay is:",
+      "choices": [
+        "Your total earnings before taxes and deductions",
+        "Your take-home pay",
+        "Your savings rate",
+        "Your tax refund"
+      ],
+      "correctIndex": 0,
+      "explanation": "Gross is the headline number; net is what actually arrives in your bank account."
+    },
+    {
+      "id": "bud_002",
+      "category": "Budgeting",
+      "prompt": "Net pay is:",
+      "choices": [
+        "Your gross pay",
+        "Your take-home pay after taxes and deductions",
+        "Your annual bonus only",
+        "Your investment returns"
+      ],
+      "correctIndex": 1,
+      "explanation": "Budget around net pay -- that is what you can actually spend."
+    },
+    {
+      "id": "bud_003",
+      "category": "Budgeting",
+      "prompt": "Common paycheck deductions include:",
+      "choices": [
+        "Capital gains taxes only",
+        "Stock dividends",
+        "Income tax, Social Security, Medicare, and benefits like health insurance",
+        "Tip income"
+      ],
+      "correctIndex": 2,
+      "explanation": "Read every paystub to understand where your money goes."
+    },
+    {
+      "id": "bud_004",
+      "category": "Budgeting",
+      "prompt": "Tips and bonuses are:",
+      "choices": [
+        "Not part of your earnings",
+        "Always tax-free",
+        "Always saved automatically",
+        "Income that should be planned into your budget if they are predictable"
+      ],
+      "correctIndex": 3,
+      "explanation": "Treat irregular income carefully. Build a base budget on stable pay."
+    },
+    {
+      "id": "bud_005",
+      "category": "Budgeting",
+      "prompt": "Side hustle income is typically:",
+      "choices": [
+        "Self-employment income that may require quarterly estimated taxes",
+        "Tax-free in most cases",
+        "Always paid via W-2",
+        "Reported only at retirement"
+      ],
+      "correctIndex": 0,
+      "explanation": "Track expenses and put aside taxes as you go to avoid year-end surprises."
+    },
+    {
+      "id": "bud_006",
+      "category": "Budgeting",
+      "prompt": "If your gross pay is $4,000/month and net pay is $3,000, your effective deduction rate is:",
+      "choices": [
+        "About 5%",
+        "About 25% across taxes and other withholdings",
+        "Exactly 50%",
+        "About 0%"
+      ],
+      "correctIndex": 1,
+      "explanation": "$1,000 / $4,000 = 25%. Knowing your deduction rate helps planning."
+    },
+    {
+      "id": "bud_007",
+      "category": "Budgeting",
+      "prompt": "Fixed expenses are:",
+      "choices": [
+        "Only large purchases",
+        "Costs that change wildly each month",
+        "Costs that stay roughly the same each period, like rent or insurance",
+        "Always tax deductible"
+      ],
+      "correctIndex": 2,
+      "explanation": "Fixed expenses anchor a budget."
+    },
+    {
+      "id": "bud_008",
+      "category": "Budgeting",
+      "prompt": "Variable expenses are:",
+      "choices": [
+        "Constant year to year",
+        "Always equal to fixed expenses",
+        "Always tax-free",
+        "Costs that change month to month, like groceries and gas"
+      ],
+      "correctIndex": 3,
+      "explanation": "Variable expenses are where most cuts can happen quickly."
+    },
+    {
+      "id": "bud_009",
+      "category": "Budgeting",
+      "prompt": "Discretionary spending is:",
+      "choices": [
+        "Optional spending you choose, like dining out or entertainment",
+        "Required spending only",
+        "Tax payments only",
+        "Government subsidies"
+      ],
+      "correctIndex": 0,
+      "explanation": "Discretionary categories are usually the easiest to trim if needed."
+    },
+    {
+      "id": "bud_010",
+      "category": "Budgeting",
+      "prompt": "Recurring subscriptions are:",
+      "choices": [
+        "Always one-time costs",
+        "A common form of fixed expense that quietly add up each month",
+        "Tax credits",
+        "Investment returns"
+      ],
+      "correctIndex": 1,
+      "explanation": "Audit subscriptions periodically. Cancel what you don't use."
+    },
+    {
+      "id": "bud_011",
+      "category": "Budgeting",
+      "prompt": "Annual expenses (like insurance premiums) should be:",
+      "choices": [
+        "Charged to a credit card and forgotten",
+        "Ignored until the bill hits",
+        "Spread across the year via a sinking fund so they don't surprise you",
+        "Replaced with daily payments"
+      ],
+      "correctIndex": 2,
+      "explanation": "A sinking fund saves a slice every month for predictable big bills."
+    },
+    {
+      "id": "bud_012",
+      "category": "Budgeting",
+      "prompt": "Reducing variable expenses generally:",
+      "choices": [
+        "Has no impact on cash flow",
+        "Always requires moving",
+        "Lowers fixed expenses too",
+        "Frees up cash quickly without long-term commitments"
+      ],
+      "correctIndex": 3,
+      "explanation": "Quick wins often live in groceries, dining, transportation, and entertainment."
+    },
+    {
+      "id": "bud_013",
+      "category": "Budgeting",
+      "prompt": "A 'need' in budgeting is:",
+      "choices": [
+        "Something required for basic living and obligations, like food and rent",
+        "A latest-model phone",
+        "Concert tickets",
+        "Vacation flights"
+      ],
+      "correctIndex": 0,
+      "explanation": "Needs come first. Once needs are funded, wants and savings can compete."
+    },
+    {
+      "id": "bud_014",
+      "category": "Budgeting",
+      "prompt": "A 'want' in budgeting is:",
+      "choices": [
+        "Health insurance premiums",
+        "Something nice to have but not required for basic living",
+        "Rent payment",
+        "Tax payment"
+      ],
+      "correctIndex": 1,
+      "explanation": "Wants are not bad -- you just budget them after needs and savings."
+    },
+    {
+      "id": "bud_015",
+      "category": "Budgeting",
+      "prompt": "An expensive 'need' that has cheaper alternatives might really be:",
+      "choices": [
+        "A tax credit",
+        "A guaranteed savings",
+        "A want disguised as a need",
+        "A type of insurance"
+      ],
+      "correctIndex": 2,
+      "explanation": "Steak vs. beans? Both feed you. Be honest about which is needed and which is preferred."
+    },
+    {
+      "id": "bud_016",
+      "category": "Budgeting",
+      "prompt": "Mixing wants into your needs category usually:",
+      "choices": [
+        "Improves your credit score",
+        "Always saves money",
+        "Eliminates discretionary spending",
+        "Makes it harder to see where to cut when money gets tight"
+      ],
+      "correctIndex": 3,
+      "explanation": "Honest categories make hard decisions easier."
+    },
+    {
+      "id": "bud_017",
+      "category": "Budgeting",
+      "prompt": "If income drops, the first place to cut is usually:",
+      "choices": [
+        "Discretionary wants, before reducing needs",
+        "Rent and insurance immediately",
+        "Tax payments",
+        "Savings always"
+      ],
+      "correctIndex": 0,
+      "explanation": "Protect needs and core obligations. Trim wants first."
+    },
+    {
+      "id": "bud_018",
+      "category": "Budgeting",
+      "prompt": "Calling something a 'need' to justify the purchase is sometimes called:",
+      "choices": [
+        "Conservative budgeting",
+        "Lifestyle creep or want-as-need rationalization",
+        "Tax planning",
+        "Asset allocation"
+      ],
+      "correctIndex": 1,
+      "explanation": "Self-awareness is half the battle in budgeting."
+    },
+    {
+      "id": "bud_019",
+      "category": "Budgeting",
+      "prompt": "The 50/30/20 budget allocates:",
+      "choices": [
+        "Equal thirds for everything",
+        "50% wants, 30% needs, 20% savings",
+        "50% needs, 30% wants, 20% savings/debt payoff",
+        "100% to debt"
+      ],
+      "correctIndex": 2,
+      "explanation": "A simple starter framework. Adjust the percentages to your situation."
+    },
+    {
+      "id": "bud_020",
+      "category": "Budgeting",
+      "prompt": "Zero-based budgeting means:",
+      "choices": [
+        "Borrowing every month",
+        "Spending zero dollars",
+        "Saving 100%",
+        "Giving every dollar a job until income minus assigned spending equals zero"
+      ],
+      "correctIndex": 3,
+      "explanation": "Every dollar is allocated, including savings and debt payoff."
+    },
+    {
+      "id": "bud_021",
+      "category": "Budgeting",
+      "prompt": "The envelope method assigns:",
+      "choices": [
+        "Specific amounts of cash (or virtual buckets) per spending category",
+        "All money to checking only",
+        "Bills to credit cards only",
+        "Income directly to investments"
+      ],
+      "correctIndex": 0,
+      "explanation": "Once an envelope is empty, that category is done for the period."
+    },
+    {
+      "id": "bud_022",
+      "category": "Budgeting",
+      "prompt": "Budgeting by paycheck instead of monthly often:",
+      "choices": [
+        "Doubles your tax bill",
+        "Helps when expenses don't all hit at once",
+        "Lowers your credit score",
+        "Eliminates fixed expenses"
+      ],
+      "correctIndex": 1,
+      "explanation": "Paycheck-based budgeting smooths out cash flow timing."
+    },
+    {
+      "id": "bud_023",
+      "category": "Budgeting",
+      "prompt": "Pay-yourself-first budgeting means:",
+      "choices": [
+        "Spending on wants first",
+        "Paying credit card minimums first",
+        "Routing money to savings/investing before discretionary spending",
+        "Skipping rent each month"
+      ],
+      "correctIndex": 2,
+      "explanation": "Automating savings turns it into a default rather than a willpower test."
+    },
+    {
+      "id": "bud_024",
+      "category": "Budgeting",
+      "prompt": "A common pitfall of any budget method is:",
+      "choices": [
+        "Earning too much",
+        "Following the budget too closely",
+        "Saving too much for emergencies",
+        "Failing to track or adjust as life changes"
+      ],
+      "correctIndex": 3,
+      "explanation": "A budget is a living document. Update it whenever income or expenses shift."
+    },
+    {
+      "id": "bud_025",
+      "category": "Budgeting",
+      "prompt": "Combining methods (e.g. 50/30/20 with envelopes for variable categories) is:",
+      "choices": [
+        "A reasonable hybrid approach",
+        "Always against the rules",
+        "A type of insurance",
+        "Identical to no budget"
+      ],
+      "correctIndex": 0,
+      "explanation": "There is no single 'right' method. Use what you'll actually follow."
+    },
+    {
+      "id": "bud_026",
+      "category": "Budgeting",
+      "prompt": "Reviewing your budget monthly mainly:",
+      "choices": [
+        "Forces you to file taxes",
+        "Catches drift early so small problems do not become big ones",
+        "Cancels your subscriptions",
+        "Lowers your tax bracket"
+      ],
+      "correctIndex": 1,
+      "explanation": "Short check-ins are easier to maintain than rare big audits."
+    },
+    {
+      "id": "bud_027",
+      "category": "Budgeting",
+      "prompt": "An emergency fund is:",
+      "choices": [
+        "A type of insurance policy",
+        "An investment account for retirement",
+        "Cash set aside for unexpected expenses or income loss",
+        "A government program"
+      ],
+      "correctIndex": 2,
+      "explanation": "It is the first line of defense before insurance or credit."
+    },
+    {
+      "id": "bud_028",
+      "category": "Budgeting",
+      "prompt": "A common starter emergency fund target is:",
+      "choices": [
+        "Zero -- borrowing is faster",
+        "$10",
+        "12 years of expenses",
+        "About one month of essential expenses, building toward 3-6 months"
+      ],
+      "correctIndex": 3,
+      "explanation": "Start small. Even $500 saved beats no buffer at all."
+    },
+    {
+      "id": "bud_029",
+      "category": "Budgeting",
+      "prompt": "Emergency funds are typically held in:",
+      "choices": [
+        "A high-yield savings account or similar safe, accessible place",
+        "Volatile stocks",
+        "A retirement account locked until age 59",
+        "Cryptocurrency only"
+      ],
+      "correctIndex": 0,
+      "explanation": "Liquidity matters. The point is to access cash quickly."
+    },
+    {
+      "id": "bud_030",
+      "category": "Budgeting",
+      "prompt": "Without an emergency fund, an unexpected $400 expense often forces:",
+      "choices": [
+        "Investment growth",
+        "High-interest credit card debt or skipped bills",
+        "A tax refund",
+        "An automatic raise"
+      ],
+      "correctIndex": 1,
+      "explanation": "Surveys show many households can't cover a $400 surprise without borrowing."
+    },
+    {
+      "id": "bud_031",
+      "category": "Budgeting",
+      "prompt": "Using an emergency fund for a planned vacation is:",
+      "choices": [
+        "Required by law",
+        "A great use of the fund",
+        "Defeating its purpose -- save for vacations separately",
+        "A guaranteed return"
+      ],
+      "correctIndex": 2,
+      "explanation": "Different goals deserve different buckets. Don't drain the safety net for fun."
+    },
+    {
+      "id": "bud_032",
+      "category": "Budgeting",
+      "prompt": "Once you spend from your emergency fund, the next step is:",
+      "choices": [
+        "Skipping it forever",
+        "Closing the account",
+        "Buying more stocks",
+        "Refilling it as soon as cash flow allows"
+      ],
+      "correctIndex": 3,
+      "explanation": "An empty emergency fund only protects you against past emergencies, not the next one."
+    },
+    {
+      "id": "bud_033",
+      "category": "Budgeting",
+      "prompt": "Tracking expenses helps mainly because:",
+      "choices": [
+        "You can't manage what you don't measure",
+        "It increases your income",
+        "It guarantees a tax refund",
+        "It eliminates inflation"
+      ],
+      "correctIndex": 0,
+      "explanation": "Most people are surprised by where money actually goes when they first track."
+    },
+    {
+      "id": "bud_034",
+      "category": "Budgeting",
+      "prompt": "A 'leak' in a budget refers to:",
+      "choices": [
+        "A tax credit",
+        "Small recurring spending that adds up to a big number",
+        "An investment dividend",
+        "A type of loan"
+      ],
+      "correctIndex": 1,
+      "explanation": "Subscriptions and small daily habits are common leaks."
+    },
+    {
+      "id": "bud_035",
+      "category": "Budgeting",
+      "prompt": "Apps that auto-categorize transactions:",
+      "choices": [
+        "Replace the need for any planning",
+        "Are always 100% accurate",
+        "Save time but should be reviewed for misclassifications",
+        "Earn dividends"
+      ],
+      "correctIndex": 2,
+      "explanation": "Automation helps; oversight keeps it useful."
+    },
+    {
+      "id": "bud_036",
+      "category": "Budgeting",
+      "prompt": "An effective spending plan typically:",
+      "choices": [
+        "Excludes savings",
+        "Lists only goals with no numbers",
+        "Has only a single 'spending' line",
+        "Pairs categories with specific dollar amounts and reviews them regularly"
+      ],
+      "correctIndex": 3,
+      "explanation": "Specifics make the plan actionable."
+    },
+    {
+      "id": "bud_037",
+      "category": "Budgeting",
+      "prompt": "Tracking only large expenses misses:",
+      "choices": [
+        "The cumulative impact of small daily purchases",
+        "Mortgage payments",
+        "Annual insurance premiums",
+        "Tax payments"
+      ],
+      "correctIndex": 0,
+      "explanation": "Coffee, lunches, and subscriptions can easily exceed a car payment."
+    },
+    {
+      "id": "bud_038",
+      "category": "Budgeting",
+      "prompt": "Cash-flow timing matters because:",
+      "choices": [
+        "All paydays are the same",
+        "Bills don't always line up with paydays",
+        "Bills are never due before payday",
+        "Banks pre-pay everything"
+      ],
+      "correctIndex": 1,
+      "explanation": "A budget that doesn't account for timing can still cause overdrafts."
+    },
+    {
+      "id": "bud_039",
+      "category": "Budgeting",
+      "prompt": "Savings rate is:",
+      "choices": [
+        "Your tax bracket",
+        "The interest your savings account pays",
+        "The portion of your income you save or invest",
+        "Your credit score"
+      ],
+      "correctIndex": 2,
+      "explanation": "Higher savings rates buy financial freedom faster."
+    },
+    {
+      "id": "bud_040",
+      "category": "Budgeting",
+      "prompt": "If you save $400 from $4,000 in monthly net income, your savings rate is:",
+      "choices": [
+        "100%",
+        "1%",
+        "40%",
+        "10%"
+      ],
+      "correctIndex": 3,
+      "explanation": "$400 / $4,000 = 10%. A common starting target is 10-20%."
+    },
+    {
+      "id": "bud_041",
+      "category": "Budgeting",
+      "prompt": "Increasing savings rate over time is best done through:",
+      "choices": [
+        "Automating raises into savings before lifestyle inflation kicks in",
+        "Spending every raise",
+        "Borrowing more",
+        "Skipping budgeting entirely"
+      ],
+      "correctIndex": 0,
+      "explanation": "Raises are easiest to redirect when you save them on day one."
+    },
+    {
+      "id": "bud_042",
+      "category": "Budgeting",
+      "prompt": "Savings rate matters more for retirement than:",
+      "choices": [
+        "Compound interest",
+        "Trying to pick the next hot stock",
+        "Tax-advantaged accounts",
+        "Time in the market"
+      ],
+      "correctIndex": 1,
+      "explanation": "How much you save is the biggest lever you control directly."
+    },
+    {
+      "id": "bud_043",
+      "category": "Budgeting",
+      "prompt": "Saving 20% of income from age 22 vs. age 32 typically:",
+      "choices": [
+        "Always loses money",
+        "Produces the same wealth",
+        "Produces dramatically more wealth at retirement",
+        "Avoids compound interest"
+      ],
+      "correctIndex": 2,
+      "explanation": "Early dollars compound across the most years."
+    },
+    {
+      "id": "bud_044",
+      "category": "Budgeting",
+      "prompt": "Pay-yourself-first behavior:",
+      "choices": [
+        "Earns no tax benefit",
+        "Forces you to skip rent",
+        "Eliminates need for budgeting",
+        "Treats savings like a fixed bill, removing the willpower problem"
+      ],
+      "correctIndex": 3,
+      "explanation": "Automate it, and saving stops being optional in your spending."
+    },
+    {
+      "id": "bud_045",
+      "category": "Budgeting",
+      "prompt": "A sinking fund is:",
+      "choices": [
+        "Money set aside monthly for a known future expense, like an annual insurance bill",
+        "A type of stock",
+        "A savings account that loses money",
+        "A credit card balance"
+      ],
+      "correctIndex": 0,
+      "explanation": "Sinking funds turn lumpy bills into smooth monthly costs."
+    },
+    {
+      "id": "bud_046",
+      "category": "Budgeting",
+      "prompt": "An annual $1,200 insurance premium is best handled by:",
+      "choices": [
+        "Charging it on a credit card and paying minimums",
+        "Saving $100/month into a sinking fund for that bill",
+        "Borrowing each year",
+        "Skipping the premium"
+      ],
+      "correctIndex": 1,
+      "explanation": "Plan ahead and the bill becomes painless."
+    },
+    {
+      "id": "bud_047",
+      "category": "Budgeting",
+      "prompt": "Common sinking fund categories include:",
+      "choices": [
+        "Monthly rent",
+        "Daily groceries",
+        "Holidays, car maintenance, vacations, annual fees",
+        "Quarterly investing only"
+      ],
+      "correctIndex": 2,
+      "explanation": "Anything predictable but irregular is a candidate."
+    },
+    {
+      "id": "bud_048",
+      "category": "Budgeting",
+      "prompt": "A sinking fund differs from an emergency fund because:",
+      "choices": [
+        "Emergency funds are taxed",
+        "They are identical",
+        "Sinking funds earn higher returns",
+        "Sinking funds target known expenses; emergency funds cover unknown ones"
+      ],
+      "correctIndex": 3,
+      "explanation": "Different jobs, different buckets."
+    },
+    {
+      "id": "bud_049",
+      "category": "Budgeting",
+      "prompt": "Lifestyle inflation is:",
+      "choices": [
+        "Spending more as your income rises, instead of saving the difference",
+        "A government tax",
+        "A type of bond",
+        "A discount program"
+      ],
+      "correctIndex": 0,
+      "explanation": "Easy to miss and surprisingly damaging long-term."
+    },
+    {
+      "id": "bud_050",
+      "category": "Budgeting",
+      "prompt": "A defense against lifestyle inflation is:",
+      "choices": [
+        "Buying bigger items right away",
+        "Automating a portion of every raise into savings or investing",
+        "Closing your savings account",
+        "Carrying more credit cards"
+      ],
+      "correctIndex": 1,
+      "explanation": "If the money never hits checking, you don't miss it."
+    },
+    {
+      "id": "bud_051",
+      "category": "Budgeting",
+      "prompt": "A doubled income with doubled spending leaves you:",
+      "choices": [
+        "Tax-free",
+        "Twice as wealthy",
+        "Roughly as financially fragile as before, despite earning more",
+        "Automatically retired"
+      ],
+      "correctIndex": 2,
+      "explanation": "Higher income only translates to wealth if part of it is saved."
+    },
+    {
+      "id": "bud_052",
+      "category": "Budgeting",
+      "prompt": "Recognizing lifestyle creep usually requires:",
+      "choices": [
+        "Avoiding budgets entirely",
+        "Closing all bank accounts",
+        "Borrowing more",
+        "Tracking spending over time, not just income"
+      ],
+      "correctIndex": 3,
+      "explanation": "If categories balloon as income rises, creep is happening."
+    },
+    {
+      "id": "bud_053",
+      "category": "Budgeting",
+      "prompt": "Cash-flow problems often come from:",
+      "choices": [
+        "Income arriving after bills are due",
+        "Earning too much",
+        "Saving too aggressively",
+        "Refusing to use a budget"
+      ],
+      "correctIndex": 0,
+      "explanation": "Even profitable households can hit overdrafts without good timing."
+    },
+    {
+      "id": "bud_054",
+      "category": "Budgeting",
+      "prompt": "Lining up due dates with paydays helps by:",
+      "choices": [
+        "Increasing your APR",
+        "Reducing the chance of overdrafts and late fees",
+        "Lowering your savings rate",
+        "Eliminating taxes"
+      ],
+      "correctIndex": 1,
+      "explanation": "Most lenders will adjust due dates if you ask."
+    },
+    {
+      "id": "bud_055",
+      "category": "Budgeting",
+      "prompt": "A cash-flow buffer in checking:",
+      "choices": [
+        "Earns 20% interest",
+        "Replaces all savings forever",
+        "Protects against timing mismatches between income and bills",
+        "Is the same as a 401(k)"
+      ],
+      "correctIndex": 2,
+      "explanation": "Even a few hundred dollars of buffer prevents many small disasters."
+    },
+    {
+      "id": "bud_056",
+      "category": "Budgeting",
+      "prompt": "Overdraft fees can:",
+      "choices": [
+        "Improve your credit score",
+        "Always be refunded",
+        "Lower your APR",
+        "Quickly erase the savings from a careful budget"
+      ],
+      "correctIndex": 3,
+      "explanation": "Set up alerts and buffers to avoid them."
+    },
+    {
+      "id": "bud_057",
+      "category": "Budgeting",
+      "prompt": "Short-term savings goals (under 1-2 years) are best held in:",
+      "choices": [
+        "A safe, liquid account like a high-yield savings or money market account",
+        "Volatile individual stocks",
+        "A 30-year bond",
+        "Cryptocurrency only"
+      ],
+      "correctIndex": 0,
+      "explanation": "Don't risk principal you'll need soon."
+    },
+    {
+      "id": "bud_058",
+      "category": "Budgeting",
+      "prompt": "Mid-term goals (3-7 years) might use:",
+      "choices": [
+        "100% volatile stocks",
+        "A balanced mix of safer and growth-oriented investments",
+        "Cash only",
+        "Closed-end funds with no diversification"
+      ],
+      "correctIndex": 1,
+      "explanation": "More time = more room to take some risk for growth."
+    },
+    {
+      "id": "bud_059",
+      "category": "Budgeting",
+      "prompt": "Long-term goals (10+ years) often justify:",
+      "choices": [
+        "Avoiding all investing",
+        "100% cash forever",
+        "More exposure to stocks for growth, given time to recover from downturns",
+        "Daily trading"
+      ],
+      "correctIndex": 2,
+      "explanation": "Time is your ally for higher-volatility, higher-expected-return investments."
+    },
+    {
+      "id": "bud_060",
+      "category": "Budgeting",
+      "prompt": "Naming a savings account for its goal (e.g., 'Wedding 2027') tends to:",
+      "choices": [
+        "Cancel the savings goal",
+        "Earn higher interest automatically",
+        "Always reduce taxes",
+        "Reduce the temptation to raid it for unrelated purchases"
+      ],
+      "correctIndex": 3,
+      "explanation": "Behavioral nudges matter. Friction in the wrong direction protects goals."
+    },
+    {
+      "id": "tax_001",
+      "category": "Taxes",
+      "prompt": "Federal income tax in the U.S. is generally:",
+      "choices": [
+        "A progressive tax with higher rates on higher income brackets",
+        "A flat tax with one rate for everyone",
+        "A property tax",
+        "A sales tax only"
+      ],
+      "correctIndex": 0,
+      "explanation": "Each chunk of income is taxed at its own bracket's rate."
+    },
+    {
+      "id": "tax_002",
+      "category": "Taxes",
+      "prompt": "A W-2 form summarizes:",
+      "choices": [
+        "Your investment portfolio",
+        "Your annual wages and taxes withheld from an employer",
+        "Your credit history",
+        "Your insurance claims"
+      ],
+      "correctIndex": 1,
+      "explanation": "Employers send W-2s after year-end so you can file your return."
+    },
+    {
+      "id": "tax_003",
+      "category": "Taxes",
+      "prompt": "Tax withholding from a paycheck:",
+      "choices": [
+        "Is paid only at retirement",
+        "Is optional",
+        "Sends estimated taxes to the government throughout the year",
+        "Earns 10% interest"
+      ],
+      "correctIndex": 2,
+      "explanation": "If too little is withheld, you may owe at filing time."
+    },
+    {
+      "id": "tax_004",
+      "category": "Taxes",
+      "prompt": "A tax refund typically means:",
+      "choices": [
+        "Your bank made an error",
+        "The IRS gave you free money",
+        "Your tax rate dropped",
+        "You overpaid in withholding during the year"
+      ],
+      "correctIndex": 3,
+      "explanation": "A big refund is your own money sent back. Adjust withholding to keep it during the year."
+    },
+    {
+      "id": "tax_005",
+      "category": "Taxes",
+      "prompt": "Owing money at tax time often means:",
+      "choices": [
+        "You under-withheld during the year",
+        "The IRS owes you a fine",
+        "Your bank stole money",
+        "You earned too little"
+      ],
+      "correctIndex": 0,
+      "explanation": "Adjust your W-4 to align withholding with actual tax liability."
+    },
+    {
+      "id": "tax_006",
+      "category": "Taxes",
+      "prompt": "Self-employed people often pay taxes:",
+      "choices": [
+        "Only at retirement",
+        "Quarterly via estimated tax payments",
+        "Never",
+        "Once every five years"
+      ],
+      "correctIndex": 1,
+      "explanation": "Without an employer withholding, you must self-remit estimated taxes."
+    },
+    {
+      "id": "tax_007",
+      "category": "Taxes",
+      "prompt": "FICA on a paystub refers to:",
+      "choices": [
+        "Local sales tax",
+        "State income tax",
+        "Social Security and Medicare taxes",
+        "Investment tax"
+      ],
+      "correctIndex": 2,
+      "explanation": "FICA funds Social Security and Medicare. Both employer and employee contribute."
+    },
+    {
+      "id": "tax_008",
+      "category": "Taxes",
+      "prompt": "Reading a paystub helps you:",
+      "choices": [
+        "Avoid filing a return",
+        "Increase your salary",
+        "Reduce property tax",
+        "Understand where your gross pay actually goes"
+      ],
+      "correctIndex": 3,
+      "explanation": "Check withholdings, deductions, and benefits at least once a month."
+    },
+    {
+      "id": "tax_009",
+      "category": "Taxes",
+      "prompt": "A marginal tax rate is:",
+      "choices": [
+        "The rate applied to your next dollar of income",
+        "The average rate across all your income",
+        "Your annual tax bill",
+        "Your savings rate"
+      ],
+      "correctIndex": 0,
+      "explanation": "Marginal rates apply only to income inside that bracket, not to everything you earn."
+    },
+    {
+      "id": "tax_010",
+      "category": "Taxes",
+      "prompt": "An effective tax rate is:",
+      "choices": [
+        "Always equal to the marginal rate",
+        "Your total tax divided by your total income",
+        "Always 0%",
+        "Your annual savings rate"
+      ],
+      "correctIndex": 1,
+      "explanation": "Because lower brackets tax earlier dollars at lower rates, the effective rate is below your top marginal rate."
+    },
+    {
+      "id": "tax_011",
+      "category": "Taxes",
+      "prompt": "Moving into a higher tax bracket:",
+      "choices": [
+        "Triples your tax bill",
+        "Re-taxes ALL of your income at the higher rate",
+        "Only taxes the income above the bracket threshold at the higher rate",
+        "Has no effect"
+      ],
+      "correctIndex": 2,
+      "explanation": "Common myth: a small raise will not 'cost you money' overall."
+    },
+    {
+      "id": "tax_012",
+      "category": "Taxes",
+      "prompt": "If your top marginal rate is 22%, your effective rate is:",
+      "choices": [
+        "Always above 22%",
+        "Always 22%",
+        "Always 0%",
+        "Usually below 22%"
+      ],
+      "correctIndex": 3,
+      "explanation": "Earlier dollars were taxed at 10% and 12% before reaching the 22% bracket."
+    },
+    {
+      "id": "tax_013",
+      "category": "Taxes",
+      "prompt": "Tax brackets in the U.S. are usually:",
+      "choices": [
+        "Adjusted for inflation each year",
+        "Fixed forever in dollar terms",
+        "Negotiated by each taxpayer",
+        "Determined by lottery"
+      ],
+      "correctIndex": 0,
+      "explanation": "Bracket thresholds rise slowly to limit 'bracket creep' from inflation."
+    },
+    {
+      "id": "tax_014",
+      "category": "Taxes",
+      "prompt": "If two people have the same income but different deductions, they may end up with:",
+      "choices": [
+        "Identical tax bills",
+        "Different effective tax rates",
+        "Identical refunds",
+        "No tax owed at all"
+      ],
+      "correctIndex": 1,
+      "explanation": "Deductions reshape taxable income and final liability."
+    },
+    {
+      "id": "tax_015",
+      "category": "Taxes",
+      "prompt": "A tax deduction:",
+      "choices": [
+        "Adds to your tax bill",
+        "Reduces your tax dollar-for-dollar",
+        "Reduces your taxable income, lowering tax by your marginal rate times the deduction",
+        "Is always refunded in cash"
+      ],
+      "correctIndex": 2,
+      "explanation": "A $1,000 deduction in a 22% bracket saves about $220 in tax."
+    },
+    {
+      "id": "tax_016",
+      "category": "Taxes",
+      "prompt": "A tax credit:",
+      "choices": [
+        "Is taxed as income",
+        "Reduces your taxable income only",
+        "Increases your tax bill",
+        "Reduces your tax bill dollar-for-dollar"
+      ],
+      "correctIndex": 3,
+      "explanation": "A $1,000 credit cuts your tax by $1,000 (subject to credit type)."
+    },
+    {
+      "id": "tax_017",
+      "category": "Taxes",
+      "prompt": "Refundable tax credits can:",
+      "choices": [
+        "Result in a refund even if your tax owed is zero",
+        "Never result in a refund",
+        "Only apply to investment income",
+        "Increase what you owe"
+      ],
+      "correctIndex": 0,
+      "explanation": "Examples include the Earned Income Tax Credit (EITC) and parts of the Child Tax Credit."
+    },
+    {
+      "id": "tax_018",
+      "category": "Taxes",
+      "prompt": "Non-refundable credits:",
+      "choices": [
+        "Always pay out cash beyond zero",
+        "Can reduce tax to $0 but won't pay out beyond that",
+        "Are illegal",
+        "Apply only to capital gains"
+      ],
+      "correctIndex": 1,
+      "explanation": "Pair them with refundable credits to maximize benefit."
+    },
+    {
+      "id": "tax_019",
+      "category": "Taxes",
+      "prompt": "A $2,000 credit vs. a $2,000 deduction in a 22% bracket:",
+      "choices": [
+        "The deduction is always worth more",
+        "Both are equal",
+        "The credit is worth much more (about $1,560 more)",
+        "Neither saves anything"
+      ],
+      "correctIndex": 2,
+      "explanation": "Credits hit the tax bill directly. Deductions only reduce taxable income."
+    },
+    {
+      "id": "tax_020",
+      "category": "Taxes",
+      "prompt": "Common tax credits include:",
+      "choices": [
+        "Stock dividends",
+        "Mortgage payments",
+        "Charitable donations only",
+        "Child Tax Credit and Earned Income Tax Credit"
+      ],
+      "correctIndex": 3,
+      "explanation": "Credits often serve a policy goal: encouraging work, kids, education, or clean energy."
+    },
+    {
+      "id": "tax_021",
+      "category": "Taxes",
+      "prompt": "The standard deduction is:",
+      "choices": [
+        "A flat amount most filers can subtract from taxable income without itemizing",
+        "A type of credit",
+        "A property tax payment",
+        "An investment account"
+      ],
+      "correctIndex": 0,
+      "explanation": "Most filers take the standard deduction since the TCJA increased its size."
+    },
+    {
+      "id": "tax_022",
+      "category": "Taxes",
+      "prompt": "Itemized deductions:",
+      "choices": [
+        "Are illegal",
+        "Are specific eligible expenses summed up to potentially exceed the standard deduction",
+        "Always result in higher taxes",
+        "Are only for retirees"
+      ],
+      "correctIndex": 1,
+      "explanation": "Mortgage interest, state and local taxes (capped), and large charitable gifts are common items."
+    },
+    {
+      "id": "tax_023",
+      "category": "Taxes",
+      "prompt": "You should itemize when:",
+      "choices": [
+        "You have no deductions",
+        "The standard deduction is larger than your items",
+        "Your eligible itemized deductions exceed the standard deduction",
+        "You earn no income"
+      ],
+      "correctIndex": 2,
+      "explanation": "Compare the totals; pick whichever gives the larger deduction."
+    },
+    {
+      "id": "tax_024",
+      "category": "Taxes",
+      "prompt": "Common itemized deductions include:",
+      "choices": [
+        "Concert tickets",
+        "Daily groceries",
+        "Streaming subscriptions",
+        "Mortgage interest, state taxes (capped), and charitable contributions"
+      ],
+      "correctIndex": 3,
+      "explanation": "Documentation matters. Keep records and receipts."
+    },
+    {
+      "id": "tax_025",
+      "category": "Taxes",
+      "prompt": "Form 1040 is:",
+      "choices": [
+        "The main U.S. individual income tax return form",
+        "A bank statement",
+        "A credit card form",
+        "A retirement contract"
+      ],
+      "correctIndex": 0,
+      "explanation": "Most taxpayers file a 1040 every year by mid-April."
+    },
+    {
+      "id": "tax_026",
+      "category": "Taxes",
+      "prompt": "Filing status (single, married filing jointly, etc.) affects:",
+      "choices": [
+        "Only your refund check size",
+        "Your bracket thresholds and standard deduction amount",
+        "Your investment returns",
+        "Your credit score"
+      ],
+      "correctIndex": 1,
+      "explanation": "Pick the status that legitimately applies. Married filing jointly often saves on taxes."
+    },
+    {
+      "id": "tax_027",
+      "category": "Taxes",
+      "prompt": "Dependents on a tax return:",
+      "choices": [
+        "Are required for filing",
+        "Always reduce your tax to zero",
+        "Can unlock credits and affect filing status, with strict rules on who qualifies",
+        "Disqualify you from refunds"
+      ],
+      "correctIndex": 2,
+      "explanation": "Children, qualifying relatives, and certain other people may qualify."
+    },
+    {
+      "id": "tax_028",
+      "category": "Taxes",
+      "prompt": "The U.S. federal income tax filing deadline is typically:",
+      "choices": [
+        "July 4",
+        "December 31",
+        "January 1",
+        "April 15 (or the next business day)"
+      ],
+      "correctIndex": 3,
+      "explanation": "Extensions push the FILING deadline, but not the PAYMENT deadline."
+    },
+    {
+      "id": "tax_029",
+      "category": "Taxes",
+      "prompt": "An extension to file:",
+      "choices": [
+        "Gives more time to file but does not extend payment deadlines",
+        "Postpones taxes you owe with no penalty",
+        "Always doubles your refund",
+        "Cancels the return entirely"
+      ],
+      "correctIndex": 0,
+      "explanation": "Pay your estimated tax by the original deadline to avoid interest and penalties."
+    },
+    {
+      "id": "tax_030",
+      "category": "Taxes",
+      "prompt": "Free filing options through the IRS Free File and similar programs:",
+      "choices": [
+        "Cost more than paid software",
+        "Are available to most filers below an income threshold",
+        "Are illegal",
+        "Apply only to corporations"
+      ],
+      "correctIndex": 1,
+      "explanation": "Check eligibility every year before paying for software."
+    },
+    {
+      "id": "tax_031",
+      "category": "Taxes",
+      "prompt": "A 1099-NEC reports:",
+      "choices": [
+        "Your investment dividends only",
+        "Your wages from an employer",
+        "Non-employee compensation paid to you (e.g., as a contractor)",
+        "Your tax refund"
+      ],
+      "correctIndex": 2,
+      "explanation": "1099 income usually has no tax withheld -- you owe the tax yourself."
+    },
+    {
+      "id": "tax_032",
+      "category": "Taxes",
+      "prompt": "Self-employment tax covers:",
+      "choices": [
+        "Property tax",
+        "Federal income tax only",
+        "State sales tax",
+        "Both employer and employee shares of Social Security and Medicare"
+      ],
+      "correctIndex": 3,
+      "explanation": "It's roughly 15.3% on self-employment net earnings, on top of income tax."
+    },
+    {
+      "id": "tax_033",
+      "category": "Taxes",
+      "prompt": "Business expenses for a sole proprietor are typically:",
+      "choices": [
+        "Deductible on Schedule C, lowering taxable business income",
+        "Always non-deductible",
+        "Doubled at year-end",
+        "Treated as gifts"
+      ],
+      "correctIndex": 0,
+      "explanation": "Track every business expense -- they directly reduce your tax bill."
+    },
+    {
+      "id": "tax_034",
+      "category": "Taxes",
+      "prompt": "Quarterly estimated taxes are due roughly:",
+      "choices": [
+        "Once every five years",
+        "April, June, September, and January (for the prior year)",
+        "Only on December 31",
+        "Whenever you choose"
+      ],
+      "correctIndex": 1,
+      "explanation": "Missing them can trigger underpayment penalties."
+    },
+    {
+      "id": "tax_035",
+      "category": "Taxes",
+      "prompt": "A small business owner with $40,000 net profit pays:",
+      "choices": [
+        "Self-employment tax only",
+        "Income tax only",
+        "Both income tax and self-employment tax on most of that profit",
+        "No tax at all"
+      ],
+      "correctIndex": 2,
+      "explanation": "Plan for both layers of tax to avoid year-end surprises."
+    },
+    {
+      "id": "tax_036",
+      "category": "Taxes",
+      "prompt": "Mixing business and personal expenses on one credit card:",
+      "choices": [
+        "Improves your credit score",
+        "Always saves money",
+        "Eliminates tax filing",
+        "Makes bookkeeping messy and risks losing legitimate deductions"
+      ],
+      "correctIndex": 3,
+      "explanation": "Keep clean records. Separate accounts and cards make tax time much easier."
+    },
+    {
+      "id": "tax_037",
+      "category": "Taxes",
+      "prompt": "Sales tax is:",
+      "choices": [
+        "A tax added at the point of sale on many goods and services",
+        "An income tax",
+        "An investment tax",
+        "A federal estate tax"
+      ],
+      "correctIndex": 0,
+      "explanation": "Rates and what is taxed vary by state and locality."
+    },
+    {
+      "id": "tax_038",
+      "category": "Taxes",
+      "prompt": "Property tax is generally:",
+      "choices": [
+        "A federal income tax",
+        "A local tax on the value of real estate you own",
+        "A sales tax",
+        "A self-employment tax"
+      ],
+      "correctIndex": 1,
+      "explanation": "Schools and municipal services often depend on property taxes."
+    },
+    {
+      "id": "tax_039",
+      "category": "Taxes",
+      "prompt": "Payroll taxes are:",
+      "choices": [
+        "A capital gains tax",
+        "A type of property tax",
+        "Taxes employers withhold or pay related to wages, including FICA",
+        "A sales tax"
+      ],
+      "correctIndex": 2,
+      "explanation": "Both employer and employee fund Social Security and Medicare via payroll taxes."
+    },
+    {
+      "id": "tax_040",
+      "category": "Taxes",
+      "prompt": "Property taxes can rise when:",
+      "choices": [
+        "You earn less income",
+        "You move out of state",
+        "You change banks",
+        "Local assessments increase or rates go up"
+      ],
+      "correctIndex": 3,
+      "explanation": "Stay aware -- big assessment jumps can be appealed."
+    },
+    {
+      "id": "tax_041",
+      "category": "Taxes",
+      "prompt": "A traditional 401(k) contribution generally:",
+      "choices": [
+        "Lowers your taxable income today; withdrawals in retirement are taxed",
+        "Doesn't affect taxes",
+        "Grows after-tax dollars only",
+        "Is illegal"
+      ],
+      "correctIndex": 0,
+      "explanation": "Pre-tax now, taxed later. Useful when you expect a lower tax rate in retirement."
+    },
+    {
+      "id": "tax_042",
+      "category": "Taxes",
+      "prompt": "A Roth 401(k) or Roth IRA contribution:",
+      "choices": [
+        "Lowers taxes today and in retirement",
+        "Uses after-tax dollars now; qualified withdrawals are tax-free",
+        "Has no tax benefit",
+        "Always doubles your contribution"
+      ],
+      "correctIndex": 1,
+      "explanation": "Pay tax now, enjoy tax-free growth and withdrawals later."
+    },
+    {
+      "id": "tax_043",
+      "category": "Taxes",
+      "prompt": "An HSA, when used for qualified medical expenses, is:",
+      "choices": [
+        "Identical to a checking account",
+        "Always taxable",
+        "Triple tax-advantaged: pre-tax in, tax-free growth, tax-free out",
+        "Limited to wealthy filers"
+      ],
+      "correctIndex": 2,
+      "explanation": "Among the most powerful tax-advantaged accounts when used right."
+    },
+    {
+      "id": "tax_044",
+      "category": "Taxes",
+      "prompt": "An employer 401(k) match is:",
+      "choices": [
+        "An insurance premium",
+        "A loan you have to repay",
+        "A tax credit",
+        "Free money you should generally not leave on the table"
+      ],
+      "correctIndex": 3,
+      "explanation": "At minimum, contribute enough to capture the full match."
+    },
+    {
+      "id": "tax_045",
+      "category": "Taxes",
+      "prompt": "A traditional IRA differs from a 401(k) mainly in that:",
+      "choices": [
+        "IRAs are individual; 401(k)s are employer-sponsored",
+        "IRAs have no contribution limits",
+        "401(k)s are always tax-free",
+        "IRAs cannot invest in stocks"
+      ],
+      "correctIndex": 0,
+      "explanation": "Both shelter retirement savings; rules and limits differ."
+    },
+    {
+      "id": "tax_046",
+      "category": "Taxes",
+      "prompt": "Withdrawing from a traditional 401(k) before age 59 typically:",
+      "choices": [
+        "Is always tax-free",
+        "Triggers income tax plus a 10% penalty, with limited exceptions",
+        "Doubles the account",
+        "Pays you interest"
+      ],
+      "correctIndex": 1,
+      "explanation": "Plan well so you don't tap retirement money early."
+    },
+    {
+      "id": "tax_047",
+      "category": "Taxes",
+      "prompt": "Short-term capital gains (held one year or less) are taxed:",
+      "choices": [
+        "Only at retirement",
+        "At a special 0% rate always",
+        "At ordinary income tax rates",
+        "Never"
+      ],
+      "correctIndex": 2,
+      "explanation": "Holding longer can shift gains into the lower long-term rate."
+    },
+    {
+      "id": "tax_048",
+      "category": "Taxes",
+      "prompt": "Long-term capital gains (held more than one year):",
+      "choices": [
+        "Are not taxed in the U.S.",
+        "Are always tax-free",
+        "Are taxed higher than wages",
+        "Are taxed at lower preferential rates than ordinary income"
+      ],
+      "correctIndex": 3,
+      "explanation": "Holding investments longer often saves on taxes."
+    },
+    {
+      "id": "tax_049",
+      "category": "Taxes",
+      "prompt": "Capital losses can:",
+      "choices": [
+        "Offset capital gains and a limited amount of ordinary income each year",
+        "Erase your wages",
+        "Eliminate property tax",
+        "Triple your refund"
+      ],
+      "correctIndex": 0,
+      "explanation": "Tax-loss harvesting is a real strategy when used carefully."
+    },
+    {
+      "id": "tax_050",
+      "category": "Taxes",
+      "prompt": "Selling a stock at a profit triggers:",
+      "choices": [
+        "No tax under any circumstances",
+        "A taxable event in most accounts (not in retirement accounts until withdrawal)",
+        "A guaranteed refund",
+        "A tax credit"
+      ],
+      "correctIndex": 1,
+      "explanation": "Holding inside an IRA or 401(k) defers or removes the tax until withdrawal."
+    }
+  ]
+}

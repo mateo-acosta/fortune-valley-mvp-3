@@ -24,7 +24,8 @@ namespace FortuneValley.Managers
             IInvestmentService investmentSystem,
             IRestaurantService restaurantSystem,
             List<LotPurchaseRecord> lotPurchases = null,
-            List<SellTransactionRecord> sellHistory = null)
+            List<SellTransactionRecord> sellHistory = null,
+            GoalScorecard scorecard = null)
         {
             var summary = new GameSummary();
 
@@ -51,7 +52,7 @@ namespace FortuneValley.Managers
             // Financial data
             if (currencyManager != null)
             {
-                summary.FinalNetWorth = currencyManager.Balance;
+                summary.FinalNetWorth = currencyManager.TotalLiquidBalance;
             }
 
             if (investmentSystem != null)
@@ -81,6 +82,10 @@ namespace FortuneValley.Managers
             summary.InvestmentInsight = LearningReflectionBuilder.BuildInvestmentInsight(summary);
             summary.OpportunityCostInsight = LearningReflectionBuilder.BuildOpportunityCostInsight(summary);
             summary.WhatIfMessage = LearningReflectionBuilder.BuildWhatIfMessage(isPlayerWin, summary);
+
+            // Life Goals scorecard (set by RetirementEvaluator on retirement;
+            // null on legacy or non-retirement game-end paths).
+            summary.Scorecard = scorecard;
 
             return summary;
         }

@@ -1,0 +1,239 @@
+/* ============================================================
+   Fortune Valley Info Modal
+   Visual chrome for the "what is this?" explainers. Consumes
+   the CSS variables already defined by each panel's :root
+   (--paper, --ink-900, --bd, --sh-3, --font, etc.) so the
+   modal inherits each panel's accent and feels native rather
+   than imported.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Trigger button. The small (i) icon next to a card title or
+   a financial label. Inline with text, expanded touch target.
+   ---------------------------------------------------------- */
+.fv-info-btn {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 50%;
+  background: var(--paper-3, #E8ECF6);
+  border: 1px solid rgba(14,21,48,0.14);
+  color: var(--fg-2, #3A4D8E);
+  font-family: var(--font, 'Nunito', system-ui, sans-serif);
+  font-weight: 900;
+  font-style: normal;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-left: 6px;
+  position: relative;
+  transition: background 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              color      120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform  120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  flex: none;
+}
+/* Invisible 24x24 hit area for touch without changing layout. */
+.fv-info-btn::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+}
+.fv-info-btn:hover {
+  background: var(--paper-4, #DBE1F0);
+  color: var(--fg-1, #0E1530);
+  transform: scale(1.08);
+}
+.fv-info-btn:focus-visible {
+  outline: 2px solid var(--ink-700, #1F2C5C);
+  outline-offset: 2px;
+}
+.fv-info-btn:active { transform: scale(0.96); }
+
+/* ----------------------------------------------------------
+   Backdrop and modal card
+   ---------------------------------------------------------- */
+.fv-info-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,12,30,0.55);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  font-family: var(--font, 'Nunito', system-ui, sans-serif);
+  padding: 24px;
+}
+.fv-info-backdrop[hidden] { display: none; }
+.fv-info-backdrop.fv-info-open { opacity: 1; }
+
+.fv-info-card {
+  width: min(540px, 100%);
+  max-height: calc(100vh - 80px);
+  background: var(--paper, #FFFFFF);
+  color: var(--fg-1, #0E1530);
+  border-radius: var(--r-xl, 24px);
+  box-shadow: var(--sh-3, 0 12px 28px rgba(14,21,48,0.18), 0 28px 60px rgba(14,21,48,0.22));
+  border: var(--bd, 1px solid rgba(14,21,48,0.08));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(8px) scale(0.98);
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fv-info-backdrop.fv-info-open .fv-info-card {
+  transform: none;
+}
+
+/* ----------------------------------------------------------
+   Header
+   ---------------------------------------------------------- */
+.fv-info-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px 14px 22px;
+  border-bottom: var(--bd, 1px solid rgba(14,21,48,0.08));
+  background: linear-gradient(180deg, var(--paper, #FFFFFF), var(--paper-2, #F4F6FB));
+  flex: none;
+}
+.fv-info-title {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--fg-1, #0E1530);
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.fv-info-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: var(--paper-2, #F4F6FB);
+  border: var(--bd, 1px solid rgba(14,21,48,0.08));
+  color: var(--fg-2, #3A4D8E);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 900;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transition: background 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fv-info-close:hover { background: var(--paper-3, #E8ECF6); }
+.fv-info-close:focus-visible {
+  outline: 2px solid var(--ink-700, #1F2C5C);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------
+   Body
+   ---------------------------------------------------------- */
+.fv-info-body {
+  padding: 18px 22px 4px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.fv-info-body::-webkit-scrollbar { width: 8px; }
+.fv-info-body::-webkit-scrollbar-thumb {
+  background: var(--paper-4, #DBE1F0);
+  border-radius: 8px;
+}
+
+.fv-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fv-info-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--fg-3, #6B78A8);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.fv-info-section-body {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--fg-1, #0E1530);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Subsection list (history_legend, category, industry) */
+.fv-info-sublist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fv-info-subitem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--paper-2, #F4F6FB);
+  border: var(--bd, 1px solid rgba(14,21,48,0.08));
+  border-radius: 10px;
+}
+.fv-info-subname {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--fg-1, #0E1530);
+}
+.fv-info-subdesc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fg-2, #3A4D8E);
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------
+   Footer
+   ---------------------------------------------------------- */
+.fv-info-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 22px 18px;
+  border-top: var(--bd, 1px solid rgba(14,21,48,0.08));
+  background: var(--paper-2, #F4F6FB);
+  flex: none;
+}
+.fv-info-got-it {
+  font-family: inherit;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 10px 22px;
+  font-size: 14px;
+  background: var(--ink-900, #0E1530);
+  color: #fff;
+  transition: background 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform  120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fv-info-got-it:hover { background: var(--ink-800, #16204A); }
+.fv-info-got-it:active { transform: translateY(1px); }
+.fv-info-got-it:focus-visible {
+  outline: 2px solid var(--ink-700, #1F2C5C);
+  outline-offset: 2px;
+}

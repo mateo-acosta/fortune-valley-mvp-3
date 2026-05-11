@@ -1,0 +1,427 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using FortuneValley.Core;
+using FortuneValley.Domain.Enums;
+using FortuneValley.UI.Components;
+
+namespace FortuneValley.UI.Panels.Investing
+{
+    /// <summary>
+    /// Investing Trade tab: buy/sell interface for a selected stock.
+    /// Shows price graph, stock details, and buy/sell buttons.
+    /// Update-in-place (tick-driven).
+    ///
+    /// Receives selection via:
+    /// - OnTradeRequested event (from Portfolio detail view Trade button)
+    /// - _exploreSubPanel.SelectedDefinition (read on enable, for Explore tab flow)
+    ///
+    /// LEARNING DESIGN: Students make buy/sell decisions seeing real-time
+    /// price movement, learning about market timing and risk tolerance.
+    /// </summary>
+    public class InvestingTradeSubPanel : SubPanelBase
+    {
+        // ===============================================================
+        // REFERENCES
+        // ===============================================================
+
+        [Header("Dependencies")]
+        [SerializeField] private InvestmentSystem _investmentSystem;
+        [SerializeField] private StockPriceHistoryStore _stockHistory;
+        [SerializeField] private CurrencyManager _currencyManager;
+
+        [Header("Selection Source")]
+        [Tooltip("The Explore sub-panel. Selection is read on enable (for Explore->Trade flow).")]
+        [SerializeField] private InvestingExploreSubPanel _exploreSubPanel;
+
+        [Header("Graph")]
+        [SerializeField] private TMP_FontAsset _labelFont;
+        [SerializeField] private Image _graphPlaceholder;
+
+        [Header("Stock Details")]
+        [SerializeField] private TextMeshProUGUI _selectedAssetText;
+        [SerializeField] private TextMeshProUGUI _priceText;
+        [SerializeField] private TextMeshProUGUI _priceChangeText;
+        [SerializeField] private TextMeshProUGUI _sharesOwnedText;
+        [SerializeField] private TextMeshProUGUI _riskLevelText;
+        [SerializeField] private TextMeshProUGUI _averagePriceText;
+        [SerializeField] private TextMeshProUGUI _descriptionText;
+
+        [Header("Actions")]
+        [SerializeField] private Button _buyButton;
+        [SerializeField] private Button _sellButton;
+
+        [Header("Trading")]
+        [SerializeField] private int _sharesPerTrade = 1;
+
+        [Header("Recently Viewed")]
+        [SerializeField] private Transform _recentlyViewedContainer;
+        [SerializeField] private GameObject _recentlyViewedItemPrefab;
+        [SerializeField] private int _maxRecentlyViewed = 10;
+
+        [Header("Graph")]
+        [Tooltip("Number of days to show in the price history graph")]
+        [SerializeField] private int _graphWindowSize = 30;
+
+        [Header("Colors")]
+        [SerializeField] private Color _gainColor = new Color(0.2f, 0.8f, 0.2f);
+        [SerializeField] private Color _lossColor = new Color(0.8f, 0.2f, 0.2f);
+        [SerializeField] private Color _mediumRiskColor = new Color(1f, 0.8f, 0.2f);
+
+        // ===============================================================
+        // STATE
+        // ===============================================================
+
+        private LineGraphGraphic _stockGraph;
+        private int _currentDayTick;
+        private InvestmentDefinition _selectedDefinition;
+
+        // Cached checking balance (updated via event, avoids cross-layer method call)
+        // Buying stocks deducts from checking, so affordability checks use this
+        private float _cachedCheckingBalance;
+
+        // Cached for price change display
+        private Dictionary<InvestmentDefinition, float> _previousPrices
+            = new Dictionary<InvestmentDefinition, float>();
+
+        // Reusable buffer for graph data (avoids per-tick allocation)
+        private List<float> _graphBuffer = new List<float>();
+
+        // Recently viewed stocks (most recent first)
+        private List<InvestmentDefinition> _recentlyViewedList = new List<InvestmentDefinition>();
+        private List<HoldingListItemView> _recentlyViewedViews = new List<HoldingListItemView>();
+
+        // ===============================================================
+        // LIFECYCLE
+        // ===============================================================
+
+        protected override void OnEnable()
+        {
+            GameEvents.OnTick += HandleTick;
+            GameEvents.OnCheckingBalanceChanged += HandleCheckingBalanceChanged;
+            GameEvents.OnTradeRequested += HandleTradeRequested;
+            GameEvents.OnGameStart += HandleGameStart;
+
+            if (_buyButton != null)
+                _buyButton.onClick.AddListener(OnBuyClicked);
+            if (_sellButton != null)
+                _sellButton.onClick.AddListener(OnSellClicked);
+
+            EnsureGraph();
+
+            // Seed cached balance from CurrencyManager. OnCheckingBalanceChanged
+            // only fires on game start or transactions, so a panel opened later
+            // would miss the initial value and leave the Buy button disabled.
+            if (_currencyManager != null)
+                _cachedCheckingBalance = _currencyManager.CheckingBalance;
+
+            // Read selection from Explore tab (for Explore->Trade flow)
+            if (_exploreSubPanel != null && _exploreSubPanel.SelectedDefinition != null)
+            {
+                _selectedDefinition = _exploreSubPanel.SelectedDefinition;
+                AddToRecentlyViewed(_selectedDefinition);
+            }
+
+            SnapshotPrices();
+            base.OnEnable();
+        }
+
+        protected override void OnDisable()
+        {
+            GameEvents.OnTick -= HandleTick;
+            GameEvents.OnCheckingBalanceChanged -= HandleCheckingBalanceChanged;
+            GameEvents.OnTradeRequested -= HandleTradeRequested;
+            GameEvents.OnGameStart -= HandleGameStart;
+
+            if (_buyButton != null)
+                _buyButton.onClick.RemoveListener(OnBuyClicked);
+            if (_sellButton != null)
+                _sellButton.onClick.RemoveListener(OnSellClicked);
+
+            // Do NOT clear _selectedDefinition -- persist across enable/disable
+
+            base.OnDisable();
+        }
+
+        // ===============================================================
+        // EVENT HANDLERS
+        // ===============================================================
+
+        private void HandleTick(int tickNumber)
+        {
+            _currentDayTick = tickNumber;
+            SnapshotPrices();
+
+            // Selection comes from events only (OnTradeRequested, recently viewed clicks,
+            // or Explore read on enable). No per-tick polling.
+
+            UpdateRecentlyViewedPrices();
+            Refresh();
+        }
+
+        private void HandleCheckingBalanceChanged(float balance, float delta)
+        {
+            _cachedCheckingBalance = balance;
+            Refresh();
+        }
+
+        private void HandleTradeRequested(InvestmentDefinition def)
+        {
+            if (def == null) return;
+            _selectedDefinition = def;
+            AddToRecentlyViewed(def);
+            Refresh();
+        }
+
+        private void HandleGameStart()
+        {
+            ClearRecentlyViewed();
+        }
+
+        // ===============================================================
+        // BUY / SELL (intent events)
+        // ===============================================================
+
+        private void OnBuyClicked()
+        {
+            if (_selectedDefinition == null) return;
+
+            GameEvents.RaiseBuySharesRequested(_selectedDefinition, _sharesPerTrade);
+            Refresh();
+        }
+
+        private void OnSellClicked()
+        {
+            if (_selectedDefinition == null || _investmentSystem == null) return;
+
+            var inv = FindActiveInvestment(_selectedDefinition);
+            if (inv != null)
+                GameEvents.RaiseSellSharesRequested(inv, _sharesPerTrade);
+
+            Refresh();
+        }
+
+        // ===============================================================
+        // REFRESH (update-in-place, single stock view)
+        // ===============================================================
+
+        protected override void Refresh()
+        {
+            if (_selectedDefinition == null)
+            {
+                ShowPlaceholder();
+                return;
+            }
+
+            UIBuilderUtils.SetTextIfChanged(_selectedAssetText, _selectedDefinition.DisplayName);
+
+            // Price and change
+            UIBuilderUtils.SetTextIfChanged(_priceText, $"Price: ${_selectedDefinition.CurrentPrice:F2}");
+
+            float change = GetPriceChangePercent(_selectedDefinition);
+            string changeStr = $"Change: {(change >= 0 ? "+" : "")}{change:F2}%";
+            UIBuilderUtils.SetTextIfChanged(_priceChangeText, changeStr);
+            if (_priceChangeText != null)
+                _priceChangeText.color = change >= 0 ? _gainColor : _lossColor;
+
+            // Risk level
+            if (_riskLevelText != null)
+            {
+                UIBuilderUtils.SetTextIfChanged(_riskLevelText, $"Risk: {_selectedDefinition.RiskLevel}");
+                _riskLevelText.color = _selectedDefinition.RiskLevel switch
+                {
+                    RiskLevel.Low    => _gainColor,
+                    RiskLevel.Medium => _mediumRiskColor,
+                    RiskLevel.High   => _lossColor,
+                    _                => Color.white
+                };
+            }
+
+            // Shares owned
+            var activeInv = FindActiveInvestment(_selectedDefinition);
+            int sharesOwned = activeInv != null ? activeInv.NumberOfShares : 0;
+
+            UIBuilderUtils.SetTextIfChanged(_sharesOwnedText, $"Owned: {sharesOwned}");
+
+            string avgPriceStr = sharesOwned > 0
+                ? $"Avg Cost: ${activeInv.AveragePurchasePrice:F2}"
+                : "Avg Cost: $---";
+            UIBuilderUtils.SetTextIfChanged(_averagePriceText, avgPriceStr);
+
+            UIBuilderUtils.SetTextIfChanged(_descriptionText, sharesOwned > 0
+                ? "Tap Sell to remove 1 share."
+                : "Tap Buy to purchase 1 share.");
+
+            // Button states (uses cached checking balance -- buys deduct from checking)
+            if (_buyButton != null)
+                _buyButton.interactable = _cachedCheckingBalance >= _selectedDefinition.CurrentPrice;
+            if (_sellButton != null)
+                _sellButton.gameObject.SetActive(sharesOwned > 0);
+
+            // Stock price graph
+            RefreshGraph();
+        }
+
+        private void ShowPlaceholder()
+        {
+            UIBuilderUtils.SetTextIfChanged(_selectedAssetText, "Select an investment");
+            UIBuilderUtils.SetTextIfChanged(_priceText, "Price: $---");
+            UIBuilderUtils.SetTextIfChanged(_priceChangeText, "Change: ---%");
+            UIBuilderUtils.SetTextIfChanged(_sharesOwnedText, "Owned: 0");
+            UIBuilderUtils.SetTextIfChanged(_riskLevelText, "Risk: ---");
+            UIBuilderUtils.SetTextIfChanged(_averagePriceText, "Avg Cost: $---");
+            UIBuilderUtils.SetTextIfChanged(_descriptionText, "Select a stock to see details.");
+            if (_priceChangeText != null) _priceChangeText.color = Color.white;
+            if (_riskLevelText != null) _riskLevelText.color = Color.white;
+            if (_buyButton != null) _buyButton.interactable = false;
+            if (_sellButton != null) _sellButton.gameObject.SetActive(false);
+        }
+
+        private void RefreshGraph()
+        {
+            StockGraphHelper.RefreshGraph(
+                _stockGraph, _stockHistory, _selectedDefinition,
+                _graphWindowSize, _currentDayTick, _graphBuffer);
+        }
+
+        // ===============================================================
+        // RECENTLY VIEWED
+        // ===============================================================
+
+        private void AddToRecentlyViewed(InvestmentDefinition def)
+        {
+            if (def == null) return;
+
+            // Remove duplicate if already in list (will re-add at top)
+            _recentlyViewedList.Remove(def);
+
+            // Add to front (most recent first)
+            _recentlyViewedList.Insert(0, def);
+
+            // Cap at max
+            while (_recentlyViewedList.Count > _maxRecentlyViewed)
+                _recentlyViewedList.RemoveAt(_recentlyViewedList.Count - 1);
+
+            RebuildRecentlyViewedUI();
+        }
+
+        private void RebuildRecentlyViewedUI()
+        {
+            ClearRecentlyViewedUI();
+
+            if (_recentlyViewedContainer == null || _recentlyViewedItemPrefab == null) return;
+
+            for (int i = 0; i < _recentlyViewedList.Count; i++)
+            {
+                var def = _recentlyViewedList[i];
+                var go = Instantiate(_recentlyViewedItemPrefab, _recentlyViewedContainer);
+                var view = go.GetComponent<HoldingListItemView>();
+                _recentlyViewedViews.Add(view);
+
+                if (view != null)
+                {
+                    view.SetName(def.DisplayName);
+                    view.SetValue(
+                        $"${def.CurrentPrice:F2}",
+                        def.CurrentPrice >= def.BasePricePerShare ? _gainColor : _lossColor);
+                }
+
+                // Wire click to select this stock for trading
+                var btn = go.GetComponent<Button>();
+                if (btn == null)
+                {
+                    var img = go.GetComponent<Image>();
+                    if (img == null)
+                    {
+                        img = go.AddComponent<Image>();
+                        img.color = Color.clear;
+                    }
+                    btn = go.AddComponent<Button>();
+                    btn.targetGraphic = img;
+                }
+
+                var capturedDef = def;
+                btn.onClick.AddListener(() =>
+                {
+                    _selectedDefinition = capturedDef;
+                    AddToRecentlyViewed(capturedDef);
+                    Refresh();
+                });
+            }
+        }
+
+        private void UpdateRecentlyViewedPrices()
+        {
+            for (int i = 0; i < _recentlyViewedViews.Count && i < _recentlyViewedList.Count; i++)
+            {
+                var view = _recentlyViewedViews[i];
+                var def = _recentlyViewedList[i];
+                if (view == null || def == null) continue;
+
+                view.SetValue(
+                    $"${def.CurrentPrice:F2}",
+                    def.CurrentPrice >= def.BasePricePerShare ? _gainColor : _lossColor);
+            }
+        }
+
+        private void ClearRecentlyViewed()
+        {
+            _recentlyViewedList.Clear();
+            ClearRecentlyViewedUI();
+        }
+
+        private void ClearRecentlyViewedUI()
+        {
+            for (int i = 0; i < _recentlyViewedViews.Count; i++)
+            {
+                if (_recentlyViewedViews[i] != null)
+                    Destroy(_recentlyViewedViews[i].gameObject);
+            }
+            _recentlyViewedViews.Clear();
+        }
+
+        // ===============================================================
+        // HELPERS
+        // ===============================================================
+
+        private void EnsureGraph()
+        {
+            if (_stockGraph != null || _graphPlaceholder == null) return;
+            _stockGraph = StockGraphHelper.EnsureGraphCreated(_graphPlaceholder, _labelFont);
+        }
+
+        private ActiveInvestment FindActiveInvestment(InvestmentDefinition def)
+        {
+            if (_investmentSystem == null) return null;
+            var investments = _investmentSystem.ActiveInvestments;
+            for (int i = 0; i < investments.Count; i++)
+            {
+                if (investments[i].Definition == def)
+                    return investments[i];
+            }
+            return null;
+        }
+
+        private const float PercentMultiplier = 100f;
+
+        private void SnapshotPrices()
+        {
+            if (_investmentSystem == null) return;
+            var investments = _investmentSystem.AvailableInvestments;
+            for (int i = 0; i < investments.Count; i++)
+                _previousPrices[investments[i]] = investments[i].CurrentPrice;
+        }
+
+        private float GetPriceChangePercent(InvestmentDefinition def)
+        {
+            if (_previousPrices.TryGetValue(def, out float prev) && prev > 0)
+                return (def.CurrentPrice - prev) / prev * PercentMultiplier;
+
+            if (def.BasePricePerShare > 0)
+                return (def.CurrentPrice - def.BasePricePerShare) / def.BasePricePerShare * PercentMultiplier;
+
+            return 0f;
+        }
+    }
+}

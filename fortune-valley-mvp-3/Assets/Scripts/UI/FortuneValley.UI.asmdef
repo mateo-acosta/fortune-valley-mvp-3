@@ -4,14 +4,17 @@
     "references": [
         "FortuneValley.Core",
         "FortuneValley.Domain",
+        "FortuneValley.Managers",
         "Unity.TextMeshPro",
         "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "DOTween.dll"
+    ],
     "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],

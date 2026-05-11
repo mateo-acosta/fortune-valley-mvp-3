@@ -16,6 +16,7 @@ MonoBehaviour:
   _description: A utility company providing essential services. Very stable but slow
     growth. A defensive investment.
   _category: 0
+  _industry: 0
   _riskLevel: 0
   _annualReturnRate: 0.05
   _volatilityRange: {x: 0.92, y: 1.08}
@@ -23,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 50
   _basePricePerShare: 75
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

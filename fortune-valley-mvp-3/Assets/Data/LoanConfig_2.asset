@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba3aeba1af4f04139a57b05a348c1b91, type: 3}
+  m_Name: LoanConfig_2
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.LoanConfig
+  _loanId: loan_standard
+  _displayName: Standard Loan
+  _tagline: Balanced rate and term for most buyers
+  _apr: 0.08
+  _termYears: 10
+  _downPaymentPercent: 0.15
+  _loanImage: {fileID: 21300000, guid: fbe30446aa6924d838e8c5629d01e060, type: 3}
+  _minimumCreditScore: 600
+  _maxDtiRatio: 0.5
+  _maxPrincipal: 100000

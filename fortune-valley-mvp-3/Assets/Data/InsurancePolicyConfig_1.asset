@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 832feb48516594596871e6f32b8aa09d, type: 3}
+  m_Name: InsurancePolicyConfig_1
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.InsurancePolicyConfig
+  _policyId: ins_basic
+  _displayName: Basic Protection
+  _policyType: 0
+  _monthlyPremium: 40
+  _deductible: 150
+  _coveragePercent: 0.7
+  _coveredAccidents:
+  - {fileID: 11400000, guid: d626db9eecdf448d5a149188f94e30f5, type: 2}
+  - {fileID: 11400000, guid: e55da0e6ed56e467397897d6be6e162a, type: 2}

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba3aeba1af4f04139a57b05a348c1b91, type: 3}
+  m_Name: LoanConfig_1
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.LoanConfig
+  _loanId: loan_starter
+  _displayName: Starter Loan
+  _tagline: Easy approval, short term, higher rate
+  _apr: 0.15
+  _termYears: 5
+  _downPaymentPercent: 0.25
+  _loanImage: {fileID: 21300000, guid: 63dd75321b8a8487098a524ea16c8097, type: 3}
+  _minimumCreditScore: 450
+  _maxDtiRatio: 0.5
+  _maxPrincipal: 25000

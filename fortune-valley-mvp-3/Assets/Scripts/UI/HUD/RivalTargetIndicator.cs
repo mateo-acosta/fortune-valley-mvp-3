@@ -188,11 +188,19 @@ namespace FortuneValley.UI.HUD
 
         private void UpdateCountdown()
         {
-            // Update countdown text
+            // Countdown is short-range (1-7 in-game days = a fraction of a year).
+            // Days never appear in the UI, so the count maps to urgency phrases
+            // backed by the existing color tiers. The pulse animation + color
+            // do the visceral work.
             if (_countdownText != null)
             {
-                string dayWord = _daysRemaining == 1 ? "day" : "days";
-                _countdownText.text = $"{_daysRemaining} {dayWord} remaining";
+                string urgency;
+                if (_daysRemaining <= _criticalDays) urgency = "Closing now";
+                else if (_daysRemaining <= _urgentDays) urgency = "Closing soon";
+                else if (_daysRemaining <= _warningDays) urgency = "Decision soon";
+                else urgency = "Approaching";
+
+                _countdownText.text = urgency;
             }
 
             // Update urgency color

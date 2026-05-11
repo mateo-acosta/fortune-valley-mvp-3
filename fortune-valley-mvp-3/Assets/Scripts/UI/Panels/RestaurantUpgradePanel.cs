@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using FortuneValley.Core;
+using FortuneValley.Domain;
 
 namespace FortuneValley.UI.Panels
 {
@@ -13,28 +14,27 @@ namespace FortuneValley.UI.Panels
     /// cost choice. Cash spent here cannot be reinvested. Students should
     /// ask: "Is $500 now worth more as an upgrade or as investment capital?"
     /// </summary>
-    public class RestaurantUpgradePanel : MonoBehaviour
+    public class RestaurantUpgradePanel : UIPanel
     {
         // ═══════════════════════════════════════════════════════════════
         // INSPECTOR FIELDS
         // ═══════════════════════════════════════════════════════════════
 
-        [Header("Systems")]
-        [Tooltip("Restaurant system -- provides tier info and handles upgrades")]
+        [Header("Systems (read-only access)")]
+        [Tooltip("Restaurant system -- provides tier info (read-only)")]
         [SerializeField] private RestaurantSystem _restaurantSystem;
 
-        [Tooltip("Currency manager -- used to check affordability")]
+        [Tooltip("Currency manager -- used to check affordability (read-only)")]
         [SerializeField] private CurrencyManager _currencyManager;
 
-        [Header("Panel Root")]
-        [Tooltip("The root GameObject to show/hide")]
-        [SerializeField] private GameObject _panelRoot;
+        [Tooltip("Time manager -- used to convert per-tick income into per-year for display.")]
+        [SerializeField] private TimeManager _timeManager;
 
         [Header("Current Tier Display")]
         [Tooltip("Shows the current tier name, e.g. 'Bistro'")]
         [SerializeField] private TextMeshProUGUI _tierNameText;
 
-        [Tooltip("Shows income per tick, e.g. 'Income: $25/tick'")]
+        [Tooltip("Shows income per year, e.g. 'Income: $7,500/year'")]
         [SerializeField] private TextMeshProUGUI _incomeText;
 
         [Tooltip("Tier image -- swap sprite per tier to give visual feedback")]
@@ -81,43 +81,42 @@ namespace FortuneValley.UI.Panels
                 _upgradeButton.onClick.AddListener(OnUpgradeClicked);
 
             if (_closeButton != null)
-                _closeButton.onClick.AddListener(Close);
-
-            // Panel starts hidden
-            if (_panelRoot != null)
-                _panelRoot.SetActive(false);
+                _closeButton.onClick.AddListener(OnCloseButtonClicked);
         }
 
         private void OnEnable()
         {
-            GameEvents.OnRestaurantSelected += Show;
+            GameEvents.OnRestaurantSelected += HandleRestaurantSelected;
             GameEvents.OnRestaurantUpgraded += OnUpgraded;
             GameEvents.OnCurrencyChanged += OnCurrencyChanged;
         }
 
         private void OnDisable()
         {
-            GameEvents.OnRestaurantSelected -= Show;
+            GameEvents.OnRestaurantSelected -= HandleRestaurantSelected;
             GameEvents.OnRestaurantUpgraded -= OnUpgraded;
             GameEvents.OnCurrencyChanged -= OnCurrencyChanged;
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // PUBLIC METHODS
+        // UIPANEL OVERRIDES
         // ═══════════════════════════════════════════════════════════════
 
-        public void Show()
+        protected override void OnShow()
         {
-            if (_panelRoot != null)
-                _panelRoot.SetActive(true);
-
             Refresh();
         }
 
-        public void Close()
+        // ═══════════════════════════════════════════════════════════════
+        // EVENT HANDLERS
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Player clicked the restaurant building in the world.
+        /// </summary>
+        private void HandleRestaurantSelected()
         {
-            if (_panelRoot != null)
-                _panelRoot.SetActive(false);
+            Show(); // inherited from UIPanel
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -136,7 +135,11 @@ namespace FortuneValley.UI.Panels
                 _tierNameText.text = _restaurantSystem.TierDisplayName;
 
             if (_incomeText != null)
-                _incomeText.text = $"Income: ${_restaurantSystem.IncomePerTick:F0}/tick";
+            {
+                int ticksPerDay = _timeManager != null ? _timeManager.EnginePulsesPerTick : 1;
+                float incomePerYear = _restaurantSystem.IncomePerTick * ticksPerDay * LifespanConstants.TicksPerYear;
+                _incomeText.text = $"Income: ${incomePerYear:N0}/year";
+            }
 
             // Tier image (tier index is level - 1)
             if (_tierImage != null && _tierSprites != null && _tierSprites.Length > 0)
@@ -187,7 +190,7 @@ namespace FortuneValley.UI.Panels
             if (_restaurantSystem.IsMaxTier) return;
 
             float cost = _restaurantSystem.UpgradeCost;
-            bool canAfford = _currencyManager.CanAfford(cost);
+            bool canAfford = _currencyManager.CanAffordChecking(cost);
 
             if (_upgradeButton != null)
                 _upgradeButton.interactable = canAfford;
@@ -200,7 +203,7 @@ namespace FortuneValley.UI.Panels
                 }
                 else
                 {
-                    float shortfall = cost - _currencyManager.Balance;
+                    float shortfall = cost - _currencyManager.CheckingBalance;
                     _affordabilityText.text = $"Need ${shortfall:F0} more";
                     _affordabilityText.gameObject.SetActive(true);
                 }
@@ -209,8 +212,8 @@ namespace FortuneValley.UI.Panels
 
         private void OnUpgradeClicked()
         {
-            // RestaurantSystem handles affordability check and fires OnRestaurantUpgraded
-            _restaurantSystem.TryUpgrade();
+            // Fire intent event -- RestaurantSystem handles affordability and upgrade
+            GameEvents.RaiseUpgradeRestaurantRequested();
         }
 
         private void OnUpgraded(int newLevel)
@@ -222,7 +225,7 @@ namespace FortuneValley.UI.Panels
         private void OnCurrencyChanged(float newBalance, float delta)
         {
             // Only bother updating if the panel is visible
-            if (_panelRoot != null && _panelRoot.activeSelf)
+            if (IsVisible)
                 RefreshAffordability();
         }
     }

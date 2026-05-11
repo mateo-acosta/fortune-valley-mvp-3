@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: ColaStock
   m_EditorClassIdentifier: FortuneValley::FortuneValley.Core.InvestmentDefinition
   _displayName: RefreshCo (KO)
-  _description: A global beverage giant with decades of steady dividends. Slow growth
-    but very stable — people always buy drinks, even in a downturn.
+  _description: "A global beverage giant with decades of steady dividends. Slow growth
+    but very stable \u2014 people always buy drinks, even in a downturn."
   _category: 0
+  _industry: 0
   _riskLevel: 0
   _annualReturnRate: 0.05
   _volatilityRange: {x: 0.93, y: 1.07}
@@ -23,3 +24,4 @@ MonoBehaviour:
   _compoundsPerYear: 12
   _minimumDeposit: 25
   _basePricePerShare: 62
+  _priceModelConfig: {fileID: 11400000, guid: 8a9f356816ffe4441914846bbafbb4e2, type: 2}

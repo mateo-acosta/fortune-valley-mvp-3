@@ -90,7 +90,8 @@ namespace FortuneValley.Core
         /// <summary>
         /// Returns the last <paramref name="windowSize"/> price entries for <paramref name="def"/>.
         /// Returns an empty list (never null) if the definition is unknown.
-        /// TECH DEBT: returns a new List copy per call — accept O(n) for ≤30 entries at 1 Hz.
+        /// LEGACY: allocates two lists per call. Hot-path callers should use
+        /// GetWindowSize + WriteWindowTo instead.
         /// </summary>
         public IReadOnlyList<float> GetWindow(InvestmentDefinition def, int windowSize = 30)
         {
@@ -99,6 +100,32 @@ namespace FortuneValley.Core
 
             int start = Mathf.Max(0, list.Count - windowSize);
             return new List<float>(list.GetRange(start, list.Count - start));
+        }
+
+        /// <summary>
+        /// Returns the actual number of entries the next WriteWindowTo call will
+        /// produce for <paramref name="def"/> with the given window size.
+        /// Pair with WriteWindowTo to allocate a properly-sized destination
+        /// buffer once per size change instead of per push.
+        /// </summary>
+        public int GetWindowSize(InvestmentDefinition def, int windowSize = 30)
+        {
+            if (def == null || !_history.TryGetValue(def, out var list)) return 0;
+            return Mathf.Min(windowSize, list.Count);
+        }
+
+        /// <summary>
+        /// Writes the last <paramref name="windowSize"/> price entries for
+        /// <paramref name="def"/> into <paramref name="dest"/>, oldest-first.
+        /// Writes up to dest.Length values. No allocations. Hot-path-safe.
+        /// No-op if dest is null or def is unknown.
+        /// </summary>
+        public void WriteWindowTo(InvestmentDefinition def, float[] dest, int windowSize = 30)
+        {
+            if (def == null || dest == null || !_history.TryGetValue(def, out var list)) return;
+            int start = Mathf.Max(0, list.Count - windowSize);
+            int writeCount = Mathf.Min(list.Count - start, dest.Length);
+            for (int i = 0; i < writeCount; i++) dest[i] = list[start + i];
         }
     }
 }

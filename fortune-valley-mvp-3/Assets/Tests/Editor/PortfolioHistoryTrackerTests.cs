@@ -36,7 +36,7 @@ namespace FortuneValley.Tests
             SetField(_investment, "_availableInvestments", new List<InvestmentDefinition>());
 
             // Set balance directly on CurrencyManager's backing field
-            SetField(_currency, "_balance", 500f);
+            SetField(_currency, "_checkingBalance", 500f);
         }
 
         [TearDown]
@@ -82,7 +82,7 @@ namespace FortuneValley.Tests
         {
             // balance = 500, no active investments → TotalPortfolioValue = 0
             // Snapshot must equal 500 + 0 = 500, validating: totalWealth = Balance + TotalPortfolioValue
-            SetField(_currency, "_balance", 500f);
+            SetField(_currency, "_checkingBalance", 500f);
 
             InvokeGameStart(); // records the first snapshot
 
@@ -91,6 +91,22 @@ namespace FortuneValley.Tests
 
             Assert.AreEqual(expected, lastSnapshot, 0.01f,
                 "Snapshot must equal Balance + TotalPortfolioValue");
+        }
+
+        [Test]
+        public void PortfolioValueHistory_Snapshot_EqualsTotalPortfolioValue()
+        {
+            // Cash should NOT be reflected in PortfolioValueHistory.
+            // No active investments → TotalPortfolioValue = 0 → snapshot = 0.
+            SetField(_currency, "_checkingBalance", 500f);
+
+            InvokeGameStart();
+
+            float lastSnapshot = _tracker.PortfolioValueHistory[_tracker.PortfolioValueHistory.Count - 1];
+            float expected = _investment.TotalPortfolioValue;
+
+            Assert.AreEqual(expected, lastSnapshot, 0.01f,
+                "PortfolioValueHistory snapshot must equal InvestmentSystem.TotalPortfolioValue (cash excluded)");
         }
 
         // ═══════════════════════════════════════════════════════════════

@@ -1,13 +1,22 @@
 using UnityEngine;
 using FortuneValley.Core;
 using FortuneValley.Domain.Entities;
+using FortuneValley.Domain.Tutorial;
 
 namespace FortuneValley.Managers
 {
     /// <summary>
-    /// Coordinates the full game flow: Title -> Rules -> Play -> Game Over -> Title.
-    /// Communicates with UI panels exclusively through GameEvents.
-    /// This class does NOT hold typed references to UI panel classes.
+    /// Coordinates the full game flow: Title -> (Tutorial | Rules | Skip) ->
+    /// Play -> Game Over -> Title. Communicates with UI panels exclusively
+    /// through GameEvents. This class does NOT hold typed references to UI
+    /// panel classes.
+    ///
+    /// The Start click no longer routes directly into the rules carousel;
+    /// BootFlowRouter decides whether a first-time tutorial runs, the
+    /// normal rules carousel plays, or the player (teacher preview) skips
+    /// straight into countdown. Each BootFlow value has its own explicit
+    /// handler method so adding future flows is a single switch-case, not
+    /// a nested if tree.
     /// </summary>
     public class GameFlowController : MonoBehaviour
     {
@@ -24,9 +33,10 @@ namespace FortuneValley.Managers
 
         private void OnEnable()
         {
-            GameEvents.OnStartRequested += HandleStartRequested;
+            GameEvents.OnBootFlowDecided += HandleBootFlowDecided;
             GameEvents.OnCarouselComplete += HandleCarouselComplete;
             GameEvents.OnCountdownComplete += HandleCountdownComplete;
+            GameEvents.OnTutorialComplete += HandleTutorialComplete;
             GameEvents.OnGameEndWithSummary += HandleGameEnd;
             GameEvents.OnRestartRequested += RestartGame;
             GameEvents.OnReturnToTitleRequested += ShowTitleScreen;
@@ -34,9 +44,10 @@ namespace FortuneValley.Managers
 
         private void OnDisable()
         {
-            GameEvents.OnStartRequested -= HandleStartRequested;
+            GameEvents.OnBootFlowDecided -= HandleBootFlowDecided;
             GameEvents.OnCarouselComplete -= HandleCarouselComplete;
             GameEvents.OnCountdownComplete -= HandleCountdownComplete;
+            GameEvents.OnTutorialComplete -= HandleTutorialComplete;
             GameEvents.OnGameEndWithSummary -= HandleGameEnd;
             GameEvents.OnRestartRequested -= RestartGame;
             GameEvents.OnReturnToTitleRequested -= ShowTitleScreen;
@@ -69,12 +80,50 @@ namespace FortuneValley.Managers
             GameEvents.RaiseShowTitleScreen();
         }
 
-        private void HandleStartRequested()
+        // ═══════════════════════════════════════════════════════════════
+        // BOOT FLOW ROUTING
+        // ═══════════════════════════════════════════════════════════════
+
+        private void HandleBootFlowDecided(BootFlow flow)
         {
-            // Title -> Rules
+            switch (flow)
+            {
+                case BootFlow.FirstTimeTutorial: HandleFirstTimeTutorialFlow(); return;
+                case BootFlow.NormalCarousel:    HandleNormalCarouselFlow();    return;
+                case BootFlow.SkipTutorial:      HandleSkipTutorialFlow();      return;
+            }
+        }
+
+        private void HandleFirstTimeTutorialFlow()
+        {
+            // Hide the title screen and hand off to the tutorial controller
+            // (IntroTutorialController subscribes to OnTutorialStartRequested
+            // and drives the scripted sequence; the HUD stays hidden until
+            // OnTutorialComplete fires).
+            GameEvents.RaiseHideTitleScreen();
+            GameEvents.RaiseTutorialStartRequested();
+        }
+
+        private void HandleNormalCarouselFlow()
+        {
+            // Existing returning-player path: Title -> Rules carousel.
             GameEvents.RaiseHideTitleScreen();
             GameEvents.RaiseShowRulesCarousel();
         }
+
+        private void HandleSkipTutorialFlow()
+        {
+            // Teacher-preview path: skip the rules carousel entirely and go
+            // straight to countdown. HUD on, gameplay systems boot next.
+            GameEvents.RaiseHideTitleScreen();
+            SetHUDVisible(true);
+            GameEvents.RaiseSetHUDVisible(true);
+            GameEvents.RaiseStartCountdown();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // POST-FLOW STAGES (unchanged)
+        // ═══════════════════════════════════════════════════════════════
 
         private void HandleCarouselComplete()
         {
@@ -85,16 +134,22 @@ namespace FortuneValley.Managers
             GameEvents.RaiseStartCountdown();
         }
 
+        private void HandleTutorialComplete()
+        {
+            // Tutorial finished: resume the normal countdown path so
+            // gameplay systems boot through the same entry point.
+            SetHUDVisible(true);
+            GameEvents.RaiseSetHUDVisible(true);
+            GameEvents.RaiseStartCountdown();
+        }
+
         private void HandleCountdownComplete()
         {
-            // Countdown finished - start the game
             _gameManager?.StartGame();
         }
 
         private void HandleGameEnd(bool isPlayerWin, GameSummary summary)
         {
-            // HUD stays visible so player can see final stats.
-            // Activate the game end panel.
             if (_gameEndPanelObject != null)
             {
                 _gameEndPanelObject.SetActive(true);

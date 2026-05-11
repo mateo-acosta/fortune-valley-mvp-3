@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05e0bd7f721064d1fb35cf314633183a, type: 3}
+  m_Name: RestaurantConfig
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.RestaurantConfig
+  _baseIncomePerTick: 84
+  _maxLevel: 3
+  _tierNames:
+  - Level 1
+  - Level 2
+  - Level 3
+  _upgradeCosts:
+  - 5000
+  - 15000
+  _incomeMultipliers:
+  - 1
+  - 2.5
+  - 5

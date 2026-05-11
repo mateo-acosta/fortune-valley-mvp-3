@@ -33,13 +33,13 @@ Suggested lots:
 
 | Asset Name | Display Name | Base Cost | Income Bonus |
 |------------|--------------|-----------|--------------|
-| Lot_Corner | Corner Shop | 500 | 2 |
-| Lot_Cafe | Cozy Café | 800 | 3 |
-| Lot_Bakery | Bakery | 1200 | 5 |
-| Lot_Diner | Downtown Diner | 2000 | 8 |
-| Lot_Bistro | Fancy Bistro | 3500 | 12 |
-| Lot_Hotel | City Hotel | 6000 | 20 |
-| Lot_Tower | Business Tower | 10000 | 35 |
+| Lot_Block01 | Block 1 | 10000 | 35 |
+| Lot_Block02 | Block 2 | 3500 | 12 |
+| Lot_Block03 | Block 3 | 800 | 3 |
+| Lot_Block04 | Block 4 | 500 | 2 |
+| Lot_Block05 | Block 5 | 2000 | 8 |
+| Lot_Block06 | Block 6 | 6000 | 20 |
+| Lot_Block07 | Block 7 | 1200 | 5 |
 
 ---
 

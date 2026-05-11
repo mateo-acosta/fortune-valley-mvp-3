@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using FortuneValley.Core;
 
 namespace FortuneValley.UI
 {
@@ -49,6 +50,7 @@ namespace FortuneValley.UI
 
             IsVisible = true;
             OnShow();
+            GameEvents.RaiseBlockingPanelOpenChanged(true);
         }
 
         /// <summary>
@@ -67,6 +69,7 @@ namespace FortuneValley.UI
 
             IsVisible = false;
             OnHide();
+            GameEvents.RaiseBlockingPanelOpenChanged(false);
         }
 
         // ═══════════════════════════════════════════════════════════════

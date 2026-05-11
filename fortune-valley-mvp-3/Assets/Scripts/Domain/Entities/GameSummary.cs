@@ -110,6 +110,17 @@ namespace FortuneValley.Domain.Entities
         /// </summary>
         public string WhatIfMessage;
 
+        // ===================================================
+        // LIFE GOALS SCORECARD
+        // ===================================================
+
+        /// <summary>
+        /// Goal scorecard set by GameSummaryBuilder when the player reaches
+        /// retirement (or any other game-end). Null on legacy game-end paths
+        /// that did not yet have life goals; renderers must null-check.
+        /// </summary>
+        public GoalScorecard Scorecard;
+
         /// <summary>
         /// Record of each lot purchased by the player with timing data.
         /// </summary>

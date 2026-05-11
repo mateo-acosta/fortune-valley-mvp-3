@@ -1,0 +1,1737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Loans — Fortune Valley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="info/info-modal.css">
+<script type="module" src="info/info-modal.js"></script>
+<style>
+/* ============================================================
+   Fortune Valley — Loans panel
+   Single self-contained file. Warm cream paper chrome that
+   sits on top of the live game world. Matches the warm-paper
+   palette established in Investing System v2; accent shifts
+   from coral (Investing) to sky (Loans).
+   ============================================================ */
+
+:root {
+  /* Surfaces — clean white paper, matching the original Investing System.
+     Cool blue-tinged neutrals; navy ink. */
+  --paper:        #FFFFFF;
+  --paper-2:      #F4F6FB;
+  --paper-3:      #E8ECF6;
+  --paper-4:      #DBE1F0;
+
+  --ink-900:      #0E1530;
+  --ink-800:      #16204A;
+  --ink-700:      #1F2C5C;
+  --ink-500:      #3A4D8E;
+
+  --fg-1:         #0E1530;
+  --fg-2:         #3A4D8E;
+  --fg-3:         #6B78A8;
+  --fg-4:         #9AA3C2;
+
+  /* Brand */
+  --coral:        #FF7A8A;
+  --sky:          #4FB8E8;     /* Credit accent */
+  --sky-soft:     #DDF1FB;
+  --sky-ink:      #0B5076;
+  --cash:         #4CC38A;
+  --coin:         #F2B53B;
+  --tan:          #C99A5C;
+
+  /* Semantic */
+  --gain:         #1FA85E;
+  --gain-soft:    #DCF3E6;
+  --loss:         #E83A50;
+  --loss-soft:    #FCE0E4;
+  --warn:         #D49414;
+  --warn-soft:    #FAEAC4;
+
+  /* Radii */
+  --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* Shadows — cool navy on white */
+  --sh-1:  0 1px 2px rgba(14,21,48,0.06), 0 2px 6px rgba(14,21,48,0.08);
+  --sh-2:  0 4px 12px rgba(14,21,48,0.10), 0 12px 28px rgba(14,21,48,0.12);
+  --sh-3:  0 12px 28px rgba(14,21,48,0.18), 0 28px 60px rgba(14,21,48,0.22);
+
+  /* Borders */
+  --bd:    1px solid rgba(14,21,48,0.08);
+  --bd-2:  1px solid rgba(14,21,48,0.14);
+
+  --ease:  cubic-bezier(0.2, 0.8, 0.2, 1);
+  --d-fast: 120ms;
+  --d-base: 200ms;
+
+  --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: var(--font);
+  color: var(--fg-1);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ----------------------------------------------------------
+   Embedded-mode dim backdrop. The panels were authored as a
+   self-contained standalone page with a fake Unity world
+   (.world), a top HUD (.topbar with Day badge + balance pills),
+   and a side dock (.dock). When embedded as an iframe over the
+   live game, all three conflict with the real game UI.
+   - .world becomes a translucent dim so the actual Unity
+     scene shows through, lightly darkened for panel focus.
+   - .topbar and .dock are hidden entirely. Only the panel
+     itself should render outside the live game canvas.
+   ---------------------------------------------------------- */
+.world {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+.world > * { display: none; }
+.topbar, .dock { display: none !important; }
+.world .cloud { position: absolute; background: #fff; border-radius: 999px; opacity: 0.92; box-shadow: 0 6px 0 rgba(14,21,48,0.04); }
+.world .sun { position: absolute; width: 96px; height: 96px; border-radius: 999px; background: radial-gradient(circle at 35% 30%, #FFE6A8, #F2B53B); box-shadow: 0 0 80px rgba(242,181,59,0.45); }
+.world .road { position: absolute; left: 0; right: 0; bottom: 22%; height: 64px; background: #3A4D8E; box-shadow: inset 0 4px 0 rgba(0,0,0,0.16); }
+.world .road::after { content:''; position:absolute; left:0; right:0; top:30px; height:4px; background-image: repeating-linear-gradient(90deg,#fff 0,#fff 28px,transparent 28px,transparent 52px); }
+.world .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(180deg,#7FC93C,#5BA826); }
+.world .building { position: absolute; border-radius: 14px 14px 4px 4px; border: 2px solid rgba(14,21,48,0.12); box-shadow: inset 0 -8px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(14,21,48,0.18); }
+
+/* ----------------------------------------------------------
+   World chrome — Day badge + balance pills + dock
+   ---------------------------------------------------------- */
+.topbar { position: fixed; top: 18px; left: 18px; right: 18px; display: flex; align-items: center; gap: 12px; z-index: 20; }
+.day-badge {
+  background: var(--ink-900); color: #fff;
+  border-radius: var(--r-pill); padding: 8px 18px 8px 8px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--sh-2); border: 1px solid rgba(255,255,255,0.06);
+}
+.day-badge .coin { width: 32px; height: 32px; border-radius: 32px; background: var(--coin); color: #5C3F00; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; }
+.day-badge .label { font-weight: 800; letter-spacing: 0.3px; font-size: 14px; }
+
+.balance-pill { background: #fff; border-radius: var(--r-pill); padding: 4px 16px 4px 4px; display: flex; align-items: center; gap: 10px; box-shadow: var(--sh-1); border: var(--bd); }
+.balance-pill .swatch { width: 38px; height: 38px; border-radius: 38px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: #fff; }
+.balance-pill .swatch.cash    { background: var(--cash); }
+.balance-pill .swatch.invest  { background: var(--coral); }
+.balance-pill .swatch.credit  { background: var(--sky); }
+.balance-pill .meta { line-height: 1.05; }
+.balance-pill .meta .k { font-size: 10px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; }
+.balance-pill .meta .v { font-weight: 900; font-size: 16px; color: var(--fg-1); font-variant-numeric: tabular-nums; }
+
+.spacer { flex: 1; }
+
+.dock { position: fixed; top: 110px; right: 18px; display: flex; flex-direction: column; gap: 10px; z-index: 20; }
+.dock button {
+  width: 56px; height: 56px; border-radius: 16px;
+  border: var(--bd); background: #fff; color: var(--fg-2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  cursor: pointer; box-shadow: var(--sh-1);
+  transition: transform var(--d-fast) var(--ease);
+  font-family: var(--font);
+}
+.dock button:hover { transform: translateY(-2px); }
+.dock button.active {
+  background: var(--sky); color: #fff;
+  box-shadow: 0 6px 18px rgba(79,184,232,0.40);
+}
+.dock button .ic { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+.dock button .nm { font-size: 9px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* ----------------------------------------------------------
+   Scrim + panel modal
+   ---------------------------------------------------------- */
+.scrim {
+  position: fixed; inset: 0; background: rgba(8,12,30,0.45);
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 30;
+}
+.panel {
+  width: min(1180px, calc(100vw - 110px));
+  height: min(720px, calc(100vh - 56px));
+  background: var(--paper);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-3);
+  border: var(--bd);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.panel-header {
+  height: 64px; flex: none;
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 14px 0 22px;
+  border-bottom: var(--bd);
+  background: linear-gradient(180deg, var(--paper), var(--paper-2));
+}
+.panel-header .crest {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--sky); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.panel-header .titles .kicker { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; }
+.panel-header .titles .title { font-size: 20px; font-weight: 900; letter-spacing: -0.01em; }
+.panel-header .close {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--paper-2); border: var(--bd);
+  color: var(--fg-2); cursor: pointer; font-size: 16px; font-weight: 900;
+  transition: background var(--d-fast) var(--ease);
+}
+.panel-header .close:hover { background: var(--paper-3); }
+
+/* Body */
+.panel-body { flex: 1; display: flex; min-height: 0; }
+.sidebar { width: 200px; flex: none; background: var(--paper-2); border-right: var(--bd); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; }
+.sidebar .label { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; padding: 0 12px 8px; }
+.sidebar button {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border-radius: 10px;
+  background: transparent; border: 1px solid transparent;
+  color: var(--fg-2); cursor: pointer; text-align: left;
+  font-family: var(--font); font-weight: 700; font-size: 14px;
+  transition: all var(--d-fast) var(--ease);
+  position: relative;
+}
+.sidebar button:hover { background: rgba(79,184,232,0.10); color: var(--fg-1); }
+.sidebar button.active {
+  background: var(--sky-soft);
+  border-color: rgba(79,184,232,0.35);
+  color: var(--sky-ink); font-weight: 800;
+}
+.sidebar button.active::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 3px; border-radius: 3px; background: var(--sky);
+}
+.sidebar button .ic { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; color: currentColor; opacity: 0.85; }
+
+.content { flex: 1; overflow: auto; padding: 22px 26px; min-width: 0; }
+.content::-webkit-scrollbar { width: 10px; }
+.content::-webkit-scrollbar-thumb { background: var(--paper-4); border-radius: 10px; }
+
+/* ----------------------------------------------------------
+   Shared content primitives
+   ---------------------------------------------------------- */
+.row { display: flex; gap: 12px; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.grow { flex: 1; min-width: 0; }
+
+.card {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  padding: 16px;
+}
+.card.tinted { background: var(--paper-2); }
+
+.kicker { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; white-space: nowrap; }
+
+.num { font-variant-numeric: tabular-nums; font-weight: 800; }
+.gain { color: var(--gain); }
+.loss { color: var(--loss); }
+
+/* Pill chip (filter row) */
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.chip {
+  padding: 7px 14px; border-radius: 999px;
+  background: var(--paper-2); border: var(--bd);
+  color: var(--fg-2); font-weight: 800; font-size: 13px;
+  cursor: pointer; transition: all var(--d-fast) var(--ease);
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.chip:hover { background: var(--paper-3); }
+.chip.active { background: var(--ink-900); color: #fff; border-color: var(--ink-900); }
+.chip-label { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; margin-right: 8px; }
+
+/* Health badge (credit score / utilization) */
+.health-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 800;
+  white-space: nowrap;
+}
+.health-badge.good   { background: var(--gain-soft); color: var(--gain); }
+.health-badge.fair   { background: var(--warn-soft); color: var(--warn); }
+.health-badge.poor   { background: var(--loss-soft); color: var(--loss); }
+.health-badge .dot   { width: 8px; height: 8px; border-radius: 8px; background: currentColor; }
+
+/* Buttons */
+.btn {
+  font-family: var(--font); font-weight: 800;
+  border: none; cursor: pointer; border-radius: 12px;
+  padding: 11px 18px; font-size: 14px;
+  transition: transform var(--d-fast) var(--ease), background var(--d-fast) var(--ease);
+}
+.btn:active:not(:disabled) { transform: translateY(2px); }
+.btn-primary { background: var(--sky); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #38A9DC; }
+.btn-ghost { background: var(--paper-2); color: var(--fg-1); border: var(--bd); }
+.btn-ghost:hover { background: var(--paper-3); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.4); }
+.btn-lg { padding: 13px 22px; font-size: 15px; border-radius: 14px; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--paper); border: var(--bd); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--fg-2); transition: all var(--d-fast) var(--ease);
+}
+.icon-btn:hover:not(:disabled) { background: var(--paper-3); color: var(--fg-1); }
+.icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Empty state */
+.empty {
+  background: var(--paper-2); border: 1px dashed var(--paper-4);
+  border-radius: var(--r-md); padding: 36px 24px;
+  text-align: center; color: var(--fg-2);
+}
+.empty .h { font-weight: 800; font-size: 15px; color: var(--fg-1); }
+.empty .p { font-size: 13px; margin-top: 6px; max-width: 360px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+
+/* Tabs */
+.tab { display: none; }
+.tab.active { display: block; animation: tabIn 200ms var(--ease) both; }
+@keyframes tabIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ============================================================
+   HOME — summary tiles + active loans list
+   ============================================================ */
+
+.home-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.summary-group {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  padding: 14px 16px 16px;
+  box-shadow: var(--sh-1);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.summary-group .group-head {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: var(--bd);
+}
+.summary-group .group-head .ic {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; flex: none;
+}
+.summary-group .group-head .ic.loans  { background: var(--tan); }
+.summary-group .group-head .ic.card   { background: var(--sky); }
+.summary-group .group-head .h {
+  font-size: 14px; font-weight: 900; letter-spacing: -0.005em;
+}
+.summary-group .group-head .sub {
+  font-size: 11px; font-weight: 700; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.summary-stats .cell {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 4px 0;
+}
+.summary-stats .cell.full { grid-column: 1 / -1; }
+.summary-stats .cell .k {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.summary-stats .cell .v {
+  font-weight: 900; font-size: 22px; letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums; line-height: 1.05;
+  color: var(--fg-1);
+}
+.summary-stats .cell .v.score {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.summary-stats .cell .badges {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px;
+}
+
+/* Active loans list */
+.loans-section .head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.loans-section .head .kicker { margin-bottom: 0; }
+.loans-list { display: flex; flex-direction: column; gap: 10px; }
+.loan-row {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.6fr;
+  gap: 16px;
+  align-items: center;
+  box-shadow: var(--sh-1);
+}
+.loan-row .name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.loan-row .name .ic {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--sky-soft); color: var(--sky-ink);
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.loan-row .name .nm { font-weight: 900; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loan-row .name .sub { font-size: 12px; color: var(--fg-3); font-weight: 700; }
+
+.loan-row .stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.loan-row .stat .k { font-size: 11px; font-weight: 800; color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; }
+.loan-row .stat .v { font-weight: 900; font-size: 16px; font-variant-numeric: tabular-nums; }
+
+.loan-row .progress { display: flex; flex-direction: column; gap: 6px; }
+.loan-row .progress .top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 12px; color: var(--fg-2); font-weight: 700;
+}
+.loan-row .progress .top .pct { font-weight: 900; font-size: 13px; color: var(--fg-1); font-variant-numeric: tabular-nums; }
+.progress-track {
+  height: 8px; border-radius: 8px;
+  background: var(--paper-3);
+  overflow: hidden;
+}
+.progress-track > span {
+  display: block; height: 100%;
+  background: var(--sky);
+  border-radius: 8px;
+  transition: width var(--d-base) var(--ease);
+}
+
+/* ============================================================
+   EXPLORE — lot dropdown + carousel + stats table
+   ============================================================ */
+
+.lot-select-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 10px;
+}
+.lot-select-row .label {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.lot-select {
+  flex: 1;
+  font-family: var(--font); font-weight: 800; font-size: 14px;
+  padding: 11px 38px 11px 14px;
+  border-radius: 12px;
+  background: var(--paper) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235C4A33' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 12px center;
+  border: var(--bd-2); color: var(--fg-1);
+  -webkit-appearance: none; appearance: none;
+  cursor: pointer;
+  max-width: 380px;
+}
+.lot-select:focus { outline: 2px solid rgba(79,184,232,0.45); outline-offset: 1px; }
+
+.explore-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 16px;
+}
+
+.carousel-card {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 0;
+}
+.carousel-head {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.carousel-head .pos { font-size: 12px; font-weight: 800; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+
+.carousel-illus {
+  flex: 1;
+  min-height: 0;
+  background: linear-gradient(180deg, var(--sky-soft), #ECF6FC);
+  border: var(--bd);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.carousel-illus .term-badge {
+  position: absolute; top: 12px; left: 14px;
+  background: rgba(255,255,255,0.92);
+  color: var(--sky-ink);
+  font-size: 11px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 999px;
+  border: var(--bd);
+}
+
+.carousel-name {
+  text-align: center;
+  font-size: 20px; font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--fg-1);
+}
+.carousel-tagline {
+  text-align: center;
+  font-size: 12px; color: var(--fg-2);
+  font-weight: 700; line-height: 1.35;
+}
+
+.carousel-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 4px;
+}
+.carousel-controls .dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.carousel-controls .dots span {
+  width: 8px; height: 8px; border-radius: 8px;
+  background: var(--paper-4);
+  transition: background var(--d-fast) var(--ease);
+}
+.carousel-controls .dots span.active { background: var(--sky); }
+
+/* Stats panel */
+.stats-card {
+  background: var(--paper-2);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.stats-card .lot-summary {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px; border-bottom: var(--bd);
+}
+.stats-card .lot-summary .nm {
+  font-weight: 900; font-size: 16px;
+  min-width: 0; flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.stats-card .lot-summary .price {
+  font-weight: 900; font-size: 16px; font-variant-numeric: tabular-nums; color: var(--fg-2);
+  flex: none; white-space: nowrap;
+}
+
+.stats-table {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.stats-table .field {
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: 10px;
+  padding: 9px 12px;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.stats-table .field .k {
+  font-size: 10px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.stats-table .field .v {
+  font-weight: 900; font-size: 16px; font-variant-numeric: tabular-nums;
+  color: var(--fg-1);
+}
+.stats-table .field.featured {
+  grid-column: 1 / -1;
+  background: var(--sky-soft);
+  border-color: rgba(79,184,232,0.35);
+}
+.stats-table .field.featured .v { font-size: 22px; color: var(--sky-ink); }
+
+.qualify {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 13px; font-weight: 800;
+}
+.qualify.ok    { background: var(--gain-soft); color: var(--gain); }
+.qualify.fail  { background: var(--loss-soft); color: var(--loss); }
+.qualify .ic { width: 22px; height: 22px; flex: none; display: flex; align-items: center; justify-content: center; }
+
+.apply-row { display: flex; gap: 10px; }
+.apply-row .btn { flex: 1; }
+
+/* ============================================================
+   HISTORY — chronological list
+   ============================================================ */
+
+.history-controls {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+}
+.range-pills { display: flex; gap: 6px; }
+
+.history-list {
+  display: flex; flex-direction: column;
+  background: var(--paper);
+  border: var(--bd);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.history-row {
+  display: grid;
+  grid-template-columns: 110px 40px 1fr 140px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: var(--bd);
+}
+.history-row:last-child { border-bottom: none; }
+.history-row:hover { background: var(--paper-2); }
+.history-row .date { font-size: 12px; color: var(--fg-3); font-weight: 800; line-height: 1.25; }
+.history-row .date .yr { display: block; font-size: 11px; color: var(--fg-4); font-weight: 700; }
+.history-row .ic-wrap {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.history-row .ic-wrap.outflow  { background: var(--loss-soft); color: var(--loss); }
+.history-row .ic-wrap.inflow   { background: var(--gain-soft); color: var(--gain); }
+.history-row .ic-wrap.neutral  { background: var(--paper-3);   color: var(--fg-2); }
+.history-row .ic-wrap.warn     { background: var(--warn-soft); color: var(--warn); }
+
+.history-row .body { min-width: 0; }
+.history-row .body .label {
+  font-size: 11px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.02em; margin-bottom: 2px;
+}
+.history-row .body .desc { font-weight: 800; font-size: 14px; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-row .body .sub { font-size: 12px; color: var(--fg-3); font-weight: 700; margin-top: 2px; }
+
+.history-row .amount {
+  text-align: right; font-variant-numeric: tabular-nums;
+  font-weight: 900; font-size: 16px;
+  white-space: nowrap;
+}
+.history-row .amount.outflow  { color: var(--loss); }
+.history-row .amount.inflow   { color: var(--gain); }
+.history-row .amount.neutral  { color: var(--fg-3); }
+
+/* ============================================================
+   REDESIGN ADDITIONS — score hero, score meter, lot cards,
+   total-cost story, narrative loan rows, util sentence, etc.
+   ============================================================ */
+
+/* Hero score block */
+.score-hero { text-align: center; padding: 20px 0 16px; }
+.score-hero .score-num {
+  font-size: 56px; font-weight: 900; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums; line-height: 1;
+  color: var(--fg-1);
+}
+.score-hero .score-label-text {
+  font-size: 18px; font-weight: 800; color: var(--fg-3);
+  margin-top: 6px;
+}
+
+/* Score spectrum meter */
+.score-meter { margin: 14px auto 0; max-width: 460px; }
+.score-track { position: relative; height: 12px; border-radius: 999px; overflow: visible; }
+.score-segments { display: flex; height: 100%; border-radius: 999px; overflow: hidden; }
+.score-segments .seg { flex: 1; }
+.score-segments .seg.poor      { background: var(--loss); }
+.score-segments .seg.fair      { background: var(--warn); }
+.score-segments .seg.good      { background: #8CD98C; }
+.score-segments .seg.excellent { background: var(--gain); }
+.score-marker {
+  position: absolute; top: -4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--fg-1);
+  transform: translateX(-50%);
+  box-shadow: var(--sh-1);
+  transition: left var(--d-base) var(--ease);
+}
+.score-range-labels {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--fg-4); font-weight: 700;
+  margin-top: 6px; padding: 0 2px;
+}
+
+/* Score-driver copy: standing line that explains what moves the score.
+   Renders below the score-hero; same string is shown in the info-modal. */
+.score-driver-copy {
+  font-size: 13px; font-weight: 600; color: var(--fg-2);
+  line-height: 1.5; max-width: 520px; margin: 6px auto 14px;
+  text-align: center; padding: 0 8px;
+}
+
+.loan-summary-row {
+  font-size: 13px; color: var(--fg-3); font-weight: 700;
+  margin-top: 8px; margin-bottom: 16px; line-height: 1.5;
+}
+.loan-summary-row strong { color: var(--fg-1); font-weight: 900; font-variant-numeric: tabular-nums; }
+
+/* Loan row narrative layout */
+.loan-row-v {
+  background: var(--paper); border: var(--bd);
+  border-radius: 12px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  box-shadow: var(--sh-1);
+}
+.loan-row-v .row-head {
+  display: flex; align-items: center; gap: 10px;
+}
+.loan-row-v .row-head .ic {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--sky-soft); color: var(--sky-ink);
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.loan-row-v .nm { font-weight: 900; font-size: 15px; }
+.loan-row-v .sub { font-size: 12px; color: var(--fg-3); font-weight: 700; margin-top: 1px; }
+.loan-row-v .narrative {
+  font-size: 12px; color: var(--fg-3); font-weight: 700;
+}
+
+/* Lot cards (replaces dropdown). Horizontally scrollable so all 19
+   lots are reachable without forcing the row to wrap or stretch. */
+.lot-cards {
+  display: flex; gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin-bottom: 16px;
+  padding: 4px 2px 8px;
+  scrollbar-width: thin;
+}
+.lot-cards::-webkit-scrollbar { height: 8px; }
+.lot-cards::-webkit-scrollbar-thumb { background: var(--paper-4); border-radius: 8px; }
+.lot-card {
+  flex: 0 0 auto;
+  width: 140px;
+  scroll-snap-align: start;
+  background: var(--paper); border: var(--bd-2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  cursor: pointer; text-align: center;
+  font-family: var(--font);
+  transition: all var(--d-fast) var(--ease);
+  box-shadow: var(--sh-1);
+}
+.lot-card:hover { background: var(--paper-2); transform: translateY(-1px); }
+.lot-card.active { background: var(--sky-soft); border-color: rgba(79,184,232,0.5); }
+.lot-card .lot-icon { font-size: 24px; margin-bottom: 6px; }
+.lot-card .lot-name {
+  font-weight: 900; font-size: 13px; color: var(--fg-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lot-card .lot-price {
+  font-size: 12px; color: var(--fg-3); font-weight: 800;
+  margin-top: 2px; font-variant-numeric: tabular-nums;
+}
+
+/* Pre-pick prompt (uses .empty base, just a margin tweak) */
+.pick-prompt { margin-top: 14px; }
+
+/* Stats grid layouts: 3-col collapsed + 2-col detail strip. These mirror
+   the .stats-table .field styling so labels render at 10px uppercase and
+   the inline (i) info button stays on the same line as the label. */
+.collapsed-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+}
+.detail-stats {
+  display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
+}
+.detail-stats.open { display: grid; }
+.collapsed-stats .field, .detail-stats .field {
+  background: var(--paper); border: var(--bd);
+  border-radius: 10px; padding: 9px 10px;
+  display: flex; flex-direction: column; gap: 1px;
+  min-width: 0;
+}
+.collapsed-stats .field .k, .detail-stats .field .k {
+  font-size: 9px; font-weight: 800; color: var(--fg-3);
+  letter-spacing: 0.02em; text-transform: uppercase;
+  display: flex; align-items: flex-start; gap: 3px;
+  line-height: 1.2;
+}
+.collapsed-stats .field .k .fv-info-btn,
+.detail-stats .field .k .fv-info-btn {
+  flex: none;
+  width: 14px; height: 14px;
+  font-size: 9px;
+  margin-top: 1px;
+}
+.collapsed-stats .field .v, .detail-stats .field .v {
+  font-weight: 900; font-size: 15px; font-variant-numeric: tabular-nums;
+  color: var(--fg-1);
+}
+
+/* Carousel "more loans available" hint */
+.carousel-hint {
+  text-align: center;
+  font-size: 11px; color: var(--fg-3); font-weight: 700;
+  margin-top: 4px; line-height: 1.4;
+}
+
+/* Carousel plain-English term line */
+#carousel-term-plain {
+  text-align: center;
+  font-size: 12px; font-weight: 700; color: var(--fg-3);
+  margin-top: 2px;
+}
+
+/* Total cost story block */
+.total-cost-story {
+  font-size: 14px; font-weight: 700; line-height: 1.55;
+  color: var(--fg-2); background: var(--warn-soft);
+  border-radius: var(--r-md); padding: 12px 14px;
+  border: 1px solid rgba(212,148,20,0.25);
+  margin-top: 12px;
+}
+.total-cost-story strong { color: var(--fg-1); font-variant-numeric: tabular-nums; }
+
+/* "See full details" toggle */
+.details-toggle {
+  font-size: 12px; color: var(--sky-ink); font-weight: 800;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font); padding: 4px 0;
+  text-decoration: underline; text-underline-offset: 2px;
+  align-self: flex-start;
+}
+
+/* Score-change history row highlight */
+.history-row.score-event {
+  background: linear-gradient(90deg, var(--sky-soft) 0%, transparent 40%);
+}
+
+</style>
+</head>
+<body>
+
+<!-- Game world backdrop -->
+<div class="world" aria-hidden="true">
+  <div class="cloud" style="top:64px;left:14%;width:130px;height:40px"></div>
+  <div class="cloud" style="top:120px;left:34%;width:90px;height:28px"></div>
+  <div class="cloud" style="top:88px;left:60%;width:150px;height:44px"></div>
+  <div class="sun" style="top:62px;right:16%"></div>
+  <div class="building" style="left:6%; top:46%; width:130px; height:200px; background:#FF7A8A"></div>
+  <div class="building" style="left:22%; top:40%; width:150px; height:240px; background:#F2B53B"></div>
+  <div class="building" style="left:42%; top:42%; width:170px; height:220px; background:#6FCBE0"></div>
+  <div class="building" style="left:62%; top:39%; width:140px; height:240px; background:#B57AF0"></div>
+  <div class="building" style="left:80%; top:44%; width:130px; height:210px; background:#7FC93C"></div>
+  <div class="road"></div>
+  <div class="ground"></div>
+</div>
+
+<!-- World chrome (top bar + dock) -->
+<div class="topbar">
+  <div class="day-badge"><div class="coin">25</div><div class="label">Age 25</div></div>
+  <div class="spacer"></div>
+  <div class="balance-pill"><div class="swatch cash">$</div>
+    <div class="meta"><div class="k">Checking</div><div class="v">$3,200</div></div></div>
+  <div class="balance-pill"><div class="swatch invest">↗</div>
+    <div class="meta"><div class="k">Investing</div><div class="v">$2,450</div></div></div>
+  <div class="balance-pill"><div class="swatch credit">≡</div>
+    <div class="meta"><div class="k">Credit</div><div class="v" id="hud-cc">$1,240</div></div></div>
+</div>
+
+<div class="dock">
+  <button title="Investing"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M4 17 L9 12 L13 14 L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 6 L20 6 L20 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="nm">Invest</div></button>
+  <button class="active" title="Loans"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><rect x="3" y="6" width="18" height="13" rx="2.5" stroke="currentColor" stroke-width="2.2"/><path d="M3 10 H21" stroke="currentColor" stroke-width="2.2"/></svg></div><div class="nm">Loans</div></button>
+  <button title="Insurance"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M12 3 L20 6 V12 C20 16.5 16.5 20 12 21 C7.5 20 4 16.5 4 12 V6 Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></div><div class="nm">Cover</div></button>
+  <button title="Budgeting"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2.2"/><path d="M12 3.5 V12 L18 15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div><div class="nm">Budget</div></button>
+  <button title="Taxes"><div class="ic"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M5 4 H19 V20 L16 18 L13 20 L10 18 L7 20 L5 18 Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></div><div class="nm">Taxes</div></button>
+</div>
+
+<!-- Panel modal -->
+<div class="scrim">
+  <div class="panel" role="dialog" aria-label="Loans">
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="crest">
+        <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><rect x="3" y="6" width="18" height="13" rx="2.5" stroke="currentColor" stroke-width="2.2"/><path d="M3 10 H21" stroke="currentColor" stroke-width="2.2"/><path d="M7 16 H10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="titles">
+        <div class="kicker">Panel</div>
+        <div class="title">Loans</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="close" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="panel-body">
+      <nav class="sidebar" role="tablist">
+        <div class="label">Sections</div>
+        <button class="tab-btn active" data-tab="home" role="tab">
+          <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M4 12 L12 4 L20 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11 V20 H18 V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Home
+        </button>
+        <button class="tab-btn" data-tab="explore" role="tab">
+          <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><path d="M15 9 L13 14 L9 16 L11 11 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+          Get a Loan
+        </button>
+        <button class="tab-btn" data-tab="history" role="tab">
+          <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 7 V12 L15.5 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+          History
+        </button>
+      </nav>
+
+      <main class="content">
+
+        <!-- ============= HOME ============= -->
+        <section class="tab active" data-tab="home">
+          <!-- Score hero: the credit score is the student's identity in this system -->
+          <div class="score-hero">
+            <div class="score-num" id="home-score">680</div>
+            <div class="score-label-text" id="home-score-label">
+              Fair Credit
+              <button type="button" class="fv-info-btn" data-info-key="credit_score_drivers" aria-label="What drives the credit score">i</button>
+            </div>
+            <div class="score-meter">
+              <div class="score-track">
+                <div class="score-segments">
+                  <span class="seg poor"></span>
+                  <span class="seg fair"></span>
+                  <span class="seg good"></span>
+                  <span class="seg excellent"></span>
+                </div>
+                <div class="score-marker" id="home-score-marker" style="left:50%"></div>
+              </div>
+              <div class="score-range-labels">
+                <span>300</span><span>650</span><span>700</span><span>750</span><span>850</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Standing line explaining what drives the score. Sourced from
+               CREDIT_SCORE_DRIVERS_COPY so it stays in sync with the modal. -->
+          <div class="score-driver-copy" id="score-driver-copy"></div>
+
+          <!-- Loans summary line -->
+          <div class="loan-summary-row">
+            <span id="home-loan-sentence">You owe <strong>$48,200</strong> across 2 loans, paying <strong>$640</strong>/yr</span>
+            <span id="home-total-debt" style="display:none">$0.00</span>
+            <span id="home-monthly" style="display:none">$0.00</span>
+          </div>
+
+          <!-- Active loans -->
+          <div class="loans-section">
+            <div class="head">
+              <div class="kicker">Your loans <button type="button" class="fv-info-btn" data-info-key="card:active_loan_row" aria-label="About your loans">i</button> <span id="loans-count" style="color:var(--fg-2);font-weight:900">(0)</span></div>
+            </div>
+            <div class="loans-list" id="loans-list"></div>
+            <div class="empty" id="loans-empty" style="display:none">
+              <div class="h">You have no active loans.</div>
+              <div class="p">Visit <strong>Get a Loan</strong> to finance a property.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============= EXPLORE (visible label: Get a Loan) ============= -->
+        <section class="tab" data-tab="explore">
+          <div class="lot-cards" id="lot-cards"></div>
+
+          <!-- Pre-pick prompt: visible while ui.selectedLotId === null -->
+          <div class="empty pick-prompt" id="pick-prompt" style="display:none">
+            <div class="h">Pick a property above to see your loan options</div>
+            <div class="p">Tap one of the lot cards to compare loans, see your yearly payment, and check if you qualify.</div>
+          </div>
+
+          <div class="explore-grid" id="explore-grid">
+            <!-- Carousel -->
+            <div class="carousel-card" id="carousel-card">
+              <div class="carousel-head">
+                <div class="kicker" style="margin-bottom:0">Loan product <button type="button" class="fv-info-btn" data-info-key="card:loan_product" aria-label="About loan products">i</button></div>
+                <div class="pos" id="carousel-pos">1 / 3</div>
+              </div>
+              <div class="carousel-illus" id="carousel-illus">
+                <span class="term-badge" id="carousel-term">30 yr</span>
+                <!-- key icon -->
+                <svg viewBox="0 0 200 140" width="160" height="120" aria-hidden="true">
+                  <g fill="none" stroke="#0B5076" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="60" cy="70" r="26" />
+                    <path d="M82 70 L172 70" />
+                    <path d="M150 70 L150 90" />
+                    <path d="M134 70 L134 84" />
+                  </g>
+                  <circle cx="60" cy="70" r="9" fill="#FBF7EE" stroke="#0B5076" stroke-width="4"/>
+                </svg>
+              </div>
+              <div>
+                <div class="carousel-name" id="carousel-name">30-Year Standard</div>
+                <div class="carousel-tagline" id="carousel-tag">Lower yearly payment, longer term</div>
+                <div id="carousel-term-plain">You'll make payments for 30 years.</div>
+              </div>
+              <div class="carousel-controls">
+                <button class="icon-btn" id="carousel-prev" aria-label="Previous loan">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg>
+                </button>
+                <div class="dots" id="carousel-dots"></div>
+                <button class="icon-btn" id="carousel-next" aria-label="Next loan">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+                </button>
+              </div>
+              <div class="carousel-hint" id="carousel-hint"></div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-card" id="stats-card">
+              <div class="lot-summary">
+                <div class="nm" id="stats-lot-name">Bistro Lot <button type="button" class="fv-info-btn" data-info-key="card:loan_offer" aria-label="About this loan offer">i</button></div>
+                <div class="price" id="stats-lot-price">$124,000</div>
+              </div>
+
+              <!-- Visible by default: 3 most decision-relevant fields -->
+              <div class="collapsed-stats">
+                <div class="field"><div class="k">Score needed <button type="button" class="fv-info-btn" data-info-key="min_credit_score" aria-label="About score needed">i</button></div><div class="v" id="stats-min-score">650+</div></div>
+                <div class="field"><div class="k">Upfront payment <button type="button" class="fv-info-btn" data-info-key="down_payment" aria-label="About upfront payment">i</button></div><div class="v" id="stats-down">$24,800</div></div>
+                <div class="field"><div class="k">Payoff timeline <button type="button" class="fv-info-btn" data-info-key="loan_term" aria-label="About payoff timeline">i</button></div><div class="v" id="stats-term">30 yr</div></div>
+              </div>
+
+              <!-- Featured monthly payment, full-width -->
+              <div class="stats-table">
+                <div class="field featured"><div class="k">Your yearly payment <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About your yearly payment">i</button></div><div class="v" id="stats-monthly">$540</div></div>
+              </div>
+
+              <!-- Hidden by default; revealed via the See full details toggle -->
+              <div class="detail-stats" id="detail-stats">
+                <div class="field"><div class="k">Yearly interest rate <button type="button" class="fv-info-btn" data-info-key="apr" aria-label="About yearly interest rate">i</button></div><div class="v" id="stats-apr">5.2%</div></div>
+                <div class="field"><div class="k">Amount borrowed <button type="button" class="fv-info-btn" data-info-key="total_loan" aria-label="About amount borrowed">i</button></div><div class="v" id="stats-total">$99,200</div></div>
+                <div class="field"><div class="k">Total you'll pay <button type="button" class="fv-info-btn" data-info-key="total_cost" aria-label="About total you'll pay">i</button></div><div class="v" id="stats-cost">$194,400</div></div>
+              </div>
+
+              <button class="details-toggle" id="details-toggle" type="button">See full details ↓</button>
+
+              <!-- Total cost story block -->
+              <div class="total-cost-story" id="total-cost-story"></div>
+
+              <div id="qualify-row"></div>
+              <div class="apply-row">
+                <button class="btn btn-primary btn-lg" id="apply-btn" style="flex:1">Apply Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty" id="explore-empty-lots" style="display:none;margin-top:14px">
+            <div class="h">No lots available.</div>
+            <div class="p">All lots in Fortune Valley are owned right now. Check back later.</div>
+          </div>
+          <div class="empty" id="explore-empty-loans" style="display:none;margin-top:14px">
+            <div class="h">No qualifying loans for this lot.</div>
+            <div class="p">Improve your credit score or pick a less expensive lot to find a loan you qualify for.</div>
+          </div>
+        </section>
+
+        <!-- ============= HISTORY ============= -->
+        <section class="tab" data-tab="history">
+          <div class="history-controls">
+            <div class="kicker" style="margin-bottom:0">Your credit history <button type="button" class="fv-info-btn" data-info-key="history_legend" aria-label="About your credit history">i</button></div>
+            <div class="range-pills" id="range-pills"></div>
+          </div>
+          <div class="history-list" id="history-list"></div>
+          <div class="empty" id="history-empty" style="display:none">
+            <div class="h">No credit activity yet.</div>
+            <div class="p">Loans, statements, and payments will appear here as soon as you take action.</div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   SHARED COPY
+   ============================================================ */
+// Source of truth for what drives the credit score. Used both as the
+// standing line under the score-hero and as the body of the
+// `credit_score_drivers` info-modal entry. Update both the text below
+// and the info-modal entry when changing wording.
+const CREDIT_SCORE_DRIVERS_COPY = "Your credit score is driven by your loan-payment history and your debt-to-income ratio. Pay loans on time and keep monthly debt low compared to your income to raise it; missed payments and high debt loads lower it.";
+
+/* ============================================================
+   MOCK STATE
+   Mirrors CreditPanelDTO. If these fields drift from the bridge
+   payload, the standalone preview will render incorrectly.
+   ============================================================ */
+const mockState = {
+  creditScore: 680,
+  creditScoreLabel: "Fair",
+  totalDebt: 48200.00,
+  yearlyDebtPayment: 0.00,
+  yearlyIncome: 108000.00,
+  cashOnHand: 90000.00,
+  activeLoans: [
+    { id: "loan-1", lotName: "Bistro Lot", balance: 24800, originalPrincipal: 28000, yearlyPayment: 8350, yearsPaid: 1, termYears: 5 },
+    { id: "loan-2", lotName: "Corner Lot", balance: 23400, originalPrincipal: 25000, yearlyPayment: 7460, yearsPaid: 1, termYears: 5 },
+  ],
+  availableLots: [
+    { id: "bistro", name: "Bistro Lot", price: 124000 },
+    { id: "cafe",   name: "Cafe Lot",   price:  98000 },
+    { id: "corner", name: "Corner Lot", price: 156000 },
+  ],
+  loanProducts: [
+    { id: "loan_starter",  name: "Starter Loan",  apr: 15, termYears: 5,  downPaymentPercent: 0.25, minCreditScore: 450, maxDtiRatio: 0.50, image: null,
+      tagline: "Easy approval, short term, higher rate" },
+    { id: "loan_standard", name: "Standard Loan", apr: 8,  termYears: 10, downPaymentPercent: 0.15, minCreditScore: 600, maxDtiRatio: 0.50, image: null,
+      tagline: "Lower rate, longer term" },
+    { id: "loan_premium",  name: "Premium Loan",  apr: 4,  termYears: 15, downPaymentPercent: 0.10, minCreditScore: 720, maxDtiRatio: 0.50, image: null,
+      tagline: "Best terms for strong credit" },
+  ],
+  history: [
+    { id: 1, date: "Year 2, Mar 12", type: "loan-payment",     description: "Bistro Lot loan",         amount:  -8350, sublabel: "1 of 5" },
+    { id: 2, date: "Year 2, Feb 12", type: "score-change",     description: "Credit score updated",    amount:      0, sublabel: "+15 to 680" },
+    { id: 3, date: "Year 2, Jan 14", type: "loan-originated",  description: "Bistro Lot financed",     amount: -28000, sublabel: "Starter Loan" },
+  ],
+};
+
+/* ============================================================
+   ACTION INTENTS — forward to Unity via the host's requestIntent
+   dispatcher. Falls back to console log when running standalone.
+   The C# CreditWebBridge will eventually expose RequestApplyForLoan
+   that parses { loanConfigId, lotId, price } and fires the
+   matching GameEvents intent.
+   ============================================================ */
+function loanPurchaseRequested(loanConfigId, lotId, price) {
+  if (window.parent && window.parent.FV && typeof window.parent.FV.requestIntent === "function") {
+    window.parent.FV.requestIntent("credit", "applyForLoan", { loanConfigId: loanConfigId, lotId: lotId, price: price });
+  } else {
+    console.log("[intent] loanPurchaseRequested (standalone)", { loanConfigId, lotId, price });
+  }
+}
+function historyFilterChanged(range) {
+  // History range is purely a view-side filter on already-loaded data,
+  // so no round-trip to Unity is needed.
+  console.log("[ui] historyFilterChanged", { range });
+}
+
+/* ============================================================
+   APP STATE
+   ============================================================ */
+const ui = {
+  activeTab: "home",
+  // No lot is preselected: the Explore tab opens with a "pick a property"
+  // prompt and reveals carousel/stats only after the student taps a lot card.
+  selectedLotId: null,
+  carouselIndex: 0,
+  historyRange: "all",
+  // "See full details" disclosure on the Explore tab. Persisted on `ui` so
+  // it survives carousel paging, lot card swaps, and Unity update() pushes.
+  showFullLoanDetails: false,
+};
+
+/* ============================================================
+   UTIL
+   ============================================================ */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+function fmtMoney(n, frac=2) {
+  if (n == null || isNaN(n)) return "$---";
+  const sign = n < 0 ? "−" : "";
+  const abs = Math.abs(n);
+  return sign + "$" + abs.toLocaleString("en-US", { minimumFractionDigits: frac, maximumFractionDigits: frac });
+}
+function fmtMoneyShort(n) { return fmtMoney(n, 0); }
+function fmtSignedMoney(n, frac=2) {
+  if (n === 0) return "$0";
+  return (n > 0 ? "+" : "−") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: frac, maximumFractionDigits: frac });
+}
+function fmtPctInt(n) { return Math.round(n*100) + "%"; }
+
+function scoreBucket(score) {
+  if (score >= 750) return { label: "Excellent", cls: "good" };
+  if (score >= 700) return { label: "Good",      cls: "good" };
+  if (score >= 650) return { label: "Fair",      cls: "fair" };
+  return                  { label: "Poor",       cls: "poor" };
+}
+/* ============================================================
+   TABS
+   ============================================================ */
+function bindTabs() {
+  $$(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+}
+function switchTab(name) {
+  ui.activeTab = name;
+  $$(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  $$(".content > .tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+  if (name === "home")    renderHome();
+  if (name === "explore") renderExplore();
+  if (name === "history") renderHistory();
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+// Position the score-meter marker proportionally between 300 and 850.
+function positionScoreMarker() {
+  const score = mockState.creditScore;
+  const clamped = Math.max(300, Math.min(850, score));
+  const pct = ((clamped - 300) / 550 * 100).toFixed(1) + "%";
+  $("#home-score-marker").style.left = pct;
+}
+
+function renderHome() {
+  // Hidden but kept-in-DOM elements still receive their values so the
+  // bridge contract stays intact even though the visible UI now reads
+  // these numbers via composed sentences.
+  $("#home-total-debt").textContent = fmtMoney(mockState.totalDebt);
+  $("#home-monthly").textContent    = fmtMoney(mockState.yearlyDebtPayment);
+
+  // Credit score hero + spectrum marker. Replace the label's text content
+  // without disturbing the trailing info button child node.
+  const sb = scoreBucket(mockState.creditScore);
+  $("#home-score").textContent = mockState.creditScore;
+  const labelEl = $("#home-score-label");
+  if (labelEl && labelEl.firstChild && labelEl.firstChild.nodeType === Node.TEXT_NODE) {
+    labelEl.firstChild.nodeValue = sb.label + " Credit ";
+  } else if (labelEl) {
+    labelEl.prepend(sb.label + " Credit ");
+  }
+  positionScoreMarker();
+
+  // Render the standing score-driver copy line (static text, but keep
+  // the assignment in renderHome so the line is in place even when the
+  // bridge swaps mockState before the first natural render).
+  const driverEl = $("#score-driver-copy");
+  if (driverEl) driverEl.textContent = CREDIT_SCORE_DRIVERS_COPY;
+
+  // Loans summary sentence
+  const loanCount = mockState.activeLoans.length;
+  if (loanCount > 0) {
+    const noun = loanCount === 1 ? "loan" : "loans";
+    $("#home-loan-sentence").innerHTML =
+      `You owe <strong>${fmtMoneyShort(mockState.totalDebt)}</strong> across ${loanCount} ${noun}, paying <strong>${fmtMoneyShort(mockState.yearlyDebtPayment)}</strong>/yr`;
+  } else {
+    $("#home-loan-sentence").innerHTML = "";
+  }
+
+  // Active loans list
+  const list = $("#loans-list");
+  $("#loans-count").textContent = `(${loanCount})`;
+  if (!loanCount) {
+    list.innerHTML = "";
+    $("#loans-empty").style.display = "block";
+    return;
+  }
+  $("#loans-empty").style.display = "none";
+
+  list.innerHTML = mockState.activeLoans.map(l => {
+    const paidPrincipal = l.originalPrincipal - l.balance;
+    const pct = Math.max(0, Math.min(100, (paidPrincipal / l.originalPrincipal) * 100));
+    return `
+      <div class="loan-row-v" data-id="${l.id}">
+        <div class="row-head">
+          <div class="ic">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M9 20 V13 H15 V20"/></svg>
+          </div>
+          <div style="min-width:0">
+            <div class="nm">${l.lotName}</div>
+            <div class="sub">${l.yearsPaid} of ${l.termYears} years paid &middot; ${pct.toFixed(0)}% paid off</div>
+          </div>
+        </div>
+        <div class="progress-track"><span style="width:${pct}%"></span></div>
+        <div class="narrative">
+          Paid ${fmtMoneyShort(paidPrincipal)} of ${fmtMoneyShort(l.originalPrincipal)}
+          <button type="button" class="fv-info-btn" data-info-key="loan_paid_off" aria-label="About paid off">i</button>
+          &middot; paying ${fmtMoneyShort(l.yearlyPayment)}/yr
+          <button type="button" class="fv-info-btn" data-info-key="monthly_payment" aria-label="About yearly payment">i</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* ============================================================
+   EXPLORE
+   ============================================================ */
+// Plain-English term lookup for the carousel sub-line. Keyed by termYears.
+const TERM_PLAIN = {
+  5:  "You'll make payments for 5 years.",
+  10: "You'll make payments for 10 years.",
+  15: "You'll make payments for 15 years.",
+};
+
+// Replaces buildLotSelect() — renders one button per lot. Uses the 🏠
+// emoji uniformly because mockState.availableLots has no per-lot icon
+// field. Active card is bordered + sky-soft per CSS .lot-card.active.
+function buildLotCards() {
+  const container = $("#lot-cards");
+  container.innerHTML = mockState.availableLots.map(l => `
+    <button type="button" class="lot-card${ui.selectedLotId === l.id ? ' active' : ''}" data-lot-id="${l.id}">
+      <div class="lot-icon">🏠</div>
+      <div class="lot-name">${l.name}</div>
+      <div class="lot-price">${fmtMoneyShort(l.price)}</div>
+    </button>
+  `).join("");
+  $$("#lot-cards .lot-card").forEach(btn => {
+    btn.addEventListener("click", () => {
+      ui.selectedLotId = btn.dataset.lotId;
+      ui.carouselIndex = 0;
+      renderExplore();
+    });
+  });
+}
+
+// Legacy buildLotSelect — kept commented for git-history clarity. The
+// <select id="lot-select"> element it targeted has been removed in favor
+// of the lot-cards row.
+// function buildLotSelect() {
+//   const sel = $("#lot-select");
+//   sel.innerHTML = mockState.availableLots.map(l => `
+//     <option value="${l.id}">${l.name} - ${fmtMoneyShort(l.price)}</option>
+//   `).join("");
+//   sel.value = ui.selectedLotId;
+//   sel.addEventListener("change", () => {
+//     ui.selectedLotId = sel.value;
+//     ui.carouselIndex = 0;
+//     renderExplore();
+//   });
+// }
+
+function getQualifyingProducts(lot) {
+  return mockState.loanProducts.filter(p => mockState.creditScore >= p.minCreditScore);
+}
+
+function evalQualify(product, lot) {
+  // The carousel cycles through *qualifying* loans, so credit-score failures
+  // only surface when the panel renders a single product despite a low score.
+  // DTI and cash gates are the more common failure modes.
+  const reasons = [];
+  if (mockState.creditScore < product.minCreditScore) {
+    reasons.push("Credit score too low");
+  }
+  const downPayment = lot.price * product.downPaymentPercent;
+  if (downPayment > mockState.cashOnHand) {
+    reasons.push("Insufficient cash for down payment");
+  }
+  const totalLoan = lot.price - downPayment;
+  const yearly = yearlyPayment(totalLoan, product.apr / 100, product.termYears);
+  const totalYearly = mockState.yearlyDebtPayment + yearly;
+  const income = mockState.yearlyIncome > 0 ? mockState.yearlyIncome : 1;
+  const cap = product.maxDtiRatio > 0 ? product.maxDtiRatio : 0.50;
+  if (totalYearly / income > cap) {
+    reasons.push("Debt-to-income too high");
+  }
+  return { ok: reasons.length === 0, reasons };
+}
+
+function yearlyPayment(principal, rate, n) {
+  if (rate <= 0) return principal / n;
+  return principal * (rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1);
+}
+
+function renderExplore() {
+  const lots = mockState.availableLots;
+  const grid = $("#explore-grid");
+  const emptyLots = $("#explore-empty-lots");
+  const emptyLoans = $("#explore-empty-loans");
+  const lotCards = $("#lot-cards");
+  const pickPrompt = $("#pick-prompt");
+  const apply = $("#apply-btn");
+  emptyLots.style.display = "none";
+  emptyLoans.style.display = "none";
+  pickPrompt.style.display = "none";
+
+  if (!lots.length) {
+    grid.style.display = "none";
+    lotCards.style.display = "none";
+    emptyLots.style.display = "block";
+    return;
+  }
+  lotCards.style.display = "";
+  buildLotCards();
+
+  // No-lot state: defer the rest of the panel until the student picks one.
+  if (ui.selectedLotId == null) {
+    grid.style.display = "none";
+    pickPrompt.style.display = "block";
+    return;
+  }
+
+  const lot = lots.find(l => l.id === ui.selectedLotId) || lots[0];
+  const qualifying = getQualifyingProducts(lot);
+
+  if (!qualifying.length) {
+    grid.style.display = "none";
+    emptyLoans.style.display = "block";
+    return;
+  }
+  grid.style.display = "";
+
+  if (ui.carouselIndex >= qualifying.length) ui.carouselIndex = 0;
+  const product = qualifying[ui.carouselIndex];
+
+  // Carousel
+  $("#carousel-pos").textContent  = `${ui.carouselIndex+1} / ${qualifying.length}`;
+  $("#carousel-name").textContent = product.name;
+  $("#carousel-tag").textContent  = product.tagline;
+  $("#carousel-term").textContent = (Number.isInteger(product.termYears) ? product.termYears : product.termYears.toFixed(1)) + " yr";
+  $("#carousel-term-plain").textContent = TERM_PLAIN[product.termYears] || "";
+
+  // Dots
+  $("#carousel-dots").innerHTML = qualifying.map((_,i) =>
+    `<span class="${i===ui.carouselIndex?'active':''}"></span>`).join("");
+
+  // Hide arrows if only one product
+  const single = qualifying.length === 1;
+  $("#carousel-prev").disabled = single;
+  $("#carousel-next").disabled = single;
+  $("#carousel-prev").style.visibility = single ? "hidden" : "";
+  $("#carousel-next").style.visibility = single ? "hidden" : "";
+
+  // Surface non-qualifying loans so the student knows other products
+  // exist and what gates them. We don't put them in the carousel because
+  // the brief locks the carousel to qualifying loans only.
+  const totalProducts = mockState.loanProducts.length;
+  const lockedProducts = mockState.loanProducts.filter(p => mockState.creditScore < p.minCreditScore);
+  const lockedCount = lockedProducts.length;
+  const hint = $("#carousel-hint");
+  if (lockedCount > 0) {
+    const minNeeded = Math.min(...lockedProducts.map(p => p.minCreditScore));
+    const noun = lockedCount === 1 ? "loan" : "loans";
+    hint.textContent = `Showing ${qualifying.length} of ${totalProducts} loans. Reach a ${minNeeded} score to unlock ${lockedCount} more ${noun}.`;
+  } else {
+    hint.textContent = "";
+  }
+
+  // Stats table
+  const downPayment = Math.round(lot.price * product.downPaymentPercent);
+  const totalLoan = lot.price - downPayment;
+  const yearly = Math.round(yearlyPayment(totalLoan, product.apr / 100, product.termYears));
+  const totalCost = downPayment + yearly * product.termYears;
+  const interestExtra = totalCost - lot.price;
+  const years = product.termYears;
+
+  $("#stats-lot-name").textContent  = lot.name;
+  $("#stats-lot-price").textContent = fmtMoneyShort(lot.price);
+  $("#stats-apr").textContent       = product.apr.toFixed(1) + "%";
+  $("#stats-min-score").textContent = product.minCreditScore + "+";
+  $("#stats-down").textContent      = fmtMoneyShort(downPayment) + " (" + Math.round(product.downPaymentPercent*100) + "%)";
+  $("#stats-term").textContent      = (Number.isInteger(years) ? years : years.toFixed(1)) + " yr";
+  $("#stats-monthly").textContent   = fmtMoneyShort(yearly) + "/yr";
+  $("#stats-total").textContent     = fmtMoneyShort(totalLoan);
+  $("#stats-cost").textContent      = fmtMoneyShort(totalCost);
+
+  // Apply the persisted disclosure state to the detail strip + toggle.
+  $("#detail-stats").classList.toggle("open", ui.showFullLoanDetails);
+  $("#details-toggle").textContent = ui.showFullLoanDetails ? "Hide full details ↑" : "See full details ↓";
+
+  // Total cost story: the redesign's core teaching block.
+  $("#total-cost-story").innerHTML =
+    `This property costs <strong>${fmtMoneyShort(lot.price)}</strong>. With this loan, you'll pay <strong>${fmtMoneyShort(totalCost)}</strong> total, which is <strong style="color:var(--warn);font-weight:900">${fmtMoneyShort(interestExtra)}</strong> extra in interest over ${years} years.`;
+
+  // Qualify
+  const q = evalQualify(product, lot);
+  const qrow = $("#qualify-row");
+  if (q.ok) {
+    qrow.innerHTML = `
+      <div class="qualify ok">
+        <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg></span>
+        <span>You qualify for this loan.</span>
+      </div>`;
+  } else {
+    // Map each qualify failure reason to the term that explains it,
+    // so the student can tap the (i) for a definition without leaving
+    // the panel.
+    const REASON_INFO_KEYS = {
+      "Credit score too low": "credit_score",
+      "Insufficient cash for down payment": "down_payment",
+      "Debt-to-income too high": "debt_to_income",
+    };
+    // Instructive messages: tell the student what to do, not just what's wrong.
+    const REASON_MESSAGES = {
+      "Credit score too low":
+        `Your score is ${mockState.creditScore}. This loan needs ${product.minCreditScore}+. Pay your credit card on time to raise it.`,
+      "Insufficient cash for down payment":
+        `This loan needs ${fmtMoneyShort(Math.round(lot.price * product.downPaymentPercent))} upfront. You have ${fmtMoneyShort(mockState.cashOnHand)}.`,
+      "Debt-to-income too high":
+        `Your yearly loan payments take up too much of your income. Pay off some debt first, or choose a smaller property.`,
+    };
+    const reason = q.reasons[0];
+    const message = REASON_MESSAGES[reason] || reason;
+    const infoKey = REASON_INFO_KEYS[reason];
+    const infoBtn = infoKey
+      ? `<button type="button" class="fv-info-btn" data-info-key="${infoKey}" aria-label="About ${reason}">i</button>`
+      : "";
+    qrow.innerHTML = `
+      <div class="qualify fail">
+        <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8 V13"/><path d="M12 16 V16.01"/></svg></span>
+        <span>${message} ${infoBtn}</span>
+      </div>`;
+  }
+
+  // Apply button
+  apply.disabled = !q.ok;
+  apply.onclick = () => {
+    if (apply.disabled) return;
+    loanPurchaseRequested(product.id, lot.id, lot.price);
+    // Directional copy: tell the student exactly what to do next in the
+    // game world rather than just confirming the request was sent.
+    apply.textContent = `Approved. Go buy ${lot.name}.`;
+    setTimeout(() => {
+      apply.textContent = "Apply Now";
+      // Auto-close so the student is shoved back into the world to act.
+      if (window.parent && window.parent.FV && typeof window.parent.FV.requestIntent === "function") {
+        window.parent.FV.requestIntent("credit", "close", {});
+      }
+    }, 2800);
+  };
+}
+
+function bindCarousel() {
+  $("#carousel-prev").addEventListener("click", () => {
+    const lot = mockState.availableLots.find(l => l.id === ui.selectedLotId);
+    const qualifying = getQualifyingProducts(lot);
+    if (!qualifying.length) return;
+    ui.carouselIndex = (ui.carouselIndex - 1 + qualifying.length) % qualifying.length;
+    renderExplore();
+  });
+  $("#carousel-next").addEventListener("click", () => {
+    const lot = mockState.availableLots.find(l => l.id === ui.selectedLotId);
+    const qualifying = getQualifyingProducts(lot);
+    if (!qualifying.length) return;
+    ui.carouselIndex = (ui.carouselIndex + 1) % qualifying.length;
+    renderExplore();
+  });
+}
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+const HISTORY_TYPES = {
+  "loan-payment":     { label: "Loan Payment",     dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M9 20 V13 H15 V20"/></svg>' },
+  "loan-originated":  { label: "Loan Started",     dir: "outflow", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 L12 3 L21 10 V20 H3 Z"/><path d="M12 13 V18"/><path d="M9.5 15.5 L12 13 L14.5 15.5"/></svg>' },
+  "missed-payment":   { label: "Missed Payment",   dir: "warn",    icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L21 19 H3 Z"/><path d="M12 10 V14"/><path d="M12 17 V17.01"/></svg>' },
+  "score-change":     { label: "Score Update",     dir: "neutral", icon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17 L9 12 L13 14 L20 6"/><path d="M14 6 L20 6 L20 12"/></svg>' },
+};
+
+const RANGES = [
+  { id: "30",  label: "30 days" },
+  { id: "90",  label: "90 days" },
+  { id: "all", label: "All time" },
+];
+
+function buildRangePills() {
+  // Range pills are intentionally scaffolded for a future phase that
+  // wires real in-game date parsing. They render and stay clickable in
+  // the listener layer (so historyFilterChanged keeps firing for any
+  // future programmatic activation), but are visually inactive and not
+  // reachable by pointer or keyboard. Skip the active class so none
+  // appears selected.
+  $("#range-pills").innerHTML = RANGES.map(r =>
+    `<button class="chip" data-range="${r.id}" aria-disabled="true" tabindex="-1" title="Time filtering available in a future update" style="opacity:0.45;cursor:default;pointer-events:none">${r.label}</button>`).join("");
+  $$("#range-pills .chip").forEach(b => b.addEventListener("click", () => {
+    ui.historyRange = b.dataset.range;
+    historyFilterChanged(ui.historyRange);
+    renderHistory();
+  }));
+}
+
+function renderHistory() {
+  buildRangePills();
+  // Mock state has only fixed dates; for the prototype we do not actually filter.
+  // (Real wire-up would read state.current_age from the Unity bridge payload.)
+  const items = mockState.history;
+
+  const list = $("#history-list");
+  if (!items.length) {
+    list.innerHTML = "";
+    list.style.display = "none";
+    $("#history-empty").style.display = "block";
+    return;
+  }
+  list.style.display = "";
+  $("#history-empty").style.display = "none";
+
+  list.innerHTML = items.map(h => {
+    const meta = HISTORY_TYPES[h.type] || { label: h.type, dir: "neutral", icon: "" };
+    const dir = h.amount === 0 ? meta.dir : (h.amount > 0 ? "inflow" : "outflow");
+    const amountStr = h.amount === 0 ? "—" : fmtSignedMoney(h.amount, 2);
+    // Date split: "Year 2, Mar 12" -> "Mar 12" / "Year 2"
+    const m = h.date.match(/^(Year \d+),\s*(.+)$/);
+    const day = m ? m[2] : h.date;
+    const yr  = m ? m[1] : "";
+    // Score-change rows are pedagogically the most important entries —
+    // highlight the row, and color the sublabel by sign (+15 = green,
+    // -12 = red). The amount field on score-change events is 0, so we
+    // parse the sublabel's leading character to recover direction.
+    const isScoreEvent = h.type === "score-change";
+    const rowClass = isScoreEvent ? "history-row score-event" : "history-row";
+    let subStyle = "";
+    if (h.sublabel) {
+      const first = h.sublabel.charAt(0);
+      if (first === "+") subStyle = ' style="color:var(--gain);font-weight:800"';
+      else if (first === "-" || first === "−") subStyle = ' style="color:var(--loss);font-weight:800"';
+    }
+    return `
+      <div class="${rowClass}">
+        <div class="date">${day}<span class="yr">${yr}</span></div>
+        <div class="ic-wrap ${dir}">${meta.icon}</div>
+        <div class="body">
+          <div class="label">${meta.label}</div>
+          <div class="desc">${h.description}</div>
+          ${h.sublabel ? `<div class="sub"${subStyle}>${h.sublabel}</div>` : ``}
+        </div>
+        <div class="amount ${dir}">${amountStr}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* ============================================================
+   BOOT + BRIDGE NAMESPACE
+   ============================================================ */
+function boot() {
+  bindTabs();
+  bindCarousel();
+
+  // "See full details" disclosure on the Explore tab. The toggle state
+  // lives on `ui.showFullLoanDetails` so it persists across re-renders
+  // (carousel paging, lot swaps, Unity update() pushes).
+  $("#details-toggle").addEventListener("click", () => {
+    ui.showFullLoanDetails = !ui.showFullLoanDetails;
+    renderExplore();
+  });
+
+  // Close button — fire an intent through the host. The host SendMessage's
+  // the C# CreditWebBridge which raises GameEvents.OnHidePanelRequested.
+  $(".panel-header .close").addEventListener("click", () => {
+    if (window.parent && window.parent.FV && typeof window.parent.FV.requestIntent === "function") {
+      window.parent.FV.requestIntent("credit", "close", {});
+    } else {
+      console.log("[ui] close panel (standalone)");
+    }
+  });
+
+  renderHome();
+
+  // Expose a stable namespaced API to the parent (the WebGL host).
+  // The C# bridge calls window.FV.updatePanel("credit", json) which the
+  // host dispatches to FV.credit.update(payload).
+  window.FV = window.FV || {};
+  window.FV.credit = {
+    update(payload) {
+      // Overwrite mockState fields with live values from Unity, then
+      // re-render the currently-active tab. Other tabs read mockState
+      // when the user switches to them.
+      if (!payload) return;
+
+      // Home-tab scalars
+      if (typeof payload.creditScore === "number")        mockState.creditScore       = payload.creditScore;
+      if (typeof payload.creditScoreLabel === "string")   mockState.creditScoreLabel  = payload.creditScoreLabel;
+      if (typeof payload.totalDebt === "number")          mockState.totalDebt         = payload.totalDebt;
+      if (typeof payload.yearlyDebtPayment === "number")  mockState.yearlyDebtPayment = payload.yearlyDebtPayment;
+      if (typeof payload.yearlyIncome === "number")       mockState.yearlyIncome      = payload.yearlyIncome;
+      if (typeof payload.cashOnHand === "number")         mockState.cashOnHand        = payload.cashOnHand;
+
+      // Lists
+      if (Array.isArray(payload.activeLoans))   mockState.activeLoans = payload.activeLoans;
+      if (Array.isArray(payload.loanProducts))  mockState.loanProducts = payload.loanProducts;
+      if (Array.isArray(payload.history))       mockState.history = payload.history;
+      if (Array.isArray(payload.availableLots)) {
+        mockState.availableLots = payload.availableLots;
+        // If the previously-selected lot was removed from the list, fall
+        // back to the no-selection state. We deliberately don't auto-pick
+        // a replacement: the redesign's pre-pick prompt is the canonical
+        // initial state and re-entering it on a stale selection is the
+        // correct UX rather than silently substituting a different lot.
+        if (ui.selectedLotId && !mockState.availableLots.find(l => l.id === ui.selectedLotId)) {
+          ui.selectedLotId = null;
+          ui.carouselIndex = 0;
+        }
+      }
+
+      // One-shot lot pre-selection from OnLotLoanExploreRequested. Validate
+      // against availableLots to avoid pre-selecting a lot the player no
+      // longer has access to. Switch to Explore tab on receipt so the
+      // student lands where the action is.
+      let didPreSelect = false;
+      if (typeof payload.selectedLotId === "string" && payload.selectedLotId.length > 0) {
+        const exists = mockState.availableLots && mockState.availableLots.find(l => l.id === payload.selectedLotId);
+        if (exists) {
+          ui.selectedLotId = payload.selectedLotId;
+          ui.carouselIndex = 0;
+          didPreSelect = true;
+        }
+      }
+
+      if (didPreSelect) {
+        // switchTab updates buttons + section .active classes AND renders.
+        switchTab("explore");
+      } else {
+        switch (ui.activeTab) {
+          case "home":    renderHome();    break;
+          case "explore": renderExplore(); break;
+          case "history": renderHistory(); break;
+        }
+      }
+    },
+    showError(message) {
+      // Host renders the toast; this hook is reserved for panel-local
+      // error handling if we ever need it.
+      console.warn("[FV.credit.showError]", message);
+    }
+  };
+
+  // Tell the host we're ready. The host's cold-start queue replays any
+  // updatePanel("credit", ...) calls that arrived before this point.
+  if (window.parent && window.parent.FV && typeof window.parent.FV.iframeReady === "function") {
+    window.parent.FV.iframeReady("credit");
+  }
+}
+document.addEventListener("DOMContentLoaded", boot);
+
+// Lightweight self-test: open credit-system.html?test=1 to run qualification
+// gate cases against evalQualify and log any failures to the console.
+(function maybeRunQualifyTests() {
+  if (typeof location === "undefined") return;
+  if (!new URLSearchParams(location.search).has("test")) return;
+  document.addEventListener("DOMContentLoaded", () => {
+    const lot = { id: "test-lot", name: "Test Lot", price: 60000 };
+    const baseProduct = { id: "p", name: "p", apr: 15, termYears: 5, downPaymentPercent: 0.25, minCreditScore: 450, maxDtiRatio: 0.50 };
+    const cases = [
+      { name: "happy path (108k income, no debt)",            score: 500,  debt: 0,     income: 108000, product: baseProduct,                                               expectOK: true  },
+      { name: "credit score below minimum",                   score: 400,  debt: 0,     income: 108000, product: baseProduct,                                               expectOK: false },
+      { name: "strong credit + ample income",                 score: 800,  debt: 0,     income: 108000, product: baseProduct,                                               expectOK: true  },
+      { name: "premium loan qualified",                       score: 800,  debt: 0,     income: 108000, product: { ...baseProduct, apr: 4, termYears: 15, minCreditScore: 720 }, expectOK: true },
+      { name: "DTI gate (60k yearly debt, 108k income)",      score: 800,  debt: 60000, income: 108000, product: baseProduct,                                               expectOK: false },
+      { name: "down-payment cash gate",                       score: 800,  debt: 0,     income: 108000, product: { ...baseProduct, downPaymentPercent: 1.0 },               expectOK: false, cash: 1000 },
+      { name: "zero income (DTI infinite)",                   score: 500,  debt: 0,     income: 0,      product: baseProduct,                                               expectOK: false },
+      { name: "max DTI cap of zero blocks any debt",          score: 800,  debt: 0,     income: 108000, product: { ...baseProduct, maxDtiRatio: 0.0 },                      expectOK: false },
+    ];
+    const savedScore  = mockState.creditScore;
+    const savedDebt   = mockState.yearlyDebtPayment;
+    const savedIncome = mockState.yearlyIncome;
+    const savedCash   = mockState.cashOnHand;
+    let passed = 0;
+    let failed = 0;
+    for (const c of cases) {
+      mockState.creditScore       = c.score;
+      mockState.yearlyDebtPayment = c.debt;
+      mockState.yearlyIncome      = c.income;
+      mockState.cashOnHand        = (typeof c.cash === "number") ? c.cash : 100000;
+      const got = evalQualify(c.product, lot);
+      const ok = (got.ok === c.expectOK);
+      if (ok) { passed++; console.log(`PASS: ${c.name}`); }
+      else { failed++; console.error(`FAIL: ${c.name} - expected ok=${c.expectOK}, got ok=${got.ok}, reasons=${JSON.stringify(got.reasons)}`); }
+    }
+    mockState.creditScore       = savedScore;
+    mockState.yearlyDebtPayment = savedDebt;
+    mockState.yearlyIncome      = savedIncome;
+    mockState.cashOnHand        = savedCash;
+    console.log(`[evalQualify tests] ${passed} passed, ${failed} failed`);
+  });
+})();
+</script>
+</body>
+</html>

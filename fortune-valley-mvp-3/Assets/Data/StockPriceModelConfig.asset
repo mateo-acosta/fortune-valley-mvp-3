@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7f2c3a2843124a58b467c919e8afe9c, type: 3}
+  m_Name: StockPriceModelConfig
+  m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.StockPriceModelConfig
+  _reversalChanceLow: 0.05
+  _reversalChanceMedium: 0.1
+  _reversalChanceHigh: 0.2
+  _mrStrengthLow: 0.05
+  _mrStrengthMedium: 0.02
+  _mrStrengthHigh: 0.01
+  _softBandLow: 0.15
+  _softBandMedium: 0.4
+  _softBandHigh: 0.8
+  _trendStrengthLow: 0.002
+  _trendStrengthMedium: 0.006
+  _trendStrengthHigh: 0.012
+  _noiseSigmaLow: 0.005
+  _noiseSigmaMedium: 0.015
+  _noiseSigmaHigh: 0.03
+  _jumpDailyChance: 0.01
+  _jumpMinMagnitude: 0.03
+  _jumpMaxMagnitude: 0.08
+  _jumpDownProbability: 0.6
+  _cubicPullCoefficient: 0.5
+  _absoluteFloorRatio: 0.2

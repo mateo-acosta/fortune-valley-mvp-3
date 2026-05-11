@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: Alora Finance
-  productName: fortune-valley-mvp-2
+  productName: fortune-valley-mvp-3
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -44,8 +44,8 @@ PlayerSettings:
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1024
   defaultScreenHeight: 768
-  defaultScreenWidthWeb: 960
-  defaultScreenHeightWeb: 600
+  defaultScreenWidthWeb: 1920
+  defaultScreenHeightWeb: 1080
   m_StereoRenderingPath: 0
   m_ActiveColorSpace: 1
   unsupportedMSAAFallback: 0
@@ -83,7 +83,7 @@ PlayerSettings:
   androidApplicationEntry: 2
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
-  runInBackground: 0
+  runInBackground: 1
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
   Force IOS Speakers When Recording: 0
@@ -805,14 +805,14 @@ PlayerSettings:
   blurSplashScreenBackground: 1
   spritePackerPolicy: 
   webGLMemorySize: 32
-  webGLExceptionSupport: 1
-  webGLNameFilesAsHashes: 0
+  webGLExceptionSupport: 0
+  webGLNameFilesAsHashes: 1
   webGLShowDiagnostics: 0
   webGLDataCaching: 1
   webGLDebugSymbols: 0
   webGLEmscriptenArgs: 
   webGLModulesDirectory: 
-  webGLTemplate: APPLICATION:Default
+  webGLTemplate: PROJECT:FortuneValley
   webGLAnalyzeBuildSize: 0
   webGLUseEmbeddedResources: 0
   webGLCompressionFormat: 0
@@ -831,8 +831,26 @@ PlayerSettings:
   webGLWebAssemblyBigInt: 0
   webGLCloseOnQuit: 0
   webWasm2023: 0
-  webEnableSubmoduleStrippingCompatibility: 0
-  scriptingDefineSymbols: {}
+  webEnableSubmoduleStrippingCompatibility: 1
+  scriptingDefineSymbols:
+    Android: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    EmbeddedLinux: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    GameCoreScarlett: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    GameCoreXboxOne: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    Kepler: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    LinuxHeadlessSimulation: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    Nintendo Switch: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    Nintendo Switch 2: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    PS4: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    PS5: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    QNX: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    Standalone: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    VisionOS: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    WebGL: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    Windows Store Apps: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    XboxOne: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    iPhone: DOTWEEN;DOTWEEN_NOPHYSICS2D
+    tvOS: DOTWEEN;DOTWEEN_NOPHYSICS2D
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -840,7 +858,8 @@ PlayerSettings:
   il2cppCompilerConfiguration: {}
   il2cppCodeGeneration: {}
   il2cppStacktraceInformation: {}
-  managedStrippingLevel: {}
+  managedStrippingLevel:
+    WebGL: 1
   incrementalIl2cppBuild: {}
   suppressCommonWarnings: 1
   allowUnsafeCode: 0
