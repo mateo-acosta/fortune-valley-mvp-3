@@ -102,6 +102,13 @@ namespace FortuneValley.UI
         // use _currentPanel; bridges live outside the UIPanel hierarchy.
         private WebPanelBridgeBase _currentWebBridge;
 
+        // Tracks the panel type currently visible (UGUI or web bridge). Lets
+        // OnHidePanelRequested(PanelType) filter stale close requests that
+        // arrive after a different panel has taken over (e.g. lot bridge
+        // raises Hide(Lots) after triggering ShowPanel(Loan), and we must
+        // not close the freshly-opened loan panel).
+        private PanelType? _currentPanelType;
+
         // ═══════════════════════════════════════════════════════════════
         // LIFECYCLE
         // ═══════════════════════════════════════════════════════════════
@@ -229,6 +236,7 @@ namespace FortuneValley.UI
             {
                 bridge.Show();
                 _currentWebBridge = bridge;
+                _currentPanelType = panelType;
                 GameEvents.RaisePanelOpened(panelType);
                 return;
             }
@@ -238,6 +246,7 @@ namespace FortuneValley.UI
             {
                 panel.Show();
                 _currentPanel = panel;
+                _currentPanelType = panelType;
                 GameEvents.RaisePanelOpened(panelType);
             }
         }
@@ -282,6 +291,7 @@ namespace FortuneValley.UI
                 _currentPanel.Hide();
                 _currentPanel = null;
             }
+            _currentPanelType = null;
         }
 
         private WebPanelBridgeBase GetWebBridge(PanelType type)
@@ -299,10 +309,13 @@ namespace FortuneValley.UI
 
         private void HandleHidePanelRequested(PanelType panelType)
         {
-            // Fired by web bridges when their HTML close button is clicked.
-            // We don't need to filter by panelType here because only one
-            // panel is visible at a time, but the filter keeps the contract
-            // explicit for future multi-panel scenarios.
+            // Filter by panelType so a stale Hide request can't close a
+            // panel that has since been replaced. Concrete case: the lot
+            // bridge's "Explore Loan" intent raises both LotLoanExplore
+            // (which triggers ShowPanel(Loan)) and HidePanel(Lots). Without
+            // this filter, the second event closed the freshly-opened loan
+            // panel because the current visible was no longer the lot panel.
+            if (_currentPanelType != panelType) return;
             HideCurrentPanel();
         }
 
@@ -323,6 +336,7 @@ namespace FortuneValley.UI
             if (_lotWebBridge != null) _lotWebBridge.Hide();
             _currentPanel = null;
             _currentWebBridge = null;
+            _currentPanelType = null;
         }
 
         private UIPanel GetPanel(PanelType type)
