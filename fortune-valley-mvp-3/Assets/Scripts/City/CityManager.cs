@@ -187,12 +187,7 @@ namespace FortuneValley.Core
             GameEvents.OnTick += HandleTick;
             GameEvents.OnPurchaseLotRequested += HandlePurchaseLotRequested;
             GameEvents.OnLotUpgradeRequested += HandleLotUpgradeRequested;
-            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
-
-            if (GameEvents.LastLoadedSaveDto != null)
-            {
-                HandleSaveStateLoaded(GameEvents.LastLoadedSaveDto);
-            }
+            SaveRestoreCatchUp.Subscribe(HandleSaveStateLoaded, HandleSaveRestored);
         }
 
         private void OnDisable()
@@ -201,7 +196,19 @@ namespace FortuneValley.Core
             GameEvents.OnTick -= HandleTick;
             GameEvents.OnPurchaseLotRequested -= HandlePurchaseLotRequested;
             GameEvents.OnLotUpgradeRequested -= HandleLotUpgradeRequested;
-            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
+            SaveRestoreCatchUp.Unsubscribe(HandleSaveStateLoaded, HandleSaveRestored);
+        }
+
+        /// <summary>
+        /// Phase 2 of save restore. Re-emits per-lot ownership + tier events for
+        /// every player- or rival-owned lot so visual subscribers (RestaurantVisualTierSwapper,
+        /// BlockController, BuildingCollectButton) paint correctly even if they
+        /// enabled after Phase 1 fired. Subscribers' handlers are already idempotent;
+        /// receiving these events again on Phase 2 is harmless.
+        /// </summary>
+        private void HandleSaveRestored()
+        {
+            RaiseAllOwnedLotEvents();
         }
 
         private void HandleSaveStateLoaded(GamePlayerStateDTO dto)
@@ -631,6 +638,55 @@ namespace FortuneValley.Core
                     if (fl == null) continue;
                     _lotTier[fl.lot_id] = fl.tier;
                     GameEvents.RaiseLotTierChanged(fl.lot_id, fl.tier);
+                }
+            }
+
+            if (dto.acquisition_costs != null)
+            {
+                for (int i = 0; i < dto.acquisition_costs.Length; i++)
+                {
+                    var ac = dto.acquisition_costs[i];
+                    if (ac == null || string.IsNullOrEmpty(ac.lot_id)) continue;
+                    if (!LotExists(ac.lot_id)) continue;
+                    _acquisitionCost[ac.lot_id] = ac.cost;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Snapshot of per-lot acquisition costs for the autosave DTO. One entry
+        /// per lot present in _acquisitionCost regardless of current owner so the
+        /// dictionary round-trips faithfully. GameStateDTOBuilder calls this.
+        /// </summary>
+        public AcquisitionCostEntry[] GetAcquisitionCostEntries()
+        {
+            if (_acquisitionCost.Count == 0) return new AcquisitionCostEntry[0];
+            var entries = new AcquisitionCostEntry[_acquisitionCost.Count];
+            int i = 0;
+            foreach (var kv in _acquisitionCost)
+            {
+                entries[i++] = new AcquisitionCostEntry { lot_id = kv.Key, cost = kv.Value };
+            }
+            return entries;
+        }
+
+        /// <summary>
+        /// Re-emits OnLotPurchased + OnLotTierChanged for every currently-owned
+        /// lot (player and rival). Mirrors Hydrate's event set exactly. Used by
+        /// Phase 2 save-restore so visual subscribers that spawned after Phase 1
+        /// fired still paint correctly. OnLotOwnershipChanged is intentionally
+        /// not re-emitted: live-transition subscribers (DailyIncomeAccumulator
+        /// bucket lifecycle) own their own restore path (Hydrate on Phase 1).
+        /// </summary>
+        public void RaiseAllOwnedLotEvents()
+        {
+            foreach (var kv in _lotOwnership)
+            {
+                if (kv.Value == Owner.None) continue;
+                GameEvents.RaiseLotPurchased(kv.Key, kv.Value);
+                if (_lotTier.TryGetValue(kv.Key, out int tier))
+                {
+                    GameEvents.RaiseLotTierChanged(kv.Key, tier);
                 }
             }
         }

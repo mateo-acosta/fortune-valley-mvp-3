@@ -108,13 +108,18 @@ namespace FortuneValley.Core
         /// <summary>
         /// Pull-pattern hook: re-emits OnNetWorthChanged with current values so
         /// freshly subscribed listeners (HUD on scene load, save load) get the
-        /// snapshot without waiting for the next data change. Bypasses the
-        /// change-detection guard. Idempotent: each request produces one emit.
-        /// If no values have been computed yet, computes fresh and emits.
+        /// snapshot without waiting for the next data change.
+        ///
+        /// Honors the dirty flag: if any contribution has been marked dirty since
+        /// the last emit, recompute fresh. Otherwise emit the cached values. This
+        /// is the load-bearing fix for returning players: the first snapshot
+        /// (pre-hydration) caches 0/0, hydration MarkDirtys the service, and the
+        /// post-hydration snapshot (raised from LifeGoalsHud Phase 2 catch-up)
+        /// must recompute to surface the restored balances and lot values.
         /// </summary>
         private void HandleSnapshotRequest()
         {
-            if (_hasFiredOnce)
+            if (_hasFiredOnce && !_dirty)
             {
                 GameEvents.RaiseNetWorthChanged(_lastTotal, _lastLiquid);
                 return;

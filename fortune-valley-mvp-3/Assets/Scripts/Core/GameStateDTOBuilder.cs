@@ -79,6 +79,7 @@ namespace FortuneValley.Core
 
             BuildLotOwnership(dto);
             BuildFranchiseLevels(dto);
+            BuildAcquisitionCosts(dto);
             BuildActiveLoans(dto);
             BuildInsurancePolicies(dto);
             BuildInvestmentHoldings(dto);
@@ -221,6 +222,12 @@ namespace FortuneValley.Core
             }
 
             dto.franchise_levels = dtos.ToArray();
+        }
+
+        private void BuildAcquisitionCosts(GamePlayerStateDTO dto)
+        {
+            if (_cityManager == null) return;
+            dto.acquisition_costs = _cityManager.GetAcquisitionCostEntries();
         }
 
         private void BuildInvestmentHoldings(GamePlayerStateDTO dto)

@@ -44,6 +44,13 @@ namespace FortuneValley.UI.HUD
             GameEvents.OnYearEnd += HandleYearEnd;
             GameEvents.OnGameStart += HandleGameStart;
 
+            // Phase 1 handler is null: LifeGoalSelectionService is owned by GameManager
+            // and hydrates from the same DTO in its own Phase 1 path. We only need
+            // Phase 2 to re-pull the net-worth snapshot AFTER selection is hydrated,
+            // so the cascade NetWorthService -> GoalProgressTracker -> slider actually
+            // produces a slider event (it would early-return on null selection otherwise).
+            SaveRestoreCatchUp.Subscribe(null, HandleSaveRestored);
+
             // Pull-pattern: ask NetWorthService to re-emit current cached values.
             // The cascaded OnNetWorthChanged drives GoalProgressTracker, which
             // fires OnGoalProgressChanged or OnAllGoalsRealized to populate the
@@ -58,6 +65,15 @@ namespace FortuneValley.UI.HUD
             GameEvents.OnAllGoalsRealized -= HandleAllGoalsRealized;
             GameEvents.OnYearEnd -= HandleYearEnd;
             GameEvents.OnGameStart -= HandleGameStart;
+            SaveRestoreCatchUp.Unsubscribe(null, HandleSaveRestored);
+        }
+
+        private void HandleSaveRestored()
+        {
+            // Selection is guaranteed populated by now (GameManager hydrates in Phase 1,
+            // we run in Phase 2). NetWorthService is dirty from hydration MarkDirty
+            // calls so the snapshot recomputes fresh.
+            GameEvents.RaiseRequestNetWorthSnapshot();
         }
 
         private void Start()

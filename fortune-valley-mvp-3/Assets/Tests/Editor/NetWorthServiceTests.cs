@@ -278,6 +278,63 @@ namespace FortuneValley.Tests
         }
 
         [Test]
+        public void SnapshotRequest_AfterMarkDirty_RecomputesFromCurrentValues()
+        {
+            // Returning-player scenario: first snapshot fires before hydration
+            // with stale (zero) values; hydration MarkDirtys via OnLotPurchased
+            // etc.; the post-hydration snapshot MUST recompute fresh, not emit
+            // the cached zero. Without this, the slider activates but shows 0.
+            _liquid = 0f;
+            _business = 0f;
+
+            using (var svc = BuildService())
+            {
+                GameEvents.RaiseRequestNetWorthSnapshot();
+                Assert.AreEqual(0f, _lastTotal);
+
+                // Simulate hydration: balances and business assets land, an event
+                // that the service subscribes to MarkDirtys it.
+                _liquid = 12_500f;
+                _business = 200_000f;
+                GameEvents.RaiseLotPurchased("lot_x", FortuneValley.Domain.Enums.Owner.Player);
+
+                _eventFireCount = 0;
+                GameEvents.RaiseRequestNetWorthSnapshot();
+
+                Assert.AreEqual(1, _eventFireCount);
+                Assert.AreEqual(212_500f, _lastTotal,
+                    "Dirty snapshot must recompute fresh, not emit cached zero");
+                Assert.AreEqual(12_500f, _lastLiquid);
+            }
+        }
+
+        [Test]
+        public void SnapshotRequest_NotDirty_EmitsCachedValues()
+        {
+            // The cache shortcut is still desirable when nothing changed: no
+            // contribution function calls beyond the cached float reads.
+            _liquid = 1000f;
+            _business = 50f;
+
+            using (var svc = BuildService())
+            {
+                GameEvents.RaiseRequestNetWorthSnapshot();
+                Assert.AreEqual(1050f, _lastTotal);
+
+                // Mutate the underlying values but DO NOT mark dirty (no event).
+                _liquid = 999_999f;
+                _business = 999_999f;
+
+                _eventFireCount = 0;
+                GameEvents.RaiseRequestNetWorthSnapshot();
+
+                Assert.AreEqual(1, _eventFireCount);
+                Assert.AreEqual(1050f, _lastTotal,
+                    "Non-dirty snapshot must emit cached values, not call contribution funcs");
+            }
+        }
+
+        [Test]
         public void SnapshotRequest_BeforeSubscriberAttaches_LaterRequestStillEmits()
         {
             // Scene-reload ordering: a snapshot request can fire before a HUD

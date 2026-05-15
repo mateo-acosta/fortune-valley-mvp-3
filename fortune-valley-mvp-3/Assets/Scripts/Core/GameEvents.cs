@@ -1040,6 +1040,11 @@ namespace FortuneValley.Core
             OnBankruptcyTriggered = null;
             OnSoftBankruptcyReset = null;
             OnLotsBatchReset = null;
+
+            // Same-DTO replay tracking lives next to the persistence events.
+            // Clearing here matches the scene-restart contract; LastLoadedSaveDto
+            // is preserved per the comment block above.
+            SaveRestoreCatchUp.ClearCache();
         }
     }
 }
