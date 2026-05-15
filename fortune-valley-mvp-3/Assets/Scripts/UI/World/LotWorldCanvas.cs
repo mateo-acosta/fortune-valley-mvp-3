@@ -139,6 +139,7 @@ namespace FortuneValley.UI.World
 
         private void HandleGameStart()
         {
+            if (GameEvents.LastLoadedSaveDto != null) return;
             _owner = Owner.None;
             _tier = 0;
             RefreshDisplay();

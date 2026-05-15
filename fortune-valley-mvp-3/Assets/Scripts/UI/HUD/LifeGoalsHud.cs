@@ -88,6 +88,7 @@ namespace FortuneValley.UI.HUD
 
         private void HandleGameStart()
         {
+            if (GameEvents.LastLoadedSaveDto != null) return;
             UpdateAgeText(LifespanConstants.StartingAge);
             _allGoalsRealized = false;
             if (_progressSlider != null) _progressSlider.gameObject.SetActive(false);

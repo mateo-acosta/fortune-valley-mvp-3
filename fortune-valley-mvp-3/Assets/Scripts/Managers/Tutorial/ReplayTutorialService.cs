@@ -38,6 +38,11 @@ namespace FortuneValley.Managers.Tutorial
 
             if (_apiClient != null) _apiClient.WipePlayerState(gameMode);
 
+            // Clear the cached save DTO so HandleGameStart gates fall through
+            // and destructive resets run for the replay-tutorial flow.
+            GameEvents.LastLoadedSaveDto = null;
+            GameEvents.HasSaveBeenRestored = false;
+
             var store = _keyValueStore ?? PlayerPrefsStore;
             store.SetInt(IntroTutorialController.PlayerPrefsKeyPrefix + gameMode, 0);
             store.Save();

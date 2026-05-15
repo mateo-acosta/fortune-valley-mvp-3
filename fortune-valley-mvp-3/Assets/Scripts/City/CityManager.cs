@@ -229,6 +229,7 @@ namespace FortuneValley.Core
 
         private void HandleGameStart()
         {
+            if (GameEvents.LastLoadedSaveDto != null) return;
             ResetOwnership();
             SeedStarterLots();
             // Notify UI components of lot count so they can initialize without querying CityManager directly
