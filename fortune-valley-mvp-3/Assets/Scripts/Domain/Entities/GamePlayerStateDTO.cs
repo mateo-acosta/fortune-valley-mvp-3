@@ -40,6 +40,13 @@ namespace FortuneValley.Domain.Entities
         // Populated by GameStateDTOBuilder from CityManager once the block system is wired.
         public CosmeticVariantChoice[] cosmetic_variants;
 
+        // Per-player-owned-lot acquisition cost (actual paid amount, includes rival
+        // buyout markup). Hydrated into CityManager._acquisitionCost so
+        // BusinessAssetValue contribution to Total Net Worth is correct on returning
+        // players. Null on legacy saves -- Hydrate treats null as empty and the
+        // total falls back to 0 for those lots (pre-existing behavior preserved).
+        public AcquisitionCostEntry[] acquisition_costs;
+
         // Per-building pending income buckets (restaurant + each player-owned lot).
         // Written by DailyIncomeAccumulator.Snapshot; consumed by Hydrate on load.
         // Null on legacy saves; Hydrate treats null as empty.

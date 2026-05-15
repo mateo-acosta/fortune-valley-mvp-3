@@ -113,15 +113,17 @@ namespace FortuneValley.Managers
         private void OnEnable()
         {
             GameEvents.OnGameEnd += HandleGameEnd;
-            GameEvents.OnSaveStateLoaded += HandleSaveStateLoaded;
             GameEvents.OnRetirementReached += HandleRetirementReached;
+            // Phase 2 handler is null: selection + bankruptcy flag hydration happens
+            // in Phase 1. Late-spawn catch-up replays Phase 1 from LastLoadedSaveDto.
+            SaveRestoreCatchUp.Subscribe(HandleSaveStateLoaded, null);
         }
 
         private void OnDisable()
         {
             GameEvents.OnGameEnd -= HandleGameEnd;
-            GameEvents.OnSaveStateLoaded -= HandleSaveStateLoaded;
             GameEvents.OnRetirementReached -= HandleRetirementReached;
+            SaveRestoreCatchUp.Unsubscribe(HandleSaveStateLoaded, null);
         }
 
         private void OnDestroy()
