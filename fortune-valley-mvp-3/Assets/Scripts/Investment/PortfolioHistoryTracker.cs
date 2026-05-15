@@ -59,7 +59,7 @@ namespace FortuneValley.Core
 
         private void HandleGameStart()
         {
-            if (GameEvents.LastLoadedSaveDto != null) return;
+            if (GameEvents.SaveStateRestoredFromServer) return;
             _totalWealthHistory.Clear();
             _netGainHistory.Clear();
             _portfolioValueHistory.Clear();

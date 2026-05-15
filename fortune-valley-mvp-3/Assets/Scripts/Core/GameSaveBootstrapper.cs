@@ -150,6 +150,10 @@ namespace FortuneValley.Core
             // Set catch-up handle BEFORE invoking subscribers so a subscriber
             // reading LastLoadedSaveDto during the event sees the same DTO.
             GameEvents.LastLoadedSaveDto = dto;
+            // Mark that this session restored a real server save (Phase 1,
+            // before OnGameStart). HandleGameStart gates read this -- not
+            // LastLoadedSaveDto, which autosave write-through also sets.
+            GameEvents.SaveStateRestoredFromServer = true;
             GameEvents.RaiseSaveStateLoaded(dto);
 
             // Phase 2 fires next frame so all Phase 1 subscribers are done.

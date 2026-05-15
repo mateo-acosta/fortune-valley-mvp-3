@@ -229,7 +229,12 @@ namespace FortuneValley.Core
 
         private void HandleGameStart()
         {
-            if (GameEvents.LastLoadedSaveDto != null) return;
+            // A genuine server restore that actually carried lots owns world
+            // state; don't re-seed. But if the restore came back empty (a
+            // corrupted/partial row written before starters were ever seeded),
+            // fall through and re-seed so the game self-heals instead of
+            // showing every block as "For Sale".
+            if (GameEvents.SaveStateRestoredFromServer && _lotOwnership.Count > 0) return;
             ResetOwnership();
             SeedStarterLots();
             // Notify UI components of lot count so they can initialize without querying CityManager directly

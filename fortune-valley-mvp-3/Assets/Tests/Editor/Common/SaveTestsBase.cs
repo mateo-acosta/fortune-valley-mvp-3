@@ -12,8 +12,8 @@ namespace FortuneValley.Tests.Common
     /// between tests so test order does not affect outcomes.
     ///
     /// Statics that survive ClearAllSubscriptions in production
-    /// (LastLoadedSaveDto, HasSaveBeenRestored) are explicitly reset here so
-    /// each test starts from a clean slate.
+    /// (LastLoadedSaveDto, HasSaveBeenRestored, SaveStateRestoredFromServer)
+    /// are explicitly reset here so each test starts from a clean slate.
     /// </summary>
     public abstract class SaveTestsBase
     {
@@ -26,6 +26,7 @@ namespace FortuneValley.Tests.Common
             GameEvents.ClearAllSubscriptions();
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
+            GameEvents.SaveStateRestoredFromServer = false;
             GameSaveBootstrapper.ResetExistingForTests();
 
             DestroyLeftoverBootstrappers();
@@ -48,6 +49,7 @@ namespace FortuneValley.Tests.Common
             GameEvents.ClearAllSubscriptions();
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
+            GameEvents.SaveStateRestoredFromServer = false;
             GameSaveBootstrapper.ResetExistingForTests();
         }
 

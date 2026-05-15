@@ -861,6 +861,18 @@ namespace FortuneValley.Core
         // Intentionally NOT cleared in ClearAllSubscriptions.
         public static bool HasSaveBeenRestored { get; set; }
 
+        // True only when a genuine server save was restored this session
+        // (set by GameSaveBootstrapper.Apply in Phase 1, before OnGameStart).
+        // Distinct from LastLoadedSaveDto != null, which is ALSO true after any
+        // autosave write-through or when any prior row exists -- neither of
+        // which means "a returning player whose hydrated state must be kept."
+        // HandleGameStart handlers gate destructive fresh-game resets on this
+        // so a fresh player (or replay-tutorial) still seeds defaults even
+        // after an autosave has populated LastLoadedSaveDto.
+        // Cleared by ReplayTutorialService after a wipe. Intentionally NOT
+        // cleared in ClearAllSubscriptions (survives scene reloads).
+        public static bool SaveStateRestoredFromServer { get; set; }
+
         // Set by GameSaveBootstrapper.Apply when the server returns an empty
         // payload for an authenticated user (e.g. brand-new student with no
         // game_player_states row yet). IntroGate reads this so it can stop
