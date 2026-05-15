@@ -116,6 +116,7 @@ namespace FortuneValley.Core
 
         private void HandleGameStart()
         {
+            if (GameEvents.LastLoadedSaveDto != null) return;
             _currentLevel = 1;
             _totalEarned = 0f;
         }

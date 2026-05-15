@@ -226,6 +226,7 @@ namespace FortuneValley.UI
 
         private void HandleGameStart()
         {
+            if (GameEvents.LastLoadedSaveDto != null) return;
             // Reset all local ownership state so visuals reflect a fresh game
             _currentOwner = Owner.None;
             _isRivalTarget = false;

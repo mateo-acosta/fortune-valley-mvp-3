@@ -105,6 +105,7 @@ namespace FortuneValley.Core
 
         private void HandleGameStart()
         {
+            if (GameEvents.LastLoadedSaveDto != null) return;
             _money = _config.StartingMoney;
             GameEvents.RaiseRivalBalanceChanged(_money);
             _lastPurchaseTick = 0;

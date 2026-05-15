@@ -101,6 +101,7 @@ namespace FortuneValley.Core
 
         private void HandleGameStart()
         {
+            if (GameEvents.LastLoadedSaveDto != null) return;
             _portfolio = new InsurancePortfolio();
         }
 
