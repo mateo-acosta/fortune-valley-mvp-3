@@ -42,6 +42,7 @@ namespace FortuneValley.Managers.Tutorial
             // and destructive resets run for the replay-tutorial flow.
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
+            GameEvents.SaveStateRestoredFromServer = false;
 
             var store = _keyValueStore ?? PlayerPrefsStore;
             store.SetInt(IntroTutorialController.PlayerPrefsKeyPrefix + gameMode, 0);

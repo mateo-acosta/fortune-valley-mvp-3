@@ -21,6 +21,7 @@ namespace FortuneValley.Tests.Runtime
             GameEvents.ClearAllSubscriptions();
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
+            GameEvents.SaveStateRestoredFromServer = false;
             GameSaveBootstrapper.ResetExistingForTests();
             DestroyAllBootstrappers();
         }
@@ -31,6 +32,7 @@ namespace FortuneValley.Tests.Runtime
             GameEvents.ClearAllSubscriptions();
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
+            GameEvents.SaveStateRestoredFromServer = false;
             GameSaveBootstrapper.ResetExistingForTests();
             DestroyAllBootstrappers();
         }

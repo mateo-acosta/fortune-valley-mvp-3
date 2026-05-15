@@ -29,6 +29,7 @@ namespace FortuneValley.Tests.Runtime
             GameEvents.ClearAllSubscriptions();
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
+            GameEvents.SaveStateRestoredFromServer = false;
             SaveRestoreCatchUp.ClearCache();
             GameSaveBootstrapper.ResetExistingForTests();
         }
@@ -39,6 +40,7 @@ namespace FortuneValley.Tests.Runtime
             GameEvents.ClearAllSubscriptions();
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
+            GameEvents.SaveStateRestoredFromServer = false;
             SaveRestoreCatchUp.ClearCache();
             GameSaveBootstrapper.ResetExistingForTests();
             // Defensive: destroy any GameObjects left over from a test that threw.
