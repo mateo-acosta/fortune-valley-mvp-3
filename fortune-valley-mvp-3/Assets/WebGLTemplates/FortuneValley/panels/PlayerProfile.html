@@ -875,7 +875,7 @@ html, body {
                 <div class="gs-meta">
                   <span class="gs-tier">Starter</span>
                   <span class="gs-name" id="goal-stamp-1-name">First Apartment</span>
-                  <span class="gs-pct"  id="goal-stamp-1-pct">0% there</span>
+                  <span class="gs-pct"  id="goal-stamp-1-pct">$100k Net Worth</span>
                 </div>
               </div>
 
@@ -895,7 +895,7 @@ html, body {
                 <div class="gs-meta">
                   <span class="gs-tier">Mid</span>
                   <span class="gs-name" id="goal-stamp-2-name">Family Home</span>
-                  <span class="gs-pct"  id="goal-stamp-2-pct">0% there</span>
+                  <span class="gs-pct"  id="goal-stamp-2-pct">$500k Net Worth</span>
                 </div>
               </div>
 
@@ -915,7 +915,7 @@ html, body {
                 <div class="gs-meta">
                   <span class="gs-tier">Ambitious</span>
                   <span class="gs-name" id="goal-stamp-3-name">Retire Early</span>
-                  <span class="gs-pct"  id="goal-stamp-3-pct">0% there</span>
+                  <span class="gs-pct"  id="goal-stamp-3-pct">$2M Net Worth</span>
                 </div>
               </div>
             </div>
@@ -1268,6 +1268,35 @@ html, body {
     placeholder:         '?'
   };
 
+  // goal_id -> display name. Mirrors the Unity life-goal catalog
+  // (Assets/Data/LifeGoals/*.asset _displayName). Keep in sync if the
+  // catalog changes. Without this the bridge could only show raw ids.
+  const GOAL_LABELS = {
+    first_apartment:     'First Apartment',
+    reliable_used_car:   'Reliable Used Car',
+    wedding_fund:        'Wedding Fund',
+    family_home:         'Family Home',
+    college_one_kid:     'Send 1 Kid to College',
+    travel_10_countries: 'Travel to 10 Countries',
+    dream_car:           'Dream Sports Car',
+    college_two_kids:    'Send 2 Kids to College',
+    retire_early:        'Retire Early'
+  };
+
+  // Compact net-worth target label, e.g. 100000 -> "$100k", 2000000 -> "$2M".
+  function fmtGoalTarget(amount) {
+    const n = Math.abs(Number(amount) || 0);
+    if (n >= 1000000) {
+      const m = n / 1000000;
+      return '$' + (m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)) + 'M';
+    }
+    if (n >= 1000) {
+      const k = n / 1000;
+      return '$' + (k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)) + 'k';
+    }
+    return '$' + n;
+  }
+
   function setStampEmoji(stamp) {
     const el = stamp.querySelector('.gs-emoji');
     if (!el) return;
@@ -1305,36 +1334,50 @@ html, body {
         : 'Achieved';
       return;
     }
-    // In progress.
+    // In progress. The ring still fills by progress; the label shows the
+    // net-worth target so students learn what each goal actually requires.
     const progress = threshold > 0 ? clamp01(totalNetWorth / threshold) : 0;
     if (ringFill) ringFill.setAttribute('stroke-dasharray', (progress * RING_LEN).toFixed(2) + ' ' + RING_LEN);
-    if (pctEl)    pctEl.textContent = Math.round(progress * 100) + '% there';
+    if (pctEl)    pctEl.textContent = fmtGoalTarget(threshold) + ' Net Worth';
   }
 
-  function paintTrail(constellation, currentAge, retirementAge) {
-    const span = retirementAge - currentAge;
-    const totalSpan = retirementAge - parseFloat(constellation.querySelector('.gct-tick-start')?.textContent || currentAge);
-    // Marker sits at "you are here" in the start-to-retirement run.
-    const startAge = parseFloat(constellation.querySelector('.gct-tick-start')?.textContent || currentAge);
-    const denom = (retirementAge - startAge) || 1;
-    const markerPct = clamp01((currentAge - startAge) / denom) * 100;
+  // The bottom bar now represents the player's current net worth on the
+  // scale of their final (ambitious / highest-threshold) goal, so "where do
+  // I stand" is answered in money terms. The caption still answers "how much
+  // time is left" via the age-based years-to-retirement copy.
+  function paintTrail(constellation, currentAge, retirementAge, totalNetWorth) {
+    let finalThreshold = 0;
+    constellation.querySelectorAll('.goal-stamp[data-picked="true"]').forEach(s => {
+      const t = parseFloat(s.getAttribute('data-threshold')) || 0;
+      if (t > finalThreshold) finalThreshold = t;
+    });
+    const denom = finalThreshold || 1;
+
+    const startTick = constellation.querySelector('.gct-tick-start');
+    const endTick   = constellation.querySelector('.gct-tick-end');
+    if (startTick) startTick.textContent = '$0';
+    if (endTick)   endTick.textContent   = finalThreshold > 0 ? fmtGoalTarget(finalThreshold) : '—';
+
+    const markerPct = clamp01(totalNetWorth / denom) * 100;
     const marker = constellation.querySelector('.gct-marker');
     if (marker) marker.style.left = markerPct + '%';
 
-    // Refresh realize ticks (clear stale + replant).
+    // Refresh realize ticks (clear stale + replant) -- positioned on the
+    // net-worth axis by each realized goal's own threshold.
     constellation.querySelectorAll('.gct-realize').forEach(n => n.remove());
     constellation.querySelectorAll('.goal-stamp[data-realized="true"]').forEach(stamp => {
-      const ra = parseFloat(stamp.getAttribute('data-realized-age'));
-      if (!isNaN(ra)) {
+      const gt = parseFloat(stamp.getAttribute('data-threshold'));
+      if (!isNaN(gt) && gt > 0) {
         const tick = document.createElement('span');
         tick.className = 'gct-realize';
         tick.setAttribute('data-goal-id', stamp.getAttribute('data-goal-id') || '');
-        tick.style.left = (clamp01((ra - startAge) / denom) * 100) + '%';
+        tick.style.left = (clamp01(gt / denom) * 100) + '%';
         const trail = constellation.querySelector('.gc-trail');
         if (trail) trail.appendChild(tick);
       }
     });
 
+    const span = retirementAge - currentAge;
     const caption = constellation.querySelector('.gc-trail-caption');
     if (caption) {
       caption.innerHTML = span > 0
@@ -1349,13 +1392,39 @@ html, body {
     setTimeout(() => stamp.classList.remove('is-blooming'), 600);
   }
 
+  // Recompute "{n} of 3 life goals achieved. Your next stop is the {goal}."
+  // from live stamp state so it tracks real realization instead of the
+  // hardcoded HTML placeholder.
+  function updateOverviewSentence(constellation) {
+    const el = document.getElementById('overview-sentence');
+    if (!el) return;
+    const picked = Array.prototype.slice.call(
+      constellation.querySelectorAll('.goal-stamp[data-picked="true"]'));
+    if (picked.length === 0) return;
+    const realized = picked.filter(s => s.getAttribute('data-realized') === 'true');
+    const pending = picked
+      .filter(s => s.getAttribute('data-realized') !== 'true')
+      .sort((a, b) => (parseFloat(a.getAttribute('data-threshold')) || 0)
+                    - (parseFloat(b.getAttribute('data-threshold')) || 0));
+    let sentence = realized.length + ' of ' + picked.length + ' life goals achieved.';
+    if (pending.length > 0) {
+      const id = pending[0].getAttribute('data-goal-id') || '';
+      const name = GOAL_LABELS[id] || id;
+      if (name) sentence += ' Your next stop is the ' + name + '.';
+    } else {
+      sentence += ' Every goal realized — incredible run.';
+    }
+    el.textContent = sentence;
+  }
+
   function paintConstellation(constellation) {
     const totalEl  = document.getElementById('total-nw');
     const totalNW  = parseDollar(totalEl ? totalEl.textContent : '0');
     const currentAge    = parseFloat(constellation.getAttribute('data-current-age')) || 25;
     const retirementAge = parseFloat(constellation.getAttribute('data-retirement-age')) || 65;
     constellation.querySelectorAll('.goal-stamp').forEach(s => paintStamp(s, totalNW));
-    paintTrail(constellation, currentAge, retirementAge);
+    paintTrail(constellation, currentAge, retirementAge, totalNW);
+    updateOverviewSentence(constellation);
   }
 
   document.querySelectorAll('.goal-constellation').forEach(constellation => {
@@ -1512,11 +1581,7 @@ html, body {
         stamp.setAttribute('data-realized', g.realized ? 'true' : 'false');
         var nameEl = document.getElementById('goal-stamp-' + (i + 1) + '-name');
         if (nameEl && typeof g.goal_id === 'string') {
-          // The stamp emoji map looks up data-goal-id directly; the visible
-          // name is populated server-side via a separate label dictionary on
-          // the iframe side. For now, mirror the goal_id as the label so the
-          // panel works without a label catalog round-trip.
-          // (Bridge can override later by adding goal display_name to the DTO.)
+          nameEl.textContent = GOAL_LABELS[g.goal_id] || g.goal_id;
         }
       } else {
         stamp.setAttribute('data-picked', 'false');
