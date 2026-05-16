@@ -1388,6 +1388,11 @@ html, body {
 
   function bloomStamp(stamp) {
     if (!stamp || stamp.classList.contains('is-blooming')) return;
+    // One-shot per stamp: the profile bridge re-pushes data-realized on every
+    // tick, which re-fired this bloom forever (the "constant gold blink").
+    // Celebrate once, then the static [data-realized="true"] gold stays put.
+    if (stamp.getAttribute('data-bloomed') === '1') return;
+    stamp.setAttribute('data-bloomed', '1');
     stamp.classList.add('is-blooming');
     setTimeout(() => stamp.classList.remove('is-blooming'), 600);
   }
