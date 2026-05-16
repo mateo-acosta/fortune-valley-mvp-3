@@ -105,6 +105,14 @@ namespace FortuneValley.Managers.WebPanels
             // values immediately. The cascaded OnNetWorthChanged populates the
             // bridge cache before the first PushNow() runs.
             GameEvents.RaiseRequestNetWorthSnapshot();
+
+            // Same pull-pattern for the locked-in life goals. The tutorial's
+            // OnLifeGoalsSelected fired before this bridge ever subscribed
+            // (Subscribe runs on panel open, not scene load) and on a fresh
+            // game there is no save to catch up from. LifeGoalSelectionService
+            // re-emits OnLifeGoalsSelected synchronously here so HandleLifeGoalsSelected
+            // seeds _logic before the first PushNow() builds the DTO.
+            GameEvents.RaiseRequestLifeGoalsSnapshot();
         }
 
         protected override void Unsubscribe()

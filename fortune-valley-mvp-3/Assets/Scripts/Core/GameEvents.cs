@@ -795,6 +795,17 @@ namespace FortuneValley.Core
         public static void RaiseRequestNetWorthSnapshot()
             => OnRequestNetWorthSnapshot?.Invoke();
 
+        // Pull-pattern snapshot request for the locked-in life-goal selection.
+        // ProfileWebBridge subscribes to OnLifeGoalsSelected only while the
+        // panel is open, so the tutorial's one-shot selection event fires
+        // before the bridge is listening. Raising this on panel open asks
+        // LifeGoalSelectionService (the live source of truth, owned by
+        // GameManager) to re-emit OnLifeGoalsSelected with its current
+        // selection so the panel paints the real goals instead of placeholders.
+        public static event Action OnRequestLifeGoalsSnapshot;
+        public static void RaiseRequestLifeGoalsSnapshot()
+            => OnRequestLifeGoalsSnapshot?.Invoke();
+
         // Fired by LifespanController on each in-game year boundary. Parameter: new age.
         public static event Action<int> OnYearEnd;
         public static void RaiseYearEnd(int age)
@@ -1044,6 +1055,7 @@ namespace FortuneValley.Core
             OnGoalProgressChanged = null;
             OnAllGoalsRealized = null;
             OnRequestNetWorthSnapshot = null;
+            OnRequestLifeGoalsSnapshot = null;
             OnYearEnd = null;
             OnRetirementReached = null;
             OnGoalsEvaluated = null;

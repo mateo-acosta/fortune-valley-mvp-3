@@ -66,6 +66,14 @@ namespace FortuneValley.Core
         // Interface seam -- production mirrors _currencyManager; tests can inject a substitute via reflection.
         private ICurrencyService _currency;
 
+        // Fresh-game render guard. SeedStarterLots raises lot events inline
+        // during OnGameStart; swappers that handle OnGameStart after CityManager
+        // self-reset the just-seeded paint to "For Sale". This flag queues a
+        // one-frame-deferred re-emit (consumed in Update) so starters repaint
+        // after every swapper's reset has run, mirroring the proven save-restore
+        // Phase 2 (GameSaveBootstrapper._reconcileQueued).
+        private bool _reemitOwnedLotsQueued;
+
         // ═══════════════════════════════════════════════════════════════
         // PUBLIC ACCESSORS
         // ═══════════════════════════════════════════════════════════════
@@ -199,6 +207,13 @@ namespace FortuneValley.Core
             SaveRestoreCatchUp.Unsubscribe(HandleSaveStateLoaded, HandleSaveRestored);
         }
 
+        private void Update()
+        {
+            if (!_reemitOwnedLotsQueued) return;
+            _reemitOwnedLotsQueued = false;
+            RaiseAllOwnedLotEvents();
+        }
+
         /// <summary>
         /// Phase 2 of save restore. Re-emits per-lot ownership + tier events for
         /// every player- or rival-owned lot so visual subscribers (RestaurantVisualTierSwapper,
@@ -239,6 +254,9 @@ namespace FortuneValley.Core
             SeedStarterLots();
             // Notify UI components of lot count so they can initialize without querying CityManager directly
             GameEvents.RaiseCityInitialized(_allLots.Count);
+            // Defer a re-emit one frame so starters survive swapper self-resets
+            // that run later in this same OnGameStart dispatch.
+            _reemitOwnedLotsQueued = true;
         }
 
         private void SeedStarterLots()

@@ -105,6 +105,48 @@ namespace FortuneValley.Tests
         }
 
         [Test]
+        public void FreshGameStart_QueuesOneShotDeferredReemit_RepaintsStarterLots()
+        {
+            // Bug A contract: on a fresh game (server-restore gate false) the
+            // swappers self-reset to "For Sale" later in the same OnGameStart
+            // dispatch. CityManager must queue a one-frame-deferred re-emit so
+            // the seeded starters repaint and stick. We drive HandleGameStart +
+            // Update directly so the test does not depend on swapper ordering.
+            bool priorFlag = GameEvents.SaveStateRestoredFromServer;
+            GameEvents.SaveStateRestoredFromServer = false;
+            try
+            {
+                SetField(_city, "_playerStarterLot", _lots[0]); // player_starter
+                SetField(_city, "_rivalStarterLot", _lots[1]);  // rival_starter
+
+                Invoke(_city, "HandleGameStart"); // seeds starters + queues re-emit
+                ResetCounts();                    // drop the inline seed events
+
+                Invoke(_city, "Update");          // consumes the queue -> re-emit
+
+                Assert.AreEqual(2, _purchasedCalls,
+                    "deferred re-emit fires LotPurchased for both seeded starters");
+                Assert.AreEqual(2, _tierCalls,
+                    "deferred re-emit fires LotTierChanged for both seeded starters");
+                Assert.AreEqual(0, _ownershipCalls,
+                    "re-emit must not fire LotOwnershipChanged (same contract as Phase 2)");
+                Assert.AreEqual(1, _purchasedPerLot["player_starter"]);
+                Assert.AreEqual(1, _purchasedPerLot["rival_starter"]);
+                Assert.IsFalse(_purchasedPerLot.ContainsKey("player_bought"));
+
+                ResetCounts();
+                Invoke(_city, "Update"); // queue is one-shot -> nothing re-fires
+
+                Assert.AreEqual(0, _purchasedCalls, "deferred re-emit is one-shot");
+                Assert.AreEqual(0, _tierCalls, "deferred re-emit is one-shot");
+            }
+            finally
+            {
+                GameEvents.SaveStateRestoredFromServer = priorFlag;
+            }
+        }
+
+        [Test]
         public void RaiseAllOwnedLotEvents_NoOwnedLots_FiresNothing()
         {
             // Empty state (fresh boot before any seeding).
@@ -155,6 +197,12 @@ namespace FortuneValley.Tests
         {
             var f = obj.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
             f?.SetValue(obj, value);
+        }
+
+        private static void Invoke(object obj, string method)
+        {
+            var m = obj.GetType().GetMethod(method, BindingFlags.NonPublic | BindingFlags.Instance);
+            m?.Invoke(obj, null);
         }
     }
 }

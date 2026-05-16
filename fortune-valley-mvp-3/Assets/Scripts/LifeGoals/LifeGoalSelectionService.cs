@@ -22,6 +22,7 @@ namespace FortuneValley.Core
         public LifeGoalSelectionService()
         {
             GameEvents.OnLifeGoalsSelected += HandleLifeGoalsSelected;
+            GameEvents.OnRequestLifeGoalsSnapshot += HandleSnapshotRequest;
         }
 
         public bool HasSelection => _selection != null;
@@ -64,12 +65,25 @@ namespace FortuneValley.Core
         {
             if (_disposed) return;
             GameEvents.OnLifeGoalsSelected -= HandleLifeGoalsSelected;
+            GameEvents.OnRequestLifeGoalsSnapshot -= HandleSnapshotRequest;
             _disposed = true;
         }
 
         private void HandleLifeGoalsSelected(LifeGoalSelection selection)
         {
             _selection = selection;
+        }
+
+        /// <summary>
+        /// Pull-pattern responder. Late subscribers (ProfileWebBridge on panel
+        /// open) raise OnRequestLifeGoalsSnapshot; we re-emit OnLifeGoalsSelected
+        /// with the current selection so they paint the real goals. No-op when
+        /// the player has not picked yet (nothing to replay).
+        /// </summary>
+        private void HandleSnapshotRequest()
+        {
+            if (_selection == null) return;
+            GameEvents.RaiseLifeGoalsSelected(_selection);
         }
     }
 }
