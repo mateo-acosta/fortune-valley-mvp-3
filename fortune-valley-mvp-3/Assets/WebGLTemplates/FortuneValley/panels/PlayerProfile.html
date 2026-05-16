@@ -1362,20 +1362,10 @@ html, body {
     const marker = constellation.querySelector('.gct-marker');
     if (marker) marker.style.left = markerPct + '%';
 
-    // Refresh realize ticks (clear stale + replant) -- positioned on the
-    // net-worth axis by each realized goal's own threshold.
+    // Realized-goal position markers removed by request: the bar shows only
+    // the single "you are here" net-worth marker. Defensively clear any
+    // pre-existing ticks so none can linger from the static HTML.
     constellation.querySelectorAll('.gct-realize').forEach(n => n.remove());
-    constellation.querySelectorAll('.goal-stamp[data-realized="true"]').forEach(stamp => {
-      const gt = parseFloat(stamp.getAttribute('data-threshold'));
-      if (!isNaN(gt) && gt > 0) {
-        const tick = document.createElement('span');
-        tick.className = 'gct-realize';
-        tick.setAttribute('data-goal-id', stamp.getAttribute('data-goal-id') || '');
-        tick.style.left = (clamp01(gt / denom) * 100) + '%';
-        const trail = constellation.querySelector('.gc-trail');
-        if (trail) trail.appendChild(tick);
-      }
-    });
 
     const span = retirementAge - currentAge;
     const caption = constellation.querySelector('.gc-trail-caption');
