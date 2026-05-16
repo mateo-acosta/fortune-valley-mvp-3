@@ -300,7 +300,17 @@ namespace FortuneValley.Core
 
         private void HandleGameStart()
         {
-            if (GameEvents.SaveStateRestoredFromServer) return;
+            if (GameEvents.SaveStateRestoredFromServer)
+            {
+                // Returning player: the day/tick counters were (or will be)
+                // hydrated from the save, so do NOT ResetTime. But the clock
+                // must still run -- nothing else on the save-restore path
+                // calls StartTime(), and when GameSaveBootstrapper.Apply()
+                // runs before this OnGameStart dispatch the early-return left
+                // _isRunning false forever (frozen time/age, no income/invest).
+                StartTime();
+                return;
+            }
             ResetTime();
             StartTime();
         }
