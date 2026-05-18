@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f428ddc5f3fb4ed6bf9509bc328a5f0, type: 3}
   m_Name: RivalConfig
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.RivalConfig
-  _startingMoney: 3000
-  _incomePerTick: 25
+  _startingMoney: 1500
+  _incomePerTick: 8
   _purchaseInterval: 400
   _warningTicks: 30
   _purchaseBuffer: 1000

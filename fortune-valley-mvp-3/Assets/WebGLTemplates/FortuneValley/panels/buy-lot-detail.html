@@ -389,6 +389,18 @@ body:not(.embedded) .scrim { padding-top: 56px; } /* leave room for dev bar */
   margin-top: 2px;
 }
 
+/* Profit breakdown (cosmetic framing: revenue vs operating costs vs net) */
+#profit-breakdown {
+  display: flex; flex-direction: column; gap: 3px;
+  margin-top: 10px; padding-top: 8px;
+  border-top: var(--bd);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+#pb-revenue { color: var(--fg-2); }
+#pb-costs   { color: var(--loss); }
+#pb-net     { color: var(--gain); font-weight: 800; }
+
 /* Upgrade card */
 #upgrade-cost-hero {
   font-weight: 900; font-size: 28px;
@@ -648,6 +660,11 @@ body:not(.embedded) .scrim { padding-top: 56px; } /* leave room for dev bar */
             <div class="tier-seg t3" data-seg="3"></div>
           </div>
           <span id="tier-income">Earning +$6,300 per year at this tier</span>
+          <div id="profit-breakdown" hidden>
+            <span id="pb-revenue">Revenue: $0 per year</span>
+            <span id="pb-costs">Operating costs: -$0 per year</span>
+            <span id="pb-net">Net profit (to your bank): $0 per year</span>
+          </div>
         </div>
 
         <!-- Card 2: Upgrade (hidden at T3) -->
@@ -934,6 +951,24 @@ function renderOwnedVariant() {
   // Tier income. Bridge supplies the yearly figure pre-computed.
   const incNow = panelState.incomeAtCurrentTierPerYear || 0;
   $('#tier-income').textContent = 'Earning +' + fmtMoney(incNow) + ' per year at this tier';
+
+  // Cosmetic only: a made-up Revenue vs Operating costs split derived from
+  // the net income and a per-tier net margin (T1 10%, T2 13%, T3 15%).
+  // No system reads these; the money actually banked is the net profit,
+  // which equals the tier income above.
+  const NET_MARGIN_BY_TIER = { 1: 0.10, 2: 0.13, 3: 0.15 };
+  const breakdown = $('#profit-breakdown');
+  const margin = NET_MARGIN_BY_TIER[tier] || 0.13;
+  if (breakdown && incNow > 0 && margin > 0) {
+    const revenue = incNow / margin;
+    const opCosts = revenue - incNow;
+    $('#pb-revenue').textContent = 'Revenue: ' + fmtMoney(revenue) + ' per year';
+    $('#pb-costs').textContent = 'Operating costs: -' + fmtMoney(opCosts) + ' per year';
+    $('#pb-net').textContent = 'Net profit (to your bank): ' + fmtMoney(incNow) + ' per year';
+    breakdown.hidden = false;
+  } else if (breakdown) {
+    breakdown.hidden = true;
+  }
 
   // Upgrade card vs max-tier card. isMaxTier flag is authoritative.
   if (!panelState.isMaxTier && tier < 3) {
