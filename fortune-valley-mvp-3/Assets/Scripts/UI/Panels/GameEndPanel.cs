@@ -347,8 +347,10 @@ namespace FortuneValley.UI.Panels
 
         private void OnPlayAgainClicked()
         {
-            // Hide panel first, then let GameFlowController handle the restart flow
-            gameObject.SetActive(false);
+            // Hide via CanvasGroup so the GameObject stays active and never
+            // loses its game-over subscription, then start the restart flow.
+            // GameOverController reloads the scene on restart.
+            Hide();
             GameEvents.RaiseRestartRequested();
         }
 
