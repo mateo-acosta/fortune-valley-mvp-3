@@ -161,6 +161,14 @@ namespace FortuneValley.Managers
 
             if (correct)
             {
+                // Record a new personal best. GameEvents holds it (not a local
+                // field) so it survives the isolated-scene boundary and feeds
+                // both autosave and the Player Profile "Best quiz streak" card.
+                // Comparison only; never lowered here or on a wrong answer.
+                if (streak > GameEvents.BestQuizStreak)
+                {
+                    GameEvents.BestQuizStreak = streak;
+                }
                 GrantStreakReward();
             }
 

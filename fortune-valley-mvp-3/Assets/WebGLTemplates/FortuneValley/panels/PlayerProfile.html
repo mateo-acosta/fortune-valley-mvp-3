@@ -1153,14 +1153,14 @@ html, body {
             </div>
 
             <div class="lc-card">
-              <span class="kicker">Quiz streak</span>
+              <span class="kicker">Best quiz streak</span>
               <div class="streak-row">
                 <span class="flame">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2 C13 6 16 7 16 11 C16 13.5 14.2 15 12 15 C9.8 15 8 13.5 8 11 C8 9 9 8 9 8 C9 9.5 10 10 10.5 10 C10.5 8 11 5 12 2 Z M7.5 12 C7 13 6.5 14.2 6.5 15.5 C6.5 18.5 9 21 12 21 C15 21 17.5 18.5 17.5 15.5 C17.5 14 16.8 12.6 16 11.5 C16 14 14.4 16 12 16 C9.6 16 8 14 7.5 12 Z"/></svg>
                 </span>
                 <div class="big" style="font-size:32px;"><span id="activity-streak-num">7</span><small>in a row</small></div>
               </div>
-              <div style="font-size:13px; color: var(--fg-3); font-weight:700;">Correct answers from the active QuestionMaster session.</div>
+              <div style="font-size:13px; color: var(--fg-3); font-weight:700;">Your longest correct-answer streak this life. Holds at your record even after a wrong answer.</div>
             </div>
 
             <div class="lc-card">
@@ -1547,8 +1547,11 @@ html, body {
     if (typeof payload.restaurant_assets_value   === 'number') setText('nw-calc-property-v', '+' + fmtMoney(payload.restaurant_assets_value));
     if (typeof payload.loans_total               === 'number') setText('nw-calc-loans-v',    '−' + fmtMoney(payload.loans_total));
 
-    // Liquid net worth strip.
-    if (typeof payload.liquid_net_worth === 'number') setText('liquid-nw', fmtMoney(payload.liquid_net_worth));
+    // "Cash you can use right now" is spendable checking only. It must never
+    // read below the HUD Cash value, so it is sourced from cash_in_checking
+    // (not liquid_net_worth, which nets out full loan principal and can go
+    // negative even when checking is positive).
+    if (typeof payload.cash_in_checking === 'number') setText('liquid-nw', fmtMoney(payload.cash_in_checking));
 
     // Lifespan: age display + constellation trail metadata.
     var ageDisplay = document.getElementById('age-display');
@@ -1625,14 +1628,20 @@ html, body {
 
     // Activity tab: streak count + lifetime restaurant earnings, plus the
     // narrative sentence at the top of the tab.
-    var hasStreak = typeof payload.current_quiz_streak === 'number';
+    // Show the persisted best (longest) streak, not the live counter. Fall
+    // back to current_quiz_streak only for older payloads that predate the
+    // best_quiz_streak field so the card still renders something sensible.
+    var bestStreak = typeof payload.best_quiz_streak === 'number'
+      ? payload.best_quiz_streak
+      : (typeof payload.current_quiz_streak === 'number' ? payload.current_quiz_streak : null);
+    var hasStreak = bestStreak !== null;
     var hasLifetime = typeof payload.lifetime_restaurant_earnings === 'number';
     if (hasStreak) {
-      setText('activity-streak-num', String(payload.current_quiz_streak));
+      setText('activity-streak-num', String(bestStreak));
       setText('activity-streak-strong',
-        payload.current_quiz_streak === 1
-          ? '1-question streak'
-          : (payload.current_quiz_streak + '-question streak'));
+        bestStreak === 1
+          ? 'best 1-question streak'
+          : ('best ' + bestStreak + '-question streak'));
     }
     if (hasLifetime) {
       var lifetimeFmt = fmtMoney(payload.lifetime_restaurant_earnings);

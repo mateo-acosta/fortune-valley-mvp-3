@@ -373,6 +373,10 @@ namespace FortuneValley.Managers
             if (dto == null) return;
             if (_lifeGoalSelection != null) _lifeGoalSelection.HydrateFromDto(dto.selected_goals);
             if (_bankruptcyResetService != null) _bankruptcyResetService.HydrateFlag(dto.bankruptcy_flag);
+            // Restore the persisted best quiz streak. Hydrated here (Homebase)
+            // rather than in QuestionManager because the quiz scene is isolated
+            // and may not be loaded when the save is applied.
+            GameEvents.BestQuizStreak = dto.best_quiz_streak;
         }
 
         private void HandleRetirementReached()

@@ -18,6 +18,10 @@ namespace FortuneValley.Domain.Entities
         public float investment_balance;
         public int credit_score;
         public int budget_variance_streak;
+        // Longest correct-answer quiz streak reached this life. Persisted so the
+        // Player Profile "Best quiz streak" survives reloads. Requires the
+        // matching Rails column + strong-params permit to actually persist.
+        public int best_quiz_streak;
         public float tax_liability_ytd;
         public float monthly_income;
 

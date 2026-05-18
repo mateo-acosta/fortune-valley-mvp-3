@@ -41,6 +41,9 @@ namespace FortuneValley.Domain.Entities.WebPanels
 
         // Activity tab: surfaces from QuestionManager + RestaurantSystem.
         public int current_quiz_streak;
+        // Longest correct-answer streak this life (the "Best quiz streak" card).
+        // Sticky: holds at the record even after a wrong answer or reload.
+        public int best_quiz_streak;
         public float lifetime_restaurant_earnings;
 
         // Bankruptcy chip in the panel header. Sticky-true after the
