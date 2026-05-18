@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: Block 16
   _description: 
   _baseCost: 60000
-  _incomeBonus: 11
+  _incomeBonus: 15
   _tier2UpgradeCost: 12000
   _tier3UpgradeCost: 24000
   _rivalBuyoutMultiplier: 3

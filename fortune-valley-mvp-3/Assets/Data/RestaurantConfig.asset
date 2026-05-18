@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05e0bd7f721064d1fb35cf314633183a, type: 3}
   m_Name: RestaurantConfig
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.RestaurantConfig
-  _baseIncomePerTick: 8
+  _baseIncomePerTick: 16
   _maxLevel: 3
   _tierNames:
   - Level 1

@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: Block 11
   _description: 
   _baseCost: 45000
-  _incomeBonus: 8
+  _incomeBonus: 11
   _tier2UpgradeCost: 6000
   _tier3UpgradeCost: 30000
   _rivalBuyoutMultiplier: 3

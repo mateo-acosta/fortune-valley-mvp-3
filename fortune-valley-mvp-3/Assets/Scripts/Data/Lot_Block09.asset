@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: Block 9
   _description: Placeholder block 9 lot.
   _baseCost: 32000
-  _incomeBonus: 5
+  _incomeBonus: 7
   _tier2UpgradeCost: 4000
   _tier3UpgradeCost: 9000
   _rivalBuyoutMultiplier: 3
