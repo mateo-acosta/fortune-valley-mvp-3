@@ -905,6 +905,30 @@ namespace FortuneValley.Core
         // ClearAllSubscriptions (same contract as LastLoadedSaveDto).
         public static int BestQuizStreak { get; set; }
 
+        // Latched true by GameFlowController the instant it releases the
+        // deferred StartGame() at countdown end, whether release happened
+        // because the save round-trip flags flipped OR the bounded timeout
+        // elapsed. Monotonic: only ever set true within a session. Closes the
+        // cold-boot hydration race where a slow/failed GET let OnGameStart
+        // win the countdown and reset every system to fresh defaults.
+        // Intentionally NOT cleared in ClearAllSubscriptions (survives scene
+        // reloads, same contract as the other persistence statics).
+        // Intentionally NOT reset by ReplayTutorialService: a replay happens
+        // mid-session when this is already true from the original start, so
+        // the replayed countdown must release instantly; resetting it would
+        // force a needless full-timeout wait before the replay game begins.
+        public static bool StartBarrierReleased { get; set; }
+
+        // Single barrier predicate. Read by GameFlowController (start barrier:
+        // hold the destructive OnGameStart path until this is true OR the
+        // timeout elapses) and AutoSaveController (autosave barrier: never
+        // POST until this is true, so an un-hydrated state can never overwrite
+        // the real server row). The flags-only terms also cover bypass paths
+        // (_autoStart, a future direct RaiseGameStart) where GameFlowController
+        // never set the latch, keeping the autosave barrier a hard backstop.
+        public static bool SaveRoundTripResolved =>
+            SaveStateRestoredFromServer || HasServerConfirmedFreshUser || StartBarrierReleased;
+
         // ═══════════════════════════════════════════════════════════════
         // CLEANUP (call when exiting play mode or restarting)
         // ═══════════════════════════════════════════════════════════════

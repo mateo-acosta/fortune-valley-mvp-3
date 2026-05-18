@@ -59,6 +59,11 @@ namespace FortuneValley.Tests
                 .WithCheckingBalance(1234.56f)
                 .WithLots(new[] { "Lot_Block01" });
 
+            // The autosave barrier refuses to POST until the save round-trip
+            // has resolved. Simulate a returning player whose server save was
+            // restored so the write-through path under test still runs.
+            GameEvents.SaveStateRestoredFromServer = true;
+
             // Provide a build func via the OnStateBuildFuncProvided event
             // (mirrors the production wiring in GameManager).
             GameEvents.RaiseStateBuildFuncProvided(() => fixtureDto);
@@ -95,6 +100,39 @@ namespace FortuneValley.Tests
 
             Assert.IsNull(GameEvents.LastLoadedSaveDto);
             Assert.IsNull(bridge.LastStateJson);
+        }
+
+        [Test]
+        public void PerformSave_WithUnresolvedSaveRoundTrip_DoesNotPush()
+        {
+            var apiClient = SpawnComponent<APIClient>("APIClient");
+            var bridge = new RecordingBridge();
+            apiClient.SetBridge(bridge);
+
+            var autoSave = SpawnComponent<AutoSaveController>("AutoSaveController");
+            typeof(AutoSaveController)
+                .GetField("_apiClient", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(autoSave, apiClient);
+            InvokeOnEnable(autoSave);
+
+            // A perfectly valid build func is wired, but the save round-trip
+            // has NOT resolved (all three flags false via SaveTestsBase reset).
+            // The autosave barrier must block the POST so an un-hydrated state
+            // can never overwrite the real server row.
+            var fixtureDto = GamePlayerStateDTOFixtures.Default();
+            GameEvents.RaiseStateBuildFuncProvided(() => fixtureDto);
+
+            Assert.IsFalse(GameEvents.SaveRoundTripResolved,
+                "Precondition: round-trip must be unresolved for this test");
+
+            var performSave = typeof(AutoSaveController)
+                .GetMethod("PerformSave", BindingFlags.NonPublic | BindingFlags.Instance);
+            performSave.Invoke(autoSave, null);
+
+            Assert.IsNull(bridge.LastStateJson,
+                "Autosave barrier must suppress the POST until the round-trip resolves");
+            Assert.IsNull(GameEvents.LastLoadedSaveDto,
+                "Write-through cache must not be mutated while the barrier holds");
         }
     }
 }
