@@ -309,6 +309,17 @@ namespace FortuneValley.Core
         public static event Action OnReturnToTitleRequested;
 
         /// <summary>
+        /// Raised by GameOverController on a full "Play Again" restart, just
+        /// before ClearAllSubscriptions and the scene reload. The scene-wired
+        /// ReplayTutorialService (which holds the APIClient) subscribes and
+        /// wipes the server-side player state for the current game mode.
+        /// This is the architecture-clean way for the field-less, auto-spawned
+        /// GameOverController to trigger a server wipe without referencing
+        /// APIClient directly.
+        /// </summary>
+        public static event Action OnPlayerStateWipeRequested;
+
+        /// <summary>
         /// Fired by BootFlowRouter once it has computed which path a player
         /// should take after clicking Start. GameFlowController subscribes
         /// and routes: FirstTimeTutorial runs the tutorial controller,
@@ -480,6 +491,7 @@ namespace FortuneValley.Core
         public static void RaiseCountdownComplete() => OnCountdownComplete?.Invoke();
         public static void RaiseRestartRequested() => OnRestartRequested?.Invoke();
         public static void RaiseReturnToTitleRequested() => OnReturnToTitleRequested?.Invoke();
+        public static void RaisePlayerStateWipeRequested() => OnPlayerStateWipeRequested?.Invoke();
 
         // Intent event invokers
         public static void RaisePurchaseLotRequested(string lotId, int tick) => OnPurchaseLotRequested?.Invoke(lotId, tick);
@@ -976,6 +988,7 @@ namespace FortuneValley.Core
             OnCountdownComplete = null;
             OnRestartRequested = null;
             OnReturnToTitleRequested = null;
+            OnPlayerStateWipeRequested = null;
             OnBootFlowDecided = null;
             OnTutorialStartRequested = null;
             OnTutorialComplete = null;

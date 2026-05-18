@@ -166,6 +166,23 @@ namespace FortuneValley.UI.Panels
             var card = _summary.Scorecard;
             string body = BuildScorecardText(card);
 
+            // Completeness fallback: when none of the dedicated reflection
+            // labels are wired in the prefab (the current state), the panel
+            // would otherwise show only a bare goals list. Fold the narrative
+            // reflections -- which GameSummaryBuilder always populates -- into
+            // the (wired) scorecard label so the end screen reads as an
+            // intentional recap. Self-disables the instant any dedicated
+            // reflection label is wired: then those render it instead and
+            // this block is skipped.
+            if (HasNoDedicatedReflectionLabels())
+            {
+                string reflections = BuildReflectionsText(_summary);
+                if (!string.IsNullOrEmpty(reflections))
+                {
+                    body = reflections + "\n\n" + body;
+                }
+            }
+
             if (_scorecardText != null)
             {
                 _scorecardText.text = body;
@@ -307,6 +324,39 @@ namespace FortuneValley.UI.Panels
                 _opportunityCostText.text = _summary.OpportunityCostInsight ?? "";
             if (_whatIfText != null)
                 _whatIfText.text = _summary.WhatIfMessage ?? "";
+        }
+
+        // True when the prefab wires none of the four dedicated reflection
+        // labels. Reading [SerializeField] refs for null is an allowed check
+        // (no cross-layer call). When this is false the dedicated labels
+        // render the reflections and the scorecard fallback skips them.
+        private bool HasNoDedicatedReflectionLabels()
+        {
+            return _headlineText == null
+                && _investmentInsightText == null
+                && _opportunityCostText == null
+                && _whatIfText == null;
+        }
+
+        // Static helper mirrors the existing BuildScorecardText convention so
+        // the StringBuilder/loop-free composition stays out of instance
+        // MonoBehaviour methods. Reads only the locally-held GameSummary
+        // Domain entity (UI -> Domain, permitted).
+        private static string BuildReflectionsText(GameSummary summary)
+        {
+            var sb = new System.Text.StringBuilder();
+            AppendSection(sb, summary.Headline);
+            AppendSection(sb, summary.InvestmentInsight);
+            AppendSection(sb, summary.OpportunityCostInsight);
+            AppendSection(sb, summary.WhatIfMessage);
+            return sb.ToString();
+        }
+
+        private static void AppendSection(System.Text.StringBuilder sb, string value)
+        {
+            if (string.IsNullOrEmpty(value)) return;
+            if (sb.Length > 0) sb.Append("\n\n");
+            sb.Append(value);
         }
 
         private void HideStatistics()
