@@ -623,7 +623,7 @@ body:not(.embedded) .scrim { padding-top: 56px; } /* leave room for dev bar */
             <span class="multiplier-chip" id="cost-multiplier-chip">3x rival buyout</span>
           </div>
           <span class="hero-num" id="cost-hero">$124,000</span>
-          <span class="story" id="cost-story">Buying this lot lets you open a restaurant and earn $12,600 per year.</span>
+          <span class="story" id="cost-story">Buying this lot lets you open a restaurant and bank $12,600 per year in net profit (what is left after running costs).</span>
         </div>
 
         <!-- Card 2: Income -->
@@ -850,7 +850,7 @@ function renderUnownedVariant() {
     costKicker.textContent = 'Purchase Price';
     rivalRow.hidden = true;
     costHero.textContent = fmtMoney(cost);
-    costStory.textContent = "Buying this lot lets you open a restaurant and earn " + fmtMoney(panelState.incomePerYear) + " per year.";
+    costStory.textContent = "Buying this lot lets you open a restaurant and bank " + fmtMoney(panelState.incomePerYear) + " per year in net profit (what is left after running costs).";
   }
 
   // Income card. Bridge ships incomePerYear as the baseline (T2 equivalent)
