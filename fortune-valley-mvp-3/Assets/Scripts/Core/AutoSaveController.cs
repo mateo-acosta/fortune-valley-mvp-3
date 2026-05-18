@@ -97,6 +97,14 @@ namespace FortuneValley.Core
 
         private void PerformSave()
         {
+            // Autosave barrier (hard backstop). Never POST until the server
+            // save round-trip has resolved. On a cold boot an un-hydrated
+            // fresh-default state would otherwise overwrite the returning
+            // player's real server row before the slow GET restores it.
+            // Covers every save path: HandleTick, the debounced Update path,
+            // FlushFinalSave, OnGameEnd, OnGoalRealized, OnSoftBankruptcyReset.
+            if (!GameEvents.SaveRoundTripResolved) return;
+
             if (_apiClient == null || !_apiClient.CanPersist()) return;
             if (_buildStateFunc == null) return;
 

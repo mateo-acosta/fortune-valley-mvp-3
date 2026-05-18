@@ -26,6 +26,20 @@ namespace FortuneValley.Managers
         [Header("Game")]
         [SerializeField] private GameManager _gameManager;
 
+        [Header("Hydration Barrier")]
+        [Tooltip("Bounded dev safety valve. If the server save round-trip has " +
+                 "not resolved this many unscaled seconds after the countdown " +
+                 "ends, start the game anyway so a permanently-asleep backend " +
+                 "cannot soft-lock the game forever.")]
+        [SerializeField] private float _saveRoundTripTimeoutSeconds = 20f;
+
+        // Set true once the countdown has finished and we are holding StartGame
+        // until the save round-trip resolves (or the timeout elapses).
+        private bool _awaitingSaveRoundTrip;
+        // Time.unscaledTime deadline after which we release StartGame even if
+        // the round-trip never resolved.
+        private float _startDeadlineUnscaled;
+
         private void OnEnable()
         {
             GameEvents.OnBootFlowDecided += HandleBootFlowDecided;
@@ -138,6 +152,39 @@ namespace FortuneValley.Managers
 
         private void HandleCountdownComplete()
         {
+            // Start barrier: do NOT run the destructive OnGameStart path until
+            // the server save round-trip has resolved. On a cold dev boot the
+            // GET /api/game/state is slow or fails while the Fly machine and
+            // Postgres wake; without this wait OnGameStart wins the fixed
+            // countdown, every system resets to fresh defaults, and the
+            // autosave then overwrites the real server row permanently.
+            if (GameEvents.SaveRoundTripResolved)
+            {
+                ReleaseStart();
+                return;
+            }
+
+            _awaitingSaveRoundTrip = true;
+            _startDeadlineUnscaled = Time.unscaledTime + _saveRoundTripTimeoutSeconds;
+        }
+
+        private void Update()
+        {
+            if (!_awaitingSaveRoundTrip)
+                return;
+
+            if (GameEvents.SaveRoundTripResolved || Time.unscaledTime >= _startDeadlineUnscaled)
+            {
+                _awaitingSaveRoundTrip = false;
+                ReleaseStart();
+            }
+        }
+
+        private void ReleaseStart()
+        {
+            // Latch BEFORE StartGame so AutoSaveController sees the round-trip
+            // as resolved before the first OnTick can drive a save.
+            GameEvents.StartBarrierReleased = true;
             _gameManager?.StartGame();
         }
 

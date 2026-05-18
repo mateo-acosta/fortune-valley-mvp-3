@@ -12,8 +12,11 @@ namespace FortuneValley.Tests.Common
     /// between tests so test order does not affect outcomes.
     ///
     /// Statics that survive ClearAllSubscriptions in production
-    /// (LastLoadedSaveDto, HasSaveBeenRestored, SaveStateRestoredFromServer)
-    /// are explicitly reset here so each test starts from a clean slate.
+    /// (LastLoadedSaveDto, HasSaveBeenRestored, SaveStateRestoredFromServer,
+    /// HasServerConfirmedFreshUser, StartBarrierReleased) are explicitly reset
+    /// here so each test starts from a clean slate. The last two feed
+    /// GameEvents.SaveRoundTripResolved (the start/autosave barrier predicate),
+    /// so a leak would let one test's resolved state unblock another's.
     /// </summary>
     public abstract class SaveTestsBase
     {
@@ -27,6 +30,8 @@ namespace FortuneValley.Tests.Common
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
             GameEvents.SaveStateRestoredFromServer = false;
+            GameEvents.HasServerConfirmedFreshUser = false;
+            GameEvents.StartBarrierReleased = false;
             GameSaveBootstrapper.ResetExistingForTests();
 
             DestroyLeftoverBootstrappers();
@@ -50,6 +55,8 @@ namespace FortuneValley.Tests.Common
             GameEvents.LastLoadedSaveDto = null;
             GameEvents.HasSaveBeenRestored = false;
             GameEvents.SaveStateRestoredFromServer = false;
+            GameEvents.HasServerConfirmedFreshUser = false;
+            GameEvents.StartBarrierReleased = false;
             GameSaveBootstrapper.ResetExistingForTests();
         }
 
