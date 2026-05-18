@@ -53,6 +53,37 @@ namespace FortuneValley.Managers
 
         private void HandleRestart()
         {
+            // Full fresh restart. Ordering is load-bearing:
+            //
+            // 1. Request the server-side player-state wipe FIRST, while the
+            //    current scene's ReplayTutorialService is still alive to
+            //    handle the event (ClearAllSubscriptions below nulls the
+            //    event; the scene reload destroys that listener). This also
+            //    clears the local tutorial-completed flags so the reloaded
+            //    scene re-runs the intro tutorial and goal selection.
+            GameEvents.RaisePlayerStateWipeRequested();
+
+            // 2. Clear the persistence statics that intentionally survive
+            //    scene reloads, so the reloaded scene cold-boots as a genuine
+            //    new game: catch-up handlers see no cached DTO (fresh-default
+            //    seeding runs), and TimeManager.HandleGameStart runs
+            //    ResetTime() (clock/age back to day 0 / age 25) instead of
+            //    early-returning on the stale end-of-game state.
+            //
+            //    HasServerConfirmedFreshUser is set true because the wipe
+            //    just created a deterministic fresh-default server row, so
+            //    SaveRoundTripResolved stays true and the new game starts
+            //    immediately (no ~20s start-barrier timeout) while still NOT
+            //    reusing stale state. The first autosave then harmlessly
+            //    rewrites the already-wiped row, and the finished game's
+            //    full history is preserved server-side in the append-only
+            //    game_state_snapshots table.
+            GameEvents.LastLoadedSaveDto = null;
+            GameEvents.HasSaveBeenRestored = false;
+            GameEvents.SaveStateRestoredFromServer = false;
+            GameEvents.StartBarrierReleased = false;
+            GameEvents.HasServerConfirmedFreshUser = true;
+
             Time.timeScale = 1f;
             // Per the project's scene-isolation rule, wipe all event
             // subscriptions before unloading so the next scene's components
