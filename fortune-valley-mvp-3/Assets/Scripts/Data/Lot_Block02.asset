@@ -16,5 +16,7 @@ MonoBehaviour:
   _displayName: Block 2
   _description: "An upscale bistro in a trendy district \u2014 a solid mid-tier investment."
   _baseCost: 120000
-  _incomeBonus: 100
+  _incomeBonus: 28
+  _tier2UpgradeCost: 26000
+  _tier3UpgradeCost: 52000
   _gridPosition: {x: 0, y: 0}

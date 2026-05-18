@@ -15,9 +15,9 @@ MonoBehaviour:
   _lotId: lot_block10
   _displayName: Block 10
   _description: 
-  _baseCost: 60000
-  _incomeBonus: 42
-  _tier2UpgradeCost: 5000
-  _tier3UpgradeCost: 15000
+  _baseCost: 45000
+  _incomeBonus: 8
+  _tier2UpgradeCost: 6000
+  _tier3UpgradeCost: 30000
   _rivalBuyoutMultiplier: 3
   _gridPosition: {x: 0, y: 0}

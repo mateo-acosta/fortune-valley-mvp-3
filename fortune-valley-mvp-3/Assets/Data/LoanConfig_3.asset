@@ -16,9 +16,9 @@ MonoBehaviour:
   _displayName: Premium Loan
   _tagline: Lowest rate for excellent credit
   _apr: 0.04
-  _termYears: 15
+  _termYears: 30
   _downPaymentPercent: 0.1
   _loanImage: {fileID: 21300000, guid: 8767d6332dfdf47e2a0b3cb281ab450b, type: 3}
   _minimumCreditScore: 720
-  _maxDtiRatio: 0.5
+  _maxDtiRatio: 0.85
   _maxPrincipal: 500000

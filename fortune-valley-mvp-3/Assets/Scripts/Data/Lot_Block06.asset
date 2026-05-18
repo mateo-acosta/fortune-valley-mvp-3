@@ -15,6 +15,8 @@ MonoBehaviour:
   _lotId: lot_block06
   _displayName: Block 6
   _description: "A prestigious city hotel site \u2014 expensive, but the highest income in town."
-  _baseCost: 200000
-  _incomeBonus: 167
+  _baseCost: 120000
+  _incomeBonus: 28
+  _tier2UpgradeCost: 26000
+  _tier3UpgradeCost: 52000
   _gridPosition: {x: 0, y: 0}
