@@ -74,6 +74,10 @@ namespace FortuneValley.Core
                 current_age = LifespanConstants.AgeFromTick(currentTickCount),
                 liquid_net_worth = ComputeLiquidNetWorth(),
                 total_net_worth = ComputeLiquidNetWorth(),
+                // Persisted best quiz streak. Tracked on GameEvents because the
+                // quiz lives in an isolated Learning Level scene this builder
+                // never shares; QuestionManager writes it, this reads it.
+                best_quiz_streak = GameEvents.BestQuizStreak,
                 selected_goals = _lifeGoalSelection != null ? _lifeGoalSelection.BuildDtoEntries() : null
             };
 

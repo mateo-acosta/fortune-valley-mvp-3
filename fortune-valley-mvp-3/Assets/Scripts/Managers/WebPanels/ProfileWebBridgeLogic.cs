@@ -129,6 +129,9 @@ namespace FortuneValley.Managers.WebPanels
 
             // Activity tab: quiz streak + lifetime restaurant earnings.
             target.current_quiz_streak = _questionManager != null ? _questionManager.CurrentStreak : 0;
+            // Best streak is the cross-scene record on GameEvents (the panel
+            // shows this, not the live counter). Survives reloads.
+            target.best_quiz_streak = GameEvents.BestQuizStreak;
             target.lifetime_restaurant_earnings = _restaurantSystem != null ? _restaurantSystem.TotalEarned : 0f;
 
             // Header bankruptcy chip: cached sticky flag.

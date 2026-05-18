@@ -895,6 +895,16 @@ namespace FortuneValley.Core
         // Intentionally NOT cleared in ClearAllSubscriptions.
         public static bool HasServerConfirmedFreshUser { get; set; }
 
+        // Longest correct-answer quiz streak reached this life. QuestionManager
+        // bumps it (never lowers it) on a correct answer; GameStateDTOBuilder
+        // reads it for autosave; GameManager.HandleSaveStateLoaded hydrates it
+        // from the restored save. Lives here (not on QuestionManager) because
+        // the quiz runs in an isolated Learning Level scene while the save
+        // builder lives in Homebase, so the two never share a scene. Must
+        // survive scene reloads, so it is intentionally NOT cleared in
+        // ClearAllSubscriptions (same contract as LastLoadedSaveDto).
+        public static int BestQuizStreak { get; set; }
+
         // ═══════════════════════════════════════════════════════════════
         // CLEANUP (call when exiting play mode or restarting)
         // ═══════════════════════════════════════════════════════════════
