@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: Block 1
   _description: "A towering business complex in the financial district \u2014 the ultimate acquisition."
   _baseCost: 120000
-  _incomeBonus: 28
+  _incomeBonus: 38
   _tier2UpgradeCost: 26000
   _tier3UpgradeCost: 52000
   _gridPosition: {x: 0, y: 0}
