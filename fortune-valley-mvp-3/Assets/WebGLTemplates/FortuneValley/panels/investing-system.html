@@ -1090,7 +1090,11 @@ const mockState = {
     { id:"flutterbit",         name:"FlutterBit",            currentPrice: 12.80, changePercent:-3.1,  risk:"High",   category:"Crypto", industry:"Tech",       priceHistory: genHistory(15, -0.1, 3, 30, 47) },
     { id:"propchain",          name:"PropChain Token",       currentPrice: 24.10, changePercent:+1.8,  risk:"High",   category:"Crypto", industry:"RealEstate", priceHistory: genHistory(22, 0.2, 4, 30, 53) },
   ],
-  recentlyViewed: ["pixelbyte","crestline-energy","acme-foods","chunkcoin","sunburst-solar"]
+  // Starts empty. Populated only by addRecent() when the player actually
+  // opens a stock in Trade, then reconciled against the live catalog in
+  // FV.investing.update(). No mock seed (stale ids never resolved and made
+  // the rail show a single item).
+  recentlyViewed: []
 };
 
 /* ============================================================
@@ -1821,13 +1825,14 @@ function renderRecent() {
   const rail = $("#recent-rail");
   rail.innerHTML = mockState.recentlyViewed.map(id => {
     const a = findDef(id); if (!a) return "";
-    const base = a.priceHistory[0];
-    const delta = a.currentPrice - base;
+    // Color by the catalog day-change, not a "vs base" delta. The old
+    // base was priceHistory[0] (the oldest point of a rolling window),
+    // which moved every tick and was not a cost basis.
+    const change = typeof a.changePercent === "number" ? a.changePercent : 0;
     return `
       <div class="tile" data-id="${id}">
         <div class="nm">${a.name}</div>
-        <div class="pr ${colorClass(delta)}">${fmtMoney(a.currentPrice,false,2)}</div>
-        <div style="font-size:11px;font-weight:700;color:var(--fg-3);margin-top:2px">vs base ${fmtMoney(base,false,2)}</div>
+        <div class="pr ${colorClass(change)}">${fmtMoney(a.currentPrice,false,2)}</div>
       </div>
     `;
   }).join("");
@@ -1899,6 +1904,12 @@ window.FV.investing = {
       if (ui.tradeSelectedId && !mockState.available.find(a => a.id === ui.tradeSelectedId)) {
         ui.tradeSelectedId = mockState.available[0] ? mockState.available[0].id : null;
       }
+      // Drop recently-viewed ids that are not in the live catalog (stale
+      // ids from a previous build). Without this, renderRecent() silently
+      // dropped them and the rail showed only the one real stock the
+      // player had clicked this session.
+      mockState.recentlyViewed = mockState.recentlyViewed.filter(
+        id => mockState.available.some(a => a.id === id));
     }
 
     // Portfolio: holdings
