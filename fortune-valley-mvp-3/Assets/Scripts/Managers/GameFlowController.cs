@@ -1,6 +1,5 @@
 using UnityEngine;
 using FortuneValley.Core;
-using FortuneValley.Domain.Entities;
 using FortuneValley.Domain.Tutorial;
 
 namespace FortuneValley.Managers
@@ -24,10 +23,6 @@ namespace FortuneValley.Managers
         [SerializeField] private GameObject _topFrame;
         [SerializeField] private GameObject _bottomFrame;
 
-        [Header("Game End Panel")]
-        [Tooltip("The GameEndPanel root GameObject (activated on game over)")]
-        [SerializeField] private GameObject _gameEndPanelObject;
-
         [Header("Game")]
         [SerializeField] private GameManager _gameManager;
 
@@ -37,7 +32,6 @@ namespace FortuneValley.Managers
             GameEvents.OnCarouselComplete += HandleCarouselComplete;
             GameEvents.OnCountdownComplete += HandleCountdownComplete;
             GameEvents.OnTutorialComplete += HandleTutorialComplete;
-            GameEvents.OnGameEndWithSummary += HandleGameEnd;
             GameEvents.OnRestartRequested += RestartGame;
             GameEvents.OnReturnToTitleRequested += ShowTitleScreen;
         }
@@ -48,7 +42,6 @@ namespace FortuneValley.Managers
             GameEvents.OnCarouselComplete -= HandleCarouselComplete;
             GameEvents.OnCountdownComplete -= HandleCountdownComplete;
             GameEvents.OnTutorialComplete -= HandleTutorialComplete;
-            GameEvents.OnGameEndWithSummary -= HandleGameEnd;
             GameEvents.OnRestartRequested -= RestartGame;
             GameEvents.OnReturnToTitleRequested -= ShowTitleScreen;
         }
@@ -67,10 +60,10 @@ namespace FortuneValley.Managers
             GameEvents.RaiseSetHUDVisible(false);
             SetHUDVisible(false);
 
-            // Hide any carousel and game end panel
+            // Hide any carousel. The game-end panel hides itself via its
+            // own CanvasGroup and stays active in the scene, so it never
+            // misses the game-over event.
             GameEvents.RaiseHideRulesCarousel();
-            if (_gameEndPanelObject != null)
-                _gameEndPanelObject.SetActive(false);
 
             // Return game state to NotStarted (no OnGameStart fired)
             if (_gameManager != null)
@@ -148,23 +141,12 @@ namespace FortuneValley.Managers
             _gameManager?.StartGame();
         }
 
-        private void HandleGameEnd(bool isPlayerWin, GameSummary summary)
-        {
-            if (_gameEndPanelObject != null)
-            {
-                _gameEndPanelObject.SetActive(true);
-            }
-        }
-
         /// <summary>
         /// Restart the game, skipping title and rules. Countdown plays first.
         /// Called by the "Play Again" button on the game end screen.
         /// </summary>
         public void RestartGame()
         {
-            if (_gameEndPanelObject != null)
-                _gameEndPanelObject.SetActive(false);
-
             GameEvents.RaiseStartCountdown();
         }
 
