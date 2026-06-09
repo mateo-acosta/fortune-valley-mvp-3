@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FortuneValley.Core::FortuneValley.Core.TutorialStepSO
   _kind: 0
   _pose: 1
-  _dialogText: 'In this game, you will first select your life-long goals that wou
+  _dialogText: 'In this game, you will first select your life-long goals that you
     want to achieve before you retire, and then try and work your way to realizing
     them before age 65. Each goal is achieved by reaching a certain net worth. '
   _targetKind: 0
